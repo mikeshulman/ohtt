@@ -108,6 +108,8 @@ postulate
 
 -- Product types
 
+-- Would it work to derive these from Σ-types?
+
 postulate
   _×_ : Type → Type → Type
   _,_ : {A : Type} {B : Type} → A → B → A × B
@@ -270,6 +272,7 @@ postulate
     (a₀ a₀' : A δ₀) (a₂ : Id¹ A δ₂ a₀ a₁) (a₂' : Id¹ A δ₂ a₀' a₁) → Id¹ (λ a → Id¹ A δ₂ a a₁) (utr← A δ₂ a₁ a₀ a₀' a₂ a₂') a₂ a₂'
 
 postulate
+  -- TODO: Need to make this a retraction, not an equality
   IdU : (A B : Type) → Id Type A B ≡ 11Corr A B
 
 {-# REWRITE IdU #-}
@@ -281,5 +284,6 @@ postulate
         Λ λ x → Λ λ x' → utr⁰→ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift⁰→ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x')) ,
      (Λ λ a₁ → (tr⁰← a₁ ﹐ lift⁰← a₁) ,
         Λ λ x → Λ λ x' → utr⁰← a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift⁰← a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x'))))
+  -- apU
 
 {-# REWRITE reflU #-}
