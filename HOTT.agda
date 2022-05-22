@@ -300,3 +300,14 @@ postulate
 
 -- ...
 
+-- Symmetry
+
+postulate
+  sym : {A : Type} {a₀₀ a₀₁ : A} {a₀₂ : Id A a₀₀ a₀₁} {a₁₀ a₁₁ : A} {a₁₂ : Id A a₁₀ a₁₁} {a₂₀ : Id A a₀₀ a₁₀} {a₂₁ : Id A a₀₁ a₁₁} →
+    Id² (λ x y → Id A x y) a₀₂ a₁₂ a₂₀ a₂₁ → Id² (λ x y → Id A x y) a₂₀ a₂₁ a₀₂ a₁₂
+  sym-sym : {A : Type} {a₀₀ a₀₁ : A} {a₀₂ : Id A a₀₀ a₀₁} {a₁₀ a₁₁ : A} {a₁₂ : Id A a₁₀ a₁₁} {a₂₀ : Id A a₀₀ a₁₀} {a₂₁ : Id A a₀₁ a₁₁}
+    (a₂₂ : Id² (λ x y → Id A x y) a₀₂ a₁₂ a₂₀ a₂₁) →
+    -- I can't guess why Agda needs some implicit arguments supplied here, but these particular ones suffice but not fewer.
+    sym {a₁₁ = a₁₁} {a₂₀ = a₀₂} {a₂₁ = a₁₂} (sym {a₁₀ = a₁₀} {a₂₀ = a₂₀} {a₂₁ = a₂₁} a₂₂) ≡ a₂₂
+
+{-# REWRITE sym-sym #-}
