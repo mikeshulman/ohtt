@@ -268,19 +268,35 @@ postulate
   ulift← : {Δ : Type} (A : Δ → Type) {δ₀ δ₁ : Δ} (δ₂ : Id Δ δ₀ δ₁) (a₁ : A δ₁)
     (a₀ a₀' : A δ₀) (a₂ : Id¹ A δ₂ a₀ a₁) (a₂' : Id¹ A δ₂ a₀' a₁) → Id¹ (λ a → Id¹ A δ₂ a a₁) (utr← A δ₂ a₁ a₀ a₀' a₂ a₂') a₂ a₂'
 
-postulate
-  -- TODO: Need to make this a retraction, not an equality
-  IdU : (A B : Type) → Id Type A B ≡ 11Corr A B
+-- The universe
 
-{-# REWRITE IdU #-}
+infixl 30 _↑
+infixl 30 _↓
 
 postulate
-  reflU : (A : Type) → refl A ≡
+  _↑ : {A B : Type} → 11Corr A B → Id Type A B
+  _↓ : {A B : Type} → Id Type A B → 11Corr A B
+  ↑↓ : {A B : Type} (e : 11Corr A B) → e ↑ ↓ ≡ e
+
+{-# REWRITE ↑↓ #-}
+
+postulate
+  reflU : (A : Type) → (refl A) ↓ ≡
     ((Λ λ a₀ → Λ λ a₁ → Id A a₀ a₁) ﹐
     ((Λ λ a₀ → (tr⁰→ a₀ ﹐ lift⁰→ a₀) ,
         Λ λ x → Λ λ x' → utr⁰→ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift⁰→ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x')) ,
      (Λ λ a₁ → (tr⁰← a₁ ﹐ lift⁰← a₁) ,
         Λ λ x → Λ λ x' → utr⁰← a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift⁰← a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x'))))
-  -- apU
+  apU : {Δ : Type} (A : Δ → Type) {δ₀ δ₁ : Δ} (δ₂ : Id Δ δ₀ δ₁) → (ap A δ₂) ↓ ≡
+    ((Λ λ a₀ → Λ λ a₁ → Id¹ A δ₂ a₀ a₁) ﹐
+    ((Λ λ a₀ → (tr→ A δ₂ a₀ ﹐ lift→ A δ₂ a₀) ,
+        Λ λ x → Λ λ x' → utr→ A δ₂ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift→ A δ₂ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x')) ,
+      Λ λ a₁ → (tr← A δ₂ a₁ ﹐ lift← A δ₂ a₁) ,
+        Λ λ x → Λ λ x' → utr← A δ₂ a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift← A δ₂ a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x')))
 
-{-# REWRITE reflU #-}
+{-# REWRITE reflU apU #-}
+
+-- Computing 1-1 correspondences
+
+-- ...
+
