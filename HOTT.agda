@@ -1,14 +1,11 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --cumulativity #-}
 
 module HOTT where
 
 open import Agda.Primitive renaming (Set to Type; SSet to Typeᵉ) public
 
-data _≡_ {A : Type} (a : A) : A → Typeᵉ where
+data _≡_ {A : Typeᵉ} (a : A) : A → Typeᵉ where
   reflᵉ : a ≡ a
-
-data _≡ᵉ_ {A : Typeᵉ} (a : A) : A → Typeᵉ where
-  reflᵉᵉ : a ≡ᵉ a
 
 _•_ : {A : Type} {a b c : A} (p : a ≡ b) (q : b ≡ c) → a ≡ c
 reflᵉ • reflᵉ = reflᵉ
@@ -25,10 +22,10 @@ coe→ B reflᵉ u = u
 coe← : {A : Type} (B : A → Type) {x y : A} (p : x ≡ y) (v : B y) → B x
 coe← B reflᵉ v = v
 
-axk : {A : Type} {a : A} (p : a ≡ a) → p ≡ᵉ reflᵉ
-axk reflᵉ = reflᵉᵉ
+axk : {A : Type} {a : A} (p : a ≡ a) → p ≡ reflᵉ
+axk reflᵉ = reflᵉ
 
-uip : {A : Type} {a b : A} (p q : a ≡ b) → p ≡ᵉ q
+uip : {A : Type} {a b : A} (p q : a ≡ b) → p ≡ q
 uip p reflᵉ = axk p
 
 {-# BUILTIN REWRITE _≡_ #-}
