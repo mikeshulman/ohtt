@@ -113,6 +113,8 @@ postulate
   fst : {A : Type} {B : Type} → A × B → A
   snd : {A : Type} {B : Type} → A × B → B
 
+infix 30 _×_
+
 postulate
   βfst : (A : Type) (B : Type) (a : A) (b : B) → fst (a , b) ≡ a
   βsnd : (A : Type) (B : Type) (a : A) (b : B) → snd (a , b) ≡ b
@@ -120,8 +122,12 @@ postulate
   Id× : (A : Type) (B : Type) (u v : A × B) → Id (A × B) u v ≡ (Id A (fst u) (fst v) × Id B (snd u) (snd v))
   Id¹× : {Δ : Type} {δ δ' : Δ} (ρ : Id Δ δ δ') (A B : Δ → Type) (u : A δ × B δ) (v : A δ' × B δ') →
     Id¹ (λ x → A x × B x) ρ u v ≡ (Id¹ A ρ (fst u) (fst v) × Id¹ B ρ (snd u) (snd v))
+  Id²× : {Δ₀ : Type} {Δ₁ : Δ₀ → Type} (A B : (x : Δ₀) → Δ₁ x → Type)
+        {δ₀ δ₀' : Δ₀} (ρ₀ : Id Δ₀ δ₀ δ₀') {δ₁ : Δ₁ δ₀} {δ₁' : Δ₁ δ₀'} (ρ₁ : Id¹ Δ₁ ρ₀ δ₁ δ₁')
+        (u : A δ₀ δ₁ × B δ₀ δ₁) (v : A δ₀' δ₁' × B δ₀' δ₁') →
+        Id² (λ x y → A x y × B x y) ρ₀ ρ₁ u v ≡ Id² A ρ₀ ρ₁ (fst u) (fst v) × Id² B ρ₀ ρ₁ (snd u) (snd v)
 
-{-# REWRITE βfst βsnd η, Id× Id¹× #-}
+{-# REWRITE βfst βsnd η, Id× Id¹× Id²× #-}
 
 postulate
   refl, : (A : Type) (B : Type) (a : A) (b : B) → refl (a , b) ≡ (refl a , refl b)
