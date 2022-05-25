@@ -4,66 +4,367 @@ module HOTT where
 
 open import Agda.Primitive renaming (Set to Type; SSet to Typeᵉ) public
 
+------------------------------
+-- Strict equality
+------------------------------
+
 data _≡_ {A : Typeᵉ} (a : A) : A → Typeᵉ where
   reflᵉ : a ≡ a
 
-_•_ : {A : Type} {a b c : A} (p : a ≡ b) (q : b ≡ c) → a ≡ c
-reflᵉ • reflᵉ = reflᵉ
-
-rev : {A : Type} {a b : A} (p : a ≡ b) → b ≡ a
-rev reflᵉ = reflᵉ
-
-cong : {A B : Type} (f : A → B) {x y : A} (p : x ≡ y) → f x ≡ f y
-cong f reflᵉ = reflᵉ
-
-coe→ : {A : Type} (B : A → Type) {x y : A} (p : x ≡ y) (u : B x) → B y
-coe→ B reflᵉ u = u
-
-coe← : {A : Type} (B : A → Type) {x y : A} (p : x ≡ y) (v : B y) → B x
-coe← B reflᵉ v = v
-
-axk : {A : Type} {a : A} (p : a ≡ a) → p ≡ reflᵉ
-axk reflᵉ = reflᵉ
-
-uip : {A : Type} {a b : A} (p q : a ≡ b) → p ≡ q
-uip p reflᵉ = axk p
-
 {-# BUILTIN REWRITE _≡_ #-}
 
--- Identity types
+_•_ : {A : Typeᵉ} {a b c : A} (p : a ≡ b) (q : b ≡ c) → a ≡ c
+reflᵉ • reflᵉ = reflᵉ
+
+rev : {A : Typeᵉ} {a b : A} (p : a ≡ b) → b ≡ a
+rev reflᵉ = reflᵉ
+
+cong : {A B : Typeᵉ} (f : A → B) {x y : A} (p : x ≡ y) → f x ≡ f y
+cong f reflᵉ = reflᵉ
+
+-- {A : Type} (B : A → Type) {x y : A} (p : x ≡ y) (u : B x) → B y
+coe→ : {A B : Type} → (A ≡ B) → A → B
+coe→ reflᵉ u = u
+
+-- {A : Type} (B : A → Type) {x y : A} (p : x ≡ y) (v : B y) → B x
+-- Apparently we can't make A B : Typeᵉ here, even with cumulativity
+coe← : {A B : Type} → (A ≡ B) → B → A
+coe← reflᵉ v = v
+
+axiomK : {A : Typeᵉ} {a : A} {p : a ≡ a} → p ≡ reflᵉ
+axiomK {p = reflᵉ} = reflᵉ
+
+uip : {A : Typeᵉ} {a b : A} {p q : a ≡ b} → p ≡ q
+uip {q = reflᵉ} = axiomK
+
+------------------------------
+-- Telescope exo-types
+------------------------------
+
+record ⊤ᵉ : Typeᵉ where
+  constructor []
+
+open ⊤ᵉ
+
+-- We use two different kinds of sigma exotypes, one defined as a
+-- record, the other with postulates and rewrite rules.  Agda seems to
+-- have an easier time pattern-matching against records to fill in
+-- implicit arguments, so we use those where the user has to supply an
+-- element of a telescope, and give them the nicer unprimed syntax.
+-- But record fields don't work as heads of a rewrite rule, so for the
+-- bound arguments to Id and ap we use postulates instead.  The uglier
+-- primed syntax is mainly used internally; the user is expected to
+-- use pretty-printing MFun's to specify and view these bound
+-- arguments.
+
+record Σᵉ (A : Typeᵉ) (B : A → Type) : Typeᵉ where
+  constructor _,_
+  field
+    pop : A
+    top : B pop
+open Σᵉ
 
 postulate
-  Id : (A : Type) → A → A → Type
-  refl : {A : Type} (a : A) → Id A a a
-  Id¹ : {Δ : Type} (A : Δ → Type) {δ δ' : Δ} (ρ : Id Δ δ δ') → A δ → A δ' → Type
-  ap : {Δ : Type} {A : Δ → Type} (f : (u : Δ) → A u) {δ δ' : Δ} (ρ : Id Δ δ δ') → Id¹ A ρ (f δ) (f δ')
-  Id² : {Δ₀ : Type} {Δ₁ : Δ₀ → Type} (A : (x : Δ₀) → Δ₁ x → Type)
-        {δ₀ δ₀' : Δ₀} (ρ₀ : Id Δ₀ δ₀ δ₀') {δ₁ : Δ₁ δ₀} {δ₁' : Δ₁ δ₀'} (ρ₁ : Id¹ Δ₁ ρ₀ δ₁ δ₁') →
-        A δ₀ δ₁ → A δ₀' δ₁' → Type
-  ap² : {Δ₀ : Type} {Δ₁ : Δ₀ → Type} {A : (x : Δ₀) → Δ₁ x → Type} (f : (x : Δ₀) (y : Δ₁ x) → A x y)
-        {δ₀ δ₀' : Δ₀} (ρ₀ : Id Δ₀ δ₀ δ₀') {δ₁ : Δ₁ δ₀} {δ₁' : Δ₁ δ₀'} (ρ₁ : Id¹ Δ₁ ρ₀ δ₁ δ₁') →
-        Id² A ρ₀ ρ₁ (f δ₀ δ₁) (f δ₀' δ₁')
+  Σᵉ′ : (A : Typeᵉ) (B : A → Type) → Typeᵉ
+  _,′_ : {A : Typeᵉ} {B : A → Type} (a : A) (b : B a) → Σᵉ′ A B
+  pop′ : {A : Typeᵉ} {B : A → Type} (u : Σᵉ′ A B) → A
+  top′ : {A : Typeᵉ} {B : A → Type} (u : Σᵉ′ A B) → B (pop′ u)
+  βpop′ : {A : Typeᵉ} {B : A → Type} (a : A) (b : B a) → pop′ {B = B} (a ,′ b) ≡ a
+  η,′ : {A : Typeᵉ} {B : A → Type} (u : Σᵉ′ A B) → (pop′ u ,′ top′ u) ≡ u
+
+{-# REWRITE βpop′ η,′ #-}
 
 postulate
-  Id¹-const : {Δ : Type} (A : Type) {δ δ' : Δ} (ρ : Id Δ δ δ') (a₀ a₁ : A) → Id¹ (λ _ → A) ρ a₀ a₁ ≡ Id A a₀ a₁
-  Id¹-refl : {Δ : Type} (A : Δ → Type) (δ : Δ) (a₀ a₁ : A δ) → Id¹ A (refl δ) a₀ a₁ ≡ Id (A δ) a₀ a₁
+  βtop′ : {A : Typeᵉ} {B : A → Type} (a : A) (b : B a) → top′ {B = B} (a ,′ b) ≡ b
 
-{-# REWRITE Id¹-const Id¹-refl #-}
+{-# REWRITE βtop′ #-}
+
+eq-coe←′ : {A : Typeᵉ} {B : A → Type} {a₀ a₁ : A} (a₂ : a₀ ≡ a₁) {b₁ : B a₁} →
+  (a₀ ,′ coe← (cong B a₂) b₁) ≡ (a₁ ,′ b₁)
+eq-coe←′ reflᵉ = reflᵉ
+
+eq-coe← : {A : Typeᵉ} {B : A → Type} {a₀ a₁ : A} (a₂ : a₀ ≡ a₁) {b₁ : B a₁} →
+  (a₀ , coe← (cong B a₂) b₁) ≡ (a₁ , b₁)
+eq-coe← reflᵉ = reflᵉ
+
+-- A telescope is a list of dependent types.  From it we can extract
+-- an exotype of elements, using either kind of exo-sigma.
+
+data Tel : Typeᵉ
+
+-- The primed el is defined by mutual induction-recursion with the type Tel.
+el′ : Tel → Typeᵉ
+
+data Tel where
+  ε : Tel
+  _▸_ : (Δ : Tel) (A : el′ Δ → Type) → Tel
+
+infixl 30 _▸_ _,_
+
+el′ ε = ⊤ᵉ
+el′ (Δ ▸ A) = Σᵉ′ (el′ Δ) A
+
+-- The unprimed el is defined by mutual recursion with a coercion from unprimed to primed.
+el : Tel → Typeᵉ
+
+′ : {Δ : Tel} → el Δ → el′ Δ
+
+el ε = ⊤ᵉ
+el (Δ ▸ A) = Σᵉ (el Δ) (λ δ → A (′ δ))
+
+′ {ε} x = x
+′ {Δ ▸ A} (x , y) = (′ x ,′ y)
+
+-- The coercion back the other direction is defined by mutual
+-- recursion with a proof that it's a section.
+` : {Δ : Tel} → el′ Δ → el Δ
+
+′` : (Δ : Tel) (δ : el′ Δ) → ′ (` δ) ≡ δ
+
+` {ε} x = x
+` {Δ ▸ A} x = (` (pop′ x) , coe← (cong A (′` _ _)) (top′ x))
+
+′` ε δ = reflᵉ
+′` (Δ ▸ A) δ = eq-coe←′ (′` _ _)
+
+-- Finally, we can prove that it's a retraction too.
+`′ : (Δ : Tel) (δ : el Δ) → ` (′ δ) ≡ δ
+`′ ε δ = reflᵉ
+`′ (Δ ▸ A) δ = (cong (λ y → (` (′ (pop δ)) , coe← y (top δ))) uip • eq-coe← (`′ Δ (pop δ)) {b₁ = top δ})
+
+-- Since these are strict inverses on canonical forms (tuples), we can
+-- consistently rewrite along them.
+{-# REWRITE ′` `′ #-}
+
+------------------------------
+-- Variables
+------------------------------
+
+data Var : Tel → Type where
+  v0 : {Δ : Tel} (A : el′ Δ → Type) → Var (Δ ▸ A)
+  vs : {Δ : Tel} (A : el′ Δ → Type) → Var Δ → Var (Δ ▸ A)
+
+var-type : {Δ : Tel} (δ : el′ Δ) (v : Var Δ) → Type
+var-type δ (v0 {Δ} A) = A (pop′ δ)
+var-type δ (vs {Δ} A v) = var-type (pop′ δ) v
 
 postulate
-  Id²-const : {Δ₀ : Type} {Δ₁ : Δ₀ → Type} (A : Δ₀ → Type)
-              {δ₀ δ₀' : Δ₀} (ρ₀ : Id Δ₀ δ₀ δ₀') {δ₁ : Δ₁ δ₀} {δ₁' : Δ₁ δ₀'} (ρ₁ : Id¹ Δ₁ ρ₀ δ₁ δ₁') →
-              (a : A δ₀) (a' : A δ₀') → Id² {Δ₁ = Δ₁} (λ x y → A x) ρ₀ ρ₁ a a' ≡ Id¹ A ρ₀ a a'
-  Id²-refl : {Δ₀ : Type} {Δ₁ : Δ₀ → Type} (A : (x : Δ₀) → Δ₁ x → Type)
-             {δ₀ : Δ₀} {δ₁ δ₁' : Δ₁ δ₀} (ρ₁ : Id (Δ₁ δ₀) δ₁ δ₁') (a : A δ₀ δ₁) (a' : A δ₀ δ₁') →
-             Id² A (refl δ₀) ρ₁ a a' ≡ Id¹ (A δ₀) ρ₁ a a'
+  var : {Δ : Tel} (δ : el′ Δ) (v : Var Δ) → var-type δ v
+  -- var δ (v0 A) = top′ δ
+  var-v0 : {Δ : Tel} (A : el′ Δ → Type) (δ : el′ (Δ ▸ A)) → var δ (v0 A) ≡ top′ δ
+  -- var δ (vs A v) = var (pop′ δ) v
+  var-vs : {Δ : Tel} (A : el′ Δ → Type) (v : Var Δ) (δ : el′ (Δ ▸ A)) → var δ (vs A v) ≡ var (pop′ δ) v
 
-{-# REWRITE Id²-const Id²-refl #-}
+--------------------------------------------------
+-- Identity types and identity telescopes
+--------------------------------------------------
 
 postulate
-  ap-const : {Δ : Type} (A : Type) (f : A) {δ δ' : Δ} (ρ : Id Δ δ δ') → ap (λ _ → f) ρ ≡ refl f
-  ap-refl : {Δ : Type} {A : Δ → Type} (f : (u : Δ) → A u) (δ : Δ) → ap f (refl δ) ≡ refl (f δ)
-  ap-idmap : {Δ : Type} {δ δ' : Δ} (ρ : Id Δ δ δ') → ap (λ x → x) ρ ≡ ρ
+  -- Identity telescopes
+  ID : (Δ : Tel) (δ₀ δ₁ : el Δ) → Tel
+  -- Dependent/heterogeneous identity types
+  Id′ : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ : A (′ δ₀)) (a₁ : A (′ δ₁)) → Type
+  -- Identity telescopes are built up from (dependent) identity types
+  IDε : (δ₀ δ₁ : el ε) → ID ε δ₀ δ₁ ≡ ε
+  ID▸ : (Δ : Tel) (A : el′ Δ → Type) (δ₀ δ₁ : el (Δ ▸ A)) →
+    ID (Δ ▸ A) δ₀ δ₁ ≡ ID Δ (pop δ₀) (pop δ₁) ▸ λ δ₂ → Id′ A (` δ₂) (top δ₀) (top δ₁)
+  -- Telescope ap
+  ap : {Δ : Tel} {A : el′ Δ → Type} (f : (δ : el′ Δ) → A δ) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → Id′ A δ₂ (f (′ δ₀)) (f (′ δ₁))
+
+{-# REWRITE IDε ID▸ #-}
+
+-- Homogeneous identity types are heterogeneous over the empty telescope
+Id : (A : Type) → A → A → Type
+Id A a₀ a₁ = Id′ {Δ = ε} (λ _ → A) [] a₀ a₁
+
+-- Reflexivity is nullary ap
+refl : {A : Type} (a : A) → Id A a a
+refl a = ap {Δ = ε} (λ _ → a) []
+
+--------------------------------------------------
+-- Identity types of constant families
+--------------------------------------------------
+
+postulate
+  -- We assert this only for nonempty contexts.  Otherwise it would
+  -- cause endless loops, since its output would also be a valid input.
+  Id-const▸ : {Δ : Tel} (B : el′ Δ → Type) (A : Type) {δ₀ δ₁ : el (Δ ▸ B)} (δ₂ : el (ID (Δ ▸ B) δ₀ δ₁)) (a₀ a₁ : A) →
+    Id′ {Δ = Δ ▸ B} (λ _ → A) δ₂ a₀ a₁ ≡ Id A a₀ a₁
+
+{-# REWRITE Id-const▸  #-}
+
+-- Since it holds by definition for the empty telescope and we've
+-- asserted it for nonempty telescope, it is *true* for all telescope.
+Id-const : (Δ : Tel) (A : Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ a₁ : A) → Id′ {Δ = Δ} (λ _ → A) δ₂ a₀ a₁ ≡ Id A a₀ a₁
+Id-const ε A [] a₀ a₁ = reflᵉ
+Id-const (Δ ▸ B) A δ₂ a₀ a₁ = Id-const▸ B A δ₂ a₀ a₁
+
+-- However, I don't know how to make this hold definitionally for an
+-- arbitrary telescope that hasn't yet been broken into empty/nonempty
+-- cases.  This shouldn't be a problem for the *user*, who we intend
+-- to only be using *concrete* telescopes which will always be either
+-- empty or nonempty.  But it's an issue for stating further *general*
+-- rules that are parametrized over an arbitrary telescope.  I can
+-- think of two solutions:
+
+-- 1. State all such rules in separate empty and nonempty versions.
+-- This is more work, but will automatically behave correctly on all
+-- concrete telescopes.
+
+-- 2. State them by coercing along the general Id-const, above.  This
+-- is easier, but to make the coercion vanish on concrete nonempty
+-- telescopes we need the following rewrite rule.
+
+Id-const▸-reflᵉ : {Δ : Tel} (B : el′ Δ → Type) (A : Type) {δ₀ δ₁ : el (Δ ▸ B)} (δ₂ : el (ID (Δ ▸ B) δ₀ δ₁)) (a₀ a₁ : A) →
+  Id-const▸ B A δ₂ a₀ a₁ ≡ reflᵉ
+Id-const▸-reflᵉ B A δ₂ a₀ a₁ = axiomK
+
+{-# REWRITE Id-const▸-reflᵉ #-}
+
+postulate
+  -- Here we coerce along Id-const to deal with an arbitrary context Δ
+  -- (following approach (2) above).
+  ap-const : {Δ : Tel} {A : Type} (f : A) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
+    ap {Δ = Δ} (λ _ → f) δ₂ ≡ coe← (Id-const Δ A δ₂ f f) (refl f) 
+
+{-# REWRITE ap-const #-}
+
+--------------------------------------------------
+-- Identity types over reflexivity telescopes
+--------------------------------------------------
+
+-- We'd like to define reflexivity telescopes like this.  But that
+-- isn't well-typed until we have Id-REFL, below; while Id-REFL
+-- depends on REFL already existing.  So we instead make REFL a
+-- postulate and give it the correct behavior with rewrite rules.
+
+{-
+REFL : {Δ : Tel} (δ : el Δ) → el (ID Δ δ δ)
+REFL {ε} δ = []
+REFL {Δ ▸ A} δ = REFL (pop δ) , {!refl (top δ)!}
+-}
+
+postulate
+  REFL : {Δ : Tel} (δ : el Δ) → el (ID Δ δ δ)
+  -- As with Id-const, we assert this only for nonempty contexts, to
+  -- avoid endless loops, and follow it with similar boilerplate.
+  Id-REFL▸ : {Δ : Tel} (B : el′ Δ → Type) (A : el′ (Δ ▸ B) → Type) (δ : el (Δ ▸ B)) (a₀ a₁ : A (′ δ)) → Id′ A (REFL δ) a₀ a₁ ≡ Id (A (′ δ)) a₀ a₁
+
+{-# REWRITE Id-REFL▸ #-}
+
+Id-REFL : {Δ : Tel} (A : el′ Δ → Type) (δ : el Δ) (a₀ a₁ : A (′ δ)) → Id′ A (REFL δ) a₀ a₁ ≡ Id (A (′ δ)) a₀ a₁
+Id-REFL {Δ = ε} A δ a₀ a₁ = reflᵉ
+Id-REFL {Δ = Δ ▸ B} A δ a₀ a₁ = Id-REFL▸ B A δ a₀ a₁
+
+Id-REFL▸-reflᵉ : {Δ : Tel} (B : el′ Δ → Type) (A : el′ (Δ ▸ B) → Type) (δ : el (Δ ▸ B)) (a₀ a₁ : A (′ δ)) →
+  Id-REFL▸ B A δ a₀ a₁ ≡ reflᵉ
+Id-REFL▸-reflᵉ B A δ a₀ a₁ = axiomK
+
+{-# REWRITE Id-REFL▸-reflᵉ #-}
+
+postulate
+  REFLε : (δ : el ε) → REFL {ε} δ ≡ []
+  -- Here we have to coerce along Id-REFL to deal with an arbitrary
+  -- context Δ (following approach (2) above).
+  REFL▸ : (Δ : Tel) (A : el′ Δ → Type) (δ : el Δ) (a : A (′ δ)) →
+    REFL {Δ ▸ A} (δ , a) ≡ (REFL δ , coe← (Id-REFL A δ a a) (refl a))
+  -- We could alternatively state this rule separately in empty and
+  -- nonempty versions (following approach (1) above).
+  {-
+  REFLε▸ : (A : el ε → Type) (δ : el ε) (a : A δ) →
+    REFL {ε ▸ A} (δ , a) ≡ (REFL δ , refl a)
+  REFL▸▸ : (Δ : Tel) (B : el′ Δ → Type) (A : el′ (Δ ▸ B) → Type) (δ : el (Δ ▸ B)) (a : A (′ δ)) →
+    REFL {Δ ▸ B ▸ A} (δ , a) ≡ (REFL δ , refl a)
+  -}
+
+{-# REWRITE REFLε REFL▸ #-}
+
+postulate
+  ap-refl : {Δ : Tel} {A : el′ Δ → Type} (f : (δ : el′ Δ) → A δ) (δ : el Δ) →
+    ap f (REFL δ) ≡ coe← (Id-REFL A δ (f (′ δ)) (f (′ δ))) (refl (f (′ δ)))
+
+{-# REWRITE ap-refl #-}
+
+-- However, it's unclear how useful this will ever be, since REFL
+-- won't generally appear on its own, and can't be un-rewrited from
+-- its decomposition into refls.
+
+----------------------------------------
+-- Functoriality of Id and Ap
+----------------------------------------
+
+-- The functoriality of ap on "identities" means that it acts as a
+-- projection on variables.  However, these projections naturally lie
+-- in identity types dependent on shorter telescopes, requiring
+-- weakening to a longer telescope by functoriality.  Here's the
+-- relevant kind of weakening-functoriality.
+
+postulate
+  Id-pop : {Δ : Tel} (X : el′ Δ → Type) (A : el′ Δ → Type)
+    {δ₀ δ₁ : el (Δ ▸ X)} (δ₂ : el (ID (Δ ▸ X) δ₀ δ₁)) (a₀ : A (′ (pop δ₀))) (a₁ : A (′ (pop δ₁))) →
+    Id′ (λ w → A (pop′ w)) δ₂ a₀ a₁ ≡ Id′ A (pop δ₂) a₀ a₁
+
+-- Unfortunately, Id-pop is not a legal rewrite rule in either
+-- direction, so we have to coerce along it explicitly.
+
+postulate
+  ap-var : {Δ Θ : Tel} (A : el′ Θ → Type) (a : (w : el′ Θ) → A w)
+    (ap-a : (w₀ w₁ : el Θ) (w₂ : el (ID Θ w₀ w₁)) → Id′ A w₂ (a (′ w₀)) (a (′ w₁)))
+    (f : el′ Δ → el′ Θ) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
+    Id′ (λ w → A (f w)) δ₂ (a (f (′ δ₀))) (a (f (′ δ₁)))
+  -- ap-top is not actually getting rewritten along.  The problem
+  -- seems to be that when Θ is concrete, (el′ Θ) reduces to ⊤ᵉ or
+  -- Σᵉ′, which can't then be matched against (el′ Θ) for the rewrite
+  -- to fire.  See below, ap-top⊤ᵉ does work in the case when Θ = ε.
+  ap-top : {Δ Θ : Tel} (A : el′ Θ → Type) (f : el′ Δ → el′ (Θ ▸ A)) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
+    ap {Δ = Δ}                  -- Obviously a pattern binding Δ
+    {A = λ w → A (pop′ (f w))}  -- "Any other term": doesn't bind anything
+    (λ w → top′ {el′ Θ} {A} (f w))     -- top′ and el′ are postulates, and (f w) is a pattern binding f, and Θ, A are bound patterns
+    {δ₀} {δ₁} δ₂           -- All obviously patterns, binding δ₀ δ₁ δ₂
+    ≡
+    ap-var (λ w → A (pop′ w)) (λ w → top′ w) (λ w₀ w₁ w₂ → coe← (Id-pop A A w₂ (top w₀) (top w₁)) (top w₂)) f δ₂
+  ap-top⊤ᵉ : {Δ : Tel} (A : ⊤ᵉ → Type) (f : el′ Δ → Σᵉ′ ⊤ᵉ A) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
+    ap {Δ = Δ}                  -- Obviously a pattern binding Δ
+    {A = λ w → A (pop′ (f w))}  -- "Any other term": doesn't bind anything
+    (λ w → top′ {⊤ᵉ} {A} (f w))     -- top′ and el′ are postulates, and (f w) is a pattern binding f, and Θ, A are bound patterns
+    {δ₀} {δ₁} δ₂           -- All obviously patterns, binding δ₀ δ₁ δ₂
+    ≡
+    ap-var (λ w → A (pop′ w)) (λ w → top′ w) (λ w₀ w₁ w₂ → coe← (Id-pop A A w₂ (top w₀) (top w₁)) (top w₂)) f δ₂
+  -- Would it work to define a "function" (with rewrites) that
+  -- reassembles a nested Σᵉ′ back into a Tel?  Or, perhaps better,
+  -- could we define el′ as a postulate or recursive record rather
+  -- than as something that reduces?
+  ap-var-top : {Δ : Tel} (A : el′ Δ → Type) (a : (w : el′ Δ) → A w)
+    (ap-a : (w₀ w₁ : el Δ) (w₂ : el (ID Δ w₀ w₁)) → Id′ A w₂ (a (′ w₀)) (a (′ w₁)))
+    {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
+    ap-var A a ap-a (λ w → w) δ₂ ≡  ap-a δ₀ δ₁ δ₂
+  ap-var-pop : {Δ Θ : Tel} (X : el′ Θ → Type) (A : el′ Θ → Type) (a : (w : el′ Θ) → A w)
+    (ap-a : (w₀ w₁ : el Θ) (w₂ : el (ID Θ w₀ w₁)) → Id′ A w₂ (a (′ w₀)) (a (′ w₁)))
+    (f : el′ Δ → el′ (Θ ▸ X)) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
+    ap-var A a ap-a (λ w → pop′ (f w)) δ₂ ≡
+    ap-var (λ w → A (pop′ w)) (λ w → a (pop′ w))
+      (λ w₀ w₁ w₂ → coe← (Id-pop X A w₂ (a (′ (pop w₀))) (a (′ (pop w₁)))) (ap-a (pop w₀) (pop w₁) (pop w₂))) f δ₂
+
+{-# REWRITE ap-top ap-top⊤ᵉ ap-var-top ap-var-pop #-}
+
+postulate
+  A : el′ ε → Type
+  a₀ a₁ : A []
+  a₂ : Id (A []) a₀ a₁
+  B : el′ (ε ▸ A) → Type
+  b₀ : B ([] ,′ a₀)
+  b₁ : B ([] ,′ a₁)
+  b₂ : Id′ B ([] , a₂) b₀ b₁
+
+eg = ap {Δ = ε ▸ A} {A = λ w → A (pop′ w)} (λ w → (top′ w)) ([] , a₂)
+eg' = ap-top A (λ w → w) ([] , a₂)
+eg₂ = ap {Δ = ε ▸ A ▸ B} {A = λ w → B (pop′ w)} (λ w → (top′ w)) ([] , a₂ , b₂)
+eg₂' = ap-top B (λ w → w) ([] , a₂ , b₂)
+
+
+{-
+
+postulate
   -- This should really compute in the other direction.  (In actual HOTT, it is proven admissible over the structure of A.)  But Agda can't compute it in that direction.  In this direction, it sometimes rewrites, but not always, e.g. if the ap computes in a different way, so sometimes we may have to coerce along it explicitly.
   Id¹-ap : {Δ₁ Δ₂ : Type} (A : Δ₂ → Type) (f : Δ₁ → Δ₂) {δ δ' : Δ₁} (ρ : Id Δ₁ δ δ') (a : A (f δ)) (a' : A (f δ')) →
     Id¹ A (ap f ρ) a a' ≡ Id¹ (λ x → A (f x)) ρ a a'
@@ -317,3 +618,14 @@ postulate
     sym {a₁₁ = a₁₁} {a₂₀ = a₀₂} {a₂₁ = a₁₂} (sym {a₁₀ = a₁₀} {a₂₀ = a₂₀} {a₂₁ = a₂₁} a₂₂) ≡ a₂₂
 
 {-# REWRITE sym-sym #-}
+
+postulate
+  sym× : {A B : Type} {x₀₀ x₀₁ : A × B} {x₀₂ : Id (A × B) x₀₀ x₀₁} {x₁₀ x₁₁ : A × B} {x₁₂ : Id (A × B) x₁₀ x₁₁}
+    {x₂₀ : Id (A × B) x₀₀ x₁₀} {x₂₁ : Id (A × B) x₀₁ x₁₁}
+    (x₂₂ : Id² {Δ₀ = A × B} {Δ₁ = λ _ → A × B} (λ x y → Id (A × B) x y) {δ₀ = x₀₀} {δ₀' = x₀₁} x₀₂ {δ₁ = x₁₀} {δ₁' = x₁₁} x₁₂ x₂₀ x₂₁) →
+    sym {a₀₀ = x₀₀} {a₀₁ = x₀₁} {a₀₂ = x₀₂} {a₁₀ = x₁₀} {a₁₁ = x₁₁} {a₁₂ = x₁₂} {a₂₀ = x₂₀} {a₂₁ = x₂₁} x₂₂ ≡
+    {!fst x₂₂
+    --sym {A = A} {a₀₀ = fst x₀₀} {a₀₁ = fst x₀₁} {a₀₂ = fst x₀₂} {a₁₀ = fst x₁₀} {a₁₁ = fst x₁₁} {a₁₂ = fst x₁₂} {a₂₀ = fst x₂₀} {a₂₁ = fst x₂₁} (fst x₂₂)
+    --sym (snd x₂₂))!}
+-}
+
