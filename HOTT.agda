@@ -534,25 +534,20 @@ postulate
     -- but weakening (λ w → B w (f w)) doesn't give B.  We have to
     -- substitute into the side that has the general form of B.
     (ap f δ₂ ﹐  coe← (Id-AP (λ w → (w ∷′ f w)) δ₂ (λ w → B (pop′ w) (top′ w))) (ap g δ₂))
+  apπ₁ : {Δ : Tel} {A : el′ Δ → Type} {B : (w : el′ Δ) → A w → Type} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
+    (u : (x : el′ Δ) → Σ (A x) (B x)) → ap (λ x → π₁ (u x)) δ₂ ≡ π₁ (ap u δ₂)
 
-{-# REWRITE ap﹐ #-}
-
-{-
-
-postulate
-  apπ₁ : {Δ : Type} {δ δ' : Δ} (ρ : Id Δ δ δ') (A : Δ → Type) (B : (x : Δ) → A x → Type)
-           (u : (x : Δ) → Σ (A x) (B x)) → ap (λ x → π₁ (u x)) ρ ≡ π₁ (ap u ρ)
-
-{-# REWRITE apπ₁ #-}
+{-# REWRITE ap﹐ apπ₁ #-}
 
 -- Here we have to coerce explicitly, because matching for a rewrite would require rewriting some argument backwards.
 postulate
-  apπ₂ : {Δ : Type} {δ δ' : Δ} (ρ : Id Δ δ δ') (A : Δ → Type) (B : (x : Δ) → A x → Type)
-    (u : (x : Δ) → Σ (A x) (B x)) →
-    ap (λ x → π₂ (u x)) ρ ≡ coe→ (λ X → X) (Id²-ap¹-idmap B (λ x → π₁ (u x)) ρ (π₂ (u δ)) (π₂ (u δ'))) (π₂ (ap u ρ))
+  apπ₂ : {Δ : Tel} {A : el′ Δ → Type} {B : (w : el′ Δ) → A w → Type} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
+    (u : (x : el′ Δ) → Σ (A x) (B x)) →
+    ap (λ x → π₂ (u x)) δ₂ ≡ coe→ (Id-AP (λ w → w ∷′ π₁ (u w)) δ₂ (λ w → B (pop′ w) (top′ w))) (π₂ (ap u δ₂))
 
 {-# REWRITE apπ₂ #-}
 
+{-
 --------------------
 -- Π-types
 --------------------
