@@ -417,7 +417,7 @@ postulate
   -- rewrites, but not always, e.g. if the AP computes in a different
   -- way, so sometimes we may have to coerce along it explicitly.
   Id-AP : {Θ Δ : Tel} (f : el′ Θ → el′ Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
-    (A : el′ Δ → Type) {a₀ : A (f (′ t₀))} {a₁ : A (f (′ t₁))} →
+    (A : el′ Δ → Type) (a₀ : A (f (′ t₀))) (a₁ : A (f (′ t₁))) →
     Id′ A (AP f t₂) a₀ a₁ ≡ Id′ (λ w → A (f w)) t₂ a₀ a₁
 
 {-# REWRITE Id-AP #-}
@@ -501,8 +501,16 @@ postulate
     {δ₀ δ₁ : el (Δ ▸ X)} (δ₂ : el (ID (Δ ▸ X) δ₀ δ₁))
     (u₀ : A (′ (pop δ₀)) × B (′ (pop δ₀)) ) (u₁ : A (′ (pop δ₁)) × B  (′ (pop δ₁))) →
     Id-pop X (λ w → A w × B w) δ₂ u₀ u₁ ≡ cong2 _×_ (Id-pop X A δ₂ (fst u₀) (fst u₁)) (Id-pop X B δ₂ (snd u₀) (snd u₁))
+  Id-AP× : {Θ Δ : Tel} (f : el′ Θ → el′ Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
+    (A B : el′ Δ → Type) {u₀ : A (f (′ t₀)) × B (f (′ t₀))} {u₁ : A (f (′ t₁)) × B (f (′ t₁))} →
+    -- Agda would accept reflᵉ as the RHS here, because Id-AP is a
+    -- rewrite rule and it can fire here.  But I suspect that writing
+    -- it explicitly with cong2 is better because it makes sense even
+    -- if Id-AP can't be rewritten along in some case because we can't
+    -- un-rewrite to get AP.
+    Id-AP f t₂ (λ w → A w × B w) u₀ u₁ ≡ cong2 _×_ (Id-AP f t₂ A (fst u₀) (fst u₁)) (Id-AP f t₂ B (snd u₀) (snd u₁))
 
-{-# REWRITE Id-pop× #-}
+{-# REWRITE Id-pop× Id-AP× #-}
 
 --------------------
 -- Σ-types
@@ -541,7 +549,7 @@ postulate
     --- (Id-pop A (λ w → B w (f w)) (δ₂ ∷ ap f δ₂) (g (′ δ₀)) (g (′ δ₁)))
     -- but weakening (λ w → B w (f w)) doesn't give B.  We have to
     -- substitute into the side that has the general form of B.
-    (ap f δ₂ ﹐  coe← (Id-AP (λ w → (w ∷′ f w)) δ₂ (λ w → B (pop′ w) (top′ w))) (ap g δ₂))
+    (ap f δ₂ ﹐  coe← (Id-AP (λ w → (w ∷′ f w)) δ₂ (λ w → B (pop′ w) (top′ w)) _ _) (ap g δ₂))
   apπ₁ : {Δ : Tel} {A : el′ Δ → Type} {B : (w : el′ Δ) → A w → Type} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
     (u : (x : el′ Δ) → Σ (A x) (B x)) → ap (λ x → π₁ (u x)) δ₂ ≡ π₁ (ap u δ₂)
 
@@ -551,7 +559,7 @@ postulate
 postulate
   apπ₂ : {Δ : Tel} {A : el′ Δ → Type} {B : (w : el′ Δ) → A w → Type} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
     (u : (x : el′ Δ) → Σ (A x) (B x)) →
-    ap (λ x → π₂ (u x)) δ₂ ≡ coe→ (Id-AP (λ w → w ∷′ π₁ (u w)) δ₂ (λ w → B (pop′ w) (top′ w))) (π₂ (ap u δ₂))
+    ap (λ x → π₂ (u x)) δ₂ ≡ coe→ (Id-AP (λ w → w ∷′ π₁ (u w)) δ₂ (λ w → B (pop′ w) (top′ w)) _ _) (π₂ (ap u δ₂))
 
 {-# REWRITE apπ₂ #-}
 
@@ -565,7 +573,6 @@ postulate
     {! (Id-pop X A δ₂ (π₁ u₀) (π₁ u₁))  -- (Id-pop X B δ₂ (π₂ u₀) (π₂ u₁)) !}
 -}
 
-{-
 --------------------
 -- Π-types
 --------------------
@@ -584,34 +591,39 @@ postulate
 {-# REWRITE β∙ ηΛ #-}
 
 postulate
-  IdΠ : (A : Type) (B : A → Type) (f g : Π A B) →
-    Id (Π A B) f g ≡ Π A (λ a₀ → Π A (λ a₁ → Π (Id A a₀ a₁) (λ a₂ → Id¹ B a₂ (f ∙ a₀) (g ∙ a₁))))
+  IdΠ : {Δ : Tel} (A : el′ Δ → Type) (B : (w : el′ Δ) → A w → Type)
+    {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (f₀ : Π (A (′ δ₀)) (λ a → B (′ δ₀) a)) (f₁ : Π (A (′ δ₁)) (λ a → B (′ δ₁) a)) →
+    Id′ (λ w → Π (A w) (λ a → B w a)) δ₂ f₀ f₁ ≡
+      Π (A (′ δ₀)) (λ a₀ →
+      Π (A (′ δ₁)) (λ a₁ →
+      Π (Id′ A δ₂ a₀ a₁) (λ a₂ →
+        Id′ {Δ ▸ A} (λ w → B (pop′ w) (top′ w)) (δ₂ ∷ a₂) (f₀ ∙ a₀) (f₁ ∙ a₁))))
 
 {-# REWRITE IdΠ #-}
 
 postulate
-  Id¹Π : {Δ : Type} {δ δ' : Δ} (ρ : Id Δ δ δ') (A : Δ → Type) (B : (x : Δ) → A x → Type) (f : Π (A δ) (B δ)) (g : Π (A δ') (B δ')) →
-    Id¹ (λ x → Π (A x) (B x)) ρ f g ≡ Π (A δ) (λ a₀ → Π (A δ') (λ a₁ → Π (Id¹ A ρ a₀ a₁) (λ a₂ → Id² B ρ a₂ (f ∙ a₀) (g ∙ a₁))))
+  apΛ : {Δ : Tel} (A : el′ Δ → Type) (B : (w : el′ Δ) → A w → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
+    (f : (x : el′ Δ) (a : A x) → B x a) →
+    ap (λ x → Λ (f x)) δ₂ ≡ Λ λ a₀ → Λ λ a₁ → Λ λ a₂ → ap (λ w → f (pop′ w) (top′ w)) (δ₂ ∷ a₂) 
+  ap∙ :  {Δ : Tel} (A : el′ Δ → Type) (B : (w : el′ Δ) → A w → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
+    (f : (x : el′ Δ) → Π (A x) (B x)) (a : (x : el′ Δ) → A x) →
+    ap (λ x → f x ∙ a x) δ₂ ≡
+    coe→ (Id-AP (λ w → (w ∷′ a w)) δ₂ (λ w → B (pop′ w) (top′ w)) _ _) (ap f δ₂ ∙ (a (′ δ₀)) ∙ (a (′ δ₁)) ∙ (ap a δ₂)) 
 
-{-# REWRITE Id¹Π #-}
+{-# REWRITE apΛ ap∙ #-}
 
-postulate
-  reflΛ : {A : Type} {B : A → Type} (f : (x : A) → B x) → refl (Λ f) ≡ Λ (λ a₀ → Λ (λ a₁ → Λ (λ a₂ → ap f a₂)))
-  refl∙ : {A : Type} {B : A → Type} (f : Π A B) (a : A) → refl (f ∙ a) ≡ refl f ∙ a ∙ a ∙ refl a
-  apΛ : {Δ : Type} {δ δ' : Δ} (ρ : Id Δ δ δ') (A : Δ → Type) (B : (x : Δ) → A x → Type) (f : (x : Δ) (a : A x) → B x a) →
-    ap (λ x → Λ (f x)) ρ ≡ Λ λ a₀ → Λ λ a₁ → Λ λ a₂ → ap² f ρ a₂
-  ap∙ : {Δ : Type} {δ δ' : Δ} (ρ : Id Δ δ δ') (A : Δ → Type) (B : (x : Δ) → A x → Type)
-    (f : (x : Δ) → Π (A x) (B x)) (a : (x : Δ) → A x) →
-    ap (λ x → f x ∙ a x) ρ ≡ ap f ρ ∙ (a δ) ∙ (a δ') ∙ (ap a ρ)
+-- Id-popΠ will have the same problem as Id-popΣ.
 
-{-# REWRITE reflΛ refl∙ apΛ ap∙ #-}
-
+------------------------------
 -- Function types
+------------------------------
 
 _⟶_ : Type → Type → Type
 A ⟶ B = Π A (λ _ → B)
 
 infixr 20 _⟶_
+
+{-
 
 -- Contractibility and 1-1 correspondences
 
