@@ -46,6 +46,12 @@ axiomK {p = reflᵉ} = reflᵉ
 uip : {A : Typeᵉ} {a b : A} {p q : a ≡ b} → p ≡ q
 uip {q = reflᵉ} = axiomK
 
+postulate
+  funext : {A : Typeᵉ} {B : A → Typeᵉ} {f g : (x : A) → B x} (p : (x : A) → f x ≡ g x) → f ≡ g
+  funext-reflᵉ : {A : Typeᵉ} {B : A → Typeᵉ} {f : (x : A) → B x} → funext {f = f} {g = f} (λ x → reflᵉ) ≡ reflᵉ
+
+{-# REWRITE funext-reflᵉ #-}
+
 ------------------------------
 -- Telescope exo-types
 ------------------------------
@@ -496,6 +502,8 @@ postulate
     (u₀ : A (′ (pop δ₀)) × B (′ (pop δ₀)) ) (u₁ : A (′ (pop δ₁)) × B  (′ (pop δ₁))) →
     Id-pop X (λ w → A w × B w) δ₂ u₀ u₁ ≡ cong2 _×_ (Id-pop X A δ₂ (fst u₀) (fst u₁)) (Id-pop X B δ₂ (snd u₀) (snd u₁))
 
+{-# REWRITE Id-pop× #-}
+
 --------------------
 -- Σ-types
 --------------------
@@ -546,6 +554,16 @@ postulate
     ap (λ x → π₂ (u x)) δ₂ ≡ coe→ (Id-AP (λ w → w ∷′ π₁ (u w)) δ₂ (λ w → B (pop′ w) (top′ w))) (π₂ (ap u δ₂))
 
 {-# REWRITE apπ₂ #-}
+
+{-
+postulate
+  Id-popΣ : {Δ : Tel} (X : el′ Δ → Type) (A : el′ Δ → Type) (B : (w : el′ Δ) → A w → Type)
+    {δ₀ δ₁ : el (Δ ▸ X)} (δ₂ : el (ID (Δ ▸ X) δ₀ δ₁))
+    (u₀ : Σ (A (′ (pop δ₀))) (λ a → B (′ (pop δ₀)) a)) (u₁ : Σ (A (′ (pop δ₁))) (λ a → B (′ (pop δ₁)) a)) →
+    Id-pop X (λ w → Σ (A w) (B w)) δ₂ u₀ u₁ ≡
+    -- Hmm... In addition to a dependent cong2, we need Id-pop for weakening B in the middle of the context.
+    {! (Id-pop X A δ₂ (π₁ u₀) (π₁ u₁))  -- (Id-pop X B δ₂ (π₂ u₀) (π₂ u₁)) !}
+-}
 
 {-
 --------------------
