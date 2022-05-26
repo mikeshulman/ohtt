@@ -22,9 +22,15 @@ rev reflᵉ = reflᵉ
 cong : {A B : Typeᵉ} (f : A → B) {x y : A} (p : x ≡ y) → f x ≡ f y
 cong f reflᵉ = reflᵉ
 
+cong2 : {A B C : Typeᵉ} (f : A → B → C) {x y : A} (p : x ≡ y) {u v : B} (q : u ≡ v) → f x u ≡ f y v
+cong2 f reflᵉ reflᵉ = reflᵉ
+
 -- {A : Type} (B : A → Type) {x y : A} (p : x ≡ y) (u : B x) → B y
 coe→ : {A B : Type} → (A ≡ B) → A → B
 coe→ reflᵉ u = u
+
+≡coe→ : {A : Type} {e : A ≡ A} {a : A} → coe→ e a ≡ a
+≡coe→ {e = reflᵉ} = reflᵉ
 
 -- {A : Type} (B : A → Type) {x y : A} (p : x ≡ y) (v : B y) → B x
 -- Apparently we can't make A B : Typeᵉ here, even with cumulativity
@@ -36,6 +42,9 @@ axiomK {p = reflᵉ} = reflᵉ
 
 uip : {A : Typeᵉ} {a b : A} {p q : a ≡ b} → p ≡ q
 uip {q = reflᵉ} = axiomK
+
+postulate
+  funext : {A : Typeᵉ} {B : A → Typeᵉ} {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → (f ≡ g)
 
 ------------------------------
 -- Telescope exo-types
@@ -64,36 +73,16 @@ record Σᵉ (A : Typeᵉ) (B : A → Type) : Typeᵉ where
     top : B pop
 open Σᵉ
 
-postulate
-  Σᵉ′ : (A : Typeᵉ) (B : A → Type) → Typeᵉ
-  _,′_ : {A : Typeᵉ} {B : A → Type} (a : A) (b : B a) → Σᵉ′ A B
-  pop′ : {A : Typeᵉ} {B : A → Type} (u : Σᵉ′ A B) → A
-  top′ : {A : Typeᵉ} {B : A → Type} (u : Σᵉ′ A B) → B (pop′ u)
-  βpop′ : {A : Typeᵉ} {B : A → Type} (a : A) (b : B a) → pop′ {B = B} (a ,′ b) ≡ a
-  η,′ : {A : Typeᵉ} {B : A → Type} (u : Σᵉ′ A B) → (pop′ u ,′ top′ u) ≡ u
-
-{-# REWRITE βpop′ η,′ #-}
-
-postulate
-  βtop′ : {A : Typeᵉ} {B : A → Type} (a : A) (b : B a) → top′ {B = B} (a ,′ b) ≡ b
-
-{-# REWRITE βtop′ #-}
-
-eq-coe←′ : {A : Typeᵉ} {B : A → Type} {a₀ a₁ : A} (a₂ : a₀ ≡ a₁) {b₁ : B a₁} →
-  (a₀ ,′ coe← (cong B a₂) b₁) ≡ (a₁ ,′ b₁)
-eq-coe←′ reflᵉ = reflᵉ
-
-eq-coe← : {A : Typeᵉ} {B : A → Type} {a₀ a₁ : A} (a₂ : a₀ ≡ a₁) {b₁ : B a₁} →
-  (a₀ , coe← (cong B a₂) b₁) ≡ (a₁ , b₁)
-eq-coe← reflᵉ = reflᵉ
-
 -- A telescope is a list of dependent types.  From it we can extract
 -- an exotype of elements, using either kind of exo-sigma.
 
 data Tel : Typeᵉ
 
--- The primed el is defined by mutual induction-recursion with the type Tel.
-el′ : Tel → Typeᵉ
+-- The primed el is "defined" by mutual induction-recursion with the
+-- type Tel, but as postulates rather than reducing to a more basic
+-- notion of Σ-type.
+postulate
+  el′ : Tel → Typeᵉ
 
 data Tel where
   ε : Tel
@@ -101,8 +90,25 @@ data Tel where
 
 infixl 30 _▸_ _,_
 
-el′ ε = ⊤ᵉ
-el′ (Δ ▸ A) = Σᵉ′ (el′ Δ) A
+postulate
+  []′ : el′ ε
+  _,′_ : {Δ : Tel} {B : el′ Δ → Type} (a : el′ Δ) (b : B a) → el′ (Δ ▸ B)
+  pop′ : {Δ : Tel} {B : el′ Δ → Type} (u : el′ (Δ ▸ B)) → el′ Δ
+  top′ : {Δ : Tel} {B : el′ Δ → Type} (u : el′ (Δ ▸ B)) → B (pop′ u)
+  βpop′ : {Δ : Tel} {B : el′ Δ → Type} (a : el′ Δ) (b : B a) → pop′ {B = B} (a ,′ b) ≡ a
+  η,′ : {Δ : Tel} {B : el′ Δ → Type} (u : el′ (Δ ▸ B)) → (pop′ u ,′ top′ u) ≡ u
+  η[]′ : {x : el′ ε} → []′ ≡ x  -- Can't be a rewrite
+
+{-# REWRITE βpop′ η,′ #-}
+
+postulate
+  βtop′ : {Δ : Tel} {B : el′ Δ → Type} (a : el′ Δ) (b : B a) → top′ {B = B} (a ,′ b) ≡ b
+
+{-# REWRITE βtop′ #-}
+
+coe←el′ : {Δ : Tel} {B : el′ Δ → Type} {a₀ a₁ : el′ Δ} (a₂ : a₀ ≡ a₁) {b₁ : B a₁} →
+  (a₀ ,′ coe← (cong B a₂) b₁) ≡ (a₁ ,′ b₁)
+coe←el′ reflᵉ = reflᵉ
 
 -- The unprimed el is defined by mutual recursion with a coercion from unprimed to primed.
 el : Tel → Typeᵉ
@@ -112,25 +118,33 @@ el : Tel → Typeᵉ
 el ε = ⊤ᵉ
 el (Δ ▸ A) = Σᵉ (el Δ) (λ δ → A (′ δ))
 
-′ {ε} x = x
+′ {ε} x = []′
 ′ {Δ ▸ A} (x , y) = (′ x ,′ y)
+
+coe←el : {Δ : Tel} {B : el′ Δ → Type} {a₀ a₁ : el Δ} (a₂ : a₀ ≡ a₁) {b₁ : B (′ a₁)} →
+  (a₀ , coe← (cong (λ x → B (′ x)) a₂) b₁) ≡ (a₁ , b₁)
+coe←el reflᵉ = reflᵉ
 
 -- The coercion back the other direction is defined by mutual
 -- recursion with a proof that it's a section.
 ` : {Δ : Tel} → el′ Δ → el Δ
 
-′` : (Δ : Tel) (δ : el′ Δ) → ′ (` δ) ≡ δ
+′` : {Δ : Tel} {δ : el′ Δ} → ′ (` δ) ≡ δ
 
-` {ε} x = x
-` {Δ ▸ A} x = (` (pop′ x) , coe← (cong A (′` _ _)) (top′ x))
+` {ε} x = []
+` {Δ ▸ A} x = (` (pop′ x) , coe← (cong A ′`) (top′ x))
 
-′` ε δ = reflᵉ
-′` (Δ ▸ A) δ = eq-coe←′ (′` _ _)
+-- If this could be reflᵉ on ε, then by induction it would be reflᵉ on
+-- any concrete telescope.  TODO: I really want that: otherwise it
+-- seems like it will be practically impossible to actually use.  See
+-- the hole in eg₂ below.
+′` {ε} = η[]′
+′` {Δ ▸ A} = coe←el′ ′`
 
 -- Finally, we can prove that it's a retraction too.
-`′ : (Δ : Tel) (δ : el Δ) → ` (′ δ) ≡ δ
-`′ ε δ = reflᵉ
-`′ (Δ ▸ A) δ = (cong (λ y → (` (′ (pop δ)) , coe← y (top δ))) uip • eq-coe← (`′ Δ (pop δ)) {b₁ = top δ})
+`′ : {Δ : Tel} {δ : el Δ} → ` (′ δ) ≡ δ
+`′ {ε} = reflᵉ
+`′ {Δ ▸ A} {δ} = cong (λ y → (` (′ (pop δ)) , coe← y (top δ))) uip • coe←el {B = A} `′
 
 -- Since these are strict inverses on canonical forms (tuples), we can
 -- consistently rewrite along them.
@@ -233,10 +247,7 @@ postulate
 -- Identity types over reflexivity telescopes
 --------------------------------------------------
 
--- We'd like to define reflexivity telescopes like this.  But that
--- isn't well-typed until we have Id-REFL, below; while Id-REFL
--- depends on REFL already existing.  So we instead make REFL a
--- postulate and give it the correct behavior with rewrite rules.
+-- We'd like to define reflexivity telescopes recursively, like this:
 
 {-
 REFL : {Δ : Tel} (δ : el Δ) → el (ID Δ δ δ)
@@ -244,16 +255,24 @@ REFL {ε} δ = []
 REFL {Δ ▸ A} δ = REFL (pop δ) , {!refl (top δ)!}
 -}
 
+-- But that isn't well-typed until we have Id-REFL, below; while
+-- Id-REFL depends on REFL already existing.  So we instead make REFL
+-- a postulate and give it the correct behavior with rewrite rules.
+
 postulate
   REFL : {Δ : Tel} (δ : el Δ) → el (ID Δ δ δ)
+  REFLε : (δ : el ε) → REFL {ε} δ ≡ []
   -- As with Id-const, we assert this only for nonempty contexts, to
   -- avoid endless loops, and follow it with similar boilerplate.
   Id-REFL▸ : {Δ : Tel} (B : el′ Δ → Type) (A : el′ (Δ ▸ B) → Type) (δ : el (Δ ▸ B)) (a₀ a₁ : A (′ δ)) → Id′ A (REFL δ) a₀ a₁ ≡ Id (A (′ δ)) a₀ a₁
 
-{-# REWRITE Id-REFL▸ #-}
+{-# REWRITE REFLε Id-REFL▸ #-}
 
 Id-REFL : {Δ : Tel} (A : el′ Δ → Type) (δ : el Δ) (a₀ a₁ : A (′ δ)) → Id′ A (REFL δ) a₀ a₁ ≡ Id (A (′ δ)) a₀ a₁
-Id-REFL {Δ = ε} A δ a₀ a₁ = reflᵉ
+Id-REFL {Δ = ε} A δ a₀ a₁ = foo (funext (λ u → cong A (rev (η[]′ {u})))) a₀ a₁ • cong2 (Id′ {ε} (λ _ → A []′) []) ≡coe→ ≡coe→  
+  where foo : {B C : el′ ε → Type} (p : B ≡ C) (b₀ b₁ : B []′) →
+                 Id′ B [] b₀ b₁ ≡ Id′ C [] (coe→ (cong (λ D → D []′) p) b₀) (coe→ (cong (λ D → D []′) p) b₁)
+        foo reflᵉ b₀ b₁ = reflᵉ
 Id-REFL {Δ = Δ ▸ B} A δ a₀ a₁ = Id-REFL▸ B A δ a₀ a₁
 
 Id-REFL▸-reflᵉ : {Δ : Tel} (B : el′ Δ → Type) (A : el′ (Δ ▸ B) → Type) (δ : el (Δ ▸ B)) (a₀ a₁ : A (′ δ)) →
@@ -263,11 +282,10 @@ Id-REFL▸-reflᵉ B A δ a₀ a₁ = axiomK
 {-# REWRITE Id-REFL▸-reflᵉ #-}
 
 postulate
-  REFLε : (δ : el ε) → REFL {ε} δ ≡ []
   -- Here we have to coerce along Id-REFL to deal with an arbitrary
   -- context Δ (following approach (2) above).
   REFL▸ : (Δ : Tel) (A : el′ Δ → Type) (δ : el Δ) (a : A (′ δ)) →
-    REFL {Δ ▸ A} (δ , a) ≡ (REFL δ , coe← (Id-REFL A δ a a) (refl a))
+    REFL {Δ ▸ A} (δ , a) ≡ (REFL δ , coe← (cong (λ δ₂ → Id′ A δ₂ a a) `′ • Id-REFL A δ a a) (refl a) )
   -- We could alternatively state this rule separately in empty and
   -- nonempty versions (following approach (1) above).
   {-
@@ -277,7 +295,7 @@ postulate
     REFL {Δ ▸ B ▸ A} (δ , a) ≡ (REFL δ , refl a)
   -}
 
-{-# REWRITE REFLε REFL▸ #-}
+{-# REWRITE REFL▸ #-}
 
 postulate
   ap-refl : {Δ : Tel} {A : el′ Δ → Type} (f : (δ : el′ Δ) → A δ) (δ : el Δ) →
@@ -305,35 +323,21 @@ postulate
     Id′ (λ w → A (pop′ w)) δ₂ a₀ a₁ ≡ Id′ A (pop δ₂) a₀ a₁
 
 -- Unfortunately, Id-pop is not a legal rewrite rule in either
--- direction, so we have to coerce along it explicitly.
+-- direction, so we have to coerce along it explicitly.  But hopefully
+-- we can define rewrite rules *for* it, computing on of A, so that
+-- for a totally concrete A it will reduce away to reflᵉ.  (And do
+-- similarly for other "admissible" rules.)
 
 postulate
   ap-var : {Δ Θ : Tel} (A : el′ Θ → Type) (a : (w : el′ Θ) → A w)
     (ap-a : (w₀ w₁ : el Θ) (w₂ : el (ID Θ w₀ w₁)) → Id′ A w₂ (a (′ w₀)) (a (′ w₁)))
     (f : el′ Δ → el′ Θ) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
     Id′ (λ w → A (f w)) δ₂ (a (f (′ δ₀))) (a (f (′ δ₁)))
-  -- ap-top is not actually getting rewritten along.  The problem
-  -- seems to be that when Θ is concrete, (el′ Θ) reduces to ⊤ᵉ or
-  -- Σᵉ′, which can't then be matched against (el′ Θ) for the rewrite
-  -- to fire.  See below, ap-top⊤ᵉ does work in the case when Θ = ε.
   ap-top : {Δ Θ : Tel} (A : el′ Θ → Type) (f : el′ Δ → el′ (Θ ▸ A)) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
-    ap {Δ = Δ}                  -- Obviously a pattern binding Δ
-    {A = λ w → A (pop′ (f w))}  -- "Any other term": doesn't bind anything
-    (λ w → top′ {el′ Θ} {A} (f w))     -- top′ and el′ are postulates, and (f w) is a pattern binding f, and Θ, A are bound patterns
-    {δ₀} {δ₁} δ₂           -- All obviously patterns, binding δ₀ δ₁ δ₂
-    ≡
-    ap-var (λ w → A (pop′ w)) (λ w → top′ w) (λ w₀ w₁ w₂ → coe← (Id-pop A A w₂ (top w₀) (top w₁)) (top w₂)) f δ₂
-  ap-top⊤ᵉ : {Δ : Tel} (A : ⊤ᵉ → Type) (f : el′ Δ → Σᵉ′ ⊤ᵉ A) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
-    ap {Δ = Δ}                  -- Obviously a pattern binding Δ
-    {A = λ w → A (pop′ (f w))}  -- "Any other term": doesn't bind anything
-    (λ w → top′ {⊤ᵉ} {A} (f w))     -- top′ and el′ are postulates, and (f w) is a pattern binding f, and Θ, A are bound patterns
-    {δ₀} {δ₁} δ₂           -- All obviously patterns, binding δ₀ δ₁ δ₂
-    ≡
-    ap-var (λ w → A (pop′ w)) (λ w → top′ w) (λ w₀ w₁ w₂ → coe← (Id-pop A A w₂ (top w₀) (top w₁)) (top w₂)) f δ₂
-  -- Would it work to define a "function" (with rewrites) that
-  -- reassembles a nested Σᵉ′ back into a Tel?  Or, perhaps better,
-  -- could we define el′ as a postulate or recursive record rather
-  -- than as something that reduces?
+    ap {A = λ w → A (pop′ (f w))} (λ w → top′ {Θ} {A} (f w)) δ₂ ≡
+    ap-var (λ w → A (pop′ w)) (λ w → top′ w) (λ w₀ w₁ w₂ → coe← (Id-pop A A w₂ (top w₀) (top w₁) •
+                                                                  cong (λ ρ → Id′ A ρ (top w₀) (top w₁)) (rev `′))
+                                                              (top w₂)) f δ₂
   ap-var-top : {Δ : Tel} (A : el′ Δ → Type) (a : (w : el′ Δ) → A w)
     (ap-a : (w₀ w₁ : el Δ) (w₂ : el (ID Δ w₀ w₁)) → Id′ A w₂ (a (′ w₀)) (a (′ w₁)))
     {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
@@ -345,21 +349,20 @@ postulate
     ap-var (λ w → A (pop′ w)) (λ w → a (pop′ w))
       (λ w₀ w₁ w₂ → coe← (Id-pop X A w₂ (a (′ (pop w₀))) (a (′ (pop w₁)))) (ap-a (pop w₀) (pop w₁) (pop w₂))) f δ₂
 
-{-# REWRITE ap-top ap-top⊤ᵉ ap-var-top ap-var-pop #-}
+{-# REWRITE ap-top ap-var-top ap-var-pop #-}
 
 postulate
   A : el′ ε → Type
-  a₀ a₁ : A []
-  a₂ : Id (A []) a₀ a₁
+  a₀ a₁ : A []′
+  a₂ : Id′ A [] a₀ a₁
   B : el′ (ε ▸ A) → Type
-  b₀ : B ([] ,′ a₀)
-  b₁ : B ([] ,′ a₁)
+  b₀ : B ([]′ ,′ a₀)
+  b₁ : B ([]′ ,′ a₁)
   b₂ : Id′ B ([] , a₂) b₀ b₁
 
-eg = ap {Δ = ε ▸ A} {A = λ w → A (pop′ w)} (λ w → (top′ w)) ([] , a₂)
-eg' = ap-top A (λ w → w) ([] , a₂)
-eg₂ = ap {Δ = ε ▸ A ▸ B} {A = λ w → B (pop′ w)} (λ w → (top′ w)) ([] , a₂ , b₂)
-eg₂' = ap-top B (λ w → w) ([] , a₂ , b₂)
+eg = ap {A = λ w → A (pop′ w)} (λ w → (top′ w)) ([] , a₂)
+eg₂ = ap {Δ = ε ▸ A ▸ B} {A = λ w → B (pop′ w)} (λ w → (top′ w)) {[] , a₀ , b₀} {[] , a₁ , b₁} ([] , a₂ , {!b₂!})
+--eg₂' = ap-top B (λ w → w) ([] , a₂ , b₂)
 
 
 {-
@@ -628,4 +631,3 @@ postulate
     --sym {A = A} {a₀₀ = fst x₀₀} {a₀₁ = fst x₀₁} {a₀₂ = fst x₀₂} {a₁₀ = fst x₁₀} {a₁₁ = fst x₁₁} {a₁₂ = fst x₁₂} {a₂₀ = fst x₂₀} {a₂₁ = fst x₂₁} (fst x₂₂)
     --sym (snd x₂₂))!}
 -}
-
