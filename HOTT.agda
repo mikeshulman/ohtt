@@ -31,6 +31,9 @@ coe→ reflᵉ u = u
 coe← : {A B : Type} → (A ≡ B) → B → A
 coe← reflᵉ v = v
 
+coe←≡ : {A : Type} {e : A ≡ A} {a : A} → coe← e a ≡ a
+coe←≡ {e = reflᵉ} = reflᵉ
+
 axiomK : {A : Typeᵉ} {a : A} {p : a ≡ a} → p ≡ reflᵉ
 axiomK {p = reflᵉ} = reflᵉ
 
@@ -64,6 +67,7 @@ record Σᵉ (A : Typeᵉ) (B : A → Type) : Typeᵉ where
     top : B pop
 open Σᵉ
 
+-- TODO: Try giving Σᵉ′ a Tel as its first argument, applying el′ on its second argument.
 postulate
   Σᵉ′ : (A : Typeᵉ) (B : A → Type) → Typeᵉ
   _,′_ : {A : Typeᵉ} {B : A → Type} (a : A) (b : B a) → Σᵉ′ A B
@@ -324,12 +328,15 @@ postulate
     ≡
     ap-var (λ w → A (pop′ w)) (λ w → top′ w) (λ w₀ w₁ w₂ → coe← (Id-pop A A w₂ (top w₀) (top w₁)) (top w₂)) f δ₂
   ap-top⊤ᵉ : {Δ : Tel} (A : ⊤ᵉ → Type) (f : el′ Δ → Σᵉ′ ⊤ᵉ A) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
-    ap {Δ = Δ}                  -- Obviously a pattern binding Δ
-    {A = λ w → A (pop′ (f w))}  -- "Any other term": doesn't bind anything
-    (λ w → top′ {⊤ᵉ} {A} (f w))     -- top′ and el′ are postulates, and (f w) is a pattern binding f, and Θ, A are bound patterns
-    {δ₀} {δ₁} δ₂           -- All obviously patterns, binding δ₀ δ₁ δ₂
-    ≡
+    ap {Δ = Δ} {A = λ w → A (pop′ (f w))} (λ w → top′ {⊤ᵉ} {A} (f w)) {δ₀} {δ₁} δ₂ ≡
     ap-var (λ w → A (pop′ w)) (λ w → top′ w) (λ w₀ w₁ w₂ → coe← (Id-pop A A w₂ (top w₀) (top w₁)) (top w₂)) f δ₂
+  -- It's not enough to have ap-topΣᵉ too, since we still end up
+  -- trying to match against (el′ Θ) inside Σᵉ′.  I think we would
+  -- need a separate rewrite rule for each length of concrete context.
+  ap-topΣᵉ : {Δ Θ : Tel} (X : el′ Θ → Type) (A : el′ (Θ ▸ X) → Type) (f : el′ Δ → el′ (Θ ▸ X ▸ A)) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
+    ap {Δ = Δ} {A = λ w → A (pop′ (f w))} (λ w → top′ {Σᵉ′ (el′ Θ) X} {A} (f w)) {δ₀} {δ₁} δ₂ ≡
+    ap-var (λ w → A (pop′ w)) (λ w → top′ w) (λ w₀ w₁ w₂ → coe← (Id-pop A A w₂ (top w₀) (top w₁))
+      (coe→ (cong (λ q → Id′ A (pop (pop w₂) , q) (top w₀) (top w₁)) coe←≡) (top w₂))) f δ₂
   -- Would it work to define a "function" (with rewrites) that
   -- reassembles a nested Σᵉ′ back into a Tel?  Or, perhaps better,
   -- could we define el′ as a postulate or recursive record rather
@@ -345,7 +352,7 @@ postulate
     ap-var (λ w → A (pop′ w)) (λ w → a (pop′ w))
       (λ w₀ w₁ w₂ → coe← (Id-pop X A w₂ (a (′ (pop w₀))) (a (′ (pop w₁)))) (ap-a (pop w₀) (pop w₁) (pop w₂))) f δ₂
 
-{-# REWRITE ap-top ap-top⊤ᵉ ap-var-top ap-var-pop #-}
+{-# REWRITE ap-top ap-top⊤ᵉ ap-topΣᵉ ap-var-top ap-var-pop #-}
 
 postulate
   A : el′ ε → Type
