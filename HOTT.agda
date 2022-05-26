@@ -319,7 +319,17 @@ postulate
     Id′ (λ w → A (pop′ w)) δ₂ a₀ a₁ ≡ Id′ A (pop δ₂) a₀ a₁
 
 -- Unfortunately, Id-pop is not a legal rewrite rule in either
--- direction, so we have to coerce along it explicitly.
+-- direction, so we have to coerce along it explicitly.  But we can
+-- hope to make such coercions vanish on concrete telescopes and types
+-- by giving rewrite rules for Id-pop that compute on A.  Here's the
+-- first one, for constant families.
+
+postulate
+  Id-pop-const : {Δ : Tel} (X : el′ Δ → Type) (A : Type)
+    {δ₀ δ₁ : el (Δ ▸ X)} (δ₂ : el (ID (Δ ▸ X) δ₀ δ₁)) (a₀ a₁ : A) →
+    Id-pop X (λ _ → A) δ₂ a₀ a₁ ≡ rev (Id-const Δ A (pop δ₂) a₀ a₁)
+
+{-# REWRITE Id-pop-const #-}
 
 postulate
   -- Recall that variables in the telescope are represented as De
@@ -384,6 +394,10 @@ postulate
 {-# REWRITE ap-top ap-var-top ap-var-pop #-}
 
 {-
+
+----------------------------------------
+-- Functoriality of Id and Ap
+----------------------------------------
 
 postulate
   -- This should really compute in the other direction.  (In actual HOTT, it is proven admissible over the structure of A.)  But Agda can't compute it in that direction.  In this direction, it sometimes rewrites, but not always, e.g. if the ap computes in a different way, so sometimes we may have to coerce along it explicitly.
@@ -657,31 +671,38 @@ postulate
 ----------------------------------------
 
 postulate
-  A : el′ ε → Type
-  a₀ a₁ : A []
-  a₂ : Id (A []) a₀ a₁
-  B : el′ (ε ▸ A) → Type
+  A : Type
+  a₀ a₁ : A
+  a₂ : Id A a₀ a₁
+
+A′ : el′ ε → Type
+A′ _ = A
+
+postulate
+  B : el′ (ε ▸ A′) → Type
   b₀ : B ([] ,′ a₀)
   b₁ : B ([] ,′ a₁)
   b₂ : Id′ B ([] , a₂) b₀ b₁
-  C : el′ (ε ▸ A ▸ B) → Type
+  C : el′ (ε ▸ A′ ▸ B) → Type
   c₀ : C ([] ,′ a₀ ,′ b₀)
   c₁ : C ([] ,′ a₁ ,′ b₁)
   c₂ : Id′ C ([] , a₂ , b₂) c₀ c₁
 
 -- Testing that ` and ′ are definitional inverses on concrete telescopes.
-`′test : `′ {ε ▸ A ▸ B ▸ C} ([] , a₀ , b₀ , c₀) ≡ reflᵉ
+`′test : `′ {ε ▸ A′ ▸ B ▸ C} ([] , a₀ , b₀ , c₀) ≡ reflᵉ
 `′test = reflᵉ
 
-′`test : ′` {ε ▸ A ▸ B ▸ C} ([] ,′ a₀ ,′ b₀ ,′ c₀) ≡ reflᵉ
+′`test : ′` {ε ▸ A′ ▸ B ▸ C} ([] ,′ a₀ ,′ b₀ ,′ c₀) ≡ reflᵉ
 ′`test = reflᵉ
 
 -- Testing normalization of ap-top (normalize these with C-c C-n).
 -- Observe that the results involve coercions along Id-pop, but we can
--- hope that for concrete types these will compute away.
-egA-A = ap {Δ = ε ▸ A} (λ w → top′ w) ([] , a₂)
-egAB-B = ap {Δ = ε ▸ A ▸ B} (λ w → top′ w) ([] , a₂ , b₂)
-egAB-A = ap {Δ = ε ▸ A ▸ B} (λ w → top′ (pop′ w)) ([] , a₂ , b₂)
-egABC-C = ap {Δ = ε ▸ A ▸ B ▸ C} (λ w → top′ w) ([] , a₂ , b₂ , c₂)
-egABC-B = ap {Δ = ε ▸ A ▸ B ▸ C} (λ w → top′ (pop′ w)) ([] , a₂ , b₂ , c₂)
-egABC-A = ap {Δ = ε ▸ A ▸ B ▸ C} (λ w → top′ (pop′ (pop′ w))) ([] , a₂ , b₂ , c₂)
+-- hope that for concrete types these will compute away.  In
+-- particular, with Id-pop-const, the coercions already vanish for the
+-- "-A" versions.
+egA-A = ap {Δ = ε ▸ A′} (λ w → top′ w) ([] , a₂)
+egAB-B = ap {Δ = ε ▸ A′ ▸ B} (λ w → top′ w) ([] , a₂ , b₂)
+egAB-A = ap {Δ = ε ▸ A′ ▸ B} (λ w → top′ (pop′ w)) ([] , a₂ , b₂)
+egABC-C = ap {Δ = ε ▸ A′ ▸ B ▸ C} (λ w → top′ w) ([] , a₂ , b₂ , c₂)
+egABC-B = ap {Δ = ε ▸ A′ ▸ B ▸ C} (λ w → top′ (pop′ w)) ([] , a₂ , b₂ , c₂)
+egABC-A = ap {Δ = ε ▸ A′ ▸ B ▸ C} (λ w → top′ (pop′ (pop′ w))) ([] , a₂ , b₂ , c₂)
