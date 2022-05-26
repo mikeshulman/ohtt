@@ -25,6 +25,9 @@ cong f reflᵉ = reflᵉ
 cong2 : {A B C : Typeᵉ} (f : A → B → C) {x y : A} (p : x ≡ y) {u v : B} (q : u ≡ v) → f x u ≡ f y v
 cong2 f reflᵉ reflᵉ = reflᵉ
 
+cong3 : {A B C D : Typeᵉ} (f : A → B → C → D) {x y : A} (p : x ≡ y) {u v : B} (q : u ≡ v) {c d : C} (r : c ≡ d) → f x u c ≡ f y v d
+cong3 f reflᵉ reflᵉ reflᵉ = reflᵉ
+
 -- {A : Type} (B : A → Type) {x y : A} (p : x ≡ y) (u : B x) → B y
 coe→ : {A B : Type} → (A ≡ B) → A → B
 coe→ reflᵉ u = u
@@ -65,14 +68,14 @@ open ⊤ᵉ
 
 -- Note that the type family must be fibrant-valued.
 record Σᵉ (A : Typeᵉ) (B : A → Type) : Typeᵉ where
-  constructor _,_
+  constructor _∷_
   field
     pop : A
     top : B pop
 open Σᵉ
 
 eq-coe← : {A : Typeᵉ} {B : A → Type} {a₀ a₁ : A} (a₂ : a₀ ≡ a₁) {b₁ : B a₁} →
-  (a₀ , coe← (cong B a₂) b₁) ≡ (a₁ , b₁)
+  (a₀ ∷ coe← (cong B a₂) b₁) ≡ (a₁ ∷ b₁)
 eq-coe← reflᵉ = reflᵉ
 
 -- A telescope is a list of dependent types.  From it we can extract
@@ -100,23 +103,23 @@ el′ (Δ ▸ A) = Σᵉ′ Δ A
 
 -- Now we can give the constructors, destructors, and beta and eta rules for Σᵉ′.
 postulate
-  _,′_ : {Δ : Tel} {B : el′ Δ → Type} (a : el′ Δ) (b : B a) → Σᵉ′ Δ B
+  _∷′_ : {Δ : Tel} {B : el′ Δ → Type} (a : el′ Δ) (b : B a) → Σᵉ′ Δ B
   pop′ : {Δ : Tel} {B : el′ Δ → Type} (u : Σᵉ′ Δ B) → el′ Δ
   top′ : {Δ : Tel} {B : el′ Δ → Type} (u : Σᵉ′ Δ B) → B (pop′ u)
-  βpop′ : {Δ : Tel} {B : el′ Δ → Type} (a : el′ Δ) (b : B a) → pop′ {B = B} (a ,′ b) ≡ a
-  η,′ : {Δ : Tel} {B : el′ Δ → Type} (u : Σᵉ′ Δ B) → (pop′ u ,′ top′ u) ≡ u
+  βpop′ : {Δ : Tel} {B : el′ Δ → Type} (a : el′ Δ) (b : B a) → pop′ {B = B} (a ∷′ b) ≡ a
+  η∷′ : {Δ : Tel} {B : el′ Δ → Type} (u : Σᵉ′ Δ B) → (pop′ u ∷′ top′ u) ≡ u
 
-{-# REWRITE βpop′ η,′ #-}
+{-# REWRITE βpop′ η∷′ #-}
 
-infixl 30 _▸_ _,_ _,′_
+infixl 30 _▸_ _∷_ _∷′_
 
 postulate
-  βtop′ : {Δ : Tel} {B : el′ Δ → Type} (a : el′ Δ) (b : B a) → top′ {B = B} (a ,′ b) ≡ b
+  βtop′ : {Δ : Tel} {B : el′ Δ → Type} (a : el′ Δ) (b : B a) → top′ {B = B} (a ∷′ b) ≡ b
 
 {-# REWRITE βtop′ #-}
 
 eq-coe←′ : {Δ : Tel} {B : el′ Δ → Type} {a₀ a₁ : el′ Δ} (a₂ : a₀ ≡ a₁) {b₁ : B a₁} →
-  (a₀ ,′ coe← (cong B a₂) b₁) ≡ (a₁ ,′ b₁)
+  (a₀ ∷′ coe← (cong B a₂) b₁) ≡ (a₁ ∷′ b₁)
 eq-coe←′ reflᵉ = reflᵉ
 
 -- The unprimed el is defined by mutual recursion with a coercion from unprimed to primed.
@@ -128,7 +131,7 @@ el ε = ⊤ᵉ
 el (Δ ▸ A) = Σᵉ (el Δ) (λ δ → A (′ δ))
 
 ′ {ε} x = x
-′ {Δ ▸ A} (x , y) = (′ x ,′ y)
+′ {Δ ▸ A} (x ∷ y) = (′ x ∷′ y)
 
 -- The coercion back the other direction is defined by mutual
 -- recursion with a proof that it's a section.
@@ -137,7 +140,7 @@ el (Δ ▸ A) = Σᵉ (el Δ) (λ δ → A (′ δ))
 ′` : {Δ : Tel} (δ : el′ Δ) → ′ (` δ) ≡ δ
 
 ` {ε} x = x
-` {Δ ▸ A} x = (` (pop′ x) , coe← (cong A (′` _)) (top′ x))
+` {Δ ▸ A} x = (` (pop′ x) ∷ coe← (cong A (′` _)) (top′ x))
 
 ′` {ε} δ = reflᵉ
 ′` {Δ ▸ A} δ = eq-coe←′ (′` _)
@@ -145,12 +148,18 @@ el (Δ ▸ A) = Σᵉ (el Δ) (λ δ → A (′ δ))
 -- Finally, we can prove that it's a retraction too.
 `′ : {Δ : Tel} (δ : el Δ) → ` (′ δ) ≡ δ
 `′ {ε} δ = reflᵉ
-`′ {Δ ▸ A} δ = (cong (λ y → (` (′ (pop δ)) , coe← y (top δ))) uip • eq-coe← (`′ (pop δ)) {b₁ = top δ})
+`′ {Δ ▸ A} δ = (cong (λ y → (` (′ (pop δ)) ∷ coe← y (top δ))) uip • eq-coe← (`′ (pop δ)) {b₁ = top δ})
 
 -- These coercions are strict inverses on canonical forms (tuples) for
 -- concrete telescopes.  (This is verified in the testing section
 -- below.)  Thus, we can consistently rewrite along them.
 {-# REWRITE ′` `′ #-}
+
+postulate
+  ′`reflᵉ : {Δ : Tel} (δ : el′ Δ) → ′` δ ≡ reflᵉ
+  `′reflᵉ : {Δ : Tel} (δ : el Δ) → `′ δ ≡ reflᵉ
+
+{-# REWRITE ′`reflᵉ `′reflᵉ #-}
 
 ------------------------------
 -- Variables
@@ -285,14 +294,14 @@ postulate
   -- Here we have to coerce along Id-REFL to deal with an arbitrary
   -- context Δ (following approach (2) above).
   REFL▸ : (Δ : Tel) (A : el′ Δ → Type) (δ : el Δ) (a : A (′ δ)) →
-    REFL {Δ ▸ A} (δ , a) ≡ (REFL δ , coe← (Id-REFL A δ a a) (refl a))
+    REFL {Δ ▸ A} (δ ∷ a) ≡ (REFL δ ∷ coe← (Id-REFL A δ a a) (refl a))
   -- We could alternatively state this rule separately in empty and
   -- nonempty versions (following approach (1) above).
   {-
   REFLε▸ : (A : el ε → Type) (δ : el ε) (a : A δ) →
-    REFL {ε ▸ A} (δ , a) ≡ (REFL δ , refl a)
+    REFL {ε ▸ A} (δ ∷ a) ≡ (REFL δ ∷ refl a)
   REFL▸▸ : (Δ : Tel) (B : el′ Δ → Type) (A : el′ (Δ ▸ B) → Type) (δ : el (Δ ▸ B)) (a : A (′ δ)) →
-    REFL {Δ ▸ B ▸ A} (δ , a) ≡ (REFL δ , refl a)
+    REFL {Δ ▸ B ▸ A} (δ ∷ a) ≡ (REFL δ ∷ refl a)
   -}
 
 {-# REWRITE REFLε REFL▸ #-}
@@ -323,17 +332,17 @@ postulate
     Id′ (λ w → A (pop′ w)) δ₂ a₀ a₁ ≡ Id′ A (pop δ₂) a₀ a₁
 
 -- Unfortunately, Id-pop is not a legal rewrite rule in either
--- direction, so we have to coerce along it explicitly.  But we can
--- hope to make such coercions vanish on concrete telescopes and types
--- by giving rewrite rules for Id-pop that compute on A.  Here's the
--- first one, for constant families.
+-- direction, so we always have to coerce along it explicitly.  But we
+-- can hope to make such coercions vanish on concrete telescopes and
+-- types by giving rewrite rules for Id-pop that compute on A.  Here's
+-- the first one, for constant families.
 
 postulate
   Id-pop-const : {Δ : Tel} (X : el′ Δ → Type) (A : Type)
     {δ₀ δ₁ : el (Δ ▸ X)} (δ₂ : el (ID (Δ ▸ X) δ₀ δ₁)) (a₀ a₁ : A) →
     Id-pop X (λ _ → A) δ₂ a₀ a₁ ≡ rev (Id-const Δ A (pop δ₂) a₀ a₁)
 
-{-# REWRITE Id-pop-const #-}
+-- {-# REWRITE Id-pop-const #-}
 
 postulate
   -- Recall that variables in the telescope are represented as De
@@ -368,13 +377,13 @@ postulate
   --
   -- We could also try to get rid of Σᵉ′ completely and just use
   -- instances of el′ in defining the operations such as top′, pop′
-  -- and ",′".  Then el′ never reduces, so we can match against it.
+  -- and "∷′".  Then el′ never reduces, so we can match against it.
   -- However, in this approach it seems impossible to give (el′ ε) an
   -- η-rule, since it isn't definitionally a record, and the η-rule
   -- for a unit type isn't rewritable.  This requires putting that
   -- η-rule explicitly in the definition of (′` ε δ), which causes it
   -- to appear coerced along in various places, and in particular
-  -- prevents us from writing ([] , a₂ , b₂) without a coercion.
+  -- prevents us from writing ([] ∷ a₂ ∷ b₂) without a coercion.
   --
   -- The current approach of having el′ compute to ⊤ᵉ or Σᵉ′, but with
   -- the first argument of Σᵉ′ being a Tel rather than an arbitrary
@@ -413,7 +422,7 @@ postulate
   -- rewrites, but not always, e.g. if the AP computes in a different
   -- way, so sometimes we may have to coerce along it explicitly.
   Id-AP : {Θ Δ : Tel} (f : el′ Θ → el′ Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
-    (A : el′ Δ → Type) (a₀ : A (f (′ t₀))) (a₁ : A (f (′ t₁))) →
+    (A : el′ Δ → Type) {a₀ : A (f (′ t₀))} {a₁ : A (f (′ t₁))} →
     Id′ A (AP f t₂) a₀ a₁ ≡ Id′ (λ w → A (f w)) t₂ a₀ a₁
 
 {-# REWRITE Id-AP #-}
@@ -421,7 +430,7 @@ postulate
 postulate
   APε : {Θ : Tel} (f : el′ Θ → el′ ε) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) → AP f t₂ ≡ []
   AP▸ : {Θ Δ : Tel} (A : el′ Δ → Type) (f : el′ Θ → el′ (Δ ▸ A)) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) →
-    AP {Θ} {Δ ▸ A} f t₂ ≡ (AP (λ w → pop′ (f w)) t₂ , coe← (cong2 (Id′ (λ w → A (pop′ (f w))) t₂) coe←≡ coe←≡) (ap (λ w → top′ (f w)) t₂))
+    AP {Θ} {Δ ▸ A} f t₂ ≡ (AP (λ w → pop′ (f w)) t₂ ∷ coe← (cong2 (Id′ (λ w → A (pop′ (f w))) t₂) coe←≡ coe←≡) (ap (λ w → top′ (f w)) t₂))
 
 {-# REWRITE APε AP▸ #-}
 
@@ -430,6 +439,12 @@ postulate
     ap g (AP f t₂) ≡ ap (λ w → g (f w)) t₂
 
 {-# REWRITE ap-AP #-}
+
+-- I'm not sure yet how best to prove and compute with this.  Maybe we can reduce it on ε and ▸?
+postulate
+  AP-idmap : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → AP {Δ} {Δ} (λ w → w) δ₂ ≡ δ₂ 
+
+{-# REWRITE AP-idmap #-}
 
 --------------------
 -- Unit type
@@ -455,8 +470,6 @@ postulate
 -- Product types
 --------------------
 
-{-
-
 -- Would it work to derive these from Σ-types?
 
 postulate
@@ -471,30 +484,30 @@ postulate
   βfst : (A : Type) (B : Type) (a : A) (b : B) → fst (a , b) ≡ a
   βsnd : (A : Type) (B : Type) (a : A) (b : B) → snd (a , b) ≡ b
   η, : (A : Type) (B : Type) (u : A × B) → (fst u , snd u) ≡ u
-  Id× : (A : Type) (B : Type) (u v : A × B) → Id (A × B) u v ≡ (Id A (fst u) (fst v) × Id B (snd u) (snd v))
-  Id¹× : {Δ : Type} {δ δ' : Δ} (ρ : Id Δ δ δ') (A B : Δ → Type) (u : A δ × B δ) (v : A δ' × B δ') →
-    Id¹ (λ x → A x × B x) ρ u v ≡ (Id¹ A ρ (fst u) (fst v) × Id¹ B ρ (snd u) (snd v))
-  Id²× : {Δ₀ : Type} {Δ₁ : Δ₀ → Type} (A B : (x : Δ₀) → Δ₁ x → Type)
-        {δ₀ δ₀' : Δ₀} (ρ₀ : Id Δ₀ δ₀ δ₀') {δ₁ : Δ₁ δ₀} {δ₁' : Δ₁ δ₀'} (ρ₁ : Id¹ Δ₁ ρ₀ δ₁ δ₁')
-        (u : A δ₀ δ₁ × B δ₀ δ₁) (v : A δ₀' δ₁' × B δ₀' δ₁') →
-        Id² (λ x y → A x y × B x y) ρ₀ ρ₁ u v ≡ Id² A ρ₀ ρ₁ (fst u) (fst v) × Id² B ρ₀ ρ₁ (snd u) (snd v)
+  Id× : {Δ : Tel} (A B : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (u : A (′ δ₀) × B (′ δ₀)) (v : A (′ δ₁) × B (′ δ₁)) →
+    Id′ (λ w → A w × B w) δ₂ u v ≡ Id′ A δ₂ (fst u) (fst v) × Id′ B δ₂ (snd u) (snd v)
 
-{-# REWRITE βfst βsnd η, Id× Id¹× Id²× #-}
+{-# REWRITE βfst βsnd η, Id× #-}
 
 postulate
-  refl, : (A : Type) (B : Type) (a : A) (b : B) → refl (a , b) ≡ (refl a , refl b)
-  refl-fst : (A : Type) (B : Type) (u : A × B) → refl (fst u) ≡ fst (refl u)
-  refl-snd : (A : Type) (B : Type) (u : A × B) → refl (snd u) ≡ snd (refl u)
-  ap, : {Δ : Type} (A B : Δ → Type) {δ δ' : Δ} (ρ : Id Δ δ δ') (f : (x : Δ) → A x) (g : (x : Δ) → B x) →
-    ap (λ x → (f x , g x)) ρ ≡ (ap f ρ , ap g ρ)
-  ap-fst : {Δ : Type} (A B : Δ → Type) {δ δ' : Δ} (ρ : Id Δ δ δ') (f : (x : Δ) → A x × B x) →
-    ap (λ x → fst (f x)) ρ ≡ fst (ap f ρ)
-  ap-snd : {Δ : Type} (A B : Δ → Type) {δ δ' : Δ} (ρ : Id Δ δ δ') (f : (x : Δ) → A x × B x) →
-    ap (λ x → snd (f x)) ρ ≡ snd (ap f ρ)
+  ap, : {Δ : Tel} (A B : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (f : (x : el′ Δ) → A x) (g : (x : el′ Δ) → B x) →
+    ap (λ x → (f x , g x)) δ₂ ≡ (ap f δ₂ , ap g δ₂)
+  ap-fst : {Δ : Tel} (A B : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (f : (x : el′ Δ) → A x × B x) →
+    ap (λ x → fst (f x)) δ₂ ≡ fst (ap f δ₂)
+  ap-snd : {Δ : Tel} (A B : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (f : (x : el′ Δ) → A x × B x) →
+    ap (λ x → snd (f x)) δ₂ ≡ snd (ap f δ₂)
 
-{-# REWRITE refl, refl-fst refl-snd ap, ap-fst ap-snd #-}
+{-# REWRITE ap, ap-fst ap-snd #-}
 
+postulate
+  Id-pop× : {Δ : Tel} (X : el′ Δ → Type) (A B : el′ Δ → Type)
+    {δ₀ δ₁ : el (Δ ▸ X)} (δ₂ : el (ID (Δ ▸ X) δ₀ δ₁))
+    (u₀ : A (′ (pop δ₀)) × B (′ (pop δ₀)) ) (u₁ : A (′ (pop δ₁)) × B  (′ (pop δ₁))) →
+    Id-pop X (λ w → A w × B w) δ₂ u₀ u₁ ≡ cong2 _×_ (Id-pop X A δ₂ (fst u₀) (fst u₁)) (Id-pop X B δ₂ (snd u₀) (snd u₁))
+
+--------------------
 -- Σ-types
+--------------------
 
 postulate
   Σ : (A : Type) → (B : A → Type) → Type
@@ -510,40 +523,48 @@ postulate
 postulate
   βπ₂ : (A : Type) (B : A → Type) (a : A) (b : B a) → π₂ {B = B} (a ﹐ b) ≡ b
   η﹐ : (A : Type) (B : A → Type) (u : Σ A B) → (π₁ u ﹐ π₂ u) ≡ u
-  IdΣ : (A : Type) (B : A → Type) (u v : Σ A B) → Id (Σ A B) u v ≡ Σ (Id A (π₁ u) (π₁ v)) (λ e → Id¹ B e (π₂ u) (π₂ v))
 
-{-# REWRITE βπ₂ η﹐ IdΣ #-}
-
-postulate
-  Id¹Σ : {Δ : Type} {δ δ' : Δ} (ρ : Id Δ δ δ') (A : Δ → Type) (B : (x : Δ) → A x → Type)
-    (u : Σ (A δ) (B δ)) (v : Σ (A δ') (B δ')) →
-    Id¹ (λ x → Σ (A x) (B x)) ρ u v ≡
-    Σ (Id¹ A ρ (π₁ u) (π₁ v)) (λ e → Id² B ρ e (π₂ u) (π₂ v))
-
-{-# REWRITE Id¹Σ #-}
+{-# REWRITE βπ₂ η﹐ #-}
 
 postulate
-  refl﹐ : (A : Type) (B : A → Type) (a : A) (b : B a) → refl (_﹐_ {B = B} a b) ≡ (refl a ﹐ refl {A = B a} b)
-  reflπ₁ : (A : Type) (B : A → Type) (u : Σ A B) → refl (π₁ u) ≡ π₁ (refl u)
-  ap﹐ : {Δ : Type} {δ δ' : Δ} (ρ : Id Δ δ δ') (A : Δ → Type) (B : (x : Δ) → A x → Type)
-           (u : (x : Δ) → A x) (v : (x : Δ) → B x (u x)) →
-           ap {A = λ x → Σ (A x) (B x)} (λ x → (u x ﹐ v x)) ρ ≡ (ap u ρ ﹐ ap v ρ)
+  IdΣ : {Δ : Tel} (A : el′ Δ → Type) (B : (w : el′ Δ) → A w → Type)
+    {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (u₀ : Σ (A (′ δ₀)) (λ a → B (′ δ₀) a)) (u₁ : Σ (A (′ δ₁)) (λ a → B (′ δ₁) a)) →
+      Id′ {Δ} (λ w → Σ (A w) (B w)) δ₂ u₀ u₁ ≡
+       Σ (Id′ A δ₂ (π₁ u₀) (π₁ u₁)) (λ e → Id′ {Δ ▸ A} (λ w → B (pop′ w) (top′ w)) (δ₂ ∷ e) (π₂ u₀) (π₂ u₁))
+
+{-# REWRITE IdΣ #-}
+
+postulate
+  ap﹐ : {Δ : Tel} {A : el′ Δ → Type} {B : (w : el′ Δ) → A w → Type} (f : (δ : el′ Δ) → A δ) (g : (δ : el′ Δ) → B δ (f δ))
+    {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
+    ap {A = λ w → Σ (A w) (B w)} (λ w → f w ﹐ g w) δ₂ ≡
+    -- It's tempting to try
+    --- (Id-pop A (λ w → B w (f w)) (δ₂ ∷ ap f δ₂) (g (′ δ₀)) (g (′ δ₁)))
+    -- but weakening (λ w → B w (f w)) doesn't give B.  We have to
+    -- substitute into the side that has the general form of B.
+    (ap f δ₂ ﹐  coe← (Id-AP (λ w → (w ∷′ f w)) δ₂ (λ w → B (pop′ w) (top′ w))) (ap g δ₂))
+
+{-# REWRITE ap﹐ #-}
+
+{-
+
+postulate
   apπ₁ : {Δ : Type} {δ δ' : Δ} (ρ : Id Δ δ δ') (A : Δ → Type) (B : (x : Δ) → A x → Type)
            (u : (x : Δ) → Σ (A x) (B x)) → ap (λ x → π₁ (u x)) ρ ≡ π₁ (ap u ρ)
 
-{-# REWRITE refl﹐ reflπ₁ ap﹐ apπ₁ #-}
+{-# REWRITE apπ₁ #-}
 
--- In these two, we have to coerce explicitly, because matching for a rewrite would require rewriting some argument backwards.
+-- Here we have to coerce explicitly, because matching for a rewrite would require rewriting some argument backwards.
 postulate
-  reflπ₂ : (A : Type) (B : A → Type) (u : Σ A B) → 
-    refl (π₂ u) ≡ coe→ (λ X → X) (Id¹-ap B π₁ {δ = u} {δ' = u} (refl u) (π₂ u) (π₂ u)) (π₂ (refl u))  
   apπ₂ : {Δ : Type} {δ δ' : Δ} (ρ : Id Δ δ δ') (A : Δ → Type) (B : (x : Δ) → A x → Type)
     (u : (x : Δ) → Σ (A x) (B x)) →
     ap (λ x → π₂ (u x)) ρ ≡ coe→ (λ X → X) (Id²-ap¹-idmap B (λ x → π₁ (u x)) ρ (π₂ (u δ)) (π₂ (u δ'))) (π₂ (ap u ρ))
 
-{-# REWRITE reflπ₂ apπ₂ #-}
+{-# REWRITE apπ₂ #-}
 
+--------------------
 -- Π-types
+--------------------
 
 postulate
   Π : (A : Type) (B : A → Type) → Type
@@ -696,19 +717,19 @@ A′ _ = A
 
 postulate
   B : el′ (ε ▸ A′) → Type
-  b₀ : B ([] ,′ a₀)
-  b₁ : B ([] ,′ a₁)
-  b₂ : Id′ B ([] , a₂) b₀ b₁
+  b₀ : B ([] ∷′ a₀)
+  b₁ : B ([] ∷′ a₁)
+  b₂ : Id′ B ([] ∷ a₂) b₀ b₁
   C : el′ (ε ▸ A′ ▸ B) → Type
-  c₀ : C ([] ,′ a₀ ,′ b₀)
-  c₁ : C ([] ,′ a₁ ,′ b₁)
-  c₂ : Id′ C ([] , a₂ , b₂) c₀ c₁
+  c₀ : C ([] ∷′ a₀ ∷′ b₀)
+  c₁ : C ([] ∷′ a₁ ∷′ b₁)
+  c₂ : Id′ C ([] ∷ a₂ ∷ b₂) c₀ c₁
 
 -- Testing that ` and ′ are definitional inverses on concrete telescopes.
-`′test : `′ {ε ▸ A′ ▸ B ▸ C} ([] , a₀ , b₀ , c₀) ≡ reflᵉ
+`′test : `′ {ε ▸ A′ ▸ B ▸ C} ([] ∷ a₀ ∷ b₀ ∷ c₀) ≡ reflᵉ
 `′test = reflᵉ
 
-′`test : ′` {ε ▸ A′ ▸ B ▸ C} ([] ,′ a₀ ,′ b₀ ,′ c₀) ≡ reflᵉ
+′`test : ′` {ε ▸ A′ ▸ B ▸ C} ([] ∷′ a₀ ∷′ b₀ ∷′ c₀) ≡ reflᵉ
 ′`test = reflᵉ
 
 -- Testing normalization of ap-top (normalize these with C-c C-n).
@@ -716,9 +737,9 @@ postulate
 -- hope that for concrete types these will compute away.  In
 -- particular, with Id-pop-const, the coercions already vanish for the
 -- "-A" versions.
-egA-A = ap {Δ = ε ▸ A′} (λ w → top′ w) ([] , a₂)
-egAB-B = ap {Δ = ε ▸ A′ ▸ B} (λ w → top′ w) ([] , a₂ , b₂)
-egAB-A = ap {Δ = ε ▸ A′ ▸ B} (λ w → top′ (pop′ w)) ([] , a₂ , b₂)
-egABC-C = ap {Δ = ε ▸ A′ ▸ B ▸ C} (λ w → top′ w) ([] , a₂ , b₂ , c₂)
-egABC-B = ap {Δ = ε ▸ A′ ▸ B ▸ C} (λ w → top′ (pop′ w)) ([] , a₂ , b₂ , c₂)
-egABC-A = ap {Δ = ε ▸ A′ ▸ B ▸ C} (λ w → top′ (pop′ (pop′ w))) ([] , a₂ , b₂ , c₂)
+egA-A = ap {Δ = ε ▸ A′} (λ w → top′ w) ([] ∷ a₂)
+egAB-B = ap {Δ = ε ▸ A′ ▸ B} (λ w → top′ w) ([] ∷ a₂ ∷ b₂)
+egAB-A = ap {Δ = ε ▸ A′ ▸ B} (λ w → top′ (pop′ w)) ([] ∷ a₂ ∷ b₂)
+egABC-C = ap {Δ = ε ▸ A′ ▸ B ▸ C} (λ w → top′ w) ([] ∷ a₂ ∷ b₂ ∷ c₂)
+egABC-B = ap {Δ = ε ▸ A′ ▸ B ▸ C} (λ w → top′ (pop′ w)) ([] ∷ a₂ ∷ b₂ ∷ c₂)
+egABC-A = ap {Δ = ε ▸ A′ ▸ B ▸ C} (λ w → top′ (pop′ (pop′ w))) ([] ∷ a₂ ∷ b₂ ∷ c₂)
