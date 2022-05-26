@@ -22,6 +22,9 @@ rev reflᵉ = reflᵉ
 cong : {A B : Typeᵉ} (f : A → B) {x y : A} (p : x ≡ y) → f x ≡ f y
 cong f reflᵉ = reflᵉ
 
+cong2 : {A B C : Typeᵉ} (f : A → B → C) {x y : A} (p : x ≡ y) {u v : B} (q : u ≡ v) → f x u ≡ f y v
+cong2 f reflᵉ reflᵉ = reflᵉ
+
 -- {A : Type} (B : A → Type) {x y : A} (p : x ≡ y) (u : B x) → B y
 coe→ : {A B : Type} → (A ≡ B) → A → B
 coe→ reflᵉ u = u
@@ -235,12 +238,13 @@ Id-const▸-reflᵉ B A δ₂ a₀ a₁ = axiomK
 {-# REWRITE Id-const▸-reflᵉ #-}
 
 postulate
-  -- Here we coerce along Id-const to deal with an arbitrary context Δ
-  -- (following approach (2) above).
-  ap-const : {Δ : Tel} {A : Type} (f : A) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
-    ap {Δ = Δ} (λ _ → f) δ₂ ≡ coe← (Id-const Δ A δ₂ f f) (refl f) 
+  -- For ap-const, we follow approach (1) above, and in fact we omit
+  -- the case of the empty context since in that case it would be
+  -- reducing refl to itself.
+  ap-const▸ : {Δ : Tel} {X : el′ Δ → Type} {A : Type} (f : A) {δ₀ δ₁ : el (Δ ▸ X)} (δ₂ : el (ID (Δ ▸ X) δ₀ δ₁)) →
+    ap {Δ = Δ ▸ X} (λ _ → f) δ₂ ≡ refl f
 
-{-# REWRITE ap-const #-}
+{-# REWRITE ap-const▸ #-}
 
 --------------------------------------------------
 -- Identity types over reflexivity telescopes
@@ -393,53 +397,65 @@ postulate
 
 {-# REWRITE ap-top ap-var-top ap-var-pop #-}
 
-{-
-
 ----------------------------------------
 -- Functoriality of Id and Ap
 ----------------------------------------
 
-postulate
-  -- This should really compute in the other direction.  (In actual HOTT, it is proven admissible over the structure of A.)  But Agda can't compute it in that direction.  In this direction, it sometimes rewrites, but not always, e.g. if the ap computes in a different way, so sometimes we may have to coerce along it explicitly.
-  Id¹-ap : {Δ₁ Δ₂ : Type} (A : Δ₂ → Type) (f : Δ₁ → Δ₂) {δ δ' : Δ₁} (ρ : Id Δ₁ δ δ') (a : A (f δ)) (a' : A (f δ')) →
-    Id¹ A (ap f ρ) a a' ≡ Id¹ (λ x → A (f x)) ρ a a'
-  -- ap-ap
-
-{-# REWRITE ap-const ap-refl ap-idmap #-}
-{-# REWRITE Id¹-ap #-}
+-- This is a lot like Id-REFL, in fact the latter is morally a special
+-- case of it.  But it may not be subject to the same infinite-loops
+-- problem.
 
 postulate
-  -- Like Id¹-ap, this should really compute in the other direction
-  Id²-ap¹ : {Δ₁ Δ₂ : Type} {Δ₃ : Δ₂ → Type} (A : (x : Δ₂) → Δ₃ x → Type)
-            (f : Δ₁ → Δ₂) (g : (x : Δ₁) → Δ₃ (f x)) {δ δ' : Δ₁} (ρ : Id Δ₁ δ δ')
-            (a : A (f δ) (g δ)) (a' : A (f δ') (g δ')) →
-     Id² A (ap f ρ) (ap g ρ) a a' ≡ Id¹ (λ x → A (f x) (g x)) ρ a a' 
-  -- We assert this special case of it separately, since Agda can't rewrite ρ backwards to "ap idmap ρ".
-  Id²-ap¹-idmap : {Δ₁ : Type} {Δ₃ : Δ₁ → Type} (A : (x : Δ₁) → Δ₃ x → Type)
-            (g : (x : Δ₁) → Δ₃ x) {δ δ' : Δ₁} (ρ : Id Δ₁ δ δ')
-            (a : A δ (g δ)) (a' : A δ' (g δ')) →
-     Id² A ρ (ap g ρ) a a' ≡ Id¹ (λ x → A x (g x)) ρ a a' 
+  AP : {Θ Δ : Tel} (f : el′ Θ → el′ Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) → el (ID Δ (` (f (′ t₀))) (` (f (′ t₁))))
+  -- This should really compute in the other direction.  (In actual
+  -- HOTT, it is admissible over the structure of A.)  But Agda can't
+  -- compute it in that direction.  In this direction, it sometimes
+  -- rewrites, but not always, e.g. if the AP computes in a different
+  -- way, so sometimes we may have to coerce along it explicitly.
+  Id-AP : {Θ Δ : Tel} (f : el′ Θ → el′ Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
+    (A : el′ Δ → Type) (a₀ : A (f (′ t₀))) (a₁ : A (f (′ t₁))) →
+    Id′ A (AP f t₂) a₀ a₁ ≡ Id′ (λ w → A (f w)) t₂ a₀ a₁
 
-{-# REWRITE Id²-ap¹ #-}
-{-# REWRITE Id²-ap¹-idmap #-}
+{-# REWRITE Id-AP #-}
 
+postulate
+  APε : {Θ : Tel} (f : el′ Θ → el′ ε) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) → AP f t₂ ≡ []
+  AP▸ : {Θ Δ : Tel} (A : el′ Δ → Type) (f : el′ Θ → el′ (Δ ▸ A)) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) →
+    AP {Θ} {Δ ▸ A} f t₂ ≡ (AP (λ w → pop′ (f w)) t₂ , coe← (cong2 (Id′ (λ w → A (pop′ (f w))) t₂) coe←≡ coe←≡) (ap (λ w → top′ (f w)) t₂))
 
+{-# REWRITE APε AP▸ #-}
+
+postulate
+  ap-AP : {Θ Δ : Tel} (f : el′ Θ → el′ Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) {A : el′ Δ → Type} (g : (x : el′ Δ) → A x) →
+    ap g (AP f t₂) ≡ ap (λ w → g (f w)) t₂
+
+{-# REWRITE ap-AP #-}
+
+--------------------
 -- Unit type
+--------------------
 
 record ⊤ : Type where
   constructor ★
 
 postulate
-  Id⊤ : (u v : ⊤) → Id ⊤ u v ≡ ⊤
+  Id⊤ : {Δ : Tel} {δ₀ δ₁ : el Δ} {δ₂ : el (ID Δ δ₀ δ₁)} (u v : ⊤) → Id′ {Δ} (λ _ → ⊤) δ₂ u v ≡ ⊤
 
 {-# REWRITE Id⊤ #-}
 
 postulate
-  refl★ : refl ★ ≡ ★
-  -- This is a special case of ap-const
-  --ap★ : {Δ : Type} {δ δ' : Δ} (ρ : Id Δ δ δ') → ap {Δ = Δ} {A = λ _ → ⊤} (λ _ → ★) ρ ≡ ★
+  ap★ : {Δ : Tel} {δ₀ δ₁ : el Δ} {δ₂ : el (ID Δ δ₀ δ₁)} → ap {Δ} (λ _ → ★) δ₂ ≡ ★
+  -- I think Id-pop-⊤ should be a special case of Id-pop-const
+  -- Id-pop-⊤ : {Δ : Tel} (X : el′ Δ → Type) {δ₀ δ₁ : el (Δ ▸ X)} (δ₂ : el (ID (Δ ▸ X) δ₀ δ₁)) (a₀ a₁ : ⊤) →
+  --   Id-pop X (λ _ → ⊤) δ₂ a₀ a₁ ≡ reflᵉ
 
+{-# REWRITE ap★ #-}
+
+--------------------
 -- Product types
+--------------------
+
+{-
 
 -- Would it work to derive these from Σ-types?
 
