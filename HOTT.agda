@@ -155,30 +155,19 @@ el (Δ ▸ A) = Σᵉ (el Δ) (λ δ → A (′ δ))
 -- below.)  Thus, we can consistently rewrite along them.
 {-# REWRITE ′` `′ #-}
 
+-- Amusingly, although we declare ′` and `′ as rewrites and so we
+-- should never have to coerce along them from now on, we had to
+-- coerce along ′` in the definition of `, and along `′ in the
+-- definition of itself, before we were able to declare them as
+-- rewrites.  Thus, those coercions may end up appearing in other
+-- terms.  So we additionally postulate that these equalities
+-- themselves are reflexivity, and declare *these* also as rewrites,
+-- so that those coercions reduce away.
 postulate
   ′`reflᵉ : {Δ : Tel} (δ : el′ Δ) → ′` δ ≡ reflᵉ
   `′reflᵉ : {Δ : Tel} (δ : el Δ) → `′ δ ≡ reflᵉ
 
 {-# REWRITE ′`reflᵉ `′reflᵉ #-}
-
-------------------------------
--- Variables
-------------------------------
-
-data Var : Tel → Type where
-  v0 : {Δ : Tel} (A : el′ Δ → Type) → Var (Δ ▸ A)
-  vs : {Δ : Tel} (A : el′ Δ → Type) → Var Δ → Var (Δ ▸ A)
-
-var-type : {Δ : Tel} (δ : el′ Δ) (v : Var Δ) → Type
-var-type δ (v0 {Δ} A) = A (pop′ δ)
-var-type δ (vs {Δ} A v) = var-type (pop′ δ) v
-
-postulate
-  var : {Δ : Tel} (δ : el′ Δ) (v : Var Δ) → var-type δ v
-  -- var δ (v0 A) = top′ δ
-  var-v0 : {Δ : Tel} (A : el′ Δ → Type) (δ : el′ (Δ ▸ A)) → var δ (v0 A) ≡ top′ δ
-  -- var δ (vs A v) = var (pop′ δ) v
-  var-vs : {Δ : Tel} (A : el′ Δ → Type) (v : Var Δ) (δ : el′ (Δ ▸ A)) → var δ (vs A v) ≡ var (pop′ δ) v
 
 --------------------------------------------------
 -- Identity types and identity telescopes
@@ -440,9 +429,11 @@ postulate
 
 {-# REWRITE ap-AP #-}
 
--- I'm not sure yet how best to prove and compute with this.  Maybe we can reduce it on ε and ▸?
+-- Since this rule should always fire as a rewrite, we hopefully don't
+-- need to prove it or explain how to compute with it.
 postulate
   AP-idmap : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → AP {Δ} {Δ} (λ w → w) δ₂ ≡ δ₂ 
+  -- Presumably we'll also want an AP-compose.
 
 {-# REWRITE AP-idmap #-}
 
