@@ -748,6 +748,33 @@ postulate
 
 {-# REWRITE tr→⊤ lift→⊤ tr←⊤ lift←⊤ utr→⊤ ulift→⊤ utr←⊤ ulift←⊤ #-}
 
+postulate
+  tr→× : {Δ : Tel} (A B : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (u₀ : A (′ δ₀) × B (′ δ₀)) →
+    tr→ (λ w → A w × B w) δ₂ u₀ ≡ (tr→ A δ₂ (fst u₀) , tr→ B δ₂ (snd u₀))
+  tr←× : {Δ : Tel} (A B : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (u₁ : A (′ δ₁) × B (′ δ₁)) →
+    tr← (λ w → A w × B w) δ₂ u₁ ≡ (tr← A δ₂ (fst u₁) , tr← B δ₂ (snd u₁))
+
+{-# REWRITE tr→× tr←× #-}
+
+postulate
+  lift→× : {Δ : Tel} (A B : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (u₀ : A (′ δ₀) × B (′ δ₀)) →
+    lift→ (λ w → A w × B w) δ₂ u₀ ≡ (lift→ A δ₂ (fst u₀) , lift→ B δ₂ (snd u₀))
+  lift←× : {Δ : Tel} (A B : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (u₁ : A (′ δ₁) × B (′ δ₁)) →
+    lift← (λ w → A w × B w) δ₂ u₁ ≡ (lift← A δ₂ (fst u₁) , lift← B δ₂ (snd u₁))
+
+{-# REWRITE lift→× lift←× #-}
+
+  -- utr→ : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ : A (′ δ₀))
+  --   (a₁ a₁' : A (′ δ₁)) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀ a₁') → Id (A (′ δ₁)) a₁ a₁'
+  -- ulift→ : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ : A (′ δ₀))
+  --   (a₁ a₁' : A (′ δ₁)) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀ a₁') →
+  --   Id′ {ε ▸ (λ _ → A (′ δ₁))} (λ w → Id′ A δ₂ a₀ (top′ w)) ([] ∷ utr→ A δ₂ a₀ a₁ a₁' a₂ a₂') a₂ a₂'
+  -- utr← : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₁ : A (′ δ₁))
+  --   (a₀ a₀' : A (′ δ₀)) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀' a₁) → Id (A (′ δ₀)) a₀ a₀'
+  -- ulift← : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₁ : A (′ δ₁))
+  --   (a₀ a₀' : A (′ δ₀)) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀' a₁) →
+  --   Id′ {ε ▸ (λ _ → A (′ δ₀))} (λ w → Id′ A δ₂ (top′ w) a₁) ([] ∷ utr← A δ₂ a₁ a₀ a₀' a₂ a₂') a₂ a₂'
+
 -- ...
 
 --------------------
