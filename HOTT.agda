@@ -623,9 +623,9 @@ A ⟶ B = Π A (λ _ → B)
 
 infixr 20 _⟶_
 
-{-
-
+--------------------------------------------------
 -- Contractibility and 1-1 correspondences
+--------------------------------------------------
 
 isProp : (A : Type) → Type
 isProp A = Π A (λ a₀ → Π A (λ a₁ → Id A a₀ a₁))
@@ -640,84 +640,89 @@ is11 {A} {B} R = Π A (λ a → isContr (Σ B (λ b → R ∙ a ∙ b))) × Π B
 11Corr A B = Σ (A ⟶ B ⟶ Type) is11
 
 postulate
-  tr⁰→ : {A : Type} (a₀ : A) → A
-  lift⁰→ : {A : Type} (a₀ : A) → Id A a₀ (tr⁰→ a₀)
-  tr⁰← : {A : Type} (a₁ : A) → A
-  lift⁰← : {A : Type} (a₁ : A) → Id A (tr⁰← a₁) a₁
-  utr⁰→ : {A : Type} (a₀ a₁ a₁' : A) (a₂ : Id A a₀ a₁) (a₂' : Id A a₀ a₁') → Id A a₁ a₁'
-  ulift⁰→ : {A : Type} (a₀ a₁ a₁' : A) (a₂ : Id A a₀ a₁) (a₂' : Id A a₀ a₁') → Id¹ (λ a → Id A a₀ a) (utr⁰→ a₀ a₁ a₁' a₂ a₂') a₂ a₂'
-  utr⁰← : {A : Type} (a₁ a₀ a₀' : A) (a₂ : Id A a₀ a₁) (a₂' : Id A a₀' a₁) → Id A a₀ a₀'
-  ulift⁰← : {A : Type} (a₁ a₀ a₀' : A) (a₂ : Id A a₀ a₁) (a₂' : Id A a₀' a₁) → Id¹ (λ a → Id A a a₁) (utr⁰← a₁ a₀ a₀' a₂ a₂') a₂ a₂'
+  tr→ : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ : A (′ δ₀)) → A (′ δ₁)
+  lift→ : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ : A (′ δ₀)) → Id′ A δ₂ a₀ (tr→ A δ₂ a₀)
+  tr← : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₁ : A (′ δ₁)) → A (′ δ₀)
+  lift← : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₁ : A (′ δ₁)) → Id′ A δ₂ (tr← A δ₂ a₁) a₁
+  utr→ : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ : A (′ δ₀))
+    (a₁ a₁' : A (′ δ₁)) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀ a₁') → Id (A (′ δ₁)) a₁ a₁'
+  ulift→ : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ : A (′ δ₀))
+    (a₁ a₁' : A (′ δ₁)) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀ a₁') →
+    Id′ {ε ▸ (λ _ → A (′ δ₁))} (λ w → Id′ A δ₂ a₀ (top′ w)) ([] ∷ utr→ A δ₂ a₀ a₁ a₁' a₂ a₂') a₂ a₂'
+  utr← : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₁ : A (′ δ₁))
+    (a₀ a₀' : A (′ δ₀)) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀' a₁) → Id (A (′ δ₀)) a₀ a₀'
+  ulift← : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₁ : A (′ δ₁))
+    (a₀ a₀' : A (′ δ₀)) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀' a₁) →
+    Id′ {ε ▸ (λ _ → A (′ δ₀))} (λ w → Id′ A δ₂ (top′ w) a₁) ([] ∷ utr← A δ₂ a₁ a₀ a₀' a₂ a₂') a₂ a₂'
 
-postulate
-  tr→ : {Δ : Type} (A : Δ → Type) {δ₀ δ₁ : Δ} (δ₂ : Id Δ δ₀ δ₁) (a₀ : A δ₀) → A δ₁
-  lift→ : {Δ : Type} (A : Δ → Type) {δ₀ δ₁ : Δ} (δ₂ : Id Δ δ₀ δ₁) (a₀ : A δ₀) → Id¹ A δ₂ a₀ (tr→ A δ₂ a₀)
-  tr← : {Δ : Type} (A : Δ → Type) {δ₀ δ₁ : Δ} (δ₂ : Id Δ δ₀ δ₁) (a₁ : A δ₁) → A δ₀
-  lift← : {Δ : Type} (A : Δ → Type) {δ₀ δ₁ : Δ} (δ₂ : Id Δ δ₀ δ₁) (a₁ : A δ₁) → Id¹ A δ₂ (tr← A δ₂ a₁) a₁
-  utr→ : {Δ : Type} (A : Δ → Type) {δ₀ δ₁ : Δ} (δ₂ : Id Δ δ₀ δ₁) (a₀ : A δ₀)
-    (a₁ a₁' : A δ₁) (a₂ : Id¹ A δ₂ a₀ a₁) (a₂' : Id¹ A δ₂ a₀ a₁') → Id (A δ₁) a₁ a₁'
-  ulift→ : {Δ : Type} (A : Δ → Type) {δ₀ δ₁ : Δ} (δ₂ : Id Δ δ₀ δ₁) (a₀ : A δ₀)
-    (a₁ a₁' : A δ₁) (a₂ : Id¹ A δ₂ a₀ a₁) (a₂' : Id¹ A δ₂ a₀ a₁') → Id¹ (λ a → Id¹ A δ₂ a₀ a) (utr→ A δ₂ a₀ a₁ a₁' a₂ a₂') a₂ a₂'
-  utr← : {Δ : Type} (A : Δ → Type) {δ₀ δ₁ : Δ} (δ₂ : Id Δ δ₀ δ₁) (a₁ : A δ₁)
-    (a₀ a₀' : A δ₀) (a₂ : Id¹ A δ₂ a₀ a₁) (a₂' : Id¹ A δ₂ a₀' a₁) → Id (A δ₀) a₀ a₀'
-  ulift← : {Δ : Type} (A : Δ → Type) {δ₀ δ₁ : Δ} (δ₂ : Id Δ δ₀ δ₁) (a₁ : A δ₁)
-    (a₀ a₀' : A δ₀) (a₂ : Id¹ A δ₂ a₀ a₁) (a₂' : Id¹ A δ₂ a₀' a₁) → Id¹ (λ a → Id¹ A δ₂ a a₁) (utr← A δ₂ a₁ a₀ a₀' a₂ a₂') a₂ a₂'
-
--- The universe
+------------------------------
+-- Copy-types
+------------------------------
 
 infixl 30 _↑
 infixl 30 _↓
 
 postulate
-  _↑ : {A B : Type} → 11Corr A B → Id Type A B
-  _↓ : {A B : Type} → Id Type A B → 11Corr A B
-  ↑↓ : {A B : Type} (e : 11Corr A B) → e ↑ ↓ ≡ e
+  Copy : Type → Type
+  _↑ : {A : Type} → A → Copy A
+  _↓ : {A : Type} → Copy A → A
+  ↑↓ : {A : Type} (a : A) → a ↑ ↓ ≡ a
 
 {-# REWRITE ↑↓ #-}
 
 postulate
-  reflU : (A : Type) → (refl A) ↓ ≡
-    ((Λ λ a₀ → Λ λ a₁ → Id A a₀ a₁) ﹐
-    ((Λ λ a₀ → (tr⁰→ a₀ ﹐ lift⁰→ a₀) ,
-        Λ λ x → Λ λ x' → utr⁰→ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift⁰→ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x')) ,
-     (Λ λ a₁ → (tr⁰← a₁ ﹐ lift⁰← a₁) ,
-        Λ λ x → Λ λ x' → utr⁰← a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift⁰← a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x'))))
-  apU : {Δ : Type} (A : Δ → Type) {δ₀ δ₁ : Δ} (δ₂ : Id Δ δ₀ δ₁) → (ap A δ₂) ↓ ≡
-    ((Λ λ a₀ → Λ λ a₁ → Id¹ A δ₂ a₀ a₁) ﹐
+  Id-Copy : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ : Copy (A (′ δ₀))) (a₁ : Copy (A (′ δ₁))) →
+    Id′ (λ w → Copy (A w)) δ₂ a₀ a₁ ≡ Copy (Id′ A δ₂ (a₀ ↓) (a₁ ↓))
+
+{-# REWRITE Id-Copy #-}
+
+postulate
+  ap↑ : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a : (w : el′ Δ) → A w) →
+    ap (λ w → (a w) ↑) δ₂ ≡ (ap a δ₂) ↑
+  ap↓ : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a : (w : el′ Δ) → Copy (A w)) →
+    ap (λ w → (a w) ↓) δ₂ ≡ (ap a δ₂) ↓
+
+{-# REWRITE ap↑ ap↓ #-}
+
+postulate
+  Id-pop-Copy : {Δ : Tel} (X : el′ Δ → Type) (A : el′ Δ → Type)
+    {δ₀ δ₁ : el (Δ ▸ X)} (δ₂ : el (ID (Δ ▸ X) δ₀ δ₁))
+    (u₀ : Copy (A (′ (pop δ₀)))) (u₁ : Copy (A (′ (pop δ₁)))) →
+    Id-pop X (λ w → Copy (A w)) δ₂ u₀ u₁ ≡ cong Copy (Id-pop X A δ₂ (u₀ ↓) (u₁ ↓))
+
+{-# REWRITE Id-pop-Copy #-}
+
+------------------------------
+-- The universe
+------------------------------
+
+postulate
+  IdU : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (A B : Type) →
+    Id′ {Δ} (λ _ → Type) δ₂ A B ≡ Copy (11Corr A B)
+
+{-# REWRITE IdU #-}
+
+postulate
+  apU : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → (ap A δ₂) ↓ ≡
+    ((Λ λ a₀ → Λ λ a₁ → Id′ A δ₂ a₀ a₁) ﹐ 
     ((Λ λ a₀ → (tr→ A δ₂ a₀ ﹐ lift→ A δ₂ a₀) ,
-        Λ λ x → Λ λ x' → utr→ A δ₂ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift→ A δ₂ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x')) ,
+         Λ λ x → Λ λ x' → utr→ A δ₂ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift→ A δ₂ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ) ,
       Λ λ a₁ → (tr← A δ₂ a₁ ﹐ lift← A δ₂ a₁) ,
-        Λ λ x → Λ λ x' → utr← A δ₂ a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift← A δ₂ a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x')))
+         Λ λ x → Λ λ x' → utr← A δ₂ a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift← A δ₂ a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ))
 
-{-# REWRITE reflU apU #-}
+{-# REWRITE apU #-}
 
+----------------------------------------
 -- Computing 1-1 correspondences
+----------------------------------------
 
 -- ...
 
+--------------------
 -- Symmetry
+--------------------
 
-postulate
-  sym : {A : Type} {a₀₀ a₀₁ : A} {a₀₂ : Id A a₀₀ a₀₁} {a₁₀ a₁₁ : A} {a₁₂ : Id A a₁₀ a₁₁} {a₂₀ : Id A a₀₀ a₁₀} {a₂₁ : Id A a₀₁ a₁₁} →
-    Id² (λ x y → Id A x y) a₀₂ a₁₂ a₂₀ a₂₁ → Id² (λ x y → Id A x y) a₂₀ a₂₁ a₀₂ a₁₂
-  sym-sym : {A : Type} {a₀₀ a₀₁ : A} {a₀₂ : Id A a₀₀ a₀₁} {a₁₀ a₁₁ : A} {a₁₂ : Id A a₁₀ a₁₁} {a₂₀ : Id A a₀₀ a₁₀} {a₂₁ : Id A a₀₁ a₁₁}
-    (a₂₂ : Id² (λ x y → Id A x y) a₀₂ a₁₂ a₂₀ a₂₁) →
-    -- I can't guess why Agda needs some implicit arguments supplied here, but these particular ones suffice but not fewer.
-    sym {a₁₁ = a₁₁} {a₂₀ = a₀₂} {a₂₁ = a₁₂} (sym {a₁₀ = a₁₀} {a₂₀ = a₂₀} {a₂₁ = a₂₁} a₂₂) ≡ a₂₂
-
-{-# REWRITE sym-sym #-}
-
-postulate
-  sym× : {A B : Type} {x₀₀ x₀₁ : A × B} {x₀₂ : Id (A × B) x₀₀ x₀₁} {x₁₀ x₁₁ : A × B} {x₁₂ : Id (A × B) x₁₀ x₁₁}
-    {x₂₀ : Id (A × B) x₀₀ x₁₀} {x₂₁ : Id (A × B) x₀₁ x₁₁}
-    (x₂₂ : Id² {Δ₀ = A × B} {Δ₁ = λ _ → A × B} (λ x y → Id (A × B) x y) {δ₀ = x₀₀} {δ₀' = x₀₁} x₀₂ {δ₁ = x₁₀} {δ₁' = x₁₁} x₁₂ x₂₀ x₂₁) →
-    sym {a₀₀ = x₀₀} {a₀₁ = x₀₁} {a₀₂ = x₀₂} {a₁₀ = x₁₀} {a₁₁ = x₁₁} {a₁₂ = x₁₂} {a₂₀ = x₂₀} {a₂₁ = x₂₁} x₂₂ ≡
-    {!fst x₂₂
-    --sym {A = A} {a₀₀ = fst x₀₀} {a₀₁ = fst x₀₁} {a₀₂ = fst x₀₂} {a₁₀ = fst x₁₀} {a₁₁ = fst x₁₁} {a₁₂ = fst x₁₂} {a₂₀ = fst x₂₀} {a₂₁ = fst x₂₁} (fst x₂₂)
-    --sym (snd x₂₂))!}
--}
-
-
+-- ...
 
 ----------------------------------------
 -- Examples for testing
