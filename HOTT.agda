@@ -337,7 +337,7 @@ postulate
     {δ₀ δ₁ : el (Δ ▸ X)} (δ₂ : el (ID (Δ ▸ X) δ₀ δ₁)) (a₀ a₁ : A) →
     Id-pop X (λ _ → A) δ₂ a₀ a₁ ≡ rev (Id-const Δ A (pop δ₂) a₀ a₁)
 
--- {-# REWRITE Id-pop-const #-}
+{-# REWRITE Id-pop-const #-}
 
 postulate
   -- Recall that variables in the telescope are represented as De
@@ -725,7 +725,7 @@ postulate
 {-# REWRITE uncopy-copy apU #-}
 
 ----------------------------------------
--- Computing 1-1 correspondences
+-- Transport in the unit type
 ----------------------------------------
 
 postulate
@@ -748,6 +748,10 @@ postulate
 
 {-# REWRITE tr→⊤ lift→⊤ tr←⊤ lift←⊤ utr→⊤ ulift→⊤ utr←⊤ ulift←⊤ #-}
 
+----------------------------------------
+-- Transport in product types
+----------------------------------------
+
 postulate
   tr→× : {Δ : Tel} (A B : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (u₀ : A (′ δ₀) × B (′ δ₀)) →
     tr→ (λ w → A w × B w) δ₂ u₀ ≡ (tr→ A δ₂ (fst u₀) , tr→ B δ₂ (snd u₀))
@@ -764,16 +768,71 @@ postulate
 
 {-# REWRITE lift→× lift←× #-}
 
-  -- utr→ : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ : A (′ δ₀))
-  --   (a₁ a₁' : A (′ δ₁)) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀ a₁') → Id (A (′ δ₁)) a₁ a₁'
-  -- ulift→ : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ : A (′ δ₀))
-  --   (a₁ a₁' : A (′ δ₁)) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀ a₁') →
-  --   Id′ {ε ▸ (λ _ → A (′ δ₁))} (λ w → Id′ A δ₂ a₀ (top′ w)) ([] ∷ utr→ A δ₂ a₀ a₁ a₁' a₂ a₂') a₂ a₂'
-  -- utr← : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₁ : A (′ δ₁))
-  --   (a₀ a₀' : A (′ δ₀)) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀' a₁) → Id (A (′ δ₀)) a₀ a₀'
-  -- ulift← : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₁ : A (′ δ₁))
-  --   (a₀ a₀' : A (′ δ₀)) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀' a₁) →
-  --   Id′ {ε ▸ (λ _ → A (′ δ₀))} (λ w → Id′ A δ₂ (top′ w) a₁) ([] ∷ utr← A δ₂ a₁ a₀ a₀' a₂ a₂') a₂ a₂'
+postulate
+  utr→× : {Δ : Tel} (A B : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
+    (u₀ : A (′ δ₀) × B (′ δ₀)) (u₁ u₁' : A (′ δ₁) × B (′ δ₁))
+    (u₂ : Id′ (λ w → A w × B w) δ₂ u₀ u₁) (u₂' : Id′ (λ w → A w × B w) δ₂ u₀ u₁') →
+    utr→ (λ w → A w × B w) δ₂ u₀ u₁ u₁' u₂ u₂' ≡
+    (utr→ A δ₂ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂') , utr→ B δ₂ (snd u₀) (snd u₁) (snd u₁') (snd u₂) (snd u₂'))
+  utr←× : {Δ : Tel} (A B : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
+    (u₁ : A (′ δ₁) × B (′ δ₁)) (u₀ u₀' : A (′ δ₀) × B (′ δ₀))
+    (u₂ : Id′ (λ w → A w × B w) δ₂ u₀ u₁) (u₂' : Id′ (λ w → A w × B w) δ₂ u₀' u₁) →
+    utr← (λ w → A w × B w) δ₂ u₁ u₀ u₀' u₂ u₂' ≡
+    (utr← A δ₂ (fst u₁) (fst u₀) (fst u₀') (fst u₂) (fst u₂') , utr← B δ₂ (snd u₁) (snd u₀) (snd u₀') (snd u₂) (snd u₂'))
+
+{-# REWRITE utr→× utr←× #-}
+
+postulate
+  ulift→× : {Δ : Tel} (A B : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
+    (u₀ : A (′ δ₀) × B (′ δ₀)) (u₁ u₁' : A (′ δ₁) × B (′ δ₁))
+    (u₂ : Id′ (λ w → A w × B w) δ₂ u₀ u₁) (u₂' : Id′ (λ w → A w × B w) δ₂ u₀ u₁') →
+    ulift→ (λ w → A w × B w) δ₂ u₀ u₁ u₁' u₂ u₂' ≡
+    (coe→
+      (Id-AP {ε ▸ (λ _ → A (′ {Δ} δ₁) × B (′ {Δ} δ₁))} {ε ▸ (λ _ → A (′ {Δ} δ₁))} (λ w → (pop′ w ∷′ fst (top′ w))) {[] ∷ u₁} {[] ∷ u₁'}
+        ([] ∷ (utr→ (λ z → A z) δ₂ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂') ,
+               utr→ (λ z → B z) δ₂ (snd u₀) (snd u₁) (snd u₁') (snd u₂)  (snd u₂')))
+        (λ w → Id′ A δ₂ (fst u₀) (top′ w)) (fst u₂) (fst u₂'))
+      (ulift→ A δ₂ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂')) ,
+     coe→
+      (Id-AP {ε ▸ (λ _ → A (′ {Δ} δ₁) × B (′ {Δ} δ₁))} {ε ▸ (λ _ → B (′ {Δ} δ₁))} (λ w → (pop′ w ∷′ snd (top′ w))) {[] ∷ u₁} {[] ∷ u₁'}
+        ([] ∷ (utr→ (λ z → A z) δ₂ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂') ,
+               utr→ (λ z → B z) δ₂ (snd u₀) (snd u₁) (snd u₁') (snd u₂)  (snd u₂')))
+        (λ w → Id′ B δ₂ (snd u₀) (top′ w)) (snd u₂) (snd u₂'))
+      (ulift→ B δ₂ (snd u₀) (snd u₁) (snd u₁') (snd u₂) (snd u₂')))
+  ulift←× : {Δ : Tel} (A B : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
+    (u₁ : A (′ δ₁) × B (′ δ₁)) (u₀ u₀' : A (′ δ₀) × B (′ δ₀))
+    (u₂ : Id′ (λ w → A w × B w) δ₂ u₀ u₁) (u₂' : Id′ (λ w → A w × B w) δ₂ u₀' u₁) →
+    ulift← (λ w → A w × B w) δ₂ u₁ u₀ u₀' u₂ u₂' ≡
+    (coe→
+      (Id-AP {ε ▸ (λ _ → A (′ {Δ} δ₀) × B (′ {Δ} δ₀))} {ε ▸ (λ _ → A (′ {Δ} δ₀))} (λ w → (pop′ w ∷′ fst (top′ w))) {[] ∷ u₀} {[] ∷ u₀'}
+        ([] ∷ (utr← (λ z → A z) δ₂ (fst u₁) (fst u₀) (fst u₀') (fst u₂) (fst u₂') ,
+               utr← (λ z → B z) δ₂ (snd u₁) (snd u₀) (snd u₀') (snd u₂)  (snd u₂')))
+        (λ w → Id′ A δ₂ (top′ w) (fst u₁)) (fst u₂) (fst u₂'))
+      (ulift← A δ₂ (fst u₁) (fst u₀) (fst u₀') (fst u₂) (fst u₂')) ,
+     coe→
+      (Id-AP {ε ▸ (λ _ → A (′ {Δ} δ₀) × B (′ {Δ} δ₀))} {ε ▸ (λ _ → B (′ {Δ} δ₀))} (λ w → (pop′ w ∷′ snd (top′ w))) {[] ∷ u₀} {[] ∷ u₀'}
+        ([] ∷ (utr← (λ z → A z) δ₂ (fst u₁) (fst u₀) (fst u₀') (fst u₂) (fst u₂') ,
+               utr← (λ z → B z) δ₂ (snd u₁) (snd u₀) (snd u₀') (snd u₂)  (snd u₂')))
+        (λ w → Id′ B δ₂ (top′ w) (snd u₁)) (snd u₂) (snd u₂'))
+      (ulift← B δ₂ (snd u₁) (snd u₀) (snd u₀') (snd u₂) (snd u₂')))
+
+{-# REWRITE ulift→× ulift←× #-}
+
+----------------------------------------
+-- Transport in Σ-types
+----------------------------------------
+
+-- ...
+
+----------------------------------------
+-- Transport in Π-types
+----------------------------------------
+
+-- ...
+
+----------------------------------------
+-- Transport in the universe
+----------------------------------------
 
 -- ...
 
