@@ -659,6 +659,7 @@ postulate
 -- Copy-types
 ------------------------------
 
+{-
 infixl 30 _↑
 infixl 30 _↓
 
@@ -691,26 +692,37 @@ postulate
     Id-pop X (λ w → Copy (A w)) δ₂ u₀ u₁ ≡ cong Copy (Id-pop X A δ₂ (u₀ ↓) (u₁ ↓))
 
 {-# REWRITE Id-pop-Copy #-}
+-}
 
 ------------------------------
 -- The universe
 ------------------------------
 
-postulate
-  IdU : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (A B : Type) →
-    Id′ {Δ} (λ _ → Type) δ₂ A B ≡ Copy (11Corr A B)
+-- With Copy-types, apU leads to an internal error.  So for now, we
+-- just postulate one level of copy/uncopy.
 
-{-# REWRITE IdU #-}
+-- postulate
+--   IdU : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (A B : Type) →
+--     Id′ {Δ} (λ _ → Type) δ₂ A B ≡ Copy (11Corr A B)
+
+-- {-# REWRITE IdU #-}
 
 postulate
-  apU : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → (ap A δ₂) ↓ ≡
+  uncopy : (Δ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) {A B : Type} →
+    Id′ {Δ} (λ _ → Type) δ₂ A B → 11Corr A B
+  copy : (Δ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) {A B : Type} →
+    11Corr A B → Id′ {Δ} (λ _ → Type) δ₂ A B
+  uncopy-copy : (Δ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) {A B : Type} (E : 11Corr A B) →
+    uncopy Δ δ₂ (copy Δ δ₂ E) ≡ E
+  apU : {Δ : Tel} (A : el′ Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
+    uncopy Δ δ₂ (ap A δ₂) ≡
     ((Λ λ a₀ → Λ λ a₁ → Id′ A δ₂ a₀ a₁) ﹐ 
     ((Λ λ a₀ → (tr→ A δ₂ a₀ ﹐ lift→ A δ₂ a₀) ,
          Λ λ x → Λ λ x' → utr→ A δ₂ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift→ A δ₂ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ) ,
       Λ λ a₁ → (tr← A δ₂ a₁ ﹐ lift← A δ₂ a₁) ,
          Λ λ x → Λ λ x' → utr← A δ₂ a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift← A δ₂ a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ))
 
-{-# REWRITE apU #-}
+{-# REWRITE uncopy-copy apU #-}
 
 ----------------------------------------
 -- Computing 1-1 correspondences
