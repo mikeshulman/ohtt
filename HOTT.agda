@@ -124,6 +124,9 @@ postulate
 
 {-# REWRITE βtop′ #-}
 
+uncurry : {Δ : Tel} {A : el′ Δ → Type} (B : (w : el′ Δ) → A w → Type) → el′ (Δ ▸ A) → Type
+uncurry B w = B (pop′ w) (top′ w)
+
 eq-coe←′ : {Δ : Tel} {B : el′ Δ → Type} {a₀ a₁ : el′ Δ} (a₂ : a₀ ≡ a₁) {b₁ : B a₁} →
   (a₀ ∷′ coe← (cong B a₂) b₁) ≡ (a₁ ∷′ b₁)
 eq-coe←′ reflᵉ = reflᵉ
@@ -537,7 +540,7 @@ postulate
   IdΣ : {Δ : Tel} (A : el′ Δ → Type) (B : (w : el′ Δ) → A w → Type)
     {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (u₀ : Σ (A (′ δ₀)) (λ a → B (′ δ₀) a)) (u₁ : Σ (A (′ δ₁)) (λ a → B (′ δ₁) a)) →
       Id′ {Δ} (λ w → Σ (A w) (B w)) δ₂ u₀ u₁ ≡
-       Σ (Id′ A δ₂ (π₁ u₀) (π₁ u₁)) (λ e → Id′ {Δ ▸ A} (λ w → B (pop′ w) (top′ w)) (δ₂ ∷ e) (π₂ u₀) (π₂ u₁))
+       Σ (Id′ A δ₂ (π₁ u₀) (π₁ u₁)) (λ e → Id′ {Δ ▸ A} (uncurry B) (δ₂ ∷ e) (π₂ u₀) (π₂ u₁))
 
 {-# REWRITE IdΣ #-}
 
@@ -549,7 +552,7 @@ postulate
     --- (Id-pop A (λ w → B w (f w)) (δ₂ ∷ ap f δ₂) (g (′ δ₀)) (g (′ δ₁)))
     -- but weakening (λ w → B w (f w)) doesn't give B.  We have to
     -- substitute into the side that has the general form of B.
-    (ap f δ₂ ﹐  coe← (Id-AP (λ w → (w ∷′ f w)) δ₂ (λ w → B (pop′ w) (top′ w)) _ _) (ap g δ₂))
+    (ap f δ₂ ﹐  coe← (Id-AP (λ w → (w ∷′ f w)) δ₂ (uncurry B) _ _) (ap g δ₂))
   apπ₁ : {Δ : Tel} {A : el′ Δ → Type} {B : (w : el′ Δ) → A w → Type} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
     (u : (x : el′ Δ) → Σ (A x) (B x)) → ap (λ x → π₁ (u x)) δ₂ ≡ π₁ (ap u δ₂)
 
@@ -559,7 +562,7 @@ postulate
 postulate
   apπ₂ : {Δ : Tel} {A : el′ Δ → Type} {B : (w : el′ Δ) → A w → Type} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
     (u : (x : el′ Δ) → Σ (A x) (B x)) →
-    ap (λ x → π₂ (u x)) δ₂ ≡ coe→ (Id-AP (λ w → w ∷′ π₁ (u w)) δ₂ (λ w → B (pop′ w) (top′ w)) _ _) (π₂ (ap u δ₂))
+    ap (λ x → π₂ (u x)) δ₂ ≡ coe→ (Id-AP (λ w → w ∷′ π₁ (u w)) δ₂ (uncurry B) _ _) (π₂ (ap u δ₂))
 
 {-# REWRITE apπ₂ #-}
 
@@ -597,7 +600,7 @@ postulate
       Π (A (′ δ₀)) (λ a₀ →
       Π (A (′ δ₁)) (λ a₁ →
       Π (Id′ A δ₂ a₀ a₁) (λ a₂ →
-        Id′ {Δ ▸ A} (λ w → B (pop′ w) (top′ w)) (δ₂ ∷ a₂) (f₀ ∙ a₀) (f₁ ∙ a₁))))
+        Id′ {Δ ▸ A} (uncurry B) (δ₂ ∷ a₂) (f₀ ∙ a₀) (f₁ ∙ a₁))))
 
 {-# REWRITE IdΠ #-}
 
@@ -608,7 +611,7 @@ postulate
   ap∙ :  {Δ : Tel} (A : el′ Δ → Type) (B : (w : el′ Δ) → A w → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
     (f : (x : el′ Δ) → Π (A x) (B x)) (a : (x : el′ Δ) → A x) →
     ap (λ x → f x ∙ a x) δ₂ ≡
-    coe→ (Id-AP (λ w → (w ∷′ a w)) δ₂ (λ w → B (pop′ w) (top′ w)) _ _) (ap f δ₂ ∙ (a (′ δ₀)) ∙ (a (′ δ₁)) ∙ (ap a δ₂)) 
+    coe→ (Id-AP (λ w → (w ∷′ a w)) δ₂ (uncurry B) _ _) (ap f δ₂ ∙ (a (′ δ₀)) ∙ (a (′ δ₁)) ∙ (ap a δ₂))
 
 {-# REWRITE apΛ ap∙ #-}
 
@@ -822,11 +825,71 @@ postulate
 -- Transport in Σ-types
 ----------------------------------------
 
+postulate
+  tr→Σ : {Δ : Tel} (A : el′ Δ → Type) (B : (w : el′ Δ) → A w → Type)
+    {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (u₀ : Σ (A (′ δ₀)) (B (′ δ₀))) →
+    tr→ (λ w → Σ (A w) (B w)) δ₂ u₀ ≡
+    (tr→ A δ₂ (π₁ u₀) ﹐ tr→ {Δ ▸ A} (uncurry B) (δ₂ ∷ lift→ A δ₂ (π₁ u₀)) (π₂ u₀))
+  tr←Σ : {Δ : Tel} (A : el′ Δ → Type) (B : (w : el′ Δ) → A w → Type)
+    {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (u₁ : Σ (A (′ δ₁)) (B (′ δ₁))) →
+    tr← (λ w → Σ (A w) (B w)) δ₂ u₁ ≡
+    (tr← A δ₂ (π₁ u₁) ﹐ tr← {Δ ▸ A} (uncurry B) (δ₂ ∷ lift← A δ₂ (π₁ u₁)) (π₂ u₁))
+
+{-# REWRITE tr→Σ tr←Σ #-}
+
+postulate
+  lift→Σ : {Δ : Tel} (A : el′ Δ → Type) (B : (w : el′ Δ) → A w → Type)
+    {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (u₀ : Σ (A (′ δ₀)) (B (′ δ₀))) →
+    lift→ (λ w → Σ (A w) (B w)) δ₂ u₀ ≡
+    (lift→ A δ₂ (π₁ u₀) ﹐  lift→ {Δ ▸ A} (uncurry B) (δ₂ ∷ lift→ A δ₂ (π₁ u₀)) (π₂ u₀))
+  lift←Σ : {Δ : Tel} (A : el′ Δ → Type) (B : (w : el′ Δ) → A w → Type)
+    {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (u₁ : Σ (A (′ δ₁)) (B (′ δ₁))) →
+    lift← (λ w → Σ (A w) (B w)) δ₂ u₁ ≡
+    (lift← A δ₂ (π₁ u₁) ﹐  lift← {Δ ▸ A} (uncurry B) (δ₂ ∷ lift← A δ₂ (π₁ u₁)) (π₂ u₁))
+
+{-# REWRITE lift→Σ lift←Σ #-}
+
+{-
+postulate
+  utr→Σ : {Δ : Tel} (A : el′ Δ → Type) (B : (w : el′ Δ) → A w → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
+    (u₀ : Σ (A (′ δ₀)) (B (′ δ₀))) (u₁ u₁' : Σ (A (′ δ₁)) (B (′ δ₁)))
+    (u₂ : Id′ (λ w → Σ (A w) (B w)) δ₂ u₀ u₁) (u₂' : Id′ (λ w → Σ (A w) (B w)) δ₂ u₀ u₁') →
+    utr→ (λ w → Σ (A w) (B w)) δ₂ u₀ u₁ u₁' u₂ u₂' ≡
+    (utr→ A δ₂ (π₁ u₀) (π₁ u₁) (π₁ u₁') (π₁ u₂) (π₁ u₂') ﹐
+    -- Needs symmetrized 2D horn-filling!
+    {! utr→ {Δ ▸ A} (uncurry B) (δ₂ ∷ ?) (π₂ u₀) (π₂ u₁) (π₂ u₁') (π₂ u₂) (π₂ u₂') !})
+
+-- {-# REWRITE utr→Σ utr←Σ #-}
+-}
+
 -- ...
 
 ----------------------------------------
 -- Transport in Π-types
 ----------------------------------------
+
+postulate
+  tr→Π : {Δ : Tel} (A : el′ Δ → Type) (B : (w : el′ Δ) → A w → Type)
+    {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (f₀ : Π (A (′ δ₀)) (B (′ δ₀))) →
+    tr→ (λ w → Π (A w) (B w)) δ₂ f₀ ≡
+    Λ λ a₁ → tr→ (uncurry B) (δ₂ ∷ lift← A δ₂ a₁) (f₀ ∙ (tr← A δ₂ a₁))
+  tr←Π : {Δ : Tel} (A : el′ Δ → Type) (B : (w : el′ Δ) → A w → Type)
+    {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (f₁ : Π (A (′ δ₁)) (B (′ δ₁))) →
+    tr← (λ w → Π (A w) (B w)) δ₂ f₁ ≡
+    Λ λ a₀ → tr← (uncurry B) (δ₂ ∷ lift→ A δ₂ a₀) (f₁ ∙ (tr→ A δ₂ a₀))
+
+{-# REWRITE tr→Π tr←Π #-}
+
+{-
+postulate
+  lift→Π : {Δ : Tel} (A : el′ Δ → Type) (B : (w : el′ Δ) → A w → Type)
+    {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (f₀ : Π (A (′ δ₀)) (B (′ δ₀))) →
+    lift→ (λ w → Π (A w) (B w)) δ₂ f₀ ≡
+    Λ λ a₀ → Λ λ a₁ → Λ λ a₂ →
+    -- Needs some 2D horn-filling...
+    {!--ap {ε ▸ (λ _ → A (′ δ₀))} (λ w → f₀ ∙ (top′ w)) ([] ∷ utr← A δ₂ a₁ a₀ (tr← A δ₂ a₁) a₂ (lift← A δ₂ a₁))
+     --lift→ (uncurry B) (δ₂ ∷ lift← A δ₂ a₁) (f₀ ∙ tr← A δ₂ a₁)!}
+-}
 
 -- ...
 
