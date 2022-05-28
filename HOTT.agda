@@ -61,6 +61,9 @@ record ⊤ᵉ : Typeᵉ where
 
 open ⊤ᵉ
 
+-- TODO: This is getting too yucky.  Get rid of the unprimed ones and
+-- remove the primes, and make the arguments explicit where needed.
+
 -- We use two different kinds of Σ-exotypes, one defined as a record,
 -- the other with postulates and rewrite rules.  Agda seems to have an
 -- easier time pattern-matching against records to fill in implicit
