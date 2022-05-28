@@ -253,36 +253,6 @@ postulate
 
 {-# REWRITE ID-const #-}
 
---------------------
--- Symmetry
---------------------
-
-SQ : (Δ : Tel) {δ₀₀ δ₀₁ : el Δ} (δ₀₂ : el (ID Δ δ₀₀ δ₀₁)) {δ₁₀ δ₁₁ : el Δ} (δ₁₂ : el (ID Δ δ₁₀ δ₁₁))
-  (δ₂₀ : el (ID Δ δ₀₀ δ₁₀)) (δ₂₁ : el (ID Δ δ₀₁ δ₁₁)) → Tel
-SQ Δ {δ₀₀} {δ₀₁} δ₀₂ {δ₁₀} {δ₁₁} δ₁₂ δ₂₀ δ₂₁ =
-  ID′ {Δ ► (λ _ → Δ)} (λ w → ID Δ (POP (λ _ → Δ) w) (TOP (λ _ → Δ) w))
-    {PAIR (λ _ → Δ) δ₀₀ δ₁₀} {PAIR (λ _ → Δ) δ₀₁ δ₁₁}
-    (PAIR (λ w₂ → ID′ {Δ} (λ _ → Δ) w₂ δ₁₀ δ₁₁) δ₀₂ δ₁₂)
-    δ₂₀ δ₂₁
-
-Sq : {Δ : Tel} (A : el Δ → Type)
-     {δ₀₀ δ₀₁ : el Δ} (δ₀₂ : el (ID Δ δ₀₀ δ₀₁)) {δ₁₀ δ₁₁ : el Δ} (δ₁₂ : el (ID Δ δ₁₀ δ₁₁))
-     (δ₂₀ : el (ID Δ δ₀₀ δ₁₀)) (δ₂₁ : el (ID Δ δ₀₁ δ₁₁)) (δ₂₂ : el (SQ Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁))
-     {a₀₀ : A δ₀₀} {a₀₁ : A δ₀₁} (a₀₂ : Id′ A δ₀₂ a₀₀ a₀₁) {a₁₀ : A δ₁₀} {a₁₁ : A δ₁₁} (a₁₂ : Id′ A δ₁₂ a₁₀ a₁₁)
-     (a₂₀ : Id′ A δ₂₀ a₀₀ a₁₀) (a₂₁ : Id′ A δ₂₁ a₀₁ a₁₁) → Type
-Sq {Δ} A {δ₀₀} {δ₀₁} δ₀₂ {δ₁₀} {δ₁₁} δ₁₂ δ₂₀ δ₂₁ δ₂₂ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ =
-  Id′ {Δ ► (λ _ → Δ)
-          ► (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁))
-          ▸ (λ w₀w₁w₂ → A (POP (λ _ → Δ) (POP (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁)) w₀w₁w₂)))
-          ▸ (λ w₀w₁w₂a₀ → A (TOP (λ _ → Δ) (POP (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁)) (pop w₀w₁w₂a₀))))}
-       (λ w₀w₁w₂a₀a₁ → Id′ {Δ} A (TOP (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁)) (pop (pop w₀w₁w₂a₀a₁)))
-                           (top (pop w₀w₁w₂a₀a₁)) (top w₀w₁w₂a₀a₁))
-       {PAIR (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁)) (PAIR (λ _ → Δ) δ₀₀ δ₁₀) δ₂₀ ∷ a₀₀ ∷ a₁₀}
-       {PAIR (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁)) (PAIR (λ _ → Δ) δ₀₁ δ₁₁) δ₂₁ ∷ a₀₁ ∷ a₁₁}
-       (PAIR (λ w₀₂w₁₂ → SQ Δ (POP (λ _ → ID Δ δ₁₀ δ₁₁) w₀₂w₁₂) (TOP (λ _ → ID Δ δ₁₀ δ₁₁) w₀₂w₁₂) δ₂₀ δ₂₁)
-       (PAIR (λ _ → ID Δ δ₁₀ δ₁₁) δ₀₂ δ₁₂)
-       -- TODO: Need some Id-APs
-       δ₂₂ ∷ {!a₀₂!} ∷ {!a₁₂!}) a₂₀ a₂₁
 
 --------------------------------------------------
 -- Identity types over reflexivity telescopes
@@ -442,27 +412,34 @@ postulate
 
 postulate
   AP : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) → el (ID Δ (f t₀) (f t₁))
-  -- This should really compute in the other direction.  (In actual
-  -- HOTT, it is admissible over the structure of A.)  But Agda can't
-  -- compute it in that direction.  In this direction, it sometimes
-  -- rewrites, but not always, e.g. if the AP computes in a different
-  -- way, so sometimes we may have to coerce along it explicitly.
   Id-AP : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
     (A : el Δ → Type) (a₀ : A (f t₀)) (a₁ : A (f t₁)) →
     Id′ A (AP f t₂) a₀ a₁ ≡ Id′ (λ w → A (f w)) t₂ a₀ a₁
 
-{-# REWRITE Id-AP #-}
+-- In actual HOTT, Id-AP is admissible over the structure of A.  Agda
+-- can't compute it in that direction; in the other direction it
+-- sometimes rewrites, but not always, e.g. if the AP computes in a
+-- different way.  Unfortunately, if we declare it as a rewrite, then
+-- when it fails to rewrite, we have trouble coercing along it
+-- explicitly, since the rewrite happens eagerly and prevents the
+-- types from matching.  So we decline to make it a rewrite at all,
+-- and coerce all the time.  Hopefully we can make it compute away on
+-- concrete types by giving clauses for them.
+--- {-# REWRITE Id-AP #-}
 
 postulate
   APε : {Θ : Tel} (f : el Θ → el ε) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) → AP f t₂ ≡ []
   AP▸ : {Θ Δ : Tel} (A : el Δ → Type) (f : el Θ → el (Δ ▸ A)) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) →
-    AP {Θ} {Δ ▸ A} f t₂ ≡ (AP (λ w → pop (f w)) t₂ ∷ coe← (cong2 (Id′ (λ w → A (pop (f w))) t₂) coe←≡ coe←≡) (ap (λ w → top (f w)) t₂))
+    AP {Θ} {Δ ▸ A} f t₂ ≡
+    AP (λ w → pop (f w)) t₂ ∷
+    coe← (Id-AP (λ w → pop (f w)) t₂ A (top (f t₀)) (top (f t₁)))
+      (coe← (cong2 (Id′ (λ w → A (pop (f w))) t₂) coe←≡ coe←≡) (ap (λ w → top (f w)) t₂))
 
 {-# REWRITE APε AP▸ #-}
 
 postulate
   ap-AP : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) {A : el Δ → Type} (g : (x : el Δ) → A x) →
-    ap g (AP f t₂) ≡ ap (λ w → g (f w)) t₂
+    ap g (AP f t₂) ≡ coe← (Id-AP f t₂ A (g (f t₀)) (g (f t₁))) (ap (λ w → g (f w)) t₂)
 
 {-# REWRITE ap-AP #-}
 
@@ -470,9 +447,114 @@ postulate
 -- need to prove it or explain how to compute with it.
 postulate
   AP-idmap : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → AP {Δ} {Δ} (λ w → w) δ₂ ≡ δ₂ 
-  -- Presumably we'll also want an AP-compose.
+  -- Presumably we'll also want an AP-compose, which won't be rewritable.
 
 {-# REWRITE AP-idmap #-}
+
+postulate
+  Id-AP-idmap : {Δ : Tel} {t₀ t₁ : el Δ} (t₂ : el (ID Δ t₀ t₁))
+    (A : el Δ → Type) (a₀ : A t₀) (a₁ : A t₁) →
+    Id-AP {Δ} {Δ} (λ w → w) t₂ A a₀ a₁ ≡ reflᵉ
+
+{-# REWRITE Id-AP-idmap #-}
+
+----------------------------------------
+-- AP on concatenated telescopes
+----------------------------------------
+
+postulate
+  AP-POP : {Γ : Tel} {Δ : Tel} (Θ : el Δ → Tel) (f : el Γ → el (Δ ► Θ)) (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
+    AP (λ w → POP Θ (f w)) γ₂ ≡
+    POP (λ w₂ → ID′ Θ w₂ (TOP Θ (f γ₀)) (TOP Θ (f γ₁))) (AP f γ₂)
+  AP-pop : {Γ : Tel} {Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
+    AP (λ w → pop (f w)) γ₂ ≡ pop (AP f γ₂)
+
+{-# REWRITE AP-POP AP-pop #-}
+
+-- I don't know what the type of general AP-TOP should be, and we
+-- haven't needed it yet.  The version for constant dependency is
+-- easier.
+postulate
+  AP-TOP-const : {Γ Δ Θ : Tel} (f : el Γ → el (Δ ► (λ _ → Θ))) (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
+    AP (λ w → TOP (λ _ → Θ) (f w)) γ₂ ≡
+    TOP (λ w₂ → ID Θ (TOP (λ _ → Θ) (f γ₀)) (TOP (λ _ → Θ) (f γ₁))) (AP f γ₂)
+
+{-# REWRITE AP-TOP-const #-}
+
+--------------------
+-- Symmetry
+--------------------
+
+SQ : (Δ : Tel) {δ₀₀ δ₀₁ : el Δ} (δ₀₂ : el (ID Δ δ₀₀ δ₀₁)) {δ₁₀ δ₁₁ : el Δ} (δ₁₂ : el (ID Δ δ₁₀ δ₁₁))
+  (δ₂₀ : el (ID Δ δ₀₀ δ₁₀)) (δ₂₁ : el (ID Δ δ₀₁ δ₁₁)) → Tel
+SQ Δ {δ₀₀} {δ₀₁} δ₀₂ {δ₁₀} {δ₁₁} δ₁₂ δ₂₀ δ₂₁ =
+  ID′ {Δ ► (λ _ → Δ)} (λ w → ID Δ (POP (λ _ → Δ) w) (TOP (λ _ → Δ) w))
+    {PAIR (λ _ → Δ) δ₀₀ δ₁₀} {PAIR (λ _ → Δ) δ₀₁ δ₁₁}
+    (PAIR (λ w₂ → ID′ {Δ} (λ _ → Δ) w₂ δ₁₀ δ₁₁) δ₀₂ δ₁₂)
+    δ₂₀ δ₂₁
+
+postulate
+  SYM : (Δ : Tel) {δ₀₀ δ₀₁ : el Δ} (δ₀₂ : el (ID Δ δ₀₀ δ₀₁)) {δ₁₀ δ₁₁ : el Δ} (δ₁₂ : el (ID Δ δ₁₀ δ₁₁))
+    (δ₂₀ : el (ID Δ δ₀₀ δ₁₀)) (δ₂₁ : el (ID Δ δ₀₁ δ₁₁)) →
+    el (SQ Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁) → el (SQ Δ δ₂₀ δ₂₁ δ₀₂ δ₁₂)
+  SYM-SYM : (Δ : Tel) {δ₀₀ δ₀₁ : el Δ} (δ₀₂ : el (ID Δ δ₀₀ δ₀₁)) {δ₁₀ δ₁₁ : el Δ} (δ₁₂ : el (ID Δ δ₁₀ δ₁₁))
+    (δ₂₀ : el (ID Δ δ₀₀ δ₁₀)) (δ₂₁ : el (ID Δ δ₀₁ δ₁₁)) (δ₂₂ : el (SQ Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁)) →
+    SYM Δ δ₂₀ δ₂₁ δ₀₂ δ₁₂ (SYM Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁ δ₂₂) ≡ δ₂₂
+
+{-# REWRITE SYM-SYM #-}
+
+Sq : {Δ : Tel} (A : el Δ → Type)
+     {δ₀₀ δ₀₁ : el Δ} (δ₀₂ : el (ID Δ δ₀₀ δ₀₁)) {δ₁₀ δ₁₁ : el Δ} (δ₁₂ : el (ID Δ δ₁₀ δ₁₁))
+     (δ₂₀ : el (ID Δ δ₀₀ δ₁₀)) (δ₂₁ : el (ID Δ δ₀₁ δ₁₁)) (δ₂₂ : el (SQ Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁))
+     {a₀₀ : A δ₀₀} {a₀₁ : A δ₀₁} (a₀₂ : Id′ A δ₀₂ a₀₀ a₀₁) {a₁₀ : A δ₁₀} {a₁₁ : A δ₁₁} (a₁₂ : Id′ A δ₁₂ a₁₀ a₁₁)
+     (a₂₀ : Id′ A δ₂₀ a₀₀ a₁₀) (a₂₁ : Id′ A δ₂₁ a₀₁ a₁₁) → Type
+Sq {Δ} A {δ₀₀} {δ₀₁} δ₀₂ {δ₁₀} {δ₁₁} δ₁₂ δ₂₀ δ₂₁ δ₂₂ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ =
+  Id′ {Δ ► (λ _ → Δ)
+          ► (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁))
+          ▸ (λ w₀w₁w₂ → A (POP (λ _ → Δ) (POP (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁)) w₀w₁w₂)))
+          ▸ (λ w₀w₁w₂a₀ → A (TOP (λ _ → Δ) (POP (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁)) (pop w₀w₁w₂a₀))))}
+       (λ w₀w₁w₂a₀a₁ → Id′ {Δ} A (TOP (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁)) (pop (pop w₀w₁w₂a₀a₁)))
+                           (top (pop w₀w₁w₂a₀a₁)) (top w₀w₁w₂a₀a₁))
+       {PAIR (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁)) (PAIR (λ _ → Δ) δ₀₀ δ₁₀) δ₂₀ ∷ a₀₀ ∷ a₁₀}
+       {PAIR (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁)) (PAIR (λ _ → Δ) δ₀₁ δ₁₁) δ₂₁ ∷ a₀₁ ∷ a₁₁}
+       (PAIR (λ w₀₂w₁₂ → SQ Δ (POP (λ _ → ID Δ δ₁₀ δ₁₁) w₀₂w₁₂) (TOP (λ _ → ID Δ δ₁₀ δ₁₁) w₀₂w₁₂) δ₂₀ δ₂₁)
+         (PAIR (λ _ → ID Δ δ₁₀ δ₁₁) δ₀₂ δ₁₂) δ₂₂ ∷
+         coe→ (Id-AP (λ w → (POP (λ _ → Δ) (POP (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁)) w)))
+                     {PAIR {Δ ► (λ _ → Δ)} (λ w₀w₁ → ID Δ (POP {Δ} (λ _ → Δ) w₀w₁) (TOP {Δ} (λ _ → Δ) w₀w₁))
+                           (PAIR {Δ} (λ _ → Δ) δ₀₀ δ₁₀) δ₂₀}
+                     {PAIR {Δ ► (λ _ → Δ)} (λ w₀w₁ → ID Δ (POP {Δ} (λ _ → Δ) w₀w₁) (TOP {Δ} (λ _ → Δ) w₀w₁))
+                           (PAIR {Δ} (λ _ → Δ) δ₀₁ δ₁₁) δ₂₁}
+                     (PAIR (λ w₀₂w₁₂ → SQ Δ (POP (λ _ → ID Δ δ₁₀ δ₁₁) w₀₂w₁₂) (TOP (λ _ → ID Δ δ₁₀ δ₁₁) w₀₂w₁₂) δ₂₀ δ₂₁)
+                           (PAIR (λ _ → ID Δ δ₁₀ δ₁₁) δ₀₂ δ₁₂) δ₂₂)
+                     A a₀₀ a₀₁)
+              a₀₂ ∷
+         coe→ (Id-AP (λ z → TOP (λ _ → Δ) (POP (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁)) (pop z)))
+                 {PAIR (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁)) (PAIR (λ _ → Δ) δ₀₀ δ₁₀) δ₂₀ ∷ a₀₀}
+                 {PAIR (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁)) (PAIR (λ _ → Δ) δ₀₁ δ₁₁) δ₂₁ ∷ a₀₁}
+                 (PAIR (λ w₀₂w₁₂ → SQ Δ (POP (λ _ → ID Δ δ₁₀ δ₁₁) w₀₂w₁₂) (TOP (λ _ → ID Δ δ₁₀ δ₁₁) w₀₂w₁₂) δ₂₀ δ₂₁)
+                   (PAIR (λ _ → ID Δ δ₁₀ δ₁₁) δ₀₂ δ₁₂) δ₂₂ ∷
+                   coe→ (Id-AP (λ w → POP (λ _ → Δ) (POP (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁)) w))
+                          (PAIR (λ w₀₂w₁₂ → SQ Δ (POP (λ _ → ID Δ δ₁₀ δ₁₁) w₀₂w₁₂) (TOP (λ _ → ID Δ δ₁₀ δ₁₁) w₀₂w₁₂) δ₂₀ δ₂₁)
+                            (PAIR (λ _ → ID Δ δ₁₀ δ₁₁) δ₀₂ δ₁₂) δ₂₂) A a₀₀ a₀₁)
+                   a₀₂) A a₁₀ a₁₁)
+         a₁₂)
+       a₂₀ a₂₁
+
+postulate
+  sym : {Δ : Tel} (A : el Δ → Type)
+        {δ₀₀ δ₀₁ : el Δ} (δ₀₂ : el (ID Δ δ₀₀ δ₀₁)) {δ₁₀ δ₁₁ : el Δ} (δ₁₂ : el (ID Δ δ₁₀ δ₁₁))
+        (δ₂₀ : el (ID Δ δ₀₀ δ₁₀)) (δ₂₁ : el (ID Δ δ₀₁ δ₁₁)) (δ₂₂ : el (SQ Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁))
+        {a₀₀ : A δ₀₀} {a₀₁ : A δ₀₁} (a₀₂ : Id′ A δ₀₂ a₀₀ a₀₁) {a₁₀ : A δ₁₀} {a₁₁ : A δ₁₁} (a₁₂ : Id′ A δ₁₂ a₁₀ a₁₁)
+        (a₂₀ : Id′ A δ₂₀ a₀₀ a₁₀) (a₂₁ : Id′ A δ₂₁ a₀₁ a₁₁) →
+        Sq A δ₀₂ δ₁₂ δ₂₀ δ₂₁ δ₂₂ a₀₂ a₁₂ a₂₀ a₂₁ → Sq A δ₂₀ δ₂₁ δ₀₂ δ₁₂ (SYM Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁ δ₂₂) a₂₀ a₂₁ a₀₂ a₁₂
+  sym-sym : {Δ : Tel} (A : el Δ → Type)
+            {δ₀₀ δ₀₁ : el Δ} (δ₀₂ : el (ID Δ δ₀₀ δ₀₁)) {δ₁₀ δ₁₁ : el Δ} (δ₁₂ : el (ID Δ δ₁₀ δ₁₁))
+            (δ₂₀ : el (ID Δ δ₀₀ δ₁₀)) (δ₂₁ : el (ID Δ δ₀₁ δ₁₁)) (δ₂₂ : el (SQ Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁))
+            {a₀₀ : A δ₀₀} {a₀₁ : A δ₀₁} (a₀₂ : Id′ A δ₀₂ a₀₀ a₀₁) {a₁₀ : A δ₁₀} {a₁₁ : A δ₁₁} (a₁₂ : Id′ A δ₁₂ a₁₀ a₁₁)
+            (a₂₀ : Id′ A δ₂₀ a₀₀ a₁₀) (a₂₁ : Id′ A δ₂₁ a₀₁ a₁₁) (a₂₂ : Sq A δ₀₂ δ₁₂ δ₂₀ δ₂₁ δ₂₂ a₀₂ a₁₂ a₂₀ a₂₁) →
+            sym A δ₂₀ δ₂₁ δ₀₂ δ₁₂ (SYM Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁ δ₂₂) a₂₀ a₂₁ a₀₂ a₁₂ (sym A δ₀₂ δ₁₂ δ₂₀ δ₂₁ δ₂₂ a₀₂ a₁₂ a₂₀ a₂₁ a₂₂) ≡ a₂₂
+
+{-# REWRITE sym-sym #-}
 
 --------------------
 -- Unit type
