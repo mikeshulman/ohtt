@@ -117,7 +117,7 @@ postulate
 
 {-# REWRITE βpop′ η∷′ #-}
 
-infixl 30 _▸_ _∷_ _∷′_
+infixl 30 _▸_ _►_ _∷_ _∷′_
 
 postulate
   βtop′ : {Δ : Tel} {B : el′ Δ → Type} (a : el′ Δ) (b : B a) → top′ {B = B} (a ∷′ b) ≡ b
@@ -178,6 +178,65 @@ postulate
 
 {-# REWRITE ′`reflᵉ `′reflᵉ #-}
 
+----------------------------------------
+-- Concatenation of telescopes
+----------------------------------------
+
+postulate
+  _►_ : (Δ : Tel) (Θ : el′ Δ → Tel) → Tel
+  POP′ : {Δ : Tel} (Θ : el′ Δ → Tel) → el′ (Δ ► Θ) → el′ Δ
+  TOP′ : {Δ : Tel} (Θ : el′ Δ → Tel) (w : el′ (Δ ► Θ)) → el′ (Θ (POP′ Θ w))
+  PAIR′ : {Δ : Tel} (Θ : el′ Δ → Tel) (w : el′ Δ) → el′ (Θ w) → el′ (Δ ► Θ)
+  POP : {Δ : Tel} (Θ : el′ Δ → Tel) → el (Δ ► Θ) → el Δ
+  TOP : {Δ : Tel} (Θ : el′ Δ → Tel) (w : el (Δ ► Θ)) → el (Θ (′ (POP Θ w)))
+  POP′′ : {Δ : Tel} (Θ : el′ Δ → Tel) (w : el (Δ ► Θ)) → POP′ Θ (′ w) ≡ ′ (POP Θ w)
+  POP` : {Δ : Tel} (Θ : el′ Δ → Tel) (w : el′ (Δ ► Θ)) → POP Θ (` w) ≡ ` (POP′ Θ w)
+  -- `POP′ : {Δ : Tel} (Θ : el′ Δ → Tel) (w : el′ (Δ ► Θ)) → ` (POP′ Θ w) ≡ POP Θ (` w)
+  PAIR : {Δ : Tel} (Θ : el′ Δ → Tel) (w : el Δ) → el (Θ (′ w)) → el (Δ ► Θ)
+  βPOP′ : {Δ : Tel} {Θ : el′ Δ → Tel} (w : el′ Δ) (v : el′ (Θ w)) → POP′ Θ (PAIR′ Θ w v) ≡ w
+  βPOP : {Δ : Tel} {Θ : el′ Δ → Tel} (w : el Δ) (v : el (Θ (′ w))) → POP Θ (PAIR Θ w v) ≡ w
+  ηPAIR′ : {Δ : Tel} {Θ : el′ Δ → Tel} (w : el′ (Δ ► Θ)) → (PAIR′ Θ (POP′ Θ w) (TOP′ Θ w)) ≡ w
+  ηPAIR : {Δ : Tel} {Θ : el′ Δ → Tel} (w : el (Δ ► Θ)) → (PAIR Θ (POP Θ w) (TOP Θ w)) ≡ w
+  ►ε : (Δ : Tel) → Δ ► (λ _ → ε) ≡ Δ
+  ►▸ : (Δ : Tel) (Θ : el′ Δ → Tel) (A : (w : el′ Δ) → el′ (Θ w) → Type) →
+    Δ ► (λ w → Θ w ▸ A w) ≡ (Δ ► Θ) ▸ (λ w → A (POP′ Θ w) (TOP′ Θ w))
+
+{-# REWRITE POP′′  POP` βPOP′ βPOP ηPAIR′ ηPAIR ►ε ►▸ #-}
+
+postulate
+  TOP′′ : {Δ : Tel} (Θ : el′ Δ → Tel) (w : el (Δ ► Θ)) → TOP′ Θ (′ w) ≡ ′ (TOP Θ w)
+  `TOP′ : {Δ : Tel} (Θ : el′ Δ → Tel) (w : el′ (Δ ► Θ)) → ` (TOP′ Θ w) ≡ TOP Θ (` w)
+  βTOP′ : {Δ : Tel} {Θ : el′ Δ → Tel} (w : el′ Δ) (v : el′ (Θ w)) → TOP′ Θ (PAIR′ Θ w v) ≡ v
+  βTOP : {Δ : Tel} {Θ : el′ Δ → Tel} (w : el Δ) (v : el (Θ (′ w))) → TOP Θ (PAIR Θ w v) ≡ v
+  POP′ε : (Δ : Tel) (w : el′ Δ) → POP′ (λ _ → ε) w ≡ w
+  TOP′ε : (Δ : Tel) (w : el′ Δ) → TOP′ (λ _ → ε) w ≡ []
+  POPε : (Δ : Tel) (w : el Δ) → POP (λ _ → ε) w ≡ w
+  TOPε : (Δ : Tel) (w : el Δ) → TOP (λ _ → ε) w ≡ []
+  PAIR′ε : (Δ : Tel) (w : el′ Δ) (v : el′ ε) → (PAIR′ (λ _ → ε) w v) ≡ w
+  PAIRε : (Δ : Tel) (w : el Δ) (v : el ε) → (PAIR (λ _ → ε) w v) ≡ w
+  POP′▸ : (Δ : Tel) (Θ : el′ Δ → Tel) (A : (w : el′ Δ) → el′ (Θ w) → Type)
+    (w : el′ (Δ ► (λ v → Θ v ▸ A v))) → POP′ (λ v → Θ v ▸ A v) w ≡ POP′ Θ (pop′ w)
+  POP▸ : (Δ : Tel) (Θ : el′ Δ → Tel) (A : (w : el′ Δ) → el′ (Θ w) → Type)
+    (w : el (Δ ► (λ v → Θ v ▸ A v))) → POP (λ v → Θ v ▸ A v) w ≡ POP Θ (pop w)
+
+{-# REWRITE TOP′′ `TOP′ βTOP′ POP′ε TOP′ε PAIR′ε POP′▸ βTOP POPε TOPε PAIRε POP▸ #-}
+
+postulate
+  TOP′▸ : (Δ : Tel) (Θ : el′ Δ → Tel) (A : (w : el′ Δ) → el′ (Θ w) → Type)
+    (w : el′ (Δ ► (λ v → Θ v ▸ A v))) → TOP′ (λ v → Θ v ▸ A v) w ≡ (TOP′ Θ (pop′ w) ∷′ top′ w)
+  TOP▸ : (Δ : Tel) (Θ : el′ Δ → Tel) (A : (w : el′ Δ) → el′ (Θ w) → Type)
+    (w : el (Δ ► (λ v → Θ v ▸ A v))) → TOP (λ v → Θ v ▸ A v) w ≡ (TOP Θ (pop w) ∷ top w)
+
+{-# REWRITE TOP′▸ TOP▸ #-}
+
+postulate
+  PAIR′▸ : (Δ : Tel) (Θ : el′ Δ → Tel) (A : (w : el′ Δ) → el′ (Θ w) → Type) (w : el′ Δ) (v : el′ (Θ w ▸ A w)) →
+    (PAIR′ (λ w → Θ w ▸ A w) w v) ≡ (PAIR′ Θ w (pop′ v)) ∷′ top′ v
+  PAIR▸ : (Δ : Tel) (Θ : el′ Δ → Tel) (A : (w : el′ Δ) → el′ (Θ w) → Type) (w : el Δ) (v : el (Θ (′ w) ▸ A (′ w))) →
+    (PAIR (λ w → Θ w ▸ A w) w v) ≡ (PAIR Θ w (pop v)) ∷ top v
+
+{-# REWRITE PAIR′▸ PAIR▸ #-}
+
 --------------------------------------------------
 -- Identity types and identity telescopes
 --------------------------------------------------
@@ -203,6 +262,27 @@ Id A a₀ a₁ = Id′ {Δ = ε} (λ _ → A) [] a₀ a₁
 -- Reflexivity is nullary ap
 refl : {A : Type} (a : A) → Id A a a
 refl a = ap {Δ = ε} (λ _ → a) []
+
+-- Dependent identity *telescopes*!
+postulate
+  ID′ : {Δ : Tel} (Θ : el′ Δ → Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (t₀ : el (Θ (′ δ₀))) (t₁ : el (Θ (′ δ₁))) → Tel
+  ID► : {Δ : Tel} (Θ : el′ Δ → Tel) (h₀ h₁ : el (Δ ► Θ)) →
+    ID (Δ ► Θ) h₀ h₁ ≡ ID Δ (POP Θ h₀) (POP Θ h₁) ► λ w₂ → ID′ Θ (` w₂) (TOP Θ h₀) (TOP Θ h₁)
+
+{-# REWRITE ID► #-}
+
+postulate
+  ID′ε : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (t₀ t₁ : el ε) → ID′ {Δ} (λ _ → ε) δ₂ t₀ t₁ ≡ ε
+  ID′▸ : {Δ : Tel} (Θ : el′ Δ → Tel) (A : (w : el′ Δ) → el′ (Θ w) → Type)
+    {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (t₀ : el (Θ (′ δ₀) ▸ A (′ δ₀))) (t₁ : el (Θ (′ δ₁) ▸ A (′ δ₁))) →
+    ID′ (λ w → Θ w ▸ A w) δ₂ t₀ t₁ ≡
+    ID′ Θ δ₂ (pop t₀) (pop t₁) ▸
+    (λ t₂ → Id′ {Δ ► Θ} (λ w → A (POP′ Θ w) (TOP′ Θ w))
+            {PAIR Θ δ₀ (pop t₀)} {PAIR Θ δ₁ (pop t₁)}
+            (PAIR (λ w → ID′ Θ (` w) (pop t₀) (pop t₁)) δ₂ (` t₂))
+            (top t₀) (top t₁))
+
+{-# REWRITE ID′ε ID′▸ #-}
 
 --------------------------------------------------
 -- Identity types of constant families
@@ -252,6 +332,48 @@ postulate
     ap {Δ = Δ ▸ X} (λ _ → f) δ₂ ≡ refl f
 
 {-# REWRITE ap-const▸ #-}
+
+-- For dependent identity telescopes, I think we can just rewrite
+-- without worrying about loops, since telescope ID is *not* defined
+-- as a special case of dependent telescope ID′.
+postulate
+  ID-const : (Δ : Tel) (Θ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ a₁ : el Θ) →
+    ID′ {Δ = Δ} (λ _ → Θ) δ₂ a₀ a₁ ≡ ID Θ a₀ a₁
+
+{-# REWRITE ID-const #-}
+
+--------------------
+-- Symmetry
+--------------------
+
+SQ : (Δ : Tel) {δ₀₀ δ₀₁ : el Δ} (δ₀₂ : el (ID Δ δ₀₀ δ₀₁)) {δ₁₀ δ₁₁ : el Δ} (δ₁₂ : el (ID Δ δ₁₀ δ₁₁))
+  (δ₂₀ : el (ID Δ δ₀₀ δ₁₀)) (δ₂₁ : el (ID Δ δ₀₁ δ₁₁)) → Tel
+SQ Δ {δ₀₀} {δ₀₁} δ₀₂ {δ₁₀} {δ₁₁} δ₁₂ δ₂₀ δ₂₁ =
+  ID′ {Δ ► (λ _ → Δ)} (λ w → ID Δ (` (POP′ (λ _ → Δ) w)) (` (TOP′ (λ _ → Δ) w)))
+    {PAIR (λ _ → Δ) δ₀₀ δ₁₀} {PAIR (λ _ → Δ) δ₀₁ δ₁₁}
+    (PAIR (λ w₂ → ID′ {Δ} (λ _ → Δ) (` w₂) δ₁₀ δ₁₁) δ₀₂ δ₁₂)
+    δ₂₀ δ₂₁
+
+Sq : {Δ : Tel} (A : el′ Δ → Type)
+     {δ₀₀ δ₀₁ : el Δ} (δ₀₂ : el (ID Δ δ₀₀ δ₀₁)) {δ₁₀ δ₁₁ : el Δ} (δ₁₂ : el (ID Δ δ₁₀ δ₁₁))
+     (δ₂₀ : el (ID Δ δ₀₀ δ₁₀)) (δ₂₁ : el (ID Δ δ₀₁ δ₁₁)) (δ₂₂ : el (SQ Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁))
+     {a₀₀ : A (′ δ₀₀)} {a₀₁ : A (′ δ₀₁)} (a₀₂ : Id′ A δ₀₂ a₀₀ a₀₁) {a₁₀ : A (′ δ₁₀)} {a₁₁ : A (′ δ₁₁)} (a₁₂ : Id′ A δ₁₂ a₁₀ a₁₁)
+     (a₂₀ : Id′ A δ₂₀ a₀₀ a₁₀) (a₂₁ : Id′ A δ₂₁ a₀₁ a₁₁) → Type
+Sq {Δ} A {δ₀₀} {δ₀₁} δ₀₂ {δ₁₀} {δ₁₁} δ₁₂ δ₂₀ δ₂₁ δ₂₂ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ =
+  Id′ {Δ ► (λ _ → Δ)
+          ► (λ w₀w₁ → ID Δ (` (POP′ (λ _ → Δ) w₀w₁)) (` (TOP′ (λ _ → Δ) w₀w₁)))
+          ▸ (λ w₀w₁w₂ → A (POP′ (λ _ → Δ) (POP′ (λ w₀w₁ → ID Δ (` (POP′ (λ _ → Δ) w₀w₁)) (` (TOP′ (λ _ → Δ) w₀w₁))) w₀w₁w₂)))
+          ▸ (λ w₀w₁w₂a₀ → A (TOP′ (λ _ → Δ) (POP′ (λ w₀w₁ → ID Δ (` (POP′ (λ _ → Δ) w₀w₁)) (` (TOP′ (λ _ → Δ) w₀w₁))) (pop′ w₀w₁w₂a₀))))}
+       (λ w₀w₁w₂a₀a₁ → Id′ {Δ} A (` (TOP′ (λ w₀w₁ → ID Δ (` (POP′ (λ _ → Δ) w₀w₁)) (` (TOP′ (λ _ → Δ) w₀w₁))) (pop′ (pop′ w₀w₁w₂a₀a₁))))
+                           (top′ (pop′ w₀w₁w₂a₀a₁)) (top′ w₀w₁w₂a₀a₁))
+       {PAIR (λ w₀w₁ → ID Δ (` (POP′ (λ _ → Δ) w₀w₁)) (` (TOP′ (λ _ → Δ) w₀w₁))) (PAIR (λ _ → Δ) δ₀₀ δ₁₀) δ₂₀ ∷ a₀₀ ∷ a₁₀}
+       {PAIR (λ w₀w₁ → ID Δ (` (POP′ (λ _ → Δ) w₀w₁)) (` (TOP′ (λ _ → Δ) w₀w₁))) (PAIR (λ _ → Δ) δ₀₁ δ₁₁) δ₂₁ ∷ a₀₁ ∷ a₁₁}
+       ({!PAIR (λ w₀₂w₁₂ → SQ Δ (` (POP′ (λ _ → ID Δ δ₁₀ δ₁₁) w₀₂w₁₂)) (` (TOP′ (λ _ → ID Δ δ₁₀ δ₁₁) w₀₂w₁₂)) δ₂₀ δ₂₁)
+       (PAIR (λ _ → ID Δ δ₁₀ δ₁₁) δ₀₂ δ₁₂)
+       δ₂₂!} ∷ {!a₀₂!} ∷ {!a₁₂!}) a₂₀ a₂₁
+
+
+{-
 
 --------------------------------------------------
 -- Identity types over reflexivity telescopes
@@ -899,12 +1021,6 @@ postulate
 
 -- ...
 
---------------------
--- Symmetry
---------------------
-
--- ...
-
 ----------------------------------------
 -- Examples for testing
 ----------------------------------------
@@ -945,3 +1061,5 @@ egAB-A = ap {Δ = ε ▸ A′ ▸ B} (λ w → top′ (pop′ w)) ([] ∷ a₂ �
 egABC-C = ap {Δ = ε ▸ A′ ▸ B ▸ C} (λ w → top′ w) ([] ∷ a₂ ∷ b₂ ∷ c₂)
 egABC-B = ap {Δ = ε ▸ A′ ▸ B ▸ C} (λ w → top′ (pop′ w)) ([] ∷ a₂ ∷ b₂ ∷ c₂)
 egABC-A = ap {Δ = ε ▸ A′ ▸ B ▸ C} (λ w → top′ (pop′ (pop′ w))) ([] ∷ a₂ ∷ b₂ ∷ c₂)
+
+-}
