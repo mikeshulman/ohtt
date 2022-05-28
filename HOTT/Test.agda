@@ -33,9 +33,9 @@ postulate
 -- hope that for concrete types these will compute away.  In
 -- particular, with Id-pop-const, the coercions already vanish for the
 -- "-A" versions.
-egA-A = ap {Δ = ε ▸ A′} (λ w → top w) ([] ∷ a₂)
-egAB-B = ap {Δ = ε ▸ A′ ▸ B} (λ w → top w) ([] ∷ a₂ ∷ b₂)
-egAB-A = ap {Δ = ε ▸ A′ ▸ B} (λ w → top (pop w)) ([] ∷ a₂ ∷ b₂)
-egABC-C = ap {Δ = ε ▸ A′ ▸ B ▸ C} (λ w → top w) ([] ∷ a₂ ∷ b₂ ∷ c₂)
-egABC-B = ap {Δ = ε ▸ A′ ▸ B ▸ C} (λ w → top (pop w)) ([] ∷ a₂ ∷ b₂ ∷ c₂)
-egABC-A = ap {Δ = ε ▸ A′ ▸ B ▸ C} (λ w → top (pop (pop w))) ([] ∷ a₂ ∷ b₂ ∷ c₂)
+egA-A = ap {Δ = ε ▸ A′} (λ w → top w) {[] ∷ a₀} {[] ∷ a₁} ([] ∷ a₂)
+egAB-B = ap {Δ = ε ▸ A′ ▸ B} (λ w → top w) {[] ∷ a₀ ∷ b₀} {[] ∷ a₁ ∷ b₁} ([] ∷ a₂ ∷ b₂)
+egAB-A = ap {Δ = ε ▸ A′ ▸ B} (λ w → top (pop w)) {[] ∷ a₀ ∷ b₀} {[] ∷ a₁ ∷ b₁} ([] ∷ a₂ ∷ b₂)
+egABC-C = ap {Δ = ε ▸ A′ ▸ B ▸ C} (λ w → top w) {[] ∷ a₀ ∷ b₀ ∷ c₀} {[] ∷ a₁ ∷ b₁ ∷ c₁} ([] ∷ a₂ ∷ b₂ ∷ c₂)
+egABC-B = ap {Δ = ε ▸ A′ ▸ B ▸ C} (λ w → top (pop w)) {[] ∷ a₀ ∷ b₀ ∷ c₀} {[] ∷ a₁ ∷ b₁ ∷ c₁} ([] ∷ a₂ ∷ b₂ ∷ c₂)
+egABC-A = ap {Δ = ε ▸ A′ ▸ B ▸ C} (λ w → top (pop (pop w))) {[] ∷ a₀ ∷ b₀ ∷ c₀} {[] ∷ a₁ ∷ b₁ ∷ c₁} ([] ∷ a₂ ∷ b₂ ∷ c₂)

@@ -64,11 +64,11 @@ postulate
   tr→Π : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
     {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (f₀ : Π (A δ₀) (B δ₀)) →
     tr→ (λ w → Π (A w) (B w)) δ₂ f₀ ≡
-    Λ λ a₁ → tr→ (uncurry B) (δ₂ ∷ lift← A δ₂ a₁) (f₀ ∙ (tr← A δ₂ a₁))
+    Λ λ a₁ → tr→ (uncurry B) {δ₀ ∷ tr← A δ₂ a₁} {δ₁ ∷ a₁} (δ₂ ∷ lift← A δ₂ a₁) (f₀ ∙ (tr← A δ₂ a₁))
   tr←Π : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
     {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (f₁ : Π (A δ₁) (B δ₁)) →
     tr← (λ w → Π (A w) (B w)) δ₂ f₁ ≡
-    Λ λ a₀ → tr← (uncurry B) (δ₂ ∷ lift→ A δ₂ a₀) (f₁ ∙ (tr→ A δ₂ a₀))
+    Λ λ a₀ → tr← (uncurry B) {δ₀ ∷ a₀} {δ₁ ∷ tr→ A δ₂ a₀} (δ₂ ∷ lift→ A δ₂ a₀) (f₁ ∙ (tr→ A δ₂ a₀))
 
 {-# REWRITE tr→Π tr←Π #-}
 
