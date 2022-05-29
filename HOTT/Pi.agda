@@ -71,7 +71,7 @@ postulate
     Λ λ a₀ → tr← (uncurry B) {δ₀ ∷ a₀} {δ₁ ∷ tr→ A δ₂ a₀} (δ₂ ∷ lift→ A δ₂ a₀) (f₁ ∙ (tr→ A δ₂ a₀))
 
 {-# REWRITE tr→Π tr←Π #-}
-
+{-
 postulate
   foo : {A : Type} → Type → A
 
@@ -90,3 +90,4 @@ postulate
 -}
      -- ap {ε ▸ (λ _ → A δ₀)} (λ w → f₀ ∙ (top w)) {[] ∷ a₀} {[] ∷ tr← A δ₂ a₁} ([] ∷ utr← A δ₂ a₁ a₀ (tr← A δ₂ a₁) a₂ (lift← A δ₂ a₁))
      --lift→ (uncurry B) (δ₂ ∷ lift← A δ₂ a₁) (f₀ ∙ tr← A δ₂ a₁)
+-}
