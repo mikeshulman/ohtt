@@ -238,6 +238,18 @@ fill↓ {Δ} A {δ₀₀} {δ₀₁} δ₀₂ {δ₁₀} {δ₁₁} δ₁₂ δ�
 -- Degenerate squares
 ----------------------------------------
 
+{-
+
+DEGSQ-TB : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → el (SQ Δ δ₂ δ₂ (REFL δ₀) (REFL δ₁))
+DEGSQ-TB {Δ} {δ₀} {δ₁} δ₂ = {!
+ -- We need an AP-PAIR!
+ --TOP (λ w₂ → ID′ (λ z → ID Δ (FST Δ Δ z) (SND Δ Δ z)) w₂ (REFL δ₀) (REFL δ₁))
+   --  (AP {Δ} {TID Δ} (λ w → tot w w (REFL w)) δ₂)
+ !}
+
+DEGSQ-LR : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → el (SQ Δ (REFL δ₀) (REFL δ₁) δ₂ δ₂)
+DEGSQ-LR {Δ} {δ₀} {δ₁} δ₂ = {!REFL δ₂!} -- Needs an ID-REFL (and PAIR-REFL) that we may not have proven yet.
+
 -- Hmm, this should really be for refl of *any* variable in the telescope.
 postulate
   ap-refl : {Δ : Tel} {A : el Δ → Type} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) {a₀ : A δ₀} {a₁ : A δ₁} (a₂ : Id′ A δ₂ a₀ a₁) →
@@ -259,10 +271,11 @@ postulate
       --- SQ Δ (REFL δ₀) (REFL δ₁) δ₂ δ₂
       -- is related to the type of REFL δ₂:
       --- el (ID (ID Δ δ₀ δ₁) δ₂ δ₂)
-      -- by an ID-REFL (and PAIR-REFL) that we may not have proven yet.
+      -- 
 
       -- So we should hope to be able to apply symmetry to something like this:
       --- Sq A (REFL δ₀) (REFL δ₁) δ₂ δ₂ ? (refl a₀) (refl a₁) a₂ a₂
 
 !}
 
+-}

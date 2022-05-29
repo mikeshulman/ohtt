@@ -294,6 +294,7 @@ postulate
     POP (λ w₂ → ID′ Θ w₂ (TOP Θ (f γ₀)) (TOP Θ (f γ₁))) (AP f γ₂)
   AP-pop : {Γ : Tel} {Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) {γ₀ γ₁ : el Γ} (γ₂ : el (ID Γ γ₀ γ₁)) →
     AP (λ w → pop (f w)) γ₂ ≡ pop (AP f γ₂)
+  -- AP-PAIR : (TODO)
 
 {-# REWRITE APε AP∷ AP-POP AP-pop #-}
 
