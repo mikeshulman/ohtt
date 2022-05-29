@@ -72,13 +72,21 @@ postulate
 
 {-# REWRITE tr→Π tr←Π #-}
 
-{-
+postulate
+  foo : {A : Type} → Type → A
+
 postulate
   lift→Π : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
     {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (f₀ : Π (A δ₀) (B δ₀)) →
     lift→ (λ w → Π (A w) (B w)) δ₂ f₀ ≡
     Λ λ a₀ → Λ λ a₁ → Λ λ a₂ →
+    {!!}
+
     -- Needs some 2D horn-filling...
-    {!--ap {ε ▸ (λ _ → A δ₀)} (λ w → f₀ ∙ (top w)) ([] ∷ utr← A δ₂ a₁ a₀ (tr← A δ₂ a₁) a₂ (lift← A δ₂ a₁))
-     --lift→ (uncurry B) (δ₂ ∷ lift← A δ₂ a₁) (f₀ ∙ tr← A δ₂ a₁)!}
+{-
+    foo (Id′ (uncurry B) {δ₀ ∷ a₀} {δ₀ ∷ tr← A δ₂ a₁}
+             (REFL δ₀ ∷ coe← (Id-REFL A δ₀ a₀ (tr← A δ₂ a₁)) (utr← A δ₂ a₁ a₀ (tr← A δ₂ a₁) a₂ (lift← A δ₂ a₁)))
+             (f₀ ∙ a₀) (f₀ ∙ tr← A δ₂ a₁))
 -}
+     -- ap {ε ▸ (λ _ → A δ₀)} (λ w → f₀ ∙ (top w)) {[] ∷ a₀} {[] ∷ tr← A δ₂ a₁} ([] ∷ utr← A δ₂ a₁ a₀ (tr← A δ₂ a₁) a₂ (lift← A δ₂ a₁))
+     --lift→ (uncurry B) (δ₂ ∷ lift← A δ₂ a₁) (f₀ ∙ tr← A δ₂ a₁)
