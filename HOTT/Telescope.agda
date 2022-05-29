@@ -99,3 +99,15 @@ postulate
     (PAIR (λ w → Θ w ▸ A w) w v) ≡ (PAIR Θ w (pop v)) ∷ top v
 
 {-# REWRITE PAIR▸ #-}
+
+PROD : Tel → Tel → Tel
+PROD Δ Θ = Δ ► (λ _ → Θ)
+
+FST : (Δ Θ : Tel) → el (PROD Δ Θ) → el Δ
+FST Δ Θ w = POP (λ _ → Θ) w
+
+SND : (Δ Θ : Tel) → el (PROD Δ Θ) → el Θ
+SND Δ Θ w = TOP (λ _ → Θ) w
+
+PR : (Δ Θ : Tel) → el Δ → el Θ → el (PROD Δ Θ)
+PR Δ Θ u v = PAIR (λ _ → Θ) u v
