@@ -163,10 +163,10 @@ postulate
 {-# REWRITE REFLε REFL▸ #-}
 
 postulate
-  ap-refl : {Δ : Tel} {A : el Δ → Type} (f : (δ : el Δ) → A δ) (δ : el Δ) →
+  ap-REFL : {Δ : Tel} {A : el Δ → Type} (f : (δ : el Δ) → A δ) (δ : el Δ) →
     ap f (REFL δ) ≡ coe← (Id-REFL A δ (f δ) (f δ)) (refl (f δ))
 
-{-# REWRITE ap-refl #-}
+{-# REWRITE ap-REFL #-}
 
 -- However, it's unclear how useful this will ever be, since REFL
 -- won't generally appear on its own, and can't be un-rewrited from
