@@ -294,9 +294,25 @@ postulate
     POP (λ w₂ → ID′ Θ w₂ (TOP Θ (f γ₀)) (TOP Θ (f γ₁))) (AP f γ₂)
   AP-pop : {Γ : Tel} {Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) {γ₀ γ₁ : el Γ} (γ₂ : el (ID Γ γ₀ γ₁)) →
     AP (λ w → pop (f w)) γ₂ ≡ pop (AP f γ₂)
-  -- AP-PAIR : (TODO)
+  -- For a general AP-PAIR, we'd need a dependent AP′.  But we can do
+  -- POP-AP-PAIR, and the constant version AP-PR, without it.
+  POP-AP-PAIR : {Γ Δ : Tel} (Θ : el Δ → Tel) (f : el Γ → el Δ) (g : (w : el Γ) → el (Θ (f w)))
+    {γ₀ γ₁ : el Γ} (γ₂ : el (ID Γ γ₀ γ₁)) →
+    POP (λ w₂ → ID′ Θ w₂ (g γ₀) (g γ₁)) (AP (λ w → PAIR Θ (f w) (g w)) γ₂) ≡ AP f γ₂
+  AP-PR : {Γ Δ Θ : Tel} (f : el Γ → el Δ) (g : el Γ → el Θ) {γ₀ γ₁ : el Γ} (γ₂ : el (ID Γ γ₀ γ₁)) →
+    AP (λ w → PAIR (λ _ → Θ) (f w) (g w)) γ₂ ≡ PR (ID Δ (f γ₀) (f γ₁)) (ID Θ (g γ₀) (g γ₁)) (AP f γ₂) (AP g γ₂)
 
-{-# REWRITE APε AP∷ AP-POP AP-pop #-}
+{-# REWRITE APε AP∷ AP-POP AP-pop POP-AP-PAIR AP-PR #-}
+
+-- POP-AP-PAIR doesn't always seem to fire as a rewrite, I don't know
+-- why.  So we assert that it's reflexivity, so that coercions along
+-- it may reduce away.
+postulate
+  POP-AP-PAIR-reflᵉ : {Γ Δ : Tel} (Θ : el Δ → Tel) (f : el Γ → el Δ) (g : (w : el Γ) → el (Θ (f w)))
+    {γ₀ γ₁ : el Γ} (γ₂ : el (ID Γ γ₀ γ₁)) →
+    POP-AP-PAIR Θ f g γ₂ ≡ reflᵉ
+
+{-# REWRITE POP-AP-PAIR-reflᵉ #-}
 
 -- I don't know what the type of general AP-TOP should be, and we
 -- haven't needed it yet.  The constant version is easier.

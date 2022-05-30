@@ -33,9 +33,15 @@ coe→ : {A B : Type} → (A ≡ B) → A → B
 coe→ reflᵉ u = u
 
 -- {A : Type} (B : A → Type) {x y : A} (p : x ≡ y) (v : B y) → B x
--- Apparently we can't make A B : Typeᵉ here, even with cumulativity
 coe← : {A B : Type} → (A ≡ B) → B → A
 coe← reflᵉ v = v
+
+-- Apparently we can't make A B : Typeᵉ in coe→, even with cumulativity
+coe→ᵉ : {A B : Typeᵉ} → (A ≡ B) → A → B
+coe→ᵉ reflᵉ u = u
+
+coe←ᵉ : {A B : Typeᵉ} → (A ≡ B) → B → A
+coe←ᵉ reflᵉ v = v
 
 coe←≡ : {A : Type} {e : A ≡ A} {a : A} → coe← e a ≡ a
 coe←≡ {e = reflᵉ} = reflᵉ

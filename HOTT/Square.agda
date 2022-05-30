@@ -26,7 +26,7 @@ mid : {Δ : Tel} (w : el (TID Δ)) → el (ID Δ (left w) (right w))
 mid {Δ} w = TOP (λ w₀w₁ → ID Δ (FST Δ Δ w₀w₁) (SND Δ Δ w₀w₁)) w
 
 tot : {Δ : Tel} (δ₀ δ₁ : el Δ) (δ₂ : el (ID Δ δ₀ δ₁)) → el (TID Δ)
-tot {Δ} δ₀ δ₁ δ₂ = PAIR (λ w₀w₁ → ID Δ (FST Δ Δ w₀w₁) (SND Δ Δ w₀w₁)) (PAIR (λ _ → Δ) δ₀ δ₁) δ₂
+tot {Δ} δ₀ δ₁ δ₂ = PAIR (λ w₀w₁ → ID Δ (FST Δ Δ w₀w₁) (SND Δ Δ w₀w₁)) (PR Δ Δ δ₀ δ₁) δ₂
 
 TID′ : {Θ : Tel} (Δ : el Θ → Tel) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) → Tel
 TID′ {Θ} Δ {t₀} {t₁} t₂ = PROD (Δ t₀) (Δ t₁) ► (λ w₀w₁ → ID′ Δ t₂ (FST (Δ t₀) (Δ t₁) w₀w₁) (SND (Δ t₀) (Δ t₁) w₀w₁))
@@ -238,15 +238,15 @@ fill↓ {Δ} A {δ₀₀} {δ₀₁} δ₀₂ {δ₁₀} {δ₁₁} δ₁₂ δ�
 -- Degenerate squares
 ----------------------------------------
 
-{-
-
+-- Top-bottom degenerate squares in a context
 DEGSQ-TB : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → el (SQ Δ δ₂ δ₂ (REFL δ₀) (REFL δ₁))
-DEGSQ-TB {Δ} {δ₀} {δ₁} δ₂ = {!
- -- We need an AP-PAIR!
- --TOP (λ w₂ → ID′ (λ z → ID Δ (FST Δ Δ z) (SND Δ Δ z)) w₂ (REFL δ₀) (REFL δ₁))
-   --  (AP {Δ} {TID Δ} (λ w → tot w w (REFL w)) δ₂)
- !}
+DEGSQ-TB {Δ} {δ₀} {δ₁} δ₂ =
+  -- I don't understand why POP-AP-PAIR doesn't fire as a rewrite here.
+  coe→ᵉ (cong (λ ρ → el (ID′ (CID Δ) {PR Δ Δ δ₀ δ₀} {PR Δ Δ δ₁ δ₁} ρ (REFL δ₀) (REFL δ₁)))
+              (POP-AP-PAIR (CID Δ) (λ w → PR Δ Δ w w) (λ w → REFL w) δ₂))
+  (TOP (λ w₂ → ID′ (CID Δ) w₂ (REFL δ₀) (REFL δ₁)) (AP {Δ} {TID Δ} (λ w → tot w w (REFL w)) δ₂))
 
+{-
 DEGSQ-LR : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → el (SQ Δ (REFL δ₀) (REFL δ₁) δ₂ δ₂)
 DEGSQ-LR {Δ} {δ₀} {δ₁} δ₂ = {!REFL δ₂!} -- Needs an ID-REFL (and PAIR-REFL) that we may not have proven yet.
 
