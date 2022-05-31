@@ -172,6 +172,12 @@ postulate
 -- won't generally appear on its own, and can't be un-rewrited from
 -- its decomposition into refls.
 
+postulate
+  Id-REFL∷ : {Δ : Tel} (B : el Δ → Type) (A : el (Δ ▸ B) → Type) (δ : el Δ)
+    {b₀ b₁ : B δ} (b₂ : Id (B δ) b₀ b₁) (a₀ : A (δ ∷ b₀)) (a₁ : A (δ ∷ b₁)) →
+    Id′ A {δ ∷ b₀} {δ ∷ b₁} (REFL δ ∷ coe← (Id-REFL B δ b₀ b₁) b₂) a₀ a₁ ≡
+    Id′ {ε ▸ λ _ → B δ} (λ z → A (δ ∷ top z)) {[] ∷ b₀} {[] ∷ b₁} ([] ∷ b₂) a₀ a₁
+
 ------------------------------
 -- Ap on variables
 ------------------------------
@@ -283,6 +289,23 @@ postulate
 -- and coerce all the time.  Hopefully we can make it compute away on
 -- concrete types by giving clauses for them.
 --- {-# REWRITE Id-AP #-}
+
+postulate
+  ID-AP : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
+    (Γ : el Δ → Tel) (γ₀ : el (Γ (f t₀))) (γ₁ : el (Γ (f t₁))) →
+    ID′ Γ (AP f t₂) γ₀ γ₁ ≡ ID′ (λ w → Γ (f w)) t₂ γ₀ γ₁
+  ID-APε : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
+    (γ₀ : el ε) (γ₁ : el ε) →
+    ID-AP {Θ} {Δ} f t₂ (λ _ → ε) γ₀ γ₁ ≡ reflᵉ
+{-
+  ID-AP▸ : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
+    (Γ : el Δ → Tel) (A : (w : el Δ) → el (Γ w) → Type)
+    (γ₀ : el (Γ (f t₀) ▸ A (f t₀))) (γ₁ : el (Γ (f t₁) ▸ A (f t₁))) →
+    ID-AP {Θ} {Δ} f t₂ (λ w → Γ w ▸ A w) γ₀ γ₁ ≡
+    {!!}
+-}
+
+{-# REWRITE ID-APε #-}
 
 postulate
   APε : {Θ : Tel} (f : el Θ → el ε) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) → AP f t₂ ≡ []
