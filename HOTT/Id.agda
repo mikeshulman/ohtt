@@ -308,6 +308,7 @@ postulate
 {-# REWRITE ID-APε #-}
 
 postulate
+  AP-CONST : {Θ Δ : Tel} (δ : el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) → AP {Θ} (λ _ → δ) t₂ ≡ REFL δ
   APε : {Θ : Tel} (f : el Θ → el ε) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) → AP f t₂ ≡ []
   AP∷ : {Θ Δ : Tel} (A : el Δ → Type) (f : el Θ → el Δ) (a : (w : el Θ) → A (f w)) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) →
     AP {Θ} {Δ ▸ A} (λ w → (f w ∷ a w)) t₂ ≡
@@ -325,7 +326,7 @@ postulate
   AP-PR : {Γ Δ Θ : Tel} (f : el Γ → el Δ) (g : el Γ → el Θ) {γ₀ γ₁ : el Γ} (γ₂ : el (ID Γ γ₀ γ₁)) →
     AP (λ w → PAIR (λ _ → Θ) (f w) (g w)) γ₂ ≡ PR (ID Δ (f γ₀) (f γ₁)) (ID Θ (g γ₀) (g γ₁)) (AP f γ₂) (AP g γ₂)
 
-{-# REWRITE APε AP∷ AP-POP AP-pop POP-AP-PAIR AP-PR #-}
+{-# REWRITE AP-CONST APε AP∷ AP-POP AP-pop POP-AP-PAIR AP-PR #-}
 
 -- POP-AP-PAIR doesn't always seem to fire as a rewrite, I don't know
 -- why.  So we assert that it's reflexivity, so that coercions along
