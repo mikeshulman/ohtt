@@ -76,7 +76,7 @@ tsq-tb : (Δ : Tel) {δ₀₀ δ₀₁ : el Δ} (δ₀₂ : el (ID Δ δ₀₀ �
   (δ₂₀ : el (ID Δ δ₀₀ δ₁₀)) (δ₂₁ : el (ID Δ δ₀₁ δ₁₁)) (δ₂₂ : el (SQ Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁)) →
   el (TSQ-TB Δ δ₂₀ δ₂₁)
 tsq-tb Δ {δ₀₀} {δ₀₁} δ₀₂ {δ₁₀} {δ₁₁} δ₁₂ δ₂₀ δ₂₁ δ₂₂ =
-  PAIR (λ w₂ → ID′ (CID Δ) w₂ δ₂₀ δ₂₁) (PR (ID Δ δ₀₀ δ₀₁) (ID Δ δ₁₀ δ₁₁) δ₀₂ δ₁₂) δ₂₂
+  PAIR (λ w₂ → ID′ (CID Δ) {PR Δ Δ δ₀₀ δ₁₀} {PR Δ Δ δ₀₁ δ₁₁} w₂ δ₂₀ δ₂₁) (PR (ID Δ δ₀₀ δ₀₁) (ID Δ δ₁₀ δ₁₁) δ₀₂ δ₁₂) δ₂₂
 
 -- Given a type dependent on Δ, we can lift a top-bottom identity
 -- telescope to that type with a pair of appropriate identifications,
@@ -148,10 +148,12 @@ DEGSQ-TB Δ {δ₀} {δ₁} δ₂ =
   -- I don't understand why POP-AP-PAIR doesn't fire as a rewrite here.
   coe→ᵉ (cong (λ ρ → el (ID′ (CID Δ) {PR Δ Δ δ₀ δ₀} {PR Δ Δ δ₁ δ₁} ρ (REFL δ₀) (REFL δ₁)))
               (POP-AP-PAIR (CID Δ) (λ w → PR Δ Δ w w) (λ w → REFL w) δ₂))
-  (TOP (λ w₂ → ID′ (CID Δ) w₂ (REFL δ₀) (REFL δ₁)) (AP {Δ} {TID Δ} (λ w → tot w w (REFL w)) δ₂))
+  (TOP {PROD (ID Δ δ₀ δ₁) (ID Δ δ₀ δ₁)}
+       (λ w₂ → ID′ (CID Δ) {PR Δ Δ δ₀ δ₀} {PR Δ Δ δ₁ δ₁} w₂ (REFL δ₀) (REFL δ₁))
+       (AP {Δ} {TID Δ} (λ w → tot w w (REFL w)) δ₂))
 
-DEGSQ-LR : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → el (SQ Δ (REFL δ₀) (REFL δ₁) δ₂ δ₂)
-DEGSQ-LR {Δ} {δ₀} {δ₁} δ₂ = {!REFL δ₂!} -- Needs an ID-REFL (and PAIR-REFL) that we may not have proven yet.
+DEGSQ-LR : (Δ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → el (SQ Δ (REFL δ₀) (REFL δ₁) δ₂ δ₂)
+DEGSQ-LR Δ {δ₀} {δ₁} δ₂ = REFL δ₂
 
 {-
 -- Hmm, this should really be for refl of *any* variable in the telescope.

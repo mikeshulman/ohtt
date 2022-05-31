@@ -177,6 +177,24 @@ postulate
     {b₀ b₁ : B δ} (b₂ : Id (B δ) b₀ b₁) (a₀ : A (δ ∷ b₀)) (a₁ : A (δ ∷ b₁)) →
     Id′ A {δ ∷ b₀} {δ ∷ b₁} (REFL δ ∷ coe← (Id-REFL B δ b₀ b₁) b₂) a₀ a₁ ≡
     Id′ {ε ▸ λ _ → B δ} (λ z → A (δ ∷ top z)) {[] ∷ b₀} {[] ∷ b₁} ([] ∷ b₂) a₀ a₁
+  ID-REFL : {Δ : Tel} (Θ : el Δ → Tel) (δ : el Δ) (t₀ t₁ : el (Θ δ)) →
+    ID′ Θ (REFL δ) t₀ t₁ ≡ ID (Θ δ) t₀ t₁
+
+{-# REWRITE ID-REFL #-}
+
+-- These should really go in the other direction, but rewriting them
+-- in this direction allows other rules like ID-REFL to then fire on
+-- the result.  Unfortunately, they also sometimes fail to fire in
+-- this direction, I think because the telescopes involved may not be
+-- syntactically of the form (ID Δ δ δ) and so on: they may already
+-- have been reduced with ID▸, ID►, etc.
+postulate
+  PR-REFL : {Δ Θ : Tel} (δ : el Δ) (t : el Θ) →
+    PAIR {ID Δ δ δ} (λ _ → ID Θ t t) (REFL δ) (REFL t) ≡ REFL (PR Δ Θ δ t)
+  PAIR-REFL : {Δ : Tel} (Θ : el Δ → Tel) (δ : el Δ) (t : el (Θ δ)) →
+    PAIR {ID Δ δ δ} (λ w → ID′ Θ w t t) (REFL δ) (REFL t) ≡ REFL (PAIR Θ δ t)
+
+{-# REWRITE PR-REFL PAIR-REFL #-}
 
 ------------------------------
 -- Ap on variables
