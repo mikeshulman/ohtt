@@ -5,6 +5,8 @@ module HOTT.Pi where
 open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
+open import HOTT.Square
+open import HOTT.Fill
 
 --------------------
 -- Π-types
@@ -71,23 +73,39 @@ postulate
     Λ λ a₀ → tr← (uncurry B) {δ₀ ∷ a₀} {δ₁ ∷ tr→ A δ₂ a₀} (δ₂ ∷ lift→ A δ₂ a₀) (f₁ ∙ (tr→ A δ₂ a₀))
 
 {-# REWRITE tr→Π tr←Π #-}
-{-
-postulate
-  foo : {A : Type} → Type → A
 
 postulate
   lift→Π : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
     {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (f₀ : Π (A δ₀) (B δ₀)) →
     lift→ (λ w → Π (A w) (B w)) δ₂ f₀ ≡
     Λ λ a₀ → Λ λ a₁ → Λ λ a₂ →
-    {!!}
-
-    -- Needs some 2D horn-filling...
-{-
-    foo (Id′ (uncurry B) {δ₀ ∷ a₀} {δ₀ ∷ tr← A δ₂ a₁}
-             (REFL δ₀ ∷ coe← (Id-REFL A δ₀ a₀ (tr← A δ₂ a₁)) (utr← A δ₂ a₁ a₀ (tr← A δ₂ a₁) a₂ (lift← A δ₂ a₁)))
-             (f₀ ∙ a₀) (f₀ ∙ tr← A δ₂ a₁))
--}
-     -- ap {ε ▸ (λ _ → A δ₀)} (λ w → f₀ ∙ (top w)) {[] ∷ a₀} {[] ∷ tr← A δ₂ a₁} ([] ∷ utr← A δ₂ a₁ a₀ (tr← A δ₂ a₁) a₂ (lift← A δ₂ a₁))
-     --lift→ (uncurry B) (δ₂ ∷ lift← A δ₂ a₁) (f₀ ∙ tr← A δ₂ a₁)
--}
+    comp↓ (uncurry B)
+      {δ₀ ∷ a₀} {δ₁ ∷ a₁} (δ₂ ∷ a₂)
+      {δ₀ ∷ tr← A δ₂ a₁} {δ₁ ∷ a₁} (δ₂ ∷ lift← A δ₂ a₁)
+      (REFL δ₀ ∷ coe← (Id-REFL A δ₀ a₀ (tr← A δ₂ a₁)) (utr← A δ₂ a₁ a₀ (tr← A δ₂ a₁) a₂ (lift← A δ₂ a₁)))
+      (REFL δ₁ ∷ coe← (Id-REFL A δ₁ a₁ a₁) (refl a₁))
+      -- We need a square in (Δ ▸ A), and we need a way to make that
+      -- from a square in Δ and a dependent square in A.  This
+      -- requires some context rearranging, since a square in (Δ ▸ A)
+      -- mixes the As in with the Δs in the contexts.
+      (sq▸ A δ₂ δ₂ (REFL δ₀) (REFL δ₁) (DEGSQ-TB Δ δ₂)
+           a₂ (lift← A δ₂ a₁)
+           (coe← (Id-REFL A δ₀ a₀ (tr← A δ₂ a₁)) (utr← A δ₂ a₁ a₀ (tr← A δ₂ a₁) a₂ (lift← A δ₂ a₁)))
+           (coe← (Id-REFL A δ₁ a₁ a₁) (refl a₁))
+           {!coe← (Id-AP {ε ▸ (λ _ → A δ₀)} {TID Δ ▸ (λ w → A (left w)) ▸ (λ w → A (right (pop w)))}
+                  (λ z → tot δ₀ δ₁ δ₂ ∷ top z ∷ a₁)
+                  {[] ∷ a₀} {[] ∷ tr← A δ₂ a₁}
+                  ([] ∷ utr← A δ₂ a₁ a₀ (tr← A δ₂ a₁) a₂ (lift← A δ₂ a₁))
+                  (λ w → Id′ {Δ} A (mid {Δ} (pop (pop w))) (top (pop w)) (top w))
+                  a₂ (lift← A δ₂ a₁))
+              (ulift← A δ₂ a₁ a₀ (tr← A δ₂ a₁) a₂ (lift← A δ₂ a₁))
+!})
+      {f₀ ∙ a₀} {tr→ (uncurry B) {δ₀ ∷ tr← A δ₂ a₁} {δ₁ ∷ a₁} (δ₂ ∷ lift← A δ₂ a₁) (f₀ ∙ (tr← A δ₂ a₁))}
+      {f₀ ∙ tr← A δ₂ a₁} {tr→ (uncurry B) {δ₀ ∷ tr← A δ₂ a₁} {δ₁ ∷ a₁} (δ₂ ∷ lift← A δ₂ a₁) (f₀ ∙ (tr← A δ₂ a₁))}
+      (lift→ (uncurry B) {δ₀ ∷ tr← A δ₂ a₁} {δ₁ ∷ a₁} (δ₂ ∷ lift← A δ₂ a₁) (f₀ ∙ tr← A δ₂ a₁))
+      (coe← (Id-REFL∷ A (uncurry B) δ₀ (utr← A δ₂ a₁ a₀ (tr← A δ₂ a₁) a₂ (lift← A δ₂ a₁)) (f₀ ∙ a₀) (f₀ ∙ tr← A δ₂ a₁))
+        (ap {ε ▸ (λ _ → A δ₀)} (λ w → f₀ ∙ (top w))
+            {[] ∷ a₀} {[] ∷ tr← A δ₂ a₁} ([] ∷ utr← A δ₂ a₁ a₀ (tr← A δ₂ a₁) a₂ (lift← A δ₂ a₁))))
+      (coe← (Id-REFL (uncurry B) (δ₁ ∷ a₁) (tr→ (uncurry B) {δ₀ ∷ tr← A δ₂ a₁} {δ₁ ∷ a₁} (δ₂ ∷ lift← A δ₂ a₁) (f₀ ∙ tr← A δ₂ a₁))
+                                           (tr→ (uncurry B) {δ₀ ∷ tr← A δ₂ a₁} {δ₁ ∷ a₁} (δ₂ ∷ lift← A δ₂ a₁) (f₀ ∙ tr← A δ₂ a₁)))
+        (refl (tr→ (uncurry B) {δ₀ ∷ tr← A δ₂ a₁} {δ₁ ∷ a₁} (δ₂ ∷ lift← A δ₂ a₁) (f₀ ∙ (tr← A δ₂ a₁))))) 
