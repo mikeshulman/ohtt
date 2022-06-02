@@ -39,16 +39,14 @@ postulate
     {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (t₀ : el (Θ δ₀ ▸ A δ₀)) (t₁ : el (Θ δ₁ ▸ A δ₁)) →
     ID′ (λ w → Θ w ▸ A w) δ₂ t₀ t₁ ≡
     ID′ Θ δ₂ (pop t₀) (pop t₁) ▸
-    (λ t₂ → Id′ {Δ ► Θ} (λ w → A (POP Θ w) (TOP Θ w))
-            {PAIR Θ δ₀ (pop t₀)} {PAIR Θ δ₁ (pop t₁)}
+    (λ t₂ → Id′ {Δ ► Θ} (UNCURRY Θ A) {PAIR Θ δ₀ (pop t₀)} {PAIR Θ δ₁ (pop t₁)}
             (PAIR (λ w → ID′ Θ w (pop t₀) (pop t₁)) δ₂ t₂)
             (top t₀) (top t₁))
   ID′► : {Δ : Tel} (Θ : el Δ → Tel) (Γ : (w : el Δ) → el (Θ w) → Tel)
     {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (t₀ : el (Θ δ₀ ► Γ δ₀)) (t₁ : el (Θ δ₁ ► Γ δ₁)) →
     ID′ (λ w → Θ w ► Γ w) δ₂ t₀ t₁ ≡
     ID′ Θ δ₂ (POP (Γ δ₀) t₀) (POP (Γ δ₁) t₁) ►
-    (λ t₂ → ID′ {Δ ► Θ} (λ w → Γ (POP Θ w) (TOP Θ w))
-            {PAIR Θ δ₀ (POP (Γ δ₀) t₀)} {PAIR Θ δ₁ (POP (Γ δ₁) t₁)}
+    (λ t₂ → ID′ {Δ ► Θ} (UNCURRY Θ Γ) {PAIR Θ δ₀ (POP (Γ δ₀) t₀)} {PAIR Θ δ₁ (POP (Γ δ₁) t₁)}
             (PAIR (λ w → ID′ Θ w (POP (Γ δ₀) t₀) (POP (Γ δ₁) t₁)) δ₂ t₂)
             (TOP (Γ δ₀) t₀) (TOP (Γ δ₁) t₁))
 
@@ -195,7 +193,10 @@ postulate
     POP (λ w₂ → ID′ Θ w₂ (TOP Θ (f γ₀)) (TOP Θ (f γ₁))) (AP f γ₂)
   AP′-pop : {Γ : Tel} {Δ : el Γ → Tel} (A : (x : el Γ) → el (Δ x) → Type) (f : (x : el Γ) → el (Δ x ▸ A x))
             {γ₀ γ₁ : el Γ} (γ₂ : el (ID Γ γ₀ γ₁)) →
-    AP′ Δ (λ w → pop (f w)) γ₂ ≡ pop (AP′ (λ w → Δ w ▸ A w) f γ₂) 
+    AP′ Δ (λ w → pop (f w)) γ₂ ≡
+      pop {ID′ Δ γ₂ (pop (f γ₀)) (pop (f γ₁))}
+          {λ t₂ → Id′ (UNCURRY Δ A) (PAIR (λ w → ID′ Δ w (pop (f γ₀)) (pop (f γ₁))) γ₂ t₂) (top (f γ₀)) (top (f γ₁))}
+          (AP′ (λ w → Δ w ▸ A w) f γ₂)
   AP′-POP : {Γ : Tel} {Δ : el Γ → Tel} (Θ : (x : el Γ) → el (Δ x) → Tel) (f : (x : el Γ) → el (Δ x ► Θ x))
            (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
     AP′ Δ (λ w → POP (Θ w) (f w)) γ₂ ≡
