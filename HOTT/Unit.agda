@@ -13,18 +13,17 @@ open import HOTT.Id
 record ⊤ : Type where
   constructor ★
 
+-- The rule for Id′ follows from this one together with Id′-const.
 postulate
-  Id⊤ : {Δ : Tel} {δ₀ δ₁ : el Δ} {δ₂ : el (ID Δ δ₀ δ₁)} (u v : ⊤) → Id′ {Δ} (λ _ → ⊤) δ₂ u v ≡ ⊤
+  Id⊤ : (u v : ⊤) → Id ⊤ u v ≡ ⊤
 
 {-# REWRITE Id⊤ #-}
 
+-- Similarly, the rule for general ap follows from this one together with ap-const.
 postulate
-  ap★ : {Δ : Tel} {δ₀ δ₁ : el Δ} {δ₂ : el (ID Δ δ₀ δ₁)} → ap {Δ} (λ _ → ★) δ₂ ≡ ★
-  -- I think Id-pop-⊤ should be a special case of Id-pop-const
-  -- Id-pop-⊤ : {Δ : Tel} (X : el Δ → Type) {δ₀ δ₁ : el (Δ ▸ X)} (δ₂ : el (ID (Δ ▸ X) δ₀ δ₁)) (a₀ a₁ : ⊤) →
-  --   Id-pop X (λ _ → ⊤) δ₂ a₀ a₁ ≡ reflᵉ
+  refl★ : refl ★ ≡ ★
 
-{-# REWRITE ap★ #-}
+{-# REWRITE refl★ #-}
 
 ----------------------------------------
 -- Transport in the unit type
