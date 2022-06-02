@@ -64,10 +64,10 @@ postulate
   AP : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) → el (ID Δ (f t₀) (f t₁))
   AP′ : {Θ : Tel} (Δ : el Θ → Tel) (f : (x : el Θ) → el (Δ x)) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) →
     el (ID′ Δ t₂ (f t₀) (f t₁))
-  AP′-CONST : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) →
-    AP′ (λ _ → Δ) f t₂ ≡ AP f t₂
+  -- AP′-CONST : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) →
+  --   AP′ (λ _ → Δ) f t₂ ≡ AP f t₂
 
-{-# REWRITE AP′-CONST #-}
+-- {-# REWRITE AP′-CONST #-}
 
 -- Functoriality is ADMISSIBLE, so these are not rewrites.
 postulate
@@ -98,8 +98,9 @@ postulate
 -- acts on the identity.
 postulate
   AP-idmap : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → AP {Δ} {Δ} (λ w → w) δ₂ ≡ δ₂ 
+  AP′-idmap : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → AP′ {Δ} (λ _ → Δ) (λ w → w) δ₂ ≡ δ₂
 
-{-# REWRITE AP-idmap #-}
+{-# REWRITE AP-idmap AP′-idmap #-}
 
 postulate
   Id-AP-idmap : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
@@ -207,31 +208,65 @@ postulate
 {-# REWRITE AP-pop AP-POP AP′-pop AP′-POP #-}
 
 postulate
-  AP-TOP : {Γ : Tel} {Δ : Tel} (Θ : el Δ → Tel) (f : el Γ → el (Δ ► Θ)) (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
-    AP′ (λ w → Θ (POP Θ (f w))) (λ w → TOP Θ (f w)) γ₂ ≡
-    coe→ᵉ (cong el (ID-AP (λ w → POP Θ (f w)) γ₂ Θ (TOP Θ (f γ₀)) (TOP Θ (f γ₁))))
-          (TOP (λ w₂ → ID′ Θ w₂ (TOP Θ (f γ₀)) (TOP Θ (f γ₁))) (AP f γ₂))
-  AP′-TOP : {Γ : Tel} {Δ : el Γ → Tel} (Θ : (x : el Γ) → el (Δ x) → Tel) (f : (x : el Γ) → el (Δ x ► Θ x))
-            (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
-    AP′ (λ w → Θ w (POP (Θ w) (f w))) (λ w → TOP (Θ w) (f w)) γ₂ ≡
-    coe→ᵉ (cong el (ID-AP′ Δ (λ w → POP (Θ w) (f w)) γ₂ Θ (TOP (Θ γ₀) (f γ₀)) (TOP (Θ γ₁) (f γ₁))))
-          (TOP (λ t₂ → ID′ (UNCURRY Δ Θ) (PAIR (λ w → ID′ Δ w (POP (Θ γ₀) (f γ₀)) (POP (Θ γ₁) (f γ₁))) γ₂ t₂)
-                           (TOP (Θ γ₀) (f γ₀)) (TOP (Θ γ₁) (f γ₁)))
-               (AP′ (λ x → Δ x ► Θ x) f γ₂))
+  -- AP-TOP : {Γ : Tel} {Δ : Tel} (Θ : el Δ → Tel) (f : el Γ → el (Δ ► Θ)) (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
+  --   AP′ (λ w → Θ (POP Θ (f w))) (λ w → TOP Θ (f w)) γ₂ ≡
+  --   coe→ᵉ (cong el (ID-AP (λ w → POP Θ (f w)) γ₂ Θ (TOP Θ (f γ₀)) (TOP Θ (f γ₁))))
+  --         (TOP (λ w₂ → ID′ Θ w₂ (TOP Θ (f γ₀)) (TOP Θ (f γ₁))) (AP f γ₂))
+  -- AP′-TOP : {Γ : Tel} {Δ : el Γ → Tel} (Θ : (x : el Γ) → el (Δ x) → Tel) (f : (x : el Γ) → el (Δ x ► Θ x))
+  --           (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
+  --   AP′ (λ w → Θ w (POP (Θ w) (f w))) (λ w → TOP (Θ w) (f w)) γ₂ ≡
+  --   coe→ᵉ (cong el (ID-AP′ Δ (λ w → POP (Θ w) (f w)) γ₂ Θ (TOP (Θ γ₀) (f γ₀)) (TOP (Θ γ₁) (f γ₁))))
+  --         (TOP (λ t₂ → ID′ (UNCURRY Δ Θ) (PAIR (λ w → ID′ Δ w (POP (Θ γ₀) (f γ₀)) (POP (Θ γ₁) (f γ₁))) γ₂ t₂)
+  --                          (TOP (Θ γ₀) (f γ₀)) (TOP (Θ γ₁) (f γ₁)))
+  --              (AP′ (λ x → Δ x ► Θ x) f γ₂))
   -- Since we have AP′-CONST, the dependent ap-top should subsume the non-dependent case.
   ap-top : {Γ : Tel} (Δ : el Γ → Tel) (A : (x : el Γ) → el (Δ x) → Type) (f : (x : el Γ) → el (Δ x ▸ A x))
            (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
     ap (λ w → top (f w)) γ₂ ≡
     coe→ (Id-AP (λ w → PAIR Δ w (pop (f w))) γ₂ (UNCURRY Δ A) (top (f γ₀)) (top (f γ₁)))
-         (top (AP′ (λ x → Δ x ▸ A x) f γ₂))
+         (top (AP′ {Γ} (λ x → Δ x ▸ A x) f γ₂))
 
-{-# REWRITE AP-TOP AP′-TOP ap-top #-}
+-- (AP′ (λ x → Δ x ▸ A x) f γ₂)
+  -- : el (ID′ (λ x → Δ x ▸ A x) γ₂ (f γ₀) (f γ₁))
+  -- ≡ Σᵉ (ID′ (λ z → Δ z) γ₂ (pop (f γ₀)) (pop (f γ₁)))
+  -- (λ t₂ →
+  --  Id′ (UNCURRY (λ z → Δ z) (λ z z₁ → A z z₁))
+  --  (PAIR (λ w → ID′ (λ z → Δ z) w (pop (f γ₀)) (pop (f γ₁))) γ₂ t₂)
+  --  (top (f γ₀)) (top (f γ₁)))
+
+-- (_∷_ {ε} {λ δ₂ → Id′ {ε} (λ _ → A) {[]} {[]} δ₂ a₀ a₁} [] a₂)
+-- : Σᵉ ε (λ δ₂ → Id′ {ε} (λ _ → A) {[]} {[]} δ₂ a₀ a₁)
+
+
+--{-# REWRITE AP-TOP AP′-TOP ap-top #-}
 
 -- Note that ap-top, AP′-pop, AP′-CONST, and AP-idmap combine to
 -- determine the correct effect of ap on variables occurring in the
 -- telescope.  (Variables not occurring in the telescope are
 -- constants, handled by ap-const.)
 
+postulate
+  A : Type
+  a₀ a₁ : A
+  a₂ : Id′ {ε} (λ _ → A) [] a₀ a₁
+
+A′ : el ε → Type
+A′ _ = A
+
+postulate
+  B : el (ε ▸ A′) → Type
+  b₀ : B ([] ∷ a₀)
+  b₁ : B ([] ∷ a₁)
+  b₂ : Id′ B ([] ∷ a₂) b₀ b₁
+
+egA-A = ap {Δ = ε ▸ A′} (λ w → top w) {[] ∷ a₀} {[] ∷ a₁} ([] ∷ a₂)
+
+eg-ap-top = ap-top {ε ▸ A′} (λ w → ε) (λ _ → A′) (λ w → w) ([] ∷ a₀) ([] ∷ a₁) ([] ∷ a₂)
+
+egAB-B = ap {Δ = ε ▸ A′ ▸ B} (λ w → top w) {[] ∷ a₀ ∷ b₀} {[] ∷ a₁ ∷ b₁} ([] ∷ a₂ ∷ b₂)
+egAB-A = ap {Δ = ε ▸ A′ ▸ B} {λ w → A} (λ w → top (pop w)) {[] ∷ a₀ ∷ b₀} {[] ∷ a₁ ∷ b₁} ([] ∷ a₂ ∷ b₂)
+
+{-
 ------------------------------
 -- Homogeneous Id and refl
 ------------------------------
@@ -397,3 +432,4 @@ postulate
     Id′ {ε ▸ (λ _ → A δ₀)} (λ w → Id′ A δ₂ (top w) a₁) {[] ∷ a₀} {[] ∷ a₀'} ([] ∷ utr← A δ₂ a₁ a₀ a₀' a₂ a₂') a₂ a₂'
 
 -- TODO: Ugh, I suppose these need all the same rules as Id′?
+-}
