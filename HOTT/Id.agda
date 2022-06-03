@@ -16,10 +16,10 @@ postulate
   Id′ : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ : A δ₀) (a₁ : A δ₁) → Type
   -- Dependent/heterogeneous identity telescopes
   ID′ : {Δ : Tel} (Θ : el Δ → Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (t₀ : el (Θ δ₀)) (t₁ : el (Θ δ₁)) → Tel
-  ID′-CONST : (Θ Δ : Tel) (t₀ : el Θ) (t₁ : el Θ) (t₂ : el (ID Θ t₀ t₁)) (δ₀ δ₁ : el Δ) →
+  ID′-CONST : {Θ : Tel} (Δ : Tel) {t₀ : el Θ} {t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) (δ₀ δ₁ : el Δ) →
     ID′ {Θ} (λ _ → Δ) t₂ δ₀ δ₁ ≡ ID Δ δ₀ δ₁
 
-{-# REWRITE ID′-CONST #-}
+--{-# REWRITE ID′-CONST #-}
 
 -- Identity telescopes are built up from (dependent) identity types
 postulate
@@ -98,7 +98,8 @@ postulate
 -- acts on the identity.
 postulate
   AP-idmap : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → AP {Δ} {Δ} (λ w → w) δ₂ ≡ δ₂ 
-  AP′-idmap : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → AP′ {Δ} (λ _ → Δ) (λ w → w) δ₂ ≡ δ₂
+  AP′-idmap : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
+    AP′ {Δ} (λ _ → Δ) (λ w → w) δ₂ ≡ coe←ᵉ (cong el (ID′-CONST Δ δ₂ δ₀ δ₁)) δ₂
 
 {-# REWRITE AP-idmap AP′-idmap #-}
 
@@ -208,17 +209,17 @@ postulate
 {-# REWRITE AP-pop AP-POP AP′-pop AP′-POP #-}
 
 postulate
-  -- AP-TOP : {Γ : Tel} {Δ : Tel} (Θ : el Δ → Tel) (f : el Γ → el (Δ ► Θ)) (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
-  --   AP′ (λ w → Θ (POP Θ (f w))) (λ w → TOP Θ (f w)) γ₂ ≡
-  --   coe→ᵉ (cong el (ID-AP (λ w → POP Θ (f w)) γ₂ Θ (TOP Θ (f γ₀)) (TOP Θ (f γ₁))))
-  --         (TOP (λ w₂ → ID′ Θ w₂ (TOP Θ (f γ₀)) (TOP Θ (f γ₁))) (AP f γ₂))
-  -- AP′-TOP : {Γ : Tel} {Δ : el Γ → Tel} (Θ : (x : el Γ) → el (Δ x) → Tel) (f : (x : el Γ) → el (Δ x ► Θ x))
-  --           (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
-  --   AP′ (λ w → Θ w (POP (Θ w) (f w))) (λ w → TOP (Θ w) (f w)) γ₂ ≡
-  --   coe→ᵉ (cong el (ID-AP′ Δ (λ w → POP (Θ w) (f w)) γ₂ Θ (TOP (Θ γ₀) (f γ₀)) (TOP (Θ γ₁) (f γ₁))))
-  --         (TOP (λ t₂ → ID′ (UNCURRY Δ Θ) (PAIR (λ w → ID′ Δ w (POP (Θ γ₀) (f γ₀)) (POP (Θ γ₁) (f γ₁))) γ₂ t₂)
-  --                          (TOP (Θ γ₀) (f γ₀)) (TOP (Θ γ₁) (f γ₁)))
-  --              (AP′ (λ x → Δ x ► Θ x) f γ₂))
+  AP-TOP : {Γ : Tel} {Δ : Tel} (Θ : el Δ → Tel) (f : el Γ → el (Δ ► Θ)) (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
+    AP′ (λ w → Θ (POP Θ (f w))) (λ w → TOP Θ (f w)) γ₂ ≡
+    coe→ᵉ (cong el (ID-AP (λ w → POP Θ (f w)) γ₂ Θ (TOP Θ (f γ₀)) (TOP Θ (f γ₁))))
+          (TOP (λ w₂ → ID′ Θ w₂ (TOP Θ (f γ₀)) (TOP Θ (f γ₁))) (AP f γ₂))
+  AP′-TOP : {Γ : Tel} {Δ : el Γ → Tel} (Θ : (x : el Γ) → el (Δ x) → Tel) (f : (x : el Γ) → el (Δ x ► Θ x))
+            (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
+    AP′ (λ w → Θ w (POP (Θ w) (f w))) (λ w → TOP (Θ w) (f w)) γ₂ ≡
+    coe→ᵉ (cong el (ID-AP′ Δ (λ w → POP (Θ w) (f w)) γ₂ Θ (TOP (Θ γ₀) (f γ₀)) (TOP (Θ γ₁) (f γ₁))))
+          (TOP (λ t₂ → ID′ (UNCURRY Δ Θ) (PAIR (λ w → ID′ Δ w (POP (Θ γ₀) (f γ₀)) (POP (Θ γ₁) (f γ₁))) γ₂ t₂)
+                           (TOP (Θ γ₀) (f γ₀)) (TOP (Θ γ₁) (f γ₁)))
+               (AP′ (λ x → Δ x ► Θ x) f γ₂))
   -- Since we have AP′-CONST, the dependent ap-top should subsume the non-dependent case.
   ap-top : {Γ : Tel} (Δ : el Γ → Tel) (A : (x : el Γ) → el (Δ x) → Type) (f : (x : el Γ) → el (Δ x ▸ A x))
            (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
@@ -226,19 +227,7 @@ postulate
     coe→ (Id-AP (λ w → PAIR Δ w (pop (f w))) γ₂ (UNCURRY Δ A) (top (f γ₀)) (top (f γ₁)))
          (top (AP′ {Γ} (λ x → Δ x ▸ A x) f γ₂))
 
--- (AP′ (λ x → Δ x ▸ A x) f γ₂)
-  -- : el (ID′ (λ x → Δ x ▸ A x) γ₂ (f γ₀) (f γ₁))
-  -- ≡ Σᵉ (ID′ (λ z → Δ z) γ₂ (pop (f γ₀)) (pop (f γ₁)))
-  -- (λ t₂ →
-  --  Id′ (UNCURRY (λ z → Δ z) (λ z z₁ → A z z₁))
-  --  (PAIR (λ w → ID′ (λ z → Δ z) w (pop (f γ₀)) (pop (f γ₁))) γ₂ t₂)
-  --  (top (f γ₀)) (top (f γ₁)))
-
--- (_∷_ {ε} {λ δ₂ → Id′ {ε} (λ _ → A) {[]} {[]} δ₂ a₀ a₁} [] a₂)
--- : Σᵉ ε (λ δ₂ → Id′ {ε} (λ _ → A) {[]} {[]} δ₂ a₀ a₁)
-
-
---{-# REWRITE AP-TOP AP′-TOP ap-top #-}
+{-# REWRITE AP-TOP AP′-TOP ap-top #-}
 
 -- Note that ap-top, AP′-pop, AP′-CONST, and AP-idmap combine to
 -- determine the correct effect of ap on variables occurring in the
