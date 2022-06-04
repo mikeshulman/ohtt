@@ -2,7 +2,10 @@
 
 module HOTT.Rewrite where
 
-open import Agda.Primitive renaming (Set to Type; SSet to Typeᵉ) public
+--open import Agda.Primitive renaming (Set to Type; SSet to Typeᵉ) public
+open import Agda.Primitive renaming (Set to Type) public
+
+Typeᵉ = Type
 
 ------------------------------
 -- Strict equality
