@@ -52,8 +52,23 @@ axiomK {p = reflᵉ} = reflᵉ
 uip : {A : Typeᵉ} {a b : A} {p q : a ≡ b} → p ≡ q
 uip {q = reflᵉ} = axiomK
 
+coe←coe← : {A B C : Type} (p : A ≡ B) (q : B ≡ C) (r : A ≡ C) {c : C} → coe← p (coe← q c) ≡ coe← r c
+coe←coe← reflᵉ reflᵉ reflᵉ = reflᵉ
+
+coe→coe→ : {A B C : Type} (p : A ≡ B) (q : B ≡ C) (r : A ≡ C) {a : A} → coe→ q (coe→ p a) ≡ coe→ r a
+coe→coe→ reflᵉ reflᵉ reflᵉ = reflᵉ
+
+coe←coe←ᵉ : {A B C : Typeᵉ} (p : A ≡ B) (q : B ≡ C) (r : A ≡ C) {c : C} → coe←ᵉ p (coe←ᵉ q c) ≡ coe←ᵉ r c
+coe←coe←ᵉ reflᵉ reflᵉ reflᵉ = reflᵉ
+
+coe→coe→ᵉ : {A B C : Typeᵉ} (p : A ≡ B) (q : B ≡ C) (r : A ≡ C) {a : A} → coe→ᵉ q (coe→ᵉ p a) ≡ coe→ᵉ r a
+coe→coe→ᵉ reflᵉ reflᵉ reflᵉ = reflᵉ
+
 postulate
   funext : {A : Typeᵉ} {B : A → Typeᵉ} {f g : (x : A) → B x} (p : (x : A) → f x ≡ g x) → f ≡ g
   funext-reflᵉ : {A : Typeᵉ} {B : A → Typeᵉ} {f : (x : A) → B x} → funext {f = f} {g = f} (λ x → reflᵉ) ≡ reflᵉ
 
 {-# REWRITE funext-reflᵉ #-}
+
+_≡[_]_ : {A : Typeᵉ} {B : A → Typeᵉ} {a₀ : A} (b₀ : B a₀) {a₁ : A} (e : a₀ ≡ a₁) (b₁ : B a₁) → Typeᵉ
+b₀ ≡[ reflᵉ ] b₁ = b₀ ≡ b₁

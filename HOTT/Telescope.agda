@@ -144,3 +144,32 @@ SND Δ Θ w = TOP (λ _ → Θ) w
 PR : (Δ Θ : Tel) → el Δ → el Θ → el (PROD Δ Θ)
 PR Δ Θ u v = PAIR (λ _ → Θ) u v
 
+------------------------------
+-- Equality of telescopes
+------------------------------
+
+COE→ : {Γ Δ : Tel} (e : Γ ≡ Δ) → el Γ → el Δ
+COE→ e x = coe→ᵉ (cong el e) x
+
+COE← : {Γ Δ : Tel} (e : Γ ≡ Δ) → el Δ → el Γ
+COE← e x = coe←ᵉ (cong el e) x
+
+COE→COE→ : {Γ Δ Θ : Tel} (p : Γ ≡ Δ) (q : Δ ≡ Θ) (r : Γ ≡ Θ) {x : el Γ} → COE→ q (COE→ p x) ≡ COE→ r x
+COE→COE→ p q r = coe→coe→ᵉ (cong el p) (cong el q) (cong el r)
+
+COE←COE← : {Γ Δ Θ : Tel} (p : Γ ≡ Δ) (q : Δ ≡ Θ) (r : Γ ≡ Θ) {x : el Θ} → COE← p (COE← q x) ≡ COE← r x
+COE←COE← p q r = coe←coe←ᵉ (cong el p) (cong el q) (cong el r)
+
+_▸≡_ : {Δ₀ Δ₁ : Tel} {A₀ : el Δ₀ → Type} {A₁ : el Δ₁ → Type} (e : Δ₀ ≡ Δ₁) (f : A₀ ≡[ e ] A₁) → (Δ₀ ▸ A₀) ≡ (Δ₁ ▸ A₁)
+_▸≡_ reflᵉ reflᵉ = reflᵉ
+
+_►≡_ : {Δ₀ Δ₁ : Tel} {Θ₀ : el Δ₀ → Tel} {Θ₁ : el Δ₁ → Tel} (e : Δ₀ ≡ Δ₁) (f : Θ₀ ≡[ e ] Θ₁) → (Δ₀ ► Θ₀) ≡ (Δ₁ ► Θ₁)
+_►≡_ reflᵉ reflᵉ = reflᵉ
+
+postulate
+  ≡λ : {T : Typeᵉ} {Δ₀ Δ₁ : Tel} {A₀ : el Δ₀ → T} {A₁ : el Δ₁ → T} {e : Δ₀ ≡ Δ₁} →
+    ((x₀ : el Δ₀) (x₁ : el Δ₁) (x₂ : x₀ ≡[ e ] x₁) → A₀ x₀ ≡ A₁ x₁) → A₀ ≡[ e ] A₁
+  ≡λreflᵉ : {T : Typeᵉ} {Δ : Tel} (A : el Δ → T) (f : (x₀ : el Δ) (x₁ : el Δ) (x₂ : x₀ ≡ x₁) → A x₀ ≡ A x₁) →
+    ≡λ {T} {Δ} {Δ} {A} {A} {reflᵉ} (λ x₀ x₁ x₂ → f x₀ x₁ x₂) ≡ reflᵉ
+
+{-# REWRITE ≡λreflᵉ #-}
