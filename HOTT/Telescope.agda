@@ -155,10 +155,10 @@ COE← : {Γ Δ : Tel} (e : Γ ≡ Δ) → el Δ → el Γ
 COE← e x = coe←ᵉ (cong el e) x
 
 COE→COE→ : {Γ Δ Θ : Tel} (p : Γ ≡ Δ) (q : Δ ≡ Θ) (r : Γ ≡ Θ) {x : el Γ} → COE→ q (COE→ p x) ≡ COE→ r x
-COE→COE→ p q r = coe→coe→ᵉ (cong el p) (cong el q) (cong el r)
+COE→COE→ {Γ} {Δ} {Θ} p q r {x} = coe→coe→ᵉ {el Γ} {el Δ} {el Θ} (cong el p) (cong el q) (cong el r) {x}
 
 COE←COE← : {Γ Δ Θ : Tel} (p : Γ ≡ Δ) (q : Δ ≡ Θ) (r : Γ ≡ Θ) {x : el Θ} → COE← p (COE← q x) ≡ COE← r x
-COE←COE← p q r = coe←coe←ᵉ (cong el p) (cong el q) (cong el r)
+COE←COE← {Γ} {Δ} {Θ}  p q r {x} = coe←coe←ᵉ {el Γ} {el Δ} {el Θ} (cong el p) (cong el q) (cong el r) {x}
 
 _▸≡_ : {Δ₀ Δ₁ : Tel} {A₀ : el Δ₀ → Type} {A₁ : el Δ₁ → Type} (e : Δ₀ ≡ Δ₁) (f : A₀ ≡[ e ] A₁) → (Δ₀ ▸ A₀) ≡ (Δ₁ ▸ A₁)
 _▸≡_ reflᵉ reflᵉ = reflᵉ
@@ -167,9 +167,51 @@ _►≡_ : {Δ₀ Δ₁ : Tel} {Θ₀ : el Δ₀ → Tel} {Θ₁ : el Δ₁ → 
 _►≡_ reflᵉ reflᵉ = reflᵉ
 
 postulate
+  ▸≡-reflish : {Δ : Tel} (A : el Δ → Type) (e : Δ ≡ Δ) (f : A ≡[ e ] A) → (e ▸≡ f) ≡ reflᵉ
+  ►≡-reflish : {Δ : Tel} (Θ : el Δ → Tel) (e : Δ ≡ Δ) (f : Θ ≡[ e ] Θ) → (e ►≡ f) ≡ reflᵉ
+
+{-# REWRITE ▸≡-reflish ►≡-reflish #-}
+
+postulate
   ≡λ : {T : Typeᵉ} {Δ₀ Δ₁ : Tel} {A₀ : el Δ₀ → T} {A₁ : el Δ₁ → T} {e : Δ₀ ≡ Δ₁} →
     ((x₀ : el Δ₀) (x₁ : el Δ₁) (x₂ : x₀ ≡[ e ] x₁) → A₀ x₀ ≡ A₁ x₁) → A₀ ≡[ e ] A₁
   ≡λreflᵉ : {T : Typeᵉ} {Δ : Tel} (A : el Δ → T) (f : (x₀ : el Δ) (x₁ : el Δ) (x₂ : x₀ ≡ x₁) → A x₀ ≡ A x₁) →
     ≡λ {T} {Δ} {Δ} {A} {A} {reflᵉ} (λ x₀ x₁ x₂ → f x₀ x₁ x₂) ≡ reflᵉ
 
 {-# REWRITE ≡λreflᵉ #-}
+
+postulate
+  ≡λ′→ : {T : Typeᵉ} {Δ₀ Δ₁ : Tel} {A₀ : el Δ₀ → T} {A₁ : el Δ₁ → T} {e : Δ₀ ≡ Δ₁} →
+    ((x₀ : el Δ₀) → A₀ x₀ ≡ A₁ (COE→ e x₀)) → A₀ ≡[ e ] A₁
+  ≡λ′← : {T : Typeᵉ} {Δ₀ Δ₁ : Tel} {A₀ : el Δ₀ → T} {A₁ : el Δ₁ → T} {e : Δ₀ ≡ Δ₁} →
+    ((x₁ : el Δ₁) → A₀ (COE← e x₁) ≡ A₁ x₁) → A₀ ≡[ e ] A₁
+  ≡λ′→reflᵉ : {T : Typeᵉ} {Δ : Tel} {A : el Δ → T} →
+    ≡λ′→ {T} {Δ} {Δ} {A} {A} {reflᵉ} (λ x₀ → reflᵉ) ≡ reflᵉ
+  ≡λ′←reflᵉ : {T : Typeᵉ} {Δ : Tel} {A : el Δ → T} →
+    ≡λ′← {T} {Δ} {Δ} {A} {A} {reflᵉ} (λ x₁ → reflᵉ) ≡ reflᵉ
+
+{-# REWRITE ≡λ′→reflᵉ ≡λ′←reflᵉ #-}
+
+coe→[] : {Δ₀ Δ₁ : Tel} {A₀ : el Δ₀ → Type} {A₁ : el Δ₁ → Type} (e : Δ₀ ≡ Δ₁) (f : A₀ ≡[ e ] A₁)
+  {δ₀ : el Δ₀} (a₀ : A₀ δ₀) → A₁ (COE→ e δ₀)
+coe→[] reflᵉ reflᵉ a₀ = a₀
+
+coe←[] : {Δ₀ Δ₁ : Tel} {A₀ : el Δ₀ → Type} {A₁ : el Δ₁ → Type} (e : Δ₀ ≡ Δ₁) (f : A₀ ≡[ e ] A₁)
+  {δ₁ : el Δ₁} (a₁ : A₁ δ₁) → A₀ (COE← e δ₁)
+coe←[] reflᵉ reflᵉ a₁ = a₁
+
+postulate
+  COE→-▸≡ : {Δ₀ Δ₁ : Tel} {A₀ : el Δ₀ → Type} {A₁ : el Δ₁ → Type} (e : Δ₀ ≡ Δ₁) (f : A₀ ≡[ e ] A₁) (δ₀ : el Δ₀) (a₀ : A₀ δ₀) →
+    coe→ᵉ (cong el (e ▸≡ f)) (δ₀ ∷ a₀) ≡ (COE→ e δ₀ ∷ coe→[] e f a₀)
+  COE←-▸≡ : {Δ₀ Δ₁ : Tel} {A₀ : el Δ₀ → Type} {A₁ : el Δ₁ → Type} (e : Δ₀ ≡ Δ₁) (f : A₀ ≡[ e ] A₁) (δ₁ : el Δ₁) (a₁ : A₁ δ₁) →
+    coe←ᵉ (cong el (e ▸≡ f)) (δ₁ ∷ a₁) ≡ (COE← e δ₁ ∷ coe←[] e f a₁)
+    
+{-# REWRITE COE→-▸≡ COE←-▸≡ #-}
+
+postulate
+  coe→[]-reflᵉ : {Δ : Tel} {A₀ A₁ : el Δ → Type} (f : (x₀ : el Δ) → A₀ x₀ ≡ A₁ x₀) {δ₀ : el Δ} (a₀ : A₀ δ₀) →
+    coe→[] reflᵉ (≡λ′→ f) a₀ ≡ coe→ (f δ₀) a₀
+  coe←[]-reflᵉ : {Δ : Tel} {A₀ A₁ : el Δ → Type} (f : (x₀ : el Δ) → A₀ x₀ ≡ A₁ x₀) {δ₁ : el Δ} (a₁ : A₁ δ₁) →
+    coe←[] reflᵉ (≡λ′→ f) a₁ ≡ coe← (f δ₁) a₁
+
+{-# REWRITE coe→[]-reflᵉ coe←[]-reflᵉ #-}

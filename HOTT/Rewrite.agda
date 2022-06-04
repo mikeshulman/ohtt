@@ -67,6 +67,20 @@ coe←coe←ᵉ reflᵉ reflᵉ reflᵉ = reflᵉ
 coe→coe→ᵉ : {A B C : Typeᵉ} (p : A ≡ B) (q : B ≡ C) (r : A ≡ C) {a : A} → coe→ᵉ q (coe→ᵉ p a) ≡ coe→ᵉ r a
 coe→coe→ᵉ reflᵉ reflᵉ reflᵉ = reflᵉ
 
+coe←coe→ : {A B : Type} (p : A ≡ B) {a : A} → coe← p (coe→ p a) ≡ a
+coe←coe→ reflᵉ = reflᵉ
+
+coe→coe← : {A B : Type} (p : A ≡ B) {b : B} → coe→ p (coe← p b) ≡ b
+coe→coe← reflᵉ = reflᵉ
+
+coe←coe→ᵉ : {A B : Typeᵉ} (p : A ≡ B) {a : A} → coe←ᵉ p (coe→ᵉ p a) ≡ a
+coe←coe→ᵉ reflᵉ = reflᵉ
+
+coe→coe←ᵉ : {A B : Typeᵉ} (p : A ≡ B) {b : B} → coe→ᵉ p (coe←ᵉ p b) ≡ b
+coe→coe←ᵉ reflᵉ = reflᵉ
+
+-- {-# REWRITE coe←coe→ coe→coe← coe←coe→ᵉ coe→coe←ᵉ #-}
+
 postulate
   funext : {A : Typeᵉ} {B : A → Typeᵉ} {f g : (x : A) → B x} (p : (x : A) → f x ≡ g x) → f ≡ g
   funext-reflᵉ : {A : Typeᵉ} {B : A → Typeᵉ} {f : (x : A) → B x} → funext {f = f} {g = f} (λ x → reflᵉ) ≡ reflᵉ

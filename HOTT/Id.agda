@@ -282,7 +282,7 @@ postulate
     coe→ (Id′-AP (λ w → PAIR Δ w (pop (f w))) γ₂ (UNCURRY Δ A) (top (f γ₀)) (top (f γ₁)))
          (top (AP′ {Γ} (λ x → Δ x ▸ A x) f γ₂))
 
-{-# REWRITE AP′-TOP ap-top #-}
+{-# REWRITE AP-TOP AP′-TOP ap-top #-}
 
 ------------------------------
 -- Functoriality, II
@@ -291,19 +291,18 @@ postulate
 -- We can now return to some functoriality rules that couldn't be
 -- stated until we had the above rules for computing AP and AP′.
 
+{-
 postulate
   ID′-AP-▸ : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
     (Γ : el Δ → Tel) (A : (x : el Δ) → el (Γ x) → Type) (γ₀ : el (Γ (f t₀) ▸ A (f t₀))) (γ₁ : el (Γ (f t₁) ▸ A (f t₁))) →
     ID′-AP f t₂ (λ x → Γ x ▸ A x) γ₀ γ₁ ≡
     (ID′-AP f t₂ Γ (pop γ₀) (pop γ₁) ▸≡
-     ≡λ λ x₀ x₁ x₂ → {!Id′-AP (λ w → PAIR Γ (f (POP (λ x → Γ (f x)) w)) (TOP (λ x → Γ (f x)) w))
-                              {PAIR (λ z → Γ (f z)) t₀ (pop γ₀)} {PAIR (λ z → Γ (f z)) t₁ (pop γ₁)}
-                              (PAIR (λ w → ID′ (λ z → Γ (f z)) w (pop γ₀) (pop γ₁)) t₂ x₁) (UNCURRY Γ A) (top γ₀) (top γ₁)!})
-      -- λ (γ₂ : el (ID′ (λ z → Γ (f z)) t₂ (pop γ₀) (pop γ₁))) → 
-      -- Id-AP {Θ ► λ w → Γ (f w)} {Δ ► Γ} (λ w → PAIR Γ (f (POP (λ w → Γ (f w)) w)) (TOP (λ w → Γ (f w)) w))
-      --       (PAIR (λ w → ID′ (λ z → Γ (f z)) w (pop γ₀) (pop γ₁)) t₂ γ₂) (UNCURRY Γ A) (top γ₀) (top γ₁)
-
+     ≡λ′← λ x₁ → {!!} •
+                  Id′-AP (λ w → PAIR Γ (f (POP (λ x → Γ (f x)) w)) (TOP (λ x → Γ (f x)) w))
+                         {PAIR (λ z → Γ (f z)) t₀ (pop γ₀)} {PAIR (λ z → Γ (f z)) t₁ (pop γ₁)}
+                         (PAIR (λ w → ID′ (λ z → Γ (f z)) w (pop γ₀) (pop γ₁)) t₂ x₁) (UNCURRY Γ A) (top γ₀) (top γ₁))
 -- TODO: ID′-AP′-▸
+-}
 
 postulate
   Id′-AP′-idmap : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
@@ -320,41 +319,18 @@ postulate
 -- constants, handled by ap-const.)
 
 postulate
-  ID′-CONST-ε : {Θ : Tel} {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) {δ₀ δ₁ : el ε} (δ₂ : el (ID ε δ₀ δ₁)) →
-    coe←ᵉ (cong el (ID′-CONST {Θ} ε t₂ δ₀ δ₁)) δ₂ ≡ []
-  ID′-CONST-∷ : {Θ : Tel} (Δ : Tel) (A : el Δ → Type) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
-    {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) {a₀ : A δ₀} {a₁ : A δ₁} (a₂ : Id′ A δ₂ a₀ a₁) →
-    COE← (ID′-CONST {Θ} (Δ ▸ A) t₂ (δ₀ ∷ a₀) (δ₁ ∷ a₁)) (δ₂ ∷ a₂) ≡
-    (COE← (ID′-CONST {Θ} Δ t₂ δ₀ δ₁) δ₂ ∷
-    coe→ (Id′-AP (λ w → TOP {Θ} (λ _ → Δ) w)
-                (PAIR (λ w → ID′ (λ _ → Δ) w δ₀ δ₁) t₂ (COE← (ID′-CONST Δ t₂ δ₀ δ₁) δ₂))
-                A a₀ a₁)
-         {!!})
--- Produces an internal error
--- {-# REWRITE ID′-CONST-ε #-}
+  ID′-CONST-ε : {Θ : Tel} {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) (δ₀ δ₁ : el ε) →
+    ID′-CONST {Θ} ε t₂ δ₀ δ₁ ≡ reflᵉ
+  ID′-CONST-▸ : {Θ : Tel} (Δ : Tel) (A : el Δ → Type) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
+    (δ₀ δ₁ : el Δ) (a₀ : A δ₀) (a₁ : A δ₁) →
+    ID′-CONST {Θ} (Δ ▸ A) t₂ (δ₀ ∷ a₀) (δ₁ ∷ a₁) ≡
+    (ID′-CONST {Θ} Δ t₂ δ₀ δ₁ ▸≡
+      ≡λ′→ λ x₀ → rev (Id′-AP (SND Θ Δ) (PAIR (λ w → ID′ (λ _ → Δ) w δ₀ δ₁) t₂ x₀) A a₀ a₁))
 
-postulate
-  A : Type
-  a₀ a₁ : A
-  a₂ : Id′ {ε} (λ _ → A) [] a₀ a₁
+-- Produces an internal error with --two-level
+{-# REWRITE ID′-CONST-ε ID′-CONST-▸ #-}
 
-A′ : el ε → Type
-A′ _ = A
 
-postulate
-  B : el (ε ▸ A′) → Type
-  b₀ : B ([] ∷ a₀)
-  b₁ : B ([] ∷ a₁)
-  b₂ : Id′ B ([] ∷ a₂) b₀ b₁
-
-egA-A = ap {Δ = ε ▸ A′} (λ w → top w) {[] ∷ a₀} {[] ∷ a₁} ([] ∷ a₂)
-
-eg-ap-top = ap-top {ε ▸ A′} (λ w → ε) (λ _ → A′) (λ w → w) ([] ∷ a₀) ([] ∷ a₁) ([] ∷ a₂)
-
-egAB-B = ap {Δ = ε ▸ A′ ▸ B} (λ w → top w) {[] ∷ a₀ ∷ b₀} {[] ∷ a₁ ∷ b₁} ([] ∷ a₂ ∷ b₂)
-egAB-A = ap {Δ = ε ▸ A′ ▸ B} {λ w → A} (λ w → top (pop w)) {[] ∷ a₀ ∷ b₀} {[] ∷ a₁ ∷ b₁} ([] ∷ a₂ ∷ b₂)
-
-{-
 ------------------------------
 -- Homogeneous Id and refl
 ------------------------------
@@ -397,13 +373,19 @@ Id-REFL : {Δ : Tel} (A : el Δ → Type) (δ : el Δ) (a₀ a₁ : A δ) → Id
 Id-REFL {Δ} A δ a₀ a₁ = Id′-AP {ε} (λ _ → δ) [] A a₀ a₁
 
 ID-REFL : {Δ : Tel} (Θ : el Δ → Tel) (δ : el Δ) (t₀ t₁ : el (Θ δ)) → ID′ Θ (REFL δ) t₀ t₁ ≡ ID (Θ δ) t₀ t₁
-ID-REFL {Δ} Θ δ t₀ t₁ = ID′-AP {ε} (λ _ → δ) [] Θ t₀ t₁
+ID-REFL {Δ} Θ δ t₀ t₁ = ID′-AP {ε} (λ _ → δ) [] Θ t₀ t₁ • ID′-CONST (Θ δ) [] t₀ t₁ 
 
 -- We allow ourselves to rewrite along these, even though they are
 -- technically admissible rules like Id′-AP, because they're more
 -- obviously "directed" and something we can match on.
 
 {-# REWRITE Id-REFL ID-REFL #-}
+
+-- This makes ID′-CONST over ε into an identity.
+postulate
+  ID′-CONST-ε₁ : {Δ : Tel} (δ₀ δ₁ : el Δ) → ID′-CONST {ε} Δ [] δ₀ δ₁ ≡ reflᵉ
+
+{-# REWRITE ID′-CONST-ε₁ #-}
 
 -- The usefulness of this is limited in practice, because if δ has
 -- internal structure, REFL will compute on it, and can't be
@@ -432,7 +414,7 @@ AP-REFL f δ = AP-AP {ε} (λ _ → δ) [] f
 
 AP′-REFL : {Δ : Tel} (Θ : el Δ → Tel) (f : (δ : el Δ) → el (Θ δ)) (δ : el Δ) →
   AP′ Θ f (REFL δ) ≡ REFL (f δ)
-AP′-REFL {Δ} Θ f δ = AP′-AP {ε} (λ _ → δ) [] f 
+AP′-REFL {Δ} Θ f δ = AP′-AP {ε} (λ _ → δ) [] f • AP′-CONST {ε} (λ _ → f δ) []
 
 {-# REWRITE ap-REFL AP-REFL AP′-REFL #-}
 
@@ -442,25 +424,34 @@ AP′-REFL {Δ} Θ f δ = AP′-AP {ε} (λ _ → δ) [] f
 postulate
   Id′-AP-const : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) (A : Type) (a₀ a₁ : A) →
     Id′-AP f t₂ (λ _ → A) a₀ a₁ ≡ reflᵉ
-  Id′-AP′-const : {Θ : Tel} (Δ : el Θ → Tel) (f : (x : el Θ) → el (Δ x)) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) (A : Type) (a₀ a₁ : A) →
+  Id′-AP′-const : {Θ : Tel} (Δ : el Θ → Tel) (f : (x : el Θ) → el (Δ x))
+    {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) (A : Type) (a₀ a₁ : A) →
     Id′-AP′ Δ f t₂ (λ _ _ → A) a₀ a₁ ≡ reflᵉ
+{-
   ID′-AP-const : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) (Γ : Tel) (γ₀ γ₁ : el Γ) →
-    ID′-AP f t₂ (λ _ → Γ) γ₀ γ₁ ≡ reflᵉ
+    ID′-AP f t₂ (λ _ → Γ) γ₀ γ₁ ≡ {! reflᵉ !}
   ID′-AP′-const : {Θ : Tel} (Δ : el Θ → Tel) (f : (x : el Θ) → el (Δ x)) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
                  (Γ : Tel) (γ₀ γ₁ : el Γ) →
-    ID′-AP′ Δ f t₂ (λ _ _ → Γ) γ₀ γ₁ ≡ reflᵉ
+    ID′-AP′ Δ f t₂ (λ _ _ → Γ) γ₀ γ₁ ≡ {! reflᵉ!}
+-}
 
-{-# REWRITE Id′-AP-const Id′-AP′-const ID′-AP-const ID′-AP′-const #-}
+{-# REWRITE Id′-AP-const Id′-AP′-const #-}
+
+-- ID′-AP-const ID′-AP′-const #-}
 
 postulate
   ap-AP-const : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) {A : Type} (g : A) →
     ap-AP f t₂ (λ _ → g) ≡ reflᵉ
   AP-AP-const : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) {Γ : Tel} (g : el Γ) →
     AP-AP f t₂ (λ _ → g) ≡ reflᵉ
+{-
   AP′-AP-const : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) {Γ : Tel} (g : el Γ) →
-    AP′-AP f t₂ (λ _ → g) ≡ reflᵉ
+    AP′-AP f t₂ (λ _ → g) ≡ {! reflᵉ !}
+-}
 
-{-# REWRITE ap-AP-const AP-AP-const AP′-AP-const #-}
+{-# REWRITE ap-AP-const AP-AP-const #-}
+
+-- AP′-AP-const #-}
 
 -- The choice not to define Id as an instance of Id′ does mean that
 -- all the rewrites we postulate for Id′, ap, and AP have to be given
@@ -498,26 +489,3 @@ postulate
 -- formers, we must give separately their rules for homogeneous and
 -- heterogeneous Id, and also separately the rules for ap and for refl
 -- on their terms.
-
-------------------------------
--- Transport
-------------------------------
-
-postulate
-  tr→ : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ : A δ₀) → A δ₁
-  lift→ : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ : A δ₀) → Id′ A δ₂ a₀ (tr→ A δ₂ a₀)
-  tr← : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₁ : A δ₁) → A δ₀
-  lift← : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₁ : A δ₁) → Id′ A δ₂ (tr← A δ₂ a₁) a₁
-  utr→ : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ : A δ₀)
-    (a₁ a₁' : A δ₁) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀ a₁') → Id (A δ₁) a₁ a₁'
-  ulift→ : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ : A δ₀)
-    (a₁ a₁' : A δ₁) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀ a₁') →
-    Id′ {ε ▸ (λ _ → A δ₁)} (λ w → Id′ A δ₂ a₀ (top w)) {[] ∷ a₁} {[] ∷ a₁'} ([] ∷ utr→ A δ₂ a₀ a₁ a₁' a₂ a₂') a₂ a₂'
-  utr← : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₁ : A δ₁)
-    (a₀ a₀' : A δ₀) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀' a₁) → Id (A δ₀) a₀ a₀'
-  ulift← : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₁ : A δ₁)
-    (a₀ a₀' : A δ₀) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀' a₁) →
-    Id′ {ε ▸ (λ _ → A δ₀)} (λ w → Id′ A δ₂ (top w) a₁) {[] ∷ a₀} {[] ∷ a₀'} ([] ∷ utr← A δ₂ a₁ a₀ a₀' a₂ a₂') a₂ a₂'
-
--- TODO: Ugh, I suppose these need all the same rules as Id′?
--}
