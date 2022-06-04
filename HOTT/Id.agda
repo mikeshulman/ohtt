@@ -62,16 +62,17 @@ postulate
     el (ID′ Δ t₂ (f t₀) (f t₁))
 
 -- We assert that ID′ in a constant family is equal to ID, and
--- similarly for AP′ and AP.  We will eventually declare these as
--- rewrites, but we refrain for now since it seems to produce
--- ill-typed terms.
+-- similarly for AP′ and AP.
 postulate
   ID′-CONST : {Θ : Tel} (Δ : Tel) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) (δ₀ δ₁ : el Δ) →
     ID′ {Θ} (λ _ → Δ) t₂ δ₀ δ₁ ≡ ID Δ δ₀ δ₁
   AP′-CONST : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) →
     AP′ (λ _ → Δ) f t₂ ≡ COE← (ID′-CONST Δ t₂ (f t₀) (f t₁)) (AP f t₂)
 
--- {-# REWRITE ID′-CONST AP′-CONST #-}
+-- It's tempting to declare these as rewrites, but that seems to lead
+-- to ill-typed terms.  Thus, we will instead (below) specify how to
+-- reduce these equalities on concrete telescopes.
+--- {-# REWRITE ID′-CONST AP′-CONST #-}
 
 -- Below we will give rewrite rules computing ap on type-formers, and
 -- AP and AP′ on telescope-formers.  The simplest of these is the
@@ -329,11 +330,8 @@ postulate
                 (PAIR (λ w → ID′ (λ _ → Δ) w δ₀ δ₁) t₂ (COE← (ID′-CONST Δ t₂ δ₀ δ₁) δ₂))
                 A a₀ a₁)
          {!!})
-
-{-# REWRITE ID′-CONST-ε #-}
-
-{-
-
+-- Produces an internal error
+-- {-# REWRITE ID′-CONST-ε #-}
 
 postulate
   A : Type
@@ -522,5 +520,4 @@ postulate
     Id′ {ε ▸ (λ _ → A δ₀)} (λ w → Id′ A δ₂ (top w) a₁) {[] ∷ a₀} {[] ∷ a₀'} ([] ∷ utr← A δ₂ a₁ a₀ a₀' a₂ a₂') a₂ a₂'
 
 -- TODO: Ugh, I suppose these need all the same rules as Id′?
--}
 -}
