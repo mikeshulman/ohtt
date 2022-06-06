@@ -123,6 +123,13 @@ postulate
   AP′-AP : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) {Γ : el Δ → Tel} (g : (x : el Δ) → el (Γ x)) →
     AP′ Γ g (AP f t₂) ≡ COE← (ID′-AP f t₂ Γ (g (f t₀)) (g (f t₁))) (AP′ (λ w → Γ (f w)) (λ w → g (f w)) t₂) 
 
+-- A useful derived rule
+ID′-AP≡ : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
+    (δ₂ : el (ID Δ (f t₀) (f t₁))) (e : δ₂ ≡ AP f t₂)
+    (Γ : el Δ → Tel) (γ₀ : el (Γ (f t₀))) (γ₁ : el (Γ (f t₁))) →
+    ID′ Γ δ₂ γ₀ γ₁ ≡ ID′ (λ w → Γ (f w)) t₂ γ₀ γ₁
+ID′-AP≡ f t₂ δ₂ e Γ γ₀ γ₁ = cong (λ w → ID′ Γ w γ₀ γ₁) e • ID′-AP f t₂ Γ γ₀ γ₁
+
 -- We ensure this "composition" property by giving rewrite rules.  The
 -- simplest are the ones for ε and [].
 postulate
