@@ -5,6 +5,7 @@ module HOTT.Prod where
 open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
+open import HOTT.Transport
 
 --------------------
 -- Product types
@@ -45,11 +46,11 @@ postulate
 {-# REWRITE ap, ap-fst ap-snd refl, refl-fst refl-snd #-}
 
 postulate
-  Id-AP× : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
+  Id′-AP× : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
            (A B : el Δ → Type) {u₀ : A (f t₀) × B (f t₀)} {u₁ : A (f t₁) × B (f t₁)} →
-    Id-AP f t₂ (λ w → A w × B w) u₀ u₁ ≡ cong2 _×_ (Id-AP f t₂ A (fst u₀) (fst u₁)) (Id-AP f t₂ B (snd u₀) (snd u₁))
+    Id′-AP f t₂ (λ w → A w × B w) u₀ u₁ ≡ cong2 _×_ (Id′-AP f t₂ A (fst u₀) (fst u₁)) (Id′-AP f t₂ B (snd u₀) (snd u₁))
 
-{-# REWRITE Id-AP× #-}
+{-# REWRITE Id′-AP× #-}
 
 -- TODO: compute ap-AP on _,_ and fst and snd?
 
@@ -93,13 +94,13 @@ postulate
     (u₂ : Id′ (λ w → A w × B w) δ₂ u₀ u₁) (u₂' : Id′ (λ w → A w × B w) δ₂ u₀ u₁') →
     ulift→ (λ w → A w × B w) δ₂ u₀ u₁ u₁' u₂ u₂' ≡
     (coe→
-      (Id-AP {ε ▸ (λ _ → A δ₁ × B δ₁)} {ε ▸ (λ _ → A δ₁)} (λ w → (pop w ∷ fst (top w))) {[] ∷ u₁} {[] ∷ u₁'}
+      (Id′-AP {ε ▸ (λ _ → A δ₁ × B δ₁)} {ε ▸ (λ _ → A δ₁)} (λ w → (pop w ∷ fst (top w))) {[] ∷ u₁} {[] ∷ u₁'}
         ([] ∷ (utr→ (λ z → A z) δ₂ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂') ,
                utr→ (λ z → B z) δ₂ (snd u₀) (snd u₁) (snd u₁') (snd u₂)  (snd u₂')))
         (λ w → Id′ A δ₂ (fst u₀) (top w)) (fst u₂) (fst u₂'))
         (ulift→ A δ₂ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂')) ,
      coe→
-      (Id-AP {ε ▸ (λ _ → A δ₁ × B δ₁)} {ε ▸ (λ _ → B δ₁)} (λ w → (pop w ∷ snd (top w))) {[] ∷ u₁} {[] ∷ u₁'}
+      (Id′-AP {ε ▸ (λ _ → A δ₁ × B δ₁)} {ε ▸ (λ _ → B δ₁)} (λ w → (pop w ∷ snd (top w))) {[] ∷ u₁} {[] ∷ u₁'}
         ([] ∷ (utr→ (λ z → A z) δ₂ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂') ,
                utr→ (λ z → B z) δ₂ (snd u₀) (snd u₁) (snd u₁') (snd u₂)  (snd u₂')))
         (λ w → Id′ B δ₂ (snd u₀) (top w)) (snd u₂) (snd u₂'))
@@ -109,13 +110,13 @@ postulate
     (u₂ : Id′ (λ w → A w × B w) δ₂ u₀ u₁) (u₂' : Id′ (λ w → A w × B w) δ₂ u₀' u₁) →
     ulift← (λ w → A w × B w) δ₂ u₁ u₀ u₀' u₂ u₂' ≡
     (coe→
-      (Id-AP {ε ▸ (λ _ → A δ₀ × B δ₀)} {ε ▸ (λ _ → A δ₀)} (λ w → (pop w ∷ fst (top w))) {[] ∷ u₀} {[] ∷ u₀'}
+      (Id′-AP {ε ▸ (λ _ → A δ₀ × B δ₀)} {ε ▸ (λ _ → A δ₀)} (λ w → (pop w ∷ fst (top w))) {[] ∷ u₀} {[] ∷ u₀'}
         ([] ∷ (utr← (λ z → A z) δ₂ (fst u₁) (fst u₀) (fst u₀') (fst u₂) (fst u₂') ,
                utr← (λ z → B z) δ₂ (snd u₁) (snd u₀) (snd u₀') (snd u₂)  (snd u₂')))
         (λ w → Id′ A δ₂ (top w) (fst u₁)) (fst u₂) (fst u₂'))
       (ulift← A δ₂ (fst u₁) (fst u₀) (fst u₀') (fst u₂) (fst u₂')) ,
      coe→
-      (Id-AP {ε ▸ (λ _ → A δ₀ × B δ₀)} {ε ▸ (λ _ → B δ₀)} (λ w → (pop w ∷ snd (top w))) {[] ∷ u₀} {[] ∷ u₀'}
+      (Id′-AP {ε ▸ (λ _ → A δ₀ × B δ₀)} {ε ▸ (λ _ → B δ₀)} (λ w → (pop w ∷ snd (top w))) {[] ∷ u₀} {[] ∷ u₀'}
         ([] ∷ (utr← (λ z → A z) δ₂ (fst u₁) (fst u₀) (fst u₀') (fst u₂) (fst u₂') ,
                utr← (λ z → B z) δ₂ (snd u₁) (snd u₀) (snd u₀') (snd u₂)  (snd u₂')))
         (λ w → Id′ B δ₂ (top w) (snd u₁)) (snd u₂) (snd u₂'))

@@ -5,6 +5,7 @@ module HOTT.Sigma where
 open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
+open import HOTT.Transport
 
 --------------------
 -- Σ-types
@@ -43,7 +44,7 @@ postulate
     --- (Id-pop A (λ w → B w (f w)) (δ₂ ∷ ap f δ₂) (g δ₀) (g δ₁))
     -- but weakening (λ w → B w (f w)) doesn't give B.  We have to
     -- substitute into the side that has the general form of B.
-    (ap f δ₂ ﹐  coe← (Id-AP (λ w → (w ∷ f w)) δ₂ (uncurry B) _ _) (ap g δ₂))
+    (ap f δ₂ ﹐  coe← (Id′-AP (λ w → (w ∷ f w)) δ₂ (uncurry B) _ _) (ap g δ₂))
   apπ₁ : {Δ : Tel} {A : el Δ → Type} {B : (w : el Δ) → A w → Type} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
     (u : (x : el Δ) → Σ (A x) (B x)) → ap (λ x → π₁ (u x)) δ₂ ≡ π₁ (ap u δ₂)
 
@@ -53,19 +54,9 @@ postulate
 postulate
   apπ₂ : {Δ : Tel} {A : el Δ → Type} {B : (w : el Δ) → A w → Type} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
     (u : (x : el Δ) → Σ (A x) (B x)) →
-    ap (λ x → π₂ (u x)) δ₂ ≡ coe→ (Id-AP (λ w → w ∷ π₁ (u w)) δ₂ (uncurry B) _ _) (π₂ (ap u δ₂))
+    ap (λ x → π₂ (u x)) δ₂ ≡ coe→ (Id′-AP (λ w → w ∷ π₁ (u w)) δ₂ (uncurry B) _ _) (π₂ (ap u δ₂))
 
 {-# REWRITE apπ₂ #-}
-
-{-
-postulate
-  Id-popΣ : {Δ : Tel} (X : el Δ → Type) (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
-    {δ₀ δ₁ : el (Δ ▸ X)} (δ₂ : el (ID (Δ ▸ X) δ₀ δ₁))
-    (u₀ : Σ (A (pop δ₀)) (λ a → B (pop δ₀) a)) (u₁ : Σ (A (pop δ₁)) (λ a → B (pop δ₁) a)) →
-    Id-pop X (λ w → Σ (A w) (B w)) δ₂ u₀ u₁ ≡
-    -- Hmm... In addition to a dependent cong2, we need Id-pop for weakening B in the middle of the context.
-    {! (Id-pop X A δ₂ (π₁ u₀) (π₁ u₁))  -- (Id-pop X B δ₂ (π₂ u₀) (π₂ u₁)) !}
--}
 
 ----------------------------------------
 -- Transport in Σ-types

@@ -5,6 +5,7 @@ module HOTT.Pi where
 open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
+open import HOTT.Transport
 open import HOTT.Square
 open import HOTT.Fill
 
