@@ -29,12 +29,14 @@ postulate
 {-# REWRITE βπ₂ η﹐ #-}
 
 postulate
-  IdΣ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
+  Id′Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
     {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (u₀ : Σ (A δ₀) (λ a → B δ₀ a)) (u₁ : Σ (A δ₁) (λ a → B δ₁ a)) →
       Id′ {Δ} (λ w → Σ (A w) (B w)) δ₂ u₀ u₁ ≡
        Σ (Id′ A δ₂ (π₁ u₀) (π₁ u₁)) (λ e → Id′ {Δ ▸ A} (uncurry B) {δ₀ ∷ π₁ u₀} {δ₁ ∷ π₁ u₁} (δ₂ ∷ e) (π₂ u₀) (π₂ u₁))
+  IdΣ : (A : Type) (B : A → Type) (u₀ u₁ : Σ A B) →
+    Id (Σ A B) u₀ u₁ ≡ Σ (Id A (π₁ u₀) (π₁ u₁)) (λ e → Id′ {ε ▸ (λ _ → A)} (λ a → B (top a)) {[] ∷ π₁ u₀} {[] ∷ π₁ u₁} ([] ∷ e) (π₂ u₀) (π₂ u₁))
 
-{-# REWRITE IdΣ #-}
+{-# REWRITE Id′Σ IdΣ #-}
 
 postulate
   ap﹐ : {Δ : Tel} {A : el Δ → Type} {B : (w : el Δ) → A w → Type} (f : (δ : el Δ) → A δ) (g : (δ : el Δ) → B δ (f δ))
@@ -45,18 +47,24 @@ postulate
     -- but weakening (λ w → B w (f w)) doesn't give B.  We have to
     -- substitute into the side that has the general form of B.
     (ap f δ₂ ﹐  coe← (Id′-AP (λ w → (w ∷ f w)) δ₂ (uncurry B) _ _) (ap g δ₂))
+  refl﹐ : {A : Type} {B : A → Type} (a : A) (b : B a) →
+    refl {Σ A B} (a ﹐ b) ≡ (refl a ﹐ coe← (Id′-AP {ε} (λ _ → [] ∷ a) {[]} {[]} [] (λ x → B (top x)) b b) (refl b))
   apπ₁ : {Δ : Tel} {A : el Δ → Type} {B : (w : el Δ) → A w → Type} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
     (u : (x : el Δ) → Σ (A x) (B x)) → ap (λ x → π₁ (u x)) δ₂ ≡ π₁ (ap u δ₂)
+  reflπ₁ : {A : Type} {B : A → Type} (u : Σ A B) →
+    refl (π₁ u) ≡ π₁ (refl u)
 
-{-# REWRITE ap﹐ apπ₁ #-}
+{-# REWRITE ap﹐ refl﹐ apπ₁ reflπ₁ #-}
 
 -- Here we have to coerce explicitly, because matching for a rewrite would require rewriting some argument backwards.
 postulate
   apπ₂ : {Δ : Tel} {A : el Δ → Type} {B : (w : el Δ) → A w → Type} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
     (u : (x : el Δ) → Σ (A x) (B x)) →
     ap (λ x → π₂ (u x)) δ₂ ≡ coe→ (Id′-AP (λ w → w ∷ π₁ (u w)) δ₂ (uncurry B) _ _) (π₂ (ap u δ₂))
+  reflπ₂ : {A : Type} {B : A → Type} (u : Σ A B) →
+    refl (π₂ u) ≡  coe→ (Id′-AP {ε} (λ _ → [] ∷ π₁ u) [] (λ x → B (top x)) (π₂ u) (π₂ u)) (π₂ (refl u)) 
 
-{-# REWRITE apπ₂ #-}
+{-# REWRITE apπ₂ reflπ₂ #-}
 
 ----------------------------------------
 -- Transport in Σ-types
