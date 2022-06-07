@@ -19,10 +19,8 @@ postulate
   SYM-SYM : (Δ : Tel) {δ₀₀ δ₀₁ : el Δ} (δ₀₂ : el (ID Δ δ₀₀ δ₀₁)) {δ₁₀ δ₁₁ : el Δ} (δ₁₂ : el (ID Δ δ₁₀ δ₁₁))
     (δ₂₀ : el (ID Δ δ₀₀ δ₁₀)) (δ₂₁ : el (ID Δ δ₀₁ δ₁₁)) (δ₂₂ : el (SQ Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁)) →
     SYM Δ δ₂₀ δ₂₁ δ₀₂ δ₁₂ (SYM Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁ δ₂₂) ≡ δ₂₂
-  SYM-DEGSQ : (Δ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
-    SYM Δ δ₂ δ₂ (REFL δ₀) (REFL δ₁) (DEGSQ-TB Δ δ₂) ≡ DEGSQ-LR Δ δ₂
 
-{-# REWRITE SYM-SYM SYM-DEGSQ #-}
+{-# REWRITE SYM-SYM #-}
 
 postulate
   sym : {Δ : Tel} (A : el Δ → Type)
@@ -39,3 +37,18 @@ postulate
             sym A δ₂₀ δ₂₁ δ₀₂ δ₁₂ (SYM Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁ δ₂₂) a₂₀ a₂₁ a₀₂ a₁₂ (sym A δ₀₂ δ₁₂ δ₂₀ δ₂₁ δ₂₂ a₀₂ a₁₂ a₂₀ a₂₁ a₂₂) ≡ a₂₂
 
 {-# REWRITE sym-sym #-}
+
+-- This may seem the natural way to formulate the AP-REFL rule:
+{-
+  AP-REFL-SYM : (Δ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
+    DEGSQ-TB Δ δ₂ ≡ SYM Δ (REFL δ₀) (REFL δ₁) δ₂ δ₂ (DEGSQ-LR Δ δ₂)
+-}
+-- However, since DEGSQ-TB involves a coercion, to make this rule
+-- computational it's better to transfer that coercion to the RHS.
+postulate
+  AP-REFL-SYM : (Δ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
+    AP′ {Δ} (λ w → ID Δ w w) REFL δ₂ ≡
+      COE→ (ID′-AP {Δ} {PROD Δ Δ} (λ w → PR Δ Δ w w) δ₂ (UID Δ) (REFL δ₀) (REFL δ₁))
+           (SYM Δ (REFL δ₀) (REFL δ₁) δ₂ δ₂ (DEGSQ-LR Δ δ₂))
+
+{-# REWRITE AP-REFL-SYM #-}
