@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --cumulativity --allow-unsolved-metas #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --cumulativity #-}
 
 module HOTT.SquareExtend where
 

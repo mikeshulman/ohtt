@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --cumulativity --allow-unsolved-metas #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --cumulativity #-}
 
 module HOTT.Square.Degenerate where
 
@@ -18,6 +18,7 @@ DEGSQ-TB Δ {δ₀} {δ₁} δ₂ =
        (λ w₂ → ID′ {PROD Δ Δ} (UID Δ) {PR Δ Δ δ₀ δ₀} {PR Δ Δ δ₁ δ₁} w₂ (REFL δ₀) (REFL δ₁))
        (AP {Δ} {TID Δ} (λ w → tot w w (REFL w)) {δ₀} {δ₁} δ₂)
 
+{-
 DEGSQ-LR : (Δ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → el (SQ Δ (REFL δ₀) (REFL δ₁) δ₂ δ₂)
 DEGSQ-LR Δ {δ₀} {δ₁} δ₂ = {! REFL δ₂!}
 
@@ -48,3 +49,4 @@ postulate
       --- Sq A (REFL δ₀) (REFL δ₁) δ₂ δ₂ ? (refl a₀) (refl a₁) a₂ a₂
 
    !}
+-}

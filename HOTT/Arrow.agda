@@ -7,6 +7,7 @@ open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Transport
 open import HOTT.Square
+open import HOTT.Square.Degenerate
 open import HOTT.Fill
 open import HOTT.Pi
 
@@ -74,6 +75,7 @@ postulate
 -- Transport in function-types
 ----------------------------------------
 
+-- tr→ and tr← are only slightly simpler in the non-dependent case.
 postulate
   tr→⇒ : {Δ : Tel} (A B : el Δ → Type)
     {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (f₀ : (A δ₀) ⇒ (B δ₀)) →
@@ -84,12 +86,29 @@ postulate
 
 {-# REWRITE tr→⇒ tr←⇒ #-}
 
-{-
+-- However, lift→ and lift← are VASTLY simpler, in particular not requiring sq▸.
 postulate
   lift→⇒ : {Δ : Tel} (A B : el Δ → Type)
     {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (f₀ : (A δ₀) ⇒ (B δ₀)) →
     lift→ (λ w → (A w) ⇒ (B w)) δ₂ f₀ ≡
-    Λ a₀ ⇛ Λ a₁ ⇛ Λ a₂ ⇒ {! -- Need to fill over a degenerate square in Δ
-                            -- refl f₀ ⊙ a₀ ⊙ tr← A δ₂ a₁ ∙ (utr← A δ₂ a₁ a₀ (tr← A δ₂ a₁) a₂ (lift← A δ₂ a₁))
-                            --lift→ B δ₂ (f₀ ∙ tr← A δ₂ a₁)!}
+    Λ a₀ ⇛ Λ a₁ ⇛ Λ a₂ ⇒ comp↓ B δ₂ δ₂ (REFL δ₀) (REFL δ₁) (DEGSQ-TB Δ δ₂)
+                                (lift→ B δ₂ (f₀ ∙ tr← A δ₂ a₁))
+                                (refl f₀ ⊙ a₀ ⊙ tr← A δ₂ a₁ ∙ (utr← A δ₂ a₁ a₀ (tr← A δ₂ a₁) a₂ (lift← A δ₂ a₁)))
+                                (refl (tr→ B δ₂ (f₀ ∙ tr← A δ₂ a₁)))
+  lift←⇒ : {Δ : Tel} (A B : el Δ → Type)
+    {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (f₁ : (A δ₁) ⇒ (B δ₁)) →
+    lift← (λ w → (A w) ⇒ (B w)) δ₂ f₁ ≡
+    Λ a₀ ⇛ Λ a₁ ⇛ Λ a₂ ⇒ comp↓ B δ₂ δ₂ (REFL δ₀) (REFL δ₁) (DEGSQ-TB Δ δ₂)
+                                (lift← B δ₂ (f₁ ∙ tr→ A δ₂ a₀))
+                                (refl (tr← B δ₂ (f₁ ∙ tr→ A δ₂ a₀)))
+                                (refl f₁ ⊙ a₁ ⊙ tr→ A δ₂ a₀ ∙ (utr→ A δ₂ a₀ a₁ (tr→ A δ₂ a₀) a₂ (lift→ A δ₂ a₀)))
+
+{-# REWRITE lift→⇒ lift←⇒ #-}
+
+{-
+postulate
+  utr→⇒ : {Δ : Tel} (A B : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
+    (f₀ : (A δ₀) ⇒ (B δ₀)) (f₁ f₁' : (A δ₁) ⇒ (B δ₁)) (f₂ : Id′ (λ w → A w ⇒ B w) δ₂ f₀ f₁) (f₂' : Id′ (λ w → A w ⇒ B w) δ₂ f₀ f₁') →
+    utr→ (λ w → (A w) ⇒ (B w)) δ₂ f₀ f₁ f₁' f₂ f₂' ≡
+    Λ a₁ ⇛ Λ a₁' ⇛ Λ a₂ ⇒ {!!}
 -}
