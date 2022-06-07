@@ -17,6 +17,8 @@ postulate
   π₁ : {A : Type} {B : A → Type} → Σ A B → A
   π₂ : {A : Type} {B : A → Type} (u : Σ A B) → B (π₁ u)
 
+infix 30 _﹐_
+
 postulate
   βπ₁ : (A : Type) (B : A → Type) (a : A) (b : B a) → π₁ {B = B} (a ﹐ b) ≡ a
 

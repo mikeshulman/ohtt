@@ -15,5 +15,6 @@ open import HOTT.Unit
 open import HOTT.Prod
 open import HOTT.Sigma
 open import HOTT.Pi
+open import HOTT.Arrow
 open import HOTT.Universe
 open import HOTT.Test

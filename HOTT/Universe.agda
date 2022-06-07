@@ -9,6 +9,7 @@ open import HOTT.Transport
 open import HOTT.Prod
 open import HOTT.Sigma
 open import HOTT.Pi
+open import HOTT.Arrow
 
 --------------------------------------------------
 -- Contractibility and 1-1 correspondences
@@ -20,11 +21,11 @@ isProp A = Π A (λ a₀ → Π A (λ a₁ → Id A a₀ a₁))
 isContr : (A : Type) → Type
 isContr A = A × isProp A
 
-is11 : {A B : Type} (R : A ⟶ B ⟶ Type) → Type
+is11 : {A B : Type} (R : A ⇒ B ⇒ Type) → Type
 is11 {A} {B} R = Π A (λ a → isContr (Σ B (λ b → R ∙ a ∙ b))) × Π B (λ b → isContr (Σ A (λ a → R ∙ a ∙ b)))
 
 11Corr : Type → Type → Type
-11Corr A B = Σ (A ⟶ B ⟶ Type) is11
+11Corr A B = Σ (A ⇒ B ⇒ Type) is11
 
 ------------------------------
 -- Copy-types
@@ -76,10 +77,10 @@ postulate
 postulate
   apU : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
     (ap A δ₂) ↓ ≡
-    ((Λ λ a₀ → Λ λ a₁ → Id′ A δ₂ a₀ a₁) ﹐ 
-    ((Λ λ a₀ → (tr→ A δ₂ a₀ ﹐ lift→ A δ₂ a₀) ,
-         Λ λ x → Λ λ x' → utr→ A δ₂ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift→ A δ₂ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x')) ,
-      Λ λ a₁ → (tr← A δ₂ a₁ ﹐ lift← A δ₂ a₁) ,
-         Λ λ x → Λ λ x' → utr← A δ₂ a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift← A δ₂ a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x')))
+    ((Λ a₀ ⇒ Λ a₁ ⇒ Id′ A δ₂ a₀ a₁) ﹐
+    ((Λ a₀ ⇛ (tr→ A δ₂ a₀ ﹐ lift→ A δ₂ a₀ ,
+              Λ x ⇛ Λ x' ⇛ utr→ A δ₂ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift→ A δ₂ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x'))) ,
+     (Λ a₁ ⇛ (tr← A δ₂ a₁ ﹐ lift← A δ₂ a₁ ,
+              Λ x ⇛ Λ x' ⇛ utr← A δ₂ a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift← A δ₂ a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x')))))
 
 {-# REWRITE apU #-}
