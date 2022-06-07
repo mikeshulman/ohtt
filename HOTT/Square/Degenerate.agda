@@ -14,12 +14,12 @@ open import HOTT.Square
 -- Top-bottom degenerate squares in a context
 DEGSQ-TB : (Δ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → el (SQ Δ δ₂ δ₂ (REFL δ₀) (REFL δ₁))
 DEGSQ-TB Δ {δ₀} {δ₁} δ₂ =
-  {!(TOP {PROD (ID Δ δ₀ δ₁) (ID Δ δ₀ δ₁)}
-       (λ w₂ → ID′ (UID Δ) {PR Δ Δ δ₀ δ₀} {PR Δ Δ δ₁ δ₁} w₂ (REFL δ₀) (REFL δ₁))
-       (AP {Δ} {TID Δ} (λ w → tot w w (REFL w)) δ₂))!}
+   TOP {ID Δ δ₀ δ₁ ► (λ w₂ → ID′ {Δ} (λ _ → Δ) w₂ δ₀ δ₁)}
+       (λ w₂ → ID′ {PROD Δ Δ} (UID Δ) {PR Δ Δ δ₀ δ₀} {PR Δ Δ δ₁ δ₁} w₂ (REFL δ₀) (REFL δ₁))
+       (AP {Δ} {TID Δ} (λ w → tot w w (REFL w)) {δ₀} {δ₁} δ₂)
 
 DEGSQ-LR : (Δ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → el (SQ Δ (REFL δ₀) (REFL δ₁) δ₂ δ₂)
-DEGSQ-LR Δ {δ₀} {δ₁} δ₂ = {!REFL δ₂!}
+DEGSQ-LR Δ {δ₀} {δ₁} δ₂ = {! REFL δ₂!}
 
 -- Hmm, this should really be for refl of *any* variable in the telescope.
 postulate
