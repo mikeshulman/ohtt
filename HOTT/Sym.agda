@@ -52,3 +52,11 @@ postulate
            (SYM Δ (REFL δ₀) (REFL δ₁) δ₂ δ₂ (DEGSQ-LR Δ δ₂))
 
 {-# REWRITE AP-REFL-SYM #-}
+
+{-
+postulate
+  ap-refl : {Δ : Tel} {A : el Δ → Type} (f : (x : el Δ) → A x)
+    {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
+    ap {Δ} (λ w → refl (f w)) {δ₀} {δ₁} δ₂ ≡
+    {!sym A (REFL δ₀) (REFL δ₁) δ₂ δ₂ (DEGSQ-LR Δ δ₂) (refl (f δ₀)) (refl (f δ₁)) (ap f δ₂) (ap f δ₂)!}
+-}
