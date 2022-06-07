@@ -388,11 +388,13 @@ ID-REFL {Δ} Θ δ t₀ t₁ = ID′-AP {ε} (λ _ → δ) [] Θ t₀ t₁ • I
 
 {-# REWRITE Id-REFL ID-REFL #-}
 
--- This makes ID′-CONST over ε into an identity.
+-- This makes ID′-CONST over ε and over REFL into an identity.
 postulate
   ID′-CONST-ε₁ : {Δ : Tel} (δ₀ δ₁ : el Δ) → ID′-CONST {ε} Δ [] δ₀ δ₁ ≡ reflᵉ
+  ID′-CONST-REFL : {Θ : Tel} (Δ : Tel) (t : el Θ) (δ₀ δ₁ : el Δ) →
+    ID′-CONST {Θ} Δ (REFL t) δ₀ δ₁ ≡ reflᵉ
 
-{-# REWRITE ID′-CONST-ε₁ #-}
+{-# REWRITE ID′-CONST-ε₁ ID′-CONST-REFL #-}
 
 -- The usefulness of this is limited in practice, because if δ has
 -- internal structure, REFL will compute on it, and can't be

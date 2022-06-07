@@ -18,10 +18,10 @@ DEGSQ-TB Δ {δ₀} {δ₁} δ₂ =
        (λ w₂ → ID′ {PROD Δ Δ} (UID Δ) {PR Δ Δ δ₀ δ₀} {PR Δ Δ δ₁ δ₁} w₂ (REFL δ₀) (REFL δ₁))
        (AP {Δ} {TID Δ} (λ w → tot w w (REFL w)) {δ₀} {δ₁} δ₂)
 
-{-
 DEGSQ-LR : (Δ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → el (SQ Δ (REFL δ₀) (REFL δ₁) δ₂ δ₂)
-DEGSQ-LR Δ {δ₀} {δ₁} δ₂ = {! REFL δ₂!}
+DEGSQ-LR Δ {δ₀} {δ₁} δ₂ = COE← (ID′-AP {ε} (λ _ → PR Δ Δ δ₀ δ₁) [] (UID Δ) δ₂ δ₂) (REFL δ₂)
 
+{-
 -- Hmm, this should really be for refl of *any* variable in the telescope.
 postulate
   ap-refl : {Δ : Tel} {A : el Δ → Type} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) {a₀ : A δ₀} {a₁ : A δ₁} (a₂ : Id′ A δ₂ a₀ a₁) →
