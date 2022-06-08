@@ -311,19 +311,6 @@ postulate
 -- We can now return to some functoriality rules that couldn't be
 -- stated until we had the above rules for computing AP and AP′.
 
-{-
-postulate
-  ID′-AP-▸ : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
-    (Γ : el Δ → Tel) (A : (x : el Δ) → el (Γ x) → Type) (γ₀ : el (Γ (f t₀) ▸ A (f t₀))) (γ₁ : el (Γ (f t₁) ▸ A (f t₁))) →
-    ID′-AP f t₂ (λ x → Γ x ▸ A x) γ₀ γ₁ ≡
-    (ID′-AP f t₂ Γ (pop γ₀) (pop γ₁) ▸≡
-     ≡λ′← λ x₁ → {!!} •
-                  Id′-AP (λ w → PAIR Γ (f (POP (λ x → Γ (f x)) w)) (TOP (λ x → Γ (f x)) w))
-                         {PAIR (λ z → Γ (f z)) t₀ (pop γ₀)} {PAIR (λ z → Γ (f z)) t₁ (pop γ₁)}
-                         (PAIR (λ w → ID′ (λ z → Γ (f z)) w (pop γ₀) (pop γ₁)) t₂ x₁) (UNCURRY Γ A) (top γ₀) (top γ₁))
--- TODO: ID′-AP′-▸
--}
-
 postulate
   Id′-AP′-idmap : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
     (A : el Δ → Type) (a₀ : A δ₀) (a₁ : A δ₁) →
@@ -346,9 +333,36 @@ postulate
     ID′-CONST {Θ} (Δ ▸ A) t₂ (δ₀ ∷ a₀) (δ₁ ∷ a₁) ≡
     (ID′-CONST {Θ} Δ t₂ δ₀ δ₁ ▸≡
       ≡λ′→ λ x₀ → rev (Id′-AP (SND Θ Δ) (PAIR (λ w → ID′ (λ _ → Δ) w δ₀ δ₁) t₂ x₀) A a₀ a₁))
+  ID′-CONST-► : {Θ : Tel} (Δ : Tel) (Γ : el Δ → Tel) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
+    (δ₀ δ₁ : el Δ) (γ₀ : el (Γ δ₀)) (γ₁ : el (Γ δ₁)) →
+    ID′-CONST {Θ} (Δ ► Γ) t₂ (PAIR Γ δ₀ γ₀) (PAIR Γ δ₁ γ₁) ≡
+    _►≡_ {Θ₀ = λ t₃ → ID′ (UNCURRY (λ _ → Δ) (λ _ z → Γ z)) (PAIR (λ w → ID′ (λ _ → Δ) w δ₀ δ₁) t₂ t₃) γ₀ γ₁}
+         {Θ₁ = λ w₂ → ID′ (λ z → Γ z) w₂ γ₀ γ₁}
+         (ID′-CONST {Θ} Δ t₂ δ₀ δ₁)
+         (≡λ′→ λ x₀ → rev (ID′-AP (SND Θ Δ) (PAIR (λ w → ID′ (λ _ → Δ) w δ₀ δ₁) t₂ x₀) Γ γ₀ γ₁))
 
--- Produces an internal error with --two-level
-{-# REWRITE ID′-CONST-ε ID′-CONST-▸ #-}
+{-# REWRITE ID′-CONST-ε ID′-CONST-▸ ID′-CONST-► #-}
+
+{-
+postulate
+  ID′-AP-▸ : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
+    (Γ : el Δ → Tel) (A : (x : el Δ) → el (Γ x) → Type) (γ₀ : el (Γ (f t₀) ▸ A (f t₀))) (γ₁ : el (Γ (f t₁) ▸ A (f t₁))) →
+    ID′-AP f t₂ (λ x → Γ x ▸ A x) γ₀ γ₁ ≡
+    (ID′-AP f t₂ Γ (pop γ₀) (pop γ₁) ▸≡
+     ≡λ′← λ γ₂ → cong (λ w → Id′ (UNCURRY Γ A) {PAIR Γ (f t₀) (pop γ₀)} {PAIR Γ (f t₁) (pop γ₁)} w (top γ₀) (top γ₁))
+                  (PAIR≡ (λ w → ID′ Γ w (pop γ₀) (pop γ₁))
+                         {AP f t₂} {AP (λ z → f (POP (λ x → Γ (f x)) z))
+                                       {PAIR (λ x → Γ (f x)) t₀ (pop γ₀)} {PAIR (λ x → Γ (f x)) t₁ (pop γ₁)}
+                                       (PAIR (λ w → ID′ (λ z → Γ (f z)) w (pop γ₀) (pop γ₁)) t₂ γ₂)}
+                         (AP-AP (λ z → POP (λ x → Γ (f x)) z) {PAIR (λ x → Γ (f x)) t₀ (pop γ₀)} {PAIR (λ x → Γ (f x)) t₁ (pop γ₁)}
+                                (PAIR (λ w₂ → ID′ (λ z → Γ (f z)) w₂ (pop γ₀) (pop γ₁)) t₂ γ₂) f )
+                         {!!})  -- This should be trivial: it equates one coercion of γ₂ to another over some equality, and we have UIP.
+                • Id′-AP (λ w → PAIR Γ (f (POP (λ x → Γ (f x)) w)) (TOP (λ x → Γ (f x)) w))
+                         {PAIR (λ z → Γ (f z)) t₀ (pop γ₀)} {PAIR (λ z → Γ (f z)) t₁ (pop γ₁)}
+                         (PAIR (λ w → ID′ (λ z → Γ (f z)) w (pop γ₀) (pop γ₁)) t₂ γ₂) (UNCURRY Γ A) (top γ₀) (top γ₁))
+-}
+
+-- TODO: ID′-AP′-▸
 
 
 ------------------------------

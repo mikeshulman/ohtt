@@ -76,6 +76,18 @@ coe←coe→ᵉ reflᵉ = reflᵉ
 coe→coe←ᵉ : {A B : Typeᵉ} (p : A ≡ B) {b : B} → coe→ᵉ p (coe←ᵉ p b) ≡ b
 coe→coe←ᵉ reflᵉ = reflᵉ
 
+coe←coe→′ : {A B : Type} (p q : A ≡ B) (a : A) → coe← p (coe→ q a) ≡ coe← (p • rev q) a
+coe←coe→′ reflᵉ reflᵉ a = reflᵉ
+
+coe→coe←′ : {A B : Type} (p q : A ≡ B) (b : B) → coe→ p (coe← q b) ≡ coe→ (rev p • q) b
+coe→coe←′ reflᵉ reflᵉ b = reflᵉ
+
+coe←coe→ᵉ′ : {A B : Typeᵉ} (p q : A ≡ B) (a : A) → coe←ᵉ p (coe→ᵉ q a) ≡ coe←ᵉ (p • rev q) a
+coe←coe→ᵉ′ reflᵉ reflᵉ a = reflᵉ
+
+coe→coe←ᵉ′ : {A B : Typeᵉ} (p q : A ≡ B) (b : B) → coe→ᵉ p (coe←ᵉ q b) ≡ coe→ᵉ (rev p • q) b
+coe→coe←ᵉ′ reflᵉ reflᵉ b = reflᵉ
+
 -- {-# REWRITE coe←coe→ coe→coe← coe←coe→ᵉ coe→coe←ᵉ #-}
 
 postulate
@@ -86,3 +98,7 @@ postulate
 
 _≡[_]_ : {A : Typeᵉ} {B : A → Typeᵉ} {a₀ : A} (b₀ : B a₀) {a₁ : A} (e : a₀ ≡ a₁) (b₁ : B a₁) → Typeᵉ
 b₀ ≡[ reflᵉ ] b₁ = b₀ ≡ b₁
+
+≡[]coe→ᵉ : {A : Typeᵉ} {B : A → Typeᵉ} {a₀ : A} (b₀ : B a₀) {a₁ : A} (e : a₀ ≡ a₁) (b₁ : B a₁) →
+  coe→ᵉ (cong B e) b₀ ≡ b₁ → b₀ ≡[ e ] b₁
+≡[]coe→ᵉ b₀ reflᵉ b₁ reflᵉ = reflᵉ

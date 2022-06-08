@@ -166,6 +166,10 @@ _▸≡_ reflᵉ reflᵉ = reflᵉ
 _►≡_ : {Δ₀ Δ₁ : Tel} {Θ₀ : el Δ₀ → Tel} {Θ₁ : el Δ₁ → Tel} (e : Δ₀ ≡ Δ₁) (f : Θ₀ ≡[ e ] Θ₁) → (Δ₀ ► Θ₀) ≡ (Δ₁ ► Θ₁)
 _►≡_ reflᵉ reflᵉ = reflᵉ
 
+PAIR≡ : {Δ : Tel} (Θ : el Δ → Tel) {δ₀ δ₁ : el Δ} (e : δ₀ ≡ δ₁) {t₀ : el (Θ δ₀)} {t₁ : el (Θ δ₁)} (f : t₀ ≡[ e ] t₁) →
+  PAIR Θ δ₀ t₀ ≡ PAIR Θ δ₁ t₁
+PAIR≡ Θ reflᵉ reflᵉ = reflᵉ
+
 postulate
   ▸≡-reflish : {Δ : Tel} (A : el Δ → Type) (e : Δ ≡ Δ) (f : A ≡[ e ] A) → (e ▸≡ f) ≡ reflᵉ
   ►≡-reflish : {Δ : Tel} (Θ : el Δ → Tel) (e : Δ ≡ Δ) (f : Θ ≡[ e ] Θ) → (e ►≡ f) ≡ reflᵉ
@@ -200,13 +204,25 @@ coe←[] : {Δ₀ Δ₁ : Tel} {A₀ : el Δ₀ → Type} {A₁ : el Δ₁ → T
   {δ₁ : el Δ₁} (a₁ : A₁ δ₁) → A₀ (COE← e δ₁)
 coe←[] reflᵉ reflᵉ a₁ = a₁
 
+COE→[] : {Δ₀ Δ₁ : Tel} {Θ₀ : el Δ₀ → Tel} {Θ₁ : el Δ₁ → Tel} (e : Δ₀ ≡ Δ₁) (f : Θ₀ ≡[ e ] Θ₁)
+  {δ₀ : el Δ₀} (a₀ : el (Θ₀ δ₀)) → el (Θ₁ (COE→ e δ₀))
+COE→[] reflᵉ reflᵉ t₀ = t₀
+
+COE←[] : {Δ₀ Δ₁ : Tel} {Θ₀ : el Δ₀ → Tel} {Θ₁ : el Δ₁ → Tel} (e : Δ₀ ≡ Δ₁) (f : Θ₀ ≡[ e ] Θ₁)
+  {δ₁ : el Δ₁} (a₁ : el (Θ₁ δ₁)) → el (Θ₀ (COE← e δ₁))
+COE←[] reflᵉ reflᵉ t₁ = t₁
+
 postulate
   COE→-▸≡ : {Δ₀ Δ₁ : Tel} {A₀ : el Δ₀ → Type} {A₁ : el Δ₁ → Type} (e : Δ₀ ≡ Δ₁) (f : A₀ ≡[ e ] A₁) (δ₀ : el Δ₀) (a₀ : A₀ δ₀) →
     coe→ᵉ (cong el (e ▸≡ f)) (δ₀ ∷ a₀) ≡ (COE→ e δ₀ ∷ coe→[] e f a₀)
   COE←-▸≡ : {Δ₀ Δ₁ : Tel} {A₀ : el Δ₀ → Type} {A₁ : el Δ₁ → Type} (e : Δ₀ ≡ Δ₁) (f : A₀ ≡[ e ] A₁) (δ₁ : el Δ₁) (a₁ : A₁ δ₁) →
     coe←ᵉ (cong el (e ▸≡ f)) (δ₁ ∷ a₁) ≡ (COE← e δ₁ ∷ coe←[] e f a₁)
+  COE→-►≡ : {Δ₀ Δ₁ : Tel} {Θ₀ : el Δ₀ → Tel} {Θ₁ : el Δ₁ → Tel} (e : Δ₀ ≡ Δ₁) (f : Θ₀ ≡[ e ] Θ₁) (δ₀ : el Δ₀) (t₀ : el (Θ₀ δ₀)) →
+    coe→ᵉ (cong el (e ►≡ f)) (PAIR Θ₀ δ₀ t₀) ≡ (PAIR Θ₁ (COE→ e δ₀) (COE→[] e f t₀))
+  COE←-►≡ : {Δ₀ Δ₁ : Tel} {Θ₀ : el Δ₀ → Tel} {Θ₁ : el Δ₁ → Tel} (e : Δ₀ ≡ Δ₁) (f : Θ₀ ≡[ e ] Θ₁) (δ₁ : el Δ₁) (t₁ : el (Θ₁ δ₁)) →
+    coe←ᵉ (cong el (e ►≡ f)) (PAIR Θ₁ δ₁ t₁) ≡ (PAIR Θ₀ (COE← e δ₁) (COE←[] e f t₁))
     
-{-# REWRITE COE→-▸≡ COE←-▸≡ #-}
+{-# REWRITE COE→-▸≡ COE←-▸≡ COE→-►≡ COE←-►≡ #-}
 
 postulate
   coe→[]-reflᵉ : {Δ : Tel} {A₀ A₁ : el Δ → Type} (f : (x₀ : el Δ) → A₀ x₀ ≡ A₁ x₀) {δ₀ : el Δ} (a₀ : A₀ δ₀) →
