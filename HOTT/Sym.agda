@@ -38,20 +38,27 @@ postulate
 
 {-# REWRITE sym-sym #-}
 
--- This may seem the natural way to formulate the AP-REFL rule:
+postulate
+  -- This may seem the natural way to formulate the AP-REFL rule:
 {-
   AP-REFL-SYM : (Δ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
     DEGSQ-TB Δ δ₂ ≡ SYM Δ (REFL δ₀) (REFL δ₁) δ₂ δ₂ (DEGSQ-LR Δ δ₂)
 -}
--- However, since DEGSQ-TB involves a coercion, to make this rule
--- computational it's better to transfer that coercion to the RHS.
-postulate
+  -- However, since DEGSQ-TB involves a coercion, to make this rule
+  -- computational it may be better to transfer that coercion to the RHS.
+{-
   AP-REFL-SYM : (Δ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
     AP′ {Δ} (λ w → ID Δ w w) REFL δ₂ ≡
       COE→ (ID′-AP {Δ} {PROD Δ Δ} (λ w → PR Δ Δ w w) δ₂ (UID Δ) (REFL δ₀) (REFL δ₁))
            (SYM Δ (REFL δ₀) (REFL δ₁) δ₂ δ₂ (DEGSQ-LR Δ δ₂))
+-}
+  -- On the other hand, so far it seems that these are more practical.
+  SYM-DEGSQ-LR : (Δ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
+    SYM Δ (REFL δ₀) (REFL δ₁) δ₂ δ₂ (DEGSQ-LR Δ δ₂) ≡ DEGSQ-TB Δ δ₂
+  SYM-DEGSQ-TB : (Δ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
+    SYM Δ δ₂ δ₂ (REFL δ₀) (REFL δ₁) (DEGSQ-TB Δ δ₂) ≡ DEGSQ-LR Δ δ₂
 
-{-# REWRITE AP-REFL-SYM #-}
+{-# REWRITE SYM-DEGSQ-LR SYM-DEGSQ-TB #-}
 
 {-
 postulate

@@ -137,6 +137,12 @@ ID′-AP≡ : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el
     ID′ Γ δ₂ γ₀ γ₁ ≡ ID′ (λ w → Γ (f w)) t₂ γ₀ γ₁
 ID′-AP≡ f t₂ δ₂ e Γ γ₀ γ₁ = cong (λ w → ID′ Γ w γ₀ γ₁) e • ID′-AP f t₂ Γ γ₀ γ₁
 
+Id′-AP≡ : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
+    (δ₂ : el (ID Δ (f t₀) (f t₁))) (e : δ₂ ≡ AP f t₂)
+    (A : el Δ → Type) (a₀ : A (f t₀)) (a₁ : A (f t₁)) →
+    Id′ A δ₂ a₀ a₁ ≡ Id′ (λ w → A (f w)) t₂ a₀ a₁
+Id′-AP≡ f t₂ δ₂ e A a₀ a₁ = cong (λ w → Id′ A w a₀ a₁) e • Id′-AP f t₂ A a₀ a₁
+
 -- We ensure this "composition" property by giving rewrite rules.  The
 -- simplest are the ones for ε and [].
 postulate

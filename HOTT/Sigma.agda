@@ -6,6 +6,11 @@ open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Transport
+open import HOTT.Square
+open import HOTT.Sym
+open import HOTT.Square.Degenerate
+--open import HOTT.Square.Extend
+open import HOTT.Fill
 
 --------------------
 -- Σ-types
@@ -103,8 +108,36 @@ postulate
     (u₂ : Id′ (λ w → Σ (A w) (B w)) δ₂ u₀ u₁) (u₂' : Id′ (λ w → Σ (A w) (B w)) δ₂ u₀ u₁') →
     utr→ (λ w → Σ (A w) (B w)) δ₂ u₀ u₁ u₁' u₂ u₂' ≡
     (utr→ A δ₂ (π₁ u₀) (π₁ u₁) (π₁ u₁') (π₁ u₂) (π₁ u₂') ﹐
-    -- Needs symmetrized 2D horn-filling!
-    {! utr→ {Δ ▸ A} (uncurry B) (δ₂ ∷ ?) (π₂ u₀) (π₂ u₁) (π₂ u₁') (π₂ u₂) (π₂ u₂') !})
+     coe→ (Id′-AP {ε ▸ λ _ → A δ₁} (λ x → δ₁ ∷ top x)
+                    {[] ∷ π₁ u₁} {[] ∷ π₁ u₁'} ([] ∷ utr→ A δ₂ (π₁ u₀) (π₁ u₁) (π₁ u₁') (π₁ u₂) (π₁ u₂'))
+                    (uncurry B) (π₂ u₁) (π₂ u₁'))
+        (comp→ {Δ ▸ A} (uncurry B) {δ₀ ∷ π₁ u₀} {δ₁ ∷ π₁ u₁} (δ₂ ∷ π₁ u₂) {δ₀ ∷ π₁ u₀} {δ₁ ∷ π₁ u₁'} (δ₂ ∷ π₁ u₂')
+            (REFL (_∷_ {B = A} δ₀ (π₁ u₀))) (REFL δ₁ ∷ utr→ A δ₂ (π₁ u₀) (π₁ u₁) (π₁ u₁') (π₁ u₂) (π₁ u₂'))
+            (sq▸ A δ₂ δ₂ (REFL δ₀) (REFL δ₁) (DEGSQ-TB Δ δ₂)
+                 (π₁ u₂) (π₁ u₂') (refl (π₁ u₀)) (utr→ A δ₂ (π₁ u₀) (π₁ u₁) (π₁ u₁') (π₁ u₂) (π₁ u₂'))
+                 (sym A (REFL δ₀) (REFL δ₁) δ₂ δ₂ (DEGSQ-LR Δ δ₂) (π₁ (refl u₀))
+                        (utr→ A δ₂ (π₁ u₀) (π₁ u₁) (π₁ u₁') (π₁ u₂) (π₁ u₂')) (π₁ u₂) (π₁ u₂')
+                        (ulift→Sq A δ₂ (π₁ u₀) (π₁ u₁) (π₁ u₁') (π₁ u₂) (π₁ u₂'))))
+            {π₂ u₀} {π₂ u₁} (π₂ u₂) {π₂ u₀} {π₂ u₁'} (π₂ u₂')
+            (coe← (Id′-AP {ε} {Δ ▸ A} (λ _ → δ₀ ∷ π₁ u₀) {[]} {[]} [] (uncurry B) (π₂ u₀) (π₂ u₀)) (refl (π₂ u₀)))))
+  utr←Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
+    (u₁ : Σ (A δ₁) (B δ₁)) (u₀ u₀' : Σ (A δ₀) (B δ₀))
+    (u₂ : Id′ (λ w → Σ (A w) (B w)) δ₂ u₀ u₁) (u₂' : Id′ (λ w → Σ (A w) (B w)) δ₂ u₀' u₁) →
+    utr← (λ w → Σ (A w) (B w)) δ₂ u₁ u₀ u₀' u₂ u₂' ≡
+    (utr← A δ₂ (π₁ u₁) (π₁ u₀) (π₁ u₀') (π₁ u₂) (π₁ u₂') ﹐
+     coe→ (Id′-AP {ε ▸ λ _ → A δ₀} (λ x → δ₀ ∷ top x)
+                    {[] ∷ π₁ u₀} {[] ∷ π₁ u₀'} ([] ∷ utr← A δ₂ (π₁ u₁) (π₁ u₀) (π₁ u₀') (π₁ u₂) (π₁ u₂'))
+                    (uncurry B) (π₂ u₀) (π₂ u₀'))
+        (comp← {Δ ▸ A} (uncurry B) {δ₀ ∷ π₁ u₀} {δ₁ ∷ π₁ u₁} (δ₂ ∷ π₁ u₂) {δ₀ ∷ π₁ u₀'} {δ₁ ∷ π₁ u₁} (δ₂ ∷ π₁ u₂')
+            (REFL δ₀ ∷ utr← A δ₂ (π₁ u₁) (π₁ u₀) (π₁ u₀') (π₁ u₂) (π₁ u₂')) (REFL (_∷_ {B = A} δ₁ (π₁ u₁)))
+            (sq▸ A δ₂ δ₂ (REFL δ₀) (REFL δ₁) (DEGSQ-TB Δ δ₂)
+                 (π₁ u₂) (π₁ u₂') (utr← A δ₂ (π₁ u₁) (π₁ u₀) (π₁ u₀') (π₁ u₂) (π₁ u₂')) (refl (π₁ u₁))
+                 (sym A (REFL δ₀) (REFL δ₁) δ₂ δ₂ (DEGSQ-LR Δ δ₂)
+                        (utr← A δ₂ (π₁ u₁) (π₁ u₀) (π₁ u₀') (π₁ u₂) (π₁ u₂'))
+                        (π₁ (refl u₁)) (π₁ u₂) (π₁ u₂')
+                        (ulift←Sq A δ₂ (π₁ u₁) (π₁ u₀) (π₁ u₀') (π₁ u₂) (π₁ u₂'))))
+            {π₂ u₀} {π₂ u₁} (π₂ u₂) {π₂ u₀'} {π₂ u₁} (π₂ u₂')
+            (coe← (Id′-AP {ε} {Δ ▸ A} (λ _ → δ₁ ∷ π₁ u₁) {[]} {[]} [] (uncurry B) (π₂ u₁) (π₂ u₁)) (refl (π₂ u₁)))))
 
--- {-# REWRITE utr→Σ utr←Σ #-}
+{-# REWRITE utr→Σ utr←Σ #-}
 -}
