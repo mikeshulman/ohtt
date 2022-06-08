@@ -81,6 +81,10 @@ postulate
   AP-idmap : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) → AP {Δ} {Δ} (λ w → w) δ₂ ≡ δ₂ 
   AP′-idmap : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
     AP′ {Δ} (λ _ → Δ) (λ w → w) δ₂ ≡ COE← (ID′-CONST Δ δ₂ δ₀ δ₁) δ₂
+  -- It doesn't make sense to talk about "ap-idmap", since the
+  -- argument of ap is a function from elements of a telescope to
+  -- elements of a type.  The relevant case is covered by the rules
+  -- for variables in the telescope, top and pop, below.
 
 {-# REWRITE AP-idmap AP′-idmap #-}
 
@@ -99,24 +103,22 @@ postulate
     ap g (AP f t₂) ≡ coe← (Id′-AP f t₂ A (g (f t₀)) (g (f t₁))) (ap (λ w → g (f w)) t₂)
 
 -- We "prove" these admissible rules by giving rewrites saying how
--- they behave on concrete terms.  The simplest such rule is how they
--- act on the identity.
+-- they behave on concrete terms.  For the most part, this means
+-- concrete terms in the dispatching argument of the relevant
+-- operator.  That is, Id′-AP and Id′-AP′ compute on the type family,
+-- like Id′, while ap-AP computes on the term, like ap.  However,
+-- there are also a few other cases when we can compute them, such as
+-- Id′-AP when the function is the identity.
 postulate
   Id′-AP-idmap : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
     (A : el Δ → Type) (a₀ : A δ₀) (a₁ : A δ₁) →
     Id′-AP {Δ} {Δ} (λ w → w) δ₂ A a₀ a₁ ≡ reflᵉ
-{-
-  -- Is there anything sensible to say here?
-  Id′-AP-POP : {Θ Δ : Tel} (Γ : el Δ → Tel) (f : el Θ → el (Δ ► Γ)) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
-    (A : el Δ → Type) (a₀ : A (POP Γ (f t₀))) (a₁ : A (POP Γ (f t₁))) →
-    Id′-AP {Θ} {Δ} (λ w → POP Γ (f w)) {t₀} {t₁} t₂ A a₀ a₁ ≡
-    {!Id′-AP {Θ} {Δ ► Γ} f {t₀} {t₁} t₂ (λ w → A (POP Γ w)) a₀ a₁!}
--}
 
 {-# REWRITE Id′-AP-idmap #-}
 
--- We have similar rules for identity telescopes, which should be
--- "composed" of the corresponding rules for ordinary identity types.
+-- We have similar rules for identity telescopes.  Below we will give
+-- computation rules ensuring that these are composed of the
+-- corresponding rules for ordinary identity types.
 postulate
   ID′-AP : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
     (Γ : el Δ → Tel) (γ₀ : el (Γ (f t₀))) (γ₁ : el (Γ (f t₁))) →
@@ -130,7 +132,8 @@ postulate
   AP′-AP : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) {Γ : el Δ → Tel} (g : (x : el Δ) → el (Γ x)) →
     AP′ Γ g (AP f t₂) ≡ COE← (ID′-AP f t₂ Γ (g (f t₀)) (g (f t₁))) (AP′ (λ w → Γ (f w)) (λ w → g (f w)) t₂) 
 
--- Some useful derived rules
+-- Some useful derived rules for combining these admissible equalities
+-- with an equality of base identifications.
 ID′-AP≡ : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
     (δ₂ : el (ID Δ (f t₀) (f t₁))) (e : δ₂ ≡ AP f t₂)
     (Γ : el Δ → Tel) (γ₀ : el (Γ (f t₀))) (γ₁ : el (Γ (f t₁))) →
@@ -143,8 +146,8 @@ Id′-AP≡ : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el
     Id′ A δ₂ a₀ a₁ ≡ Id′ (λ w → A (f w)) t₂ a₀ a₁
 Id′-AP≡ f t₂ δ₂ e A a₀ a₁ = cong (λ w → Id′ A w a₀ a₁) e • Id′-AP f t₂ A a₀ a₁
 
--- We ensure this "composition" property by giving rewrite rules.  The
--- simplest are the ones for ε and [].
+-- The simplest computation rules for identity telescope functoriality
+-- are for ε and [].
 postulate
   ID′-AP-ε : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) (γ₀ γ₁ : el ε) →
     ID′-AP f t₂ (λ _ → ε) γ₀ γ₁ ≡ reflᵉ
@@ -161,10 +164,14 @@ postulate
 
 {-# REWRITE AP-AP-[] AP′-AP-[] #-}
 
--- ID′-AP-▸ and ID′-AP′-▸ require some computation rules for AP, so we
--- postpone them to later.
+-- ID′-AP-▸ and ID′-AP′-▸ require some computation rules for AP even
+-- to state, so we postpone them to later.
 
--- The next simplest are the ones for the identity.
+-- We also give rules computing these admissible rules on the identity
+-- function.  For AP this is a necessary "base case"; for ID it
+-- shouldn't be necesary on concrete telescopes (since ID′-AP in
+-- general will compute on the dependent telescope), but it's
+-- convenient to have.
 postulate
   ID′-AP-idmap : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
     (Θ : el Δ → Tel) (t₀ : el (Θ δ₀)) (t₁ : el (Θ δ₁)) →
@@ -172,8 +179,10 @@ postulate
   -- ID′-AP′-idmap requires a computation rule for AP, so it comes later.
   AP-AP-idmap : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) →
     AP-AP f t₂ (λ x → x) ≡ reflᵉ
+  AP-AP-idmap′ : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) →
+    AP-AP (λ x → x) t₂ f ≡ reflᵉ
 
-{-# REWRITE ID′-AP-idmap AP-AP-idmap #-}
+{-# REWRITE ID′-AP-idmap AP-AP-idmap AP-AP-idmap′ #-}
 
 postulate
   AP′-AP-idmap : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) →
