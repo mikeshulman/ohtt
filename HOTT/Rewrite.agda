@@ -1,11 +1,8 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --cumulativity #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --cumulativity --without-K #-}
 
 module HOTT.Rewrite where
 
---open import Agda.Primitive renaming (Set to Type; SSet to Typeᵉ) public
-open import Agda.Primitive renaming (Set to Type) public
-
-Typeᵉ = Type
+open import Agda.Primitive renaming (Set to Type; SSet to Typeᵉ) public
 
 ------------------------------
 -- Strict equality

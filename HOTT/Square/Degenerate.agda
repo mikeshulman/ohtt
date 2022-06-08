@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --cumulativity #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --cumulativity --without-K #-}
 
 module HOTT.Square.Degenerate where
 
