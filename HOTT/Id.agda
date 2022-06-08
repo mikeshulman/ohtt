@@ -105,6 +105,13 @@ postulate
   Id′-AP-idmap : {Δ : Tel} {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
     (A : el Δ → Type) (a₀ : A δ₀) (a₁ : A δ₁) →
     Id′-AP {Δ} {Δ} (λ w → w) δ₂ A a₀ a₁ ≡ reflᵉ
+{-
+  -- Is there anything sensible to say here?
+  Id′-AP-POP : {Θ Δ : Tel} (Γ : el Δ → Tel) (f : el Θ → el (Δ ► Γ)) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
+    (A : el Δ → Type) (a₀ : A (POP Γ (f t₀))) (a₁ : A (POP Γ (f t₁))) →
+    Id′-AP {Θ} {Δ} (λ w → POP Γ (f w)) {t₀} {t₁} t₂ A a₀ a₁ ≡
+    {!Id′-AP {Θ} {Δ ► Γ} f {t₀} {t₁} t₂ (λ w → A (POP Γ w)) a₀ a₁!}
+-}
 
 {-# REWRITE Id′-AP-idmap #-}
 
@@ -123,7 +130,7 @@ postulate
   AP′-AP : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) {Γ : el Δ → Tel} (g : (x : el Δ) → el (Γ x)) →
     AP′ Γ g (AP f t₂) ≡ COE← (ID′-AP f t₂ Γ (g (f t₀)) (g (f t₁))) (AP′ (λ w → Γ (f w)) (λ w → g (f w)) t₂) 
 
--- A useful derived rule
+-- Some useful derived rules
 ID′-AP≡ : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
     (δ₂ : el (ID Δ (f t₀) (f t₁))) (e : δ₂ ≡ AP f t₂)
     (Γ : el Δ → Tel) (γ₀ : el (Γ (f t₀))) (γ₁ : el (Γ (f t₁))) →
@@ -388,31 +395,30 @@ ID-REFL {Δ} Θ δ t₀ t₁ = ID′-AP {ε} (λ _ → δ) [] Θ t₀ t₁ • I
 
 {-# REWRITE Id-REFL ID-REFL #-}
 
--- This makes ID′-CONST over ε and over REFL into an identity.
+-- This enables us to give some more ways of computing the admissible equalities.
 postulate
   ID′-CONST-ε₁ : {Δ : Tel} (δ₀ δ₁ : el Δ) → ID′-CONST {ε} Δ [] δ₀ δ₁ ≡ reflᵉ
   ID′-CONST-REFL : {Θ : Tel} (Δ : Tel) (t : el Θ) (δ₀ δ₁ : el Δ) →
     ID′-CONST {Θ} Δ (REFL t) δ₀ δ₁ ≡ reflᵉ
+  Id′-AP-constfn : {Θ Δ : Tel} (f : el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
+    (A : el Δ → Type) (a₀ a₁ : A f) →
+    Id′-AP {Θ} (λ _ → f) {t₀} {t₁} t₂ A a₀ a₁ ≡ reflᵉ
+  ID′-AP-constfn : {Θ Δ : Tel} (f : el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
+    (Γ : el Δ → Tel) (γ₀ γ₁ : el (Γ f)) →
+    ID′-AP {Θ} (λ _ → f) {t₀} {t₁} t₂ Γ γ₀ γ₁ ≡ rev (ID′-CONST {Θ} (Γ f) t₂ γ₀ γ₁)
 
-{-# REWRITE ID′-CONST-ε₁ ID′-CONST-REFL #-}
+{-# REWRITE ID′-CONST-ε₁ ID′-CONST-REFL Id′-AP-constfn ID′-AP-constfn #-}
 
--- The usefulness of this is limited in practice, because if δ has
--- internal structure, REFL will compute on it, and can't be
--- "un-rewritten" back to a REFL in order for Id-REFL to fire.  So we
--- still sometimes have to coerce along Id-REFL and ID-REFL.  However,
--- we minimize the effect of those by also postulating that they are
--- reflexivity, so that in situations where it's possible, the
--- coercion gets reduced away.
-postulate
-  Id-REFL-reflᵉ : {Δ : Tel} (A : el Δ → Type) (δ : el Δ) (a₀ a₁ : A δ) →
-    Id′-AP {ε} (λ _ → δ) [] A a₀ a₁ ≡ reflᵉ
-  ID-REFL-reflᵉ : {Δ : Tel} (Θ : el Δ → Tel) (δ : el Δ) (t₀ t₁ : el (Θ δ)) →
-    ID′-AP {ε} (λ _ → δ) [] Θ t₀ t₁ ≡ reflᵉ
-
-{-# REWRITE Id-REFL-reflᵉ ID-REFL-reflᵉ #-}
+-- The usefulness of having Id-REFL and ID-REFL as rewrites is limited
+-- in practice, because if δ has internal structure, REFL will compute
+-- on it, and can't be "un-rewritten" back to a REFL in order for
+-- Id-REFL to fire.  So we still sometimes have to coerce along
+-- Id-REFL and ID-REFL.  However, Id′-AP-constfn and ID′-AP-constfn
+-- above minimize the effect of these coercions, since they specialize
+-- to imply that Id-REFL and ID-REFL are reflexivity, so that in
+-- situations where it's possible, the coercion gets reduced away.
 
 -- Now we can do the same for ap on REFL.
-
 ap-REFL : {Δ : Tel} (A : el Δ → Type) (f : (δ : el Δ) → A δ) (δ : el Δ) →
   ap f (REFL δ) ≡ refl (f δ)
 ap-REFL {Δ} A f δ = ap-AP {ε} (λ _ → δ) [] f  
