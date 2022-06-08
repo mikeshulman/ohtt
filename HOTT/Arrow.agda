@@ -105,10 +105,31 @@ postulate
 
 {-# REWRITE lift→⇒ lift←⇒ #-}
 
-{-
 postulate
   utr→⇒ : {Δ : Tel} (A B : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
     (f₀ : (A δ₀) ⇒ (B δ₀)) (f₁ f₁' : (A δ₁) ⇒ (B δ₁)) (f₂ : Id′ (λ w → A w ⇒ B w) δ₂ f₀ f₁) (f₂' : Id′ (λ w → A w ⇒ B w) δ₂ f₀ f₁') →
     utr→ (λ w → (A w) ⇒ (B w)) δ₂ f₀ f₁ f₁' f₂ f₂' ≡
-    Λ a₁ ⇛ Λ a₁' ⇛ Λ a₂ ⇒ {!!}
+    Λ a₁ ⇛ Λ a₁' ⇛ Λ a₂ ⇒
+     comp→ B δ₂ δ₂ (REFL δ₀) (REFL δ₁) (DEGSQ-TB Δ δ₂)
+            (f₂ ⊙ (tr← A δ₂ a₁) ⊙ a₁ ∙ (lift← A δ₂ a₁))
+            (f₂' ⊙ (tr← A δ₂ a₁') ⊙ a₁' ∙ (lift← A δ₂ a₁'))
+            (ap {ε ▸ (λ _ → A δ₁)} (λ x → f₀ ∙ tr← A δ₂ (top x)) {[] ∷ a₁} {[] ∷ a₁'} ([] ∷ a₂))
+  utr←⇒ : {Δ : Tel} (A B : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
+    (f₁ : (A δ₁) ⇒ (B δ₁)) (f₀ f₀' : (A δ₀) ⇒ (B δ₀)) (f₂ : Id′ (λ w → A w ⇒ B w) δ₂ f₀ f₁) (f₂' : Id′ (λ w → A w ⇒ B w) δ₂ f₀' f₁) →
+    utr← (λ w → (A w) ⇒ (B w)) δ₂ f₁ f₀ f₀' f₂ f₂' ≡
+    Λ a₀ ⇛ Λ a₀' ⇛ Λ a₂ ⇒
+     comp← B δ₂ δ₂ (REFL δ₀) (REFL δ₁) (DEGSQ-TB Δ δ₂)
+            (f₂ ⊙ a₀ ⊙ (tr→ A δ₂ a₀) ∙ (lift→ A δ₂ a₀))
+            (f₂' ⊙ a₀' ⊙ (tr→ A δ₂ a₀') ∙ (lift→ A δ₂ a₀'))
+            (ap {ε ▸ (λ _ → A δ₀)} (λ x → f₁ ∙ tr→ A δ₂ (top x)) {[] ∷ a₀} {[] ∷ a₀'} ([] ∷ a₂))
+
+{-# REWRITE utr→⇒ utr←⇒ #-}
+
+{-
+postulate
+  ulift→⇒ : {Δ : Tel} (A B : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁))
+    (f₀ : (A δ₀) ⇒ (B δ₀)) (f₁ f₁' : (A δ₁) ⇒ (B δ₁)) (f₂ : Id′ (λ w → A w ⇒ B w) δ₂ f₀ f₁) (f₂' : Id′ (λ w → A w ⇒ B w) δ₂ f₀ f₁') →
+    ulift→ (λ w → (A w) ⇒ (B w)) δ₂ f₀ f₁ f₁' f₂ f₂' ≡
+    Λ a₀₀ ⇛ Λ a₁₀ ⇛ Λ a₂₀ ⇛ Λ a₀₁ ⇛ Λ a₁₁ ⇛ Λ a₂₁ ⇛ Λ a₀₂ ⇛ Λ a₁₂ ⇛ Λ a₂₂ ⇒
+      {!!} -- This looks like it might start to get into 3-cube territory.
 -}
