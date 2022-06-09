@@ -96,9 +96,38 @@ postulate
 
 {-# REWRITE funext-reflᵉ #-}
 
+-- Dependent equality
+
 _≡[_]_ : {A : Typeᵉ} {B : A → Typeᵉ} {a₀ : A} (b₀ : B a₀) {a₁ : A} (e : a₀ ≡ a₁) (b₁ : B a₁) → Typeᵉ
 b₀ ≡[ reflᵉ ] b₁ = b₀ ≡ b₁
 
 ≡[]coe→ᵉ : {A : Typeᵉ} {B : A → Typeᵉ} {a₀ : A} (b₀ : B a₀) {a₁ : A} (e : a₀ ≡ a₁) (b₁ : B a₁) →
   coe→ᵉ (cong B e) b₀ ≡ b₁ → b₀ ≡[ e ] b₁
 ≡[]coe→ᵉ b₀ reflᵉ b₁ reflᵉ = reflᵉ
+
+-- Heterogeneous equality
+
+data _≡ʰ_ {A : Typeᵉ} (a : A) : {B : Typeᵉ} → B → Typeᵉ where
+  reflʰ : a ≡ʰ a
+
+_•ʰ_ : {A B C : Typeᵉ} {a : A} {b : B} {c : C} (e : a ≡ʰ b) (f : b ≡ʰ c) → a ≡ʰ c
+reflʰ •ʰ reflʰ = reflʰ
+
+revʰ : {A B : Typeᵉ} {a : A} {b : B} → (a ≡ʰ b) → (b ≡ʰ a)
+revʰ reflʰ = reflʰ
+
+≡[]ʰ : {A : Typeᵉ} {B : A → Typeᵉ} {a₀ : A} {b₀ : B a₀} {a₁ : A} {e : a₀ ≡ a₁} {b₁ : B a₁} →
+  (b₀ ≡ʰ b₁) → (b₀ ≡[ e ] b₁)
+≡[]ʰ {e = reflᵉ} reflʰ = reflᵉ
+
+coe→≡ʰ : {A B : Type} (e : A ≡ B) (a : A) → coe→ e a ≡ʰ a
+coe→≡ʰ reflᵉ _ = reflʰ
+
+coe←≡ʰ : {A B : Type} (e : A ≡ B) (b : B) → coe← e b ≡ʰ b
+coe←≡ʰ reflᵉ _ = reflʰ
+
+coe→ᵉ≡ʰ : {A B : Typeᵉ} (e : A ≡ B) (a : A) → coe→ᵉ e a ≡ʰ a
+coe→ᵉ≡ʰ reflᵉ _ = reflʰ
+
+coe←ᵉ≡ʰ : {A B : Typeᵉ} (e : A ≡ B) (b : B) → coe←ᵉ e b ≡ʰ b
+coe←ᵉ≡ʰ reflᵉ _ = reflʰ

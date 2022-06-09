@@ -352,7 +352,6 @@ postulate
 
 {-# REWRITE ID′-CONST-ε ID′-CONST-▸ ID′-CONST-► #-}
 
-{-
 postulate
   ID′-AP-▸ : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
     (Γ : el Δ → Tel) (A : (x : el Δ) → el (Γ x) → Type) (γ₀ : el (Γ (f t₀) ▸ A (f t₀))) (γ₁ : el (Γ (f t₁) ▸ A (f t₁))) →
@@ -365,11 +364,20 @@ postulate
                                        (PAIR (λ w → ID′ (λ z → Γ (f z)) w (pop γ₀) (pop γ₁)) t₂ γ₂)}
                          (AP-AP (λ z → POP (λ x → Γ (f x)) z) {PAIR (λ x → Γ (f x)) t₀ (pop γ₀)} {PAIR (λ x → Γ (f x)) t₁ (pop γ₁)}
                                 (PAIR (λ w₂ → ID′ (λ z → Γ (f z)) w₂ (pop γ₀) (pop γ₁)) t₂ γ₂) f )
-                         {!!})  -- This should be trivial: it equates one coercion of γ₂ to another over some equality, and we have UIP.
+                         -- The next argument is a dependent equality
+                         -- between two different iterated coercions
+                         -- of γ₂.  Since our equalities satisfy UIP,
+                         -- this holds no matter what equality it's
+                         -- dependent over and what the coercions are
+                         -- along.  We prove this using heterogeneous
+                         -- equality.  Unfortunately, we do have to
+                         -- write out the equalities explicitly, or
+                         -- else Agda takes forever unifying.
+                         (≡[]ʰ (coe←ᵉ≡ʰ (cong el (ID′-AP f t₂ Γ (pop γ₀) (pop γ₁))) γ₂ •ʰ revʰ (coe←ᵉ≡ʰ (cong el (ID′-AP (λ z → f (POP (λ x → Γ (f x)) z)) (PAIR (λ w → ID′ (λ z → Γ (f z)) w (pop γ₀) (pop γ₁)) t₂ γ₂) Γ (pop γ₀) (pop γ₁))) _ •ʰ (coe→ᵉ≡ʰ (cong el (ID′-AP′ (λ x → Θ) (λ w → POP (λ x → Γ (f x)) w) (PAIR (λ w → ID′ (λ z → Γ (f z)) w (pop γ₀) (pop γ₁)) t₂ γ₂) (λ _ x → Γ (f x)) (pop γ₀) (pop γ₁))) _ •ʰ COE←[]≡ʰ (ID′-CONST Θ (PAIR (λ w → ID′ (λ z → Γ (f z)) w (pop γ₀) (pop γ₁)) t₂ γ₂) t₀ t₁) (≡λ′→ (λ x₀ → rev (ID′-AP (SND (Θ ► (λ x → Γ (f x))) Θ) (PAIR (λ w → ID′ (λ _ → Θ) w t₀ t₁) (PAIR (λ w → ID′ (λ z → Γ (f z)) w (pop γ₀) (pop γ₁)) t₂ γ₂) x₀) (λ z → Γ (f z)) (pop γ₀) (pop γ₁)))) γ₂)))))
+                         -- End of morally-trivial UIP proof
                 • Id′-AP (λ w → PAIR Γ (f (POP (λ x → Γ (f x)) w)) (TOP (λ x → Γ (f x)) w))
                          {PAIR (λ z → Γ (f z)) t₀ (pop γ₀)} {PAIR (λ z → Γ (f z)) t₁ (pop γ₁)}
                          (PAIR (λ w → ID′ (λ z → Γ (f z)) w (pop γ₀) (pop γ₁)) t₂ γ₂) (UNCURRY Γ A) (top γ₀) (top γ₁))
--}
 
 -- TODO: ID′-AP′-▸
 
