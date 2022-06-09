@@ -474,36 +474,36 @@ AP′-REFL {Δ} Θ f δ = AP′-AP {ε} (λ _ → δ) [] f • AP′-CONST {ε} 
 -- families and functions reduce to reflexivity, which is well-typed
 -- since both sides reduce to a homogeneous Id or a refl.
 postulate
-  Id′-AP-const : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) (A : Type) (a₀ a₁ : A) →
+  Id′-AP-constty : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) (A : Type) (a₀ a₁ : A) →
     Id′-AP f t₂ (λ _ → A) a₀ a₁ ≡ reflᵉ
-  Id′-AP′-const : {Θ : Tel} (Δ : el Θ → Tel) (f : (x : el Θ) → el (Δ x))
+  Id′-AP′-constty : {Θ : Tel} (Δ : el Θ → Tel) (f : (x : el Θ) → el (Δ x))
     {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) (A : Type) (a₀ a₁ : A) →
     Id′-AP′ Δ f t₂ (λ _ _ → A) a₀ a₁ ≡ reflᵉ
 {-
-  ID′-AP-const : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) (Γ : Tel) (γ₀ γ₁ : el Γ) →
+  ID′-AP-constty : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) (Γ : Tel) (γ₀ γ₁ : el Γ) →
     ID′-AP f t₂ (λ _ → Γ) γ₀ γ₁ ≡ {! reflᵉ !}
-  ID′-AP′-const : {Θ : Tel} (Δ : el Θ → Tel) (f : (x : el Θ) → el (Δ x)) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
+  ID′-AP′-constty : {Θ : Tel} (Δ : el Θ → Tel) (f : (x : el Θ) → el (Δ x)) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
                  (Γ : Tel) (γ₀ γ₁ : el Γ) →
     ID′-AP′ Δ f t₂ (λ _ _ → Γ) γ₀ γ₁ ≡ {! reflᵉ!}
 -}
 
-{-# REWRITE Id′-AP-const Id′-AP′-const #-}
+{-# REWRITE Id′-AP-constty Id′-AP′-constty #-}
 
--- ID′-AP-const ID′-AP′-const #-}
+-- ID′-AP-constty ID′-AP′-constty #-}
 
 postulate
-  ap-AP-const : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) {A : Type} (g : A) →
+  ap-AP-constty : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) {A : Type} (g : A) →
     ap-AP f t₂ (λ _ → g) ≡ reflᵉ
-  AP-AP-const : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) {Γ : Tel} (g : el Γ) →
+  AP-AP-constty : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) {Γ : Tel} (g : el Γ) →
     AP-AP f t₂ (λ _ → g) ≡ reflᵉ
 {-
-  AP′-AP-const : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) {Γ : Tel} (g : el Γ) →
+  AP′-AP-constty : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) {Γ : Tel} (g : el Γ) →
     AP′-AP f t₂ (λ _ → g) ≡ {! reflᵉ !}
 -}
 
-{-# REWRITE ap-AP-const AP-AP-const #-}
+{-# REWRITE ap-AP-constty AP-AP-constty #-}
 
--- AP′-AP-const #-}
+-- AP′-AP-constty #-}
 
 -- The choice not to define Id as an instance of Id′ does mean that
 -- all the rewrites we postulate for Id′, ap, and AP have to be given
