@@ -44,13 +44,28 @@ postulate
   -- Id′, it depends on an element of the bundled (ID Δ).
   ap : {Δ : Tel} {A : el Δ → Type} (f : (δ : el Δ) → A δ) (δ : el (ID Δ)) → Id′ A δ (f (δ ₀)) (f (δ ₁))
 
--- Telescope AP.  I hope we can get away with only the non-dependent version.
-AP : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → el (ID Δ)
+-- Telescope AP.  I hope we can get away with only the non-dependent version.  We'd like to *define* it by recursion on the target telescope:
+{-
+AP {Δ = ε} f γ = []
+AP {Δ = Δ ▸ A} f γ = AP (λ x → pop (f x)) γ ∷
+                     coe← (cong A (AP₀ (λ x → pop (f x)) γ)) (top (f (γ ₀))) ∷
+                     coe← (cong A (AP₁ (λ x → pop (f x)) γ)) (top (f (γ ₁))) ∷
+                     coe→ (Id′-AP (λ x → pop (f x)) γ A (top (f (γ ₀))) (top (f (γ ₁)))) (ap (λ x → top (f x)) γ)
+-}
+-- However, in order to get ap to compute on variables, we need AP to
+-- compute on pop, and if it also computed on arbitrary telescopes
+-- that would produce infinite loops.  (You can see an AP-pop in the
+-- above definition.)  So instead we "define" it to compute in this
+-- way only when the *term* is also of the form ∷.  This requires
+-- matching inside a λ, so it has to be done with rewrite rules.
+postulate
+  AP : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → el (ID Δ)
 
 -- We define this mutually with proofs that its projections are the
 -- action of the original f on the projections.
-AP₀ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → ((AP f γ)₀) ≡ f (γ ₀)
-AP₁ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → ((AP f γ)₁) ≡ f (γ ₁)
+postulate
+  AP₀ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → ((AP f γ)₀) ≡ f (γ ₀)
+  AP₁ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → ((AP f γ)₁) ≡ f (γ ₁)
 
 -- We also define it mutually with postulated naturality for Id′.
 -- This rule should be admissible, meaning we will give rewrite rules
@@ -61,29 +76,41 @@ postulate
     Id′ (λ w → A (f w)) γ a₀ a₁ ≡ Id′ A (AP f γ) (coe← (cong A (AP₀ f γ)) a₀) (coe← (cong A (AP₁ f γ)) a₁)
 
 -- In defining AP, we have to coerce along AP₀, AP₁ and Id′-AP.
-AP {Δ = ε} f γ = []
-AP {Δ = Δ ▸ A} f γ = AP (λ x → pop (f x)) γ ∷
-                     coe← (cong A (AP₀ (λ x → pop (f x)) γ)) (top (f (γ ₀))) ∷
-                     coe← (cong A (AP₁ (λ x → pop (f x)) γ)) (top (f (γ ₁))) ∷
-                     coe→ (Id′-AP (λ x → pop (f x)) γ A (top (f (γ ₀))) (top (f (γ ₁)))) (ap (λ x → top (f x)) γ)
+postulate
+  APε : {Γ : Tel} (f : el Γ → el ε) (γ : el (ID Γ)) → AP {Δ = ε} f γ ≡ []
+  AP∷ : {Γ Δ : Tel} (γ : el (ID Γ)) (f : el Γ → el Δ) (A : el Δ → Type) (g : (x : el Γ) → A (f x)) →
+    AP {Δ = Δ ▸ A} (λ x → f x ∷ g x) γ ≡
+      AP f γ ∷
+      coe← (cong A (AP₀ f γ)) (g (γ ₀)) ∷
+      coe← (cong A (AP₁ f γ)) (g (γ ₁)) ∷
+      coe→ (Id′-AP f γ A (g (γ ₀)) (g (γ ₁))) (ap g γ)
 
-AP₀ {Δ = ε} f γ = reflᵉ
-AP₀ {Δ = Δ ▸ A} f γ = ∷≡ʰ A (AP₀ (λ x → pop (f x)) γ) (coe←≡ʰ (cong A (AP₀ (λ x → pop (f x)) γ)) (top (f (γ ₀))))
+{-# REWRITE APε AP∷ #-}
 
-AP₁ {Δ = ε} f γ = reflᵉ
-AP₁ {Δ = Δ ▸ A} f γ = ∷≡ʰ A (AP₁ (λ x → pop (f x)) γ) (coe←≡ʰ (cong A (AP₁ (λ x → pop (f x)) γ)) (top (f (γ ₁))))
+-- Similarly, AP₀ and AP₁ also have to be "defined" on ∷ by matching inside λ.
+postulate
+  AP₀ε : {Γ : Tel} (f : el Γ → el ε) (γ : el (ID Γ)) → AP₀ {Δ = ε} f γ ≡ reflᵉ
+  AP₀∷ : {Γ Δ : Tel} (γ : el (ID Γ)) (f : el Γ → el Δ) (A : el Δ → Type) (g : (x : el Γ) → A (f x)) →
+    AP₀ {Δ = Δ ▸ A} (λ x → f x ∷ g x) γ ≡
+    ∷≡ʰ A (AP₀ f γ) (coe←≡ʰ (cong A (AP₀ f γ)) (g (γ ₀)))
+  AP₁ε : {Γ : Tel} (f : el Γ → el ε) (γ : el (ID Γ)) → AP₁ {Δ = ε} f γ ≡ reflᵉ
+  AP₁∷ : {Γ Δ : Tel} (γ : el (ID Γ)) (f : el Γ → el Δ) (A : el Δ → Type) (g : (x : el Γ) → A (f x)) →
+    AP₁ {Δ = Δ ▸ A} (λ x → f x ∷ g x) γ ≡
+    ∷≡ʰ A (AP₁ f γ) (coe←≡ʰ (cong A (AP₁ f γ)) (g (γ ₁)))
+
+{-# REWRITE AP₀ε AP₀∷ AP₁ε AP₁∷ #-}
 
 -- The proofs of AP₀ and AP₁ imply that they should hold
--- definitionally for all concrete telescopes.  Thus, it is reasonable
--- to assert them as rewrite rules for all telescopes.  Note that they
--- have a volatile LHS, which reduces on concrete or
--- partially-concrete contexts, but they are consistent with such
--- reductions by the definitions of AP₀ and AP₁.  Thus, AP₀ and AP₁
--- hold definitionally for partially-concrete contexts as well.
+-- definitionally for all concrete terms.  Thus, it is reasonable to
+-- assert them as rewrite rules for all terms.  Note that they have a
+-- volatile LHS, which reduces on concrete or partially-concrete
+-- contexts and terms, but they are consistent with such reductions by
+-- the definitions of AP₀ and AP₁.  Thus, AP₀ and AP₁ hold
+-- definitionally for partially-concrete contexts/terms as well.
 {-# REWRITE AP₀ AP₁ #-}
 
--- Since AP₀ and AP₁ hold definitionally on abstract contexts (at
--- least), we can prove by UIP that they are equal to reflexivity.
+-- Since AP₀ and AP₁ hold definitionally on abstract contexts/terms
+-- (at least), we can prove by UIP that they are equal to reflexivity.
 AP₀-reflᵉ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → AP₀ f γ ≡ reflᵉ
 AP₀-reflᵉ f γ = axiomK
 
@@ -95,16 +122,18 @@ AP₁-reflᵉ f γ = axiomK
 -- the definition of AP to make them well-typed will disappear.  I
 -- think/hope that this won't produce any ill-typed terms, since as
 -- noted above AP₀ and AP₁ should hold definitionally on concrete and
--- partially-concrete telescopes too.
+-- partially-concrete telescopes and terms too.
 {-# REWRITE AP₀-reflᵉ AP₁-reflᵉ #-}
 
 -- A useful derived rule for combining the admissible equality Id′-AP
--- with an equality of base identifications.
+-- with an equality of base identifications and heterogeneous
+-- equalities of the endpoints.
 Id′-AP≡ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (δ : el (ID Δ)) (e : δ ≡ AP f γ)
     (A : el Δ → Type) {a₀ : A (f (γ ₀))} {a₁ : A (f (γ ₁))} {b₀ : A (δ ₀)} {b₁ : A (δ ₁)}
     (e₀ : a₀ ≡ʰ b₀) (e₁ : a₁ ≡ʰ b₁) →
-    Id′ (λ w → A (f w)) γ a₀ a₁ ≡ Id′ A δ b₀ b₁ -- (coe← (cong (λ x → A (x ₀)) e) a₀) (coe← (cong (λ x → A (x ₁)) e) a₁)
-Id′-AP≡ f t₂ δ₂ e A a₀ a₁ = {!!} -- cong (λ w → Id′ A w a₀ a₁) e • Id′-AP f t₂ A a₀ a₁
+    Id′ (λ w → A (f w)) γ a₀ a₁ ≡ Id′ A δ b₀ b₁
+Id′-AP≡ f t₂ δ₂ e A {a₀} {a₁} {b₀} {b₁} e₀ e₁ =
+  Id′-AP f t₂ A a₀ a₁ • {!!}
 
 -- Functoriality for ap should also be admissible, like Id′-AP.
 -- However, like ap, it should compute on terms, not types.
@@ -112,35 +141,77 @@ postulate
   ap-AP : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) {A : el Δ → Type} (g : (x : el Δ) → A x) →
     ap g (AP f γ) ≡ coe→ (Id′-AP f γ A (g (f (γ ₀))) (g (f (γ ₁)))) (ap (λ w → g (f w)) γ) 
 
--- From this we can prove the analogous functoriality property for AP,
+-- From this we can "prove" the analogous functoriality property for AP,
 -- with some awful wrangling of heterogeneous exo-equality.
-AP-AP : {Γ Δ Θ : Tel} (f : el Γ → el Δ) (g : el Δ → el Θ) (γ : el (ID Γ)) →
-  AP g (AP f γ) ≡ AP (λ w → g (f w)) γ
-AP-AP {Θ = ε} f g γ = reflᵉ
-AP-AP {Γ} {Δ} {Θ ▸ A} f g γ =
-  ∷≡ʰ (λ δaa → Id′ A (pop (pop δaa)) (top (pop δaa)) (top δaa))
+postulate
+  AP-AP : {Γ Δ Θ : Tel} (f : el Γ → el Δ) (g : el Δ → el Θ) (γ : el (ID Γ)) →
+    AP g (AP f γ) ≡ AP (λ w → g (f w)) γ
+  AP-AP-ε : {Γ Δ : Tel} (f : el Γ → el Δ) (g : el Δ → el ε) (γ : el (ID Γ)) →
+    AP-AP {Θ = ε} f g γ ≡ reflᵉ
+  AP-AP-∷ : {Γ Δ Θ : Tel} (f : el Γ → el Δ) (g : el Δ → el Θ) (γ : el (ID Γ))
+    (A : el Θ → Type) (h : (x : el Δ) → A (g x)) →
+    AP-AP {Γ} {Δ} {Θ ▸ A} f (λ x → g x ∷ h x) γ ≡
+      ∷≡ʰ (λ δaa → Id′ A (pop (pop δaa)) (top (pop δaa)) (top δaa))
       (∷≡ʰ (λ δa → A ((pop δa)₁))
            (∷≡ʰ (λ δ → A (δ ₀))
-                (AP-AP f (λ x → pop (g x)) γ)
+                (AP-AP f g γ)
                 reflʰ)
            reflʰ)
-       (coe→≡ʰ (Id′-AP (λ x → pop (g x)) (AP f γ) A (top (g (f (γ ₀)))) (top (g (f (γ ₁))))) _ •ʰ
-       (≡→≡ʰ (ap-AP f γ (λ x → top (g x))) •ʰ
-       (coe→≡ʰ (Id′-AP f γ (λ z → A (pop (g z))) (top (g (f (γ ₀)))) (top (g (f (γ ₁))))) _ •ʰ
-        revʰ (coe→≡ʰ (Id′-AP (λ x → pop (g (f x))) γ A (top (g (f (γ ₀)))) (top (g (f (γ ₁))))) _))))
+       (coe→≡ʰ (Id′-AP g (AP f γ) A (h (f (γ ₀))) (h (f (γ ₁)))) _ •ʰ
+       (≡→≡ʰ (ap-AP f γ h) •ʰ
+       (coe→≡ʰ (Id′-AP f γ (λ z → A (g z)) (h (f (γ ₀))) (h (f (γ ₁)))) _ •ʰ
+        revʰ (coe→≡ʰ (Id′-AP (λ x → g (f x)) γ A (h (f (γ ₀))) (h (f (γ ₁)))) _))))
 -- Inspecting this definition, we see that on a concrete telescope,
 -- AP-AP consists essentially of reflexivities on points and complex
 -- combinations of Id′-AP and ap-AP on identifications.  Thus, if the
 -- types and terms are also concrete, it should reduce away to
 -- reflexivity too.
 
--- TODO: to prove AP-idmap, we need by induction to also characterize
--- AP on variables (top/pop).
-AP-idmap : {Δ : Tel} (δ : el (ID Δ)) → AP {Δ} {Δ} (λ w → w) δ ≡ δ
-AP-idmap {Δ = ε} δ = reflᵉ
-AP-idmap {Δ = Δ ▸ A} δ = {!AP-idmap {Δ} (pop (pop (pop δ)))!}
+{-# REWRITE AP-AP-ε AP-AP-∷ #-}
 
--- {-# REWRITE AP-idmap #-}
+-- Since we "defined" AP and AP-AP to compute only on ∷ rather than
+-- just ▸, we can also make them compute on top and pop.  More
+-- generally, we can "prove" that all the pieces of the original
+-- ▸-only definition hold.
+
+postulate
+  AP-pop : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
+    AP (λ x → pop (f x)) γ ≡ pop (pop (pop (AP f γ)))
+
+{-# REWRITE AP-pop #-}
+
+-- Unfortunately, these can't be rewrite rules, but we can make them
+-- reduce on ∷.
+postulate
+  top-pop-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
+    top (pop (pop (AP f γ))) ≡ coe← (cong A (AP₀ (λ x → pop (f x)) γ)) (top (f (γ ₀)))
+  top-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
+    top (pop (AP f γ)) ≡ coe← (cong A (AP₁ (λ x → pop (f x)) γ)) (top (f (γ ₁)))
+  top-pop-pop-AP-∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
+    top-pop-pop-AP A (λ x → f x ∷ g x) γ ≡ reflᵉ
+  top-pop-AP-∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
+    top-pop-AP A (λ x → f x ∷ g x) γ ≡ reflᵉ
+
+{-# REWRITE top-pop-pop-AP-∷ top-pop-AP-∷ #-}
+
+postulate
+  ap-top : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
+    ap (λ x → top (f x)) γ ≡
+    coe← (Id′-AP (λ x → pop (f x)) γ A (top (f (γ ₀))) (top (f (γ ₁))))
+      (coe→ (cong2 (Id′ A (pop (pop (pop (AP f γ))))) (top-pop-pop-AP A f γ) (top-pop-AP A f γ))
+        (top (AP f γ)))
+
+{-# REWRITE ap-top #-}
+
+-- Note that we don't have rules for computing ap-top on "dependent
+-- telescopes".  Hopefully this won't ever occur.
+
+-- Combining ap-top and AP-pop with AP on the identity, we will be
+-- able to compute ap on any (De Bruijn) variable.
+postulate
+  AP-idmap : {Δ : Tel} (δ : el (ID Δ)) → AP {Δ} {Δ} (λ w → w) δ ≡ δ
+
+{-# REWRITE AP-idmap #-}
 
 AP-idmap₀ : {Δ : Tel} (δ : el (ID Δ)) → cong _₀ (AP-idmap δ) ≡ reflᵉ
 AP-idmap₀ δ = axiomK
@@ -151,20 +222,20 @@ AP-idmap₁ δ = axiomK
 {-# REWRITE AP-idmap₀ AP-idmap₁ #-}
 
 -- With AP-idmap, we can compute the admissible rules like AP-AP and
--- Id′-AP on identities.  (All these will work as soon as AP-idmap is a rewrite.)
+-- Id′-AP on identities.
 AP-AP-idmap : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) →
-  AP-AP f (λ x → x) γ ≡ {!reflᵉ!}
-AP-AP-idmap f γ = {!axiomK!}
+  AP-AP f (λ x → x) γ ≡ reflᵉ
+AP-AP-idmap f γ = axiomK
 
 AP-AP-idmap′ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) →
-  AP-AP (λ x → x) f γ ≡ {!reflᵉ!}
-AP-AP-idmap′ f γ = {!axiomK!}
+  AP-AP (λ x → x) f γ ≡ reflᵉ
+AP-AP-idmap′ f γ = axiomK
 
 Id′-AP-idmap : {Δ : Tel} (δ : el (ID Δ)) (A : el Δ → Type) (a₀ : A (δ ₀)) (a₁ : A (δ ₁)) →
-  Id′-AP {Δ} {Δ} (λ w → w) δ A a₀ a₁ ≡ {!reflᵉ!}
-Id′-AP-idmap δ A a₀ a₁ = {!axiomK!}
+  Id′-AP {Δ} {Δ} (λ w → w) δ A a₀ a₁ ≡ reflᵉ
+Id′-AP-idmap δ A a₀ a₁ = axiomK
 
--- {-# REWRITE AP-AP-idmap AP-AP-idmap′ Id′-AP-idmap #-}
+{-# REWRITE AP-AP-idmap AP-AP-idmap′ Id′-AP-idmap #-}
 
 -- TODO: Left off porting
 
