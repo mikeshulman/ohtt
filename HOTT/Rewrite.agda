@@ -123,6 +123,9 @@ revʰ reflʰ = reflʰ
   (b₀ ≡ʰ b₁) → (b₀ ≡[ e ] b₁)
 ≡[]ʰ {e = reflᵉ} reflʰ = reflᵉ
 
+≡ʰ→≡ : {A : Typeᵉ} {a₀ a₁ : A} → (a₀ ≡ʰ a₁) → (a₀ ≡ a₁)
+≡ʰ→≡ reflʰ = reflᵉ
+
 coe→≡ʰ : {A B : Type} (e : A ≡ B) (a : A) → coe→ e a ≡ʰ a
 coe→≡ʰ reflᵉ _ = reflʰ
 

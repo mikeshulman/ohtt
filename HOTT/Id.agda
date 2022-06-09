@@ -132,8 +132,8 @@ Id′-AP≡ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (δ : el (ID
     (A : el Δ → Type) {a₀ : A (f (γ ₀))} {a₁ : A (f (γ ₁))} {b₀ : A (δ ₀)} {b₁ : A (δ ₁)}
     (e₀ : a₀ ≡ʰ b₀) (e₁ : a₁ ≡ʰ b₁) →
     Id′ (λ w → A (f w)) γ a₀ a₁ ≡ Id′ A δ b₀ b₁
-Id′-AP≡ f t₂ δ₂ e A {a₀} {a₁} {b₀} {b₁} e₀ e₁ =
-  Id′-AP f t₂ A a₀ a₁ • {!!}
+Id′-AP≡ f γ .(AP f γ) reflᵉ A {a₀} {a₁} {b₀} {b₁} e₀ e₁ =
+  Id′-AP f γ A a₀ a₁ • cong2 (Id′ A (AP f γ)) (≡ʰ→≡ e₀) (≡ʰ→≡ e₁)
 
 -- Functoriality for ap should also be admissible, like Id′-AP.
 -- However, like ap, it should compute on terms, not types.
@@ -422,7 +422,7 @@ Id′-REFL {Δ} A δ a₀ a₁ = rev (Id′-AP≡ {ε} (λ _ → δ) [] (REFL δ
 Id′-REFL≡ : {Δ : Tel} (A : el Δ → Type) (δ : el Δ)
   {a₀ : A ((REFL δ)₀)} {a₁ : A ((REFL δ)₁)} {b₀ b₁ : A δ} (e₀ : a₀ ≡ʰ b₀) (e₁ : a₁ ≡ʰ b₁) →
   Id′ A (REFL δ) a₀ a₁ ≡ Id (A δ) b₀ b₁
-Id′-REFL≡ {Δ} A δ a₀ a₁ = {!!}
+Id′-REFL≡ {Δ} A δ e₀ e₁ = rev (Id′-AP≡ {ε} (λ _ → δ) [] (REFL δ) (rev (AP-const Δ [] δ)) A (revʰ e₀) (revʰ e₁)) 
 
 -- Note that in defining REFL we have to coerce along REFL₀ and REFL₁, and also ID′-REFL≡.
 REFL {ε} δ = []
