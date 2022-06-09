@@ -166,9 +166,21 @@ _▸≡_ reflᵉ reflᵉ = reflᵉ
 _►≡_ : {Δ₀ Δ₁ : Tel} {Θ₀ : el Δ₀ → Tel} {Θ₁ : el Δ₁ → Tel} (e : Δ₀ ≡ Δ₁) (f : Θ₀ ≡[ e ] Θ₁) → (Δ₀ ► Θ₀) ≡ (Δ₁ ► Θ₁)
 _►≡_ reflᵉ reflᵉ = reflᵉ
 
+∷≡ : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (e : δ₀ ≡ δ₁) {a₀ : A δ₀} {a₁ : A δ₁} (f : a₀ ≡[ e ] a₁) →
+  (δ₀ ∷ a₀) ≡ (δ₁ ∷ a₁)
+∷≡ A reflᵉ reflᵉ = reflᵉ
+
+∷≡ʰ : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (e : δ₀ ≡ δ₁) {a₀ : A δ₀} {a₁ : A δ₁} (f : a₀ ≡ʰ a₁) →
+  (δ₀ ∷ a₀) ≡ (δ₁ ∷ a₁)
+∷≡ʰ A reflᵉ reflʰ = reflᵉ
+
 PAIR≡ : {Δ : Tel} (Θ : el Δ → Tel) {δ₀ δ₁ : el Δ} (e : δ₀ ≡ δ₁) {t₀ : el (Θ δ₀)} {t₁ : el (Θ δ₁)} (f : t₀ ≡[ e ] t₁) →
   PAIR Θ δ₀ t₀ ≡ PAIR Θ δ₁ t₁
 PAIR≡ Θ reflᵉ reflᵉ = reflᵉ
+
+PAIR≡ʰ : {Δ : Tel} (Θ : el Δ → Tel) {δ₀ δ₁ : el Δ} (e : δ₀ ≡ δ₁) {t₀ : el (Θ δ₀)} {t₁ : el (Θ δ₁)} (f : t₀ ≡ʰ t₁) →
+  PAIR Θ δ₀ t₀ ≡ PAIR Θ δ₁ t₁
+PAIR≡ʰ Θ reflᵉ reflʰ = reflᵉ
 
 postulate
   ▸≡-reflish : {Δ : Tel} (A : el Δ → Type) (e : Δ ≡ Δ) (f : A ≡[ e ] A) → (e ▸≡ f) ≡ reflᵉ

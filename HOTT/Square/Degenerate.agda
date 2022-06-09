@@ -33,7 +33,17 @@ ulift→Sq {Δ} A {δ₀} {δ₁} δ₂ a₀ a₁ a₁' a₂ a₂' =
                (λ w → PAIR (UID Δ) (PR Δ Δ δ₀ δ₁) δ₂ ∷ a₀ ∷ top w)
                {[] ∷ a₁} {[] ∷ a₁'}
                ([] ∷ utr→ A δ₂ a₀ a₁ a₁' a₂ a₂') _
-               {!!}
+               -- This is just about identifying things modulo
+               -- coercions.  With UIP for ≡ this is morally trivial,
+               -- we just have to hack our way through with some
+               -- heterogeneous equality and lots of explicit
+               -- arguments to get Agda to typecheck it.
+               {!
+         ∷≡ʰ _ (cong (λ e → PAIR (λ w₂ → ID′ (λ w → ID Δ (POP (λ _ → Δ) w) (TOP (λ _ → Δ) w)) w₂ δ₂ δ₂) (PAIR (λ w → ID′ (λ _ → Δ) w δ₁ δ₁) (REFL δ₀) (REFL δ₁)) (REFL δ₂) ∷ coe→ e (refl a₀)) axiomK)
+         (coe→≡ʰ (Id′-AP (λ z → TOP (λ _ → Δ) (POP (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁)) (pop z))) (PAIR (λ w₂ → ID′ (λ w → ID Δ (POP (λ _ → Δ) w) (TOP (λ _ → Δ) w)) w₂ δ₂ δ₂) (PAIR (λ w → ID′ (λ _ → Δ) w δ₁ δ₁) (REFL δ₀) (REFL δ₁)) (REFL δ₂) ∷ coe→ (Id′-AP (λ w → POP (λ _ → Δ) (POP (λ w₀w₁ → ID Δ (POP (λ _ → Δ) w₀w₁) (TOP (λ _ → Δ) w₀w₁)) w)) (PAIR (λ w₂ → ID′ (λ w → ID Δ (POP (λ _ → Δ) w) (TOP (λ _ → Δ) w)) w₂ δ₂ δ₂) (PAIR (λ w → ID′ (λ _ → Δ) w δ₁ δ₁) (REFL δ₀) (REFL δ₁)) (REFL δ₂)) A a₀ a₀) (refl a₀)) A a₁ a₁')
+         (utr→ A δ₂ a₀ a₁ a₁' a₂ a₂'))
+        !}
+               -- End of morally-trivial UIP proof
                (λ z → Id′ A (TOP (UID Δ) (pop (pop z))) (top (pop z)) (top z)) a₂ a₂')
         (ulift→ A δ₂ a₀ a₁ a₁' a₂ a₂')
 
