@@ -110,6 +110,9 @@ b₀ ≡[ reflᵉ ] b₁ = b₀ ≡ b₁
 data _≡ʰ_ {A : Typeᵉ} (a : A) : {B : Typeᵉ} → B → Typeᵉ where
   reflʰ : a ≡ʰ a
 
+≡→≡ʰ : {A : Typeᵉ} {a b : A} → a ≡ b → a ≡ʰ b
+≡→≡ʰ reflᵉ = reflʰ
+
 _•ʰ_ : {A B C : Typeᵉ} {a : A} {b : B} {c : C} (e : a ≡ʰ b) (f : b ≡ʰ c) → a ≡ʰ c
 reflʰ •ʰ reflʰ = reflʰ
 
