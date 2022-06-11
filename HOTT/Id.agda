@@ -57,11 +57,11 @@ AP {Δ = Δ ▸ A} f γ = AP (λ x → pop (f x)) γ ∷
 -- that would produce infinite loops.  (You can see an AP-pop in the
 -- above definition.)  So instead we "define" it to compute in this
 -- way only when the *term* is also of the form ∷.  This requires
--- matching inside a λ, so it has to be done with rewrite rules.
+-- matching inside a λ, so it has to be done with rewrite rules.  Note
+-- that this is a *syntactic* restriction, not a semantic one: since ∷
+-- satisfies an eta-rule, the two definitions have the same semantics.
 postulate
   AP : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → el (ID Δ)
--- TODO: Can we make this an actualy definition by using a helper
--- lemma, like AP-const below?
 
 -- We define this mutually with proofs that its projections are the
 -- action of the original f on the projections.
@@ -140,7 +140,7 @@ Id′-AP≡ f γ .(AP f γ) reflᵉ A {a₀} {a₁} {b₀} {b₁} e₀ e₁ =
 -- Functoriality for ap should also be admissible, like Id′-AP.
 -- However, like ap, it should compute on terms, not types.
 postulate
-  ap-AP : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) {A : el Δ → Type} (g : (x : el Δ) → A x) →
+  ap-AP : {Γ Δ : Tel} {A : el Δ → Type} (f : el Γ → el Δ) (g : (x : el Δ) → A x) (γ : el (ID Γ)) →
     ap g (AP f γ) ≡ coe→ (Id′-AP f γ A (g (f (γ ₀))) (g (f (γ ₁)))) (ap (λ w → g (f w)) γ) 
 
 -- From this we can "prove" the analogous functoriality property for AP,
@@ -160,7 +160,7 @@ postulate
                 reflʰ)
            reflʰ)
        (coe→≡ʰ (Id′-AP g (AP f γ) A (h (f (γ ₀))) (h (f (γ ₁)))) _ •ʰ
-       (≡→≡ʰ (ap-AP f γ h) •ʰ
+       (≡→≡ʰ (ap-AP f h γ) •ʰ
        (coe→≡ʰ (Id′-AP f γ (λ z → A (g z)) (h (f (γ ₀))) (h (f (γ ₁)))) _ •ʰ
         revʰ (coe→≡ʰ (Id′-AP (λ x → g (f x)) γ A (h (f (γ ₀))) (h (f (γ ₁)))) _))))
 -- Inspecting this definition, we see that on a concrete telescope,
@@ -442,7 +442,9 @@ REFL₁ {Δ ▸ A} δ = ∷≡ʰ A (REFL₁ (pop δ)) (coe←≡ʰ (cong A (REFL
 
 -- The proof of AP-const in the ▸ case also requires case-analysis on
 -- the term t, whose "constructor" ∷ isn't actually a constructor, so
--- we have to do the "case analysis" in a separate lemma.
+-- we have to do the "case analysis" in a separate lemma.  (We
+-- couldn't do this for AP above, because in that case we needed the
+-- *syntactic* restriction that it would only compute on ∷ terms.)
 AP-const-∷ : {Δ : Tel} (Θ : Tel) (A : el Θ → Type) (δ : el (ID Δ)) (t : el Θ) (a : A t) →
   AP {Δ} (λ _ → _∷_ {Θ} {A} t a) δ ≡ REFL (_∷_ {Θ} {A} t a)
 AP-const-∷ {Δ} Θ A δ t a =
@@ -472,58 +474,59 @@ AP-const-reflᵉ Θ δ t = axiomK
 
 {-# REWRITE REFL₀-reflᵉ REFL₁-reflᵉ AP-const-reflᵉ #-}
 
--- This one can't be a rewrite since its LHS reduces directly rather
--- than by case-analysis.
+-- Id′-REFL-reflᵉ can't be a rewrite since its LHS reduces directly
+-- rather than by case-analysis.  Instead we make the following a
+-- rewrite, which in particular makes Id′-REFL-reflᵉ hold
+-- definitionally.
+
+Id′-AP-const : {Γ Δ : Tel} (f : el Δ) (γ : el (ID Γ)) (A : el Δ → Type) (a₀ a₁ : A f) →
+  Id′-AP {Γ} (λ _ → f) γ A a₀ a₁ ≡ reflᵉ
+Id′-AP-const f γ A a₀ a₁ = axiomK
+
+{-# REWRITE Id′-AP-const #-}
+
 Id′-REFL-reflᵉ : {Δ : Tel} (A : el Δ → Type) (δ : el Δ) (a₀ : A ((REFL δ)₀)) (a₁ : A ((REFL δ)₁)) →
   Id′-REFL A δ a₀ a₁ ≡ reflᵉ
-Id′-REFL-reflᵉ A δ a₀ a₁ = axiomK
-
-{-
-
-postulate
-  Id′-AP-constfn : {Θ Δ : Tel} (f : el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
-    (A : el Δ → Type) (a₀ a₁ : A f) →
-    Id′-AP {Θ} (λ _ → f) {t₀} {t₁} t₂ A a₀ a₁ ≡ reflᵉ
-
-{-# REWRITE Id′-AP-constfn #-}
+Id′-REFL-reflᵉ A δ a₀ a₁ = reflᵉ 
 
 -- The usefulness of having Id-REFL as a rewrite is limited in
 -- practice, because if δ has internal structure, REFL will compute on
 -- it, and can't be "un-rewritten" back to a REFL in order for Id-REFL
--- to fire.  So we still sometimes have to coerce along Id-REFL.
--- However, Id′-AP-constfn above minimizes the effect of these
--- coercions, since they specialize to imply that Id-REFL is
--- reflexivity, so that in situations where it's possible, the
--- coercion gets reduced away.
+-- to fire.  So we still sometimes have to coerce along Id-REFL.  But
+-- the fact that it is definitionally reflexivity, at least on
+-- abstract arguments, minimizes the effect of these coercions.
 
--- Now we can do the same for ap on REFL.
+-- Now we do the same for ap on reflexivity.
 ap-REFL : {Δ : Tel} (A : el Δ → Type) (f : (δ : el Δ) → A δ) (δ : el Δ) →
   ap f (REFL δ) ≡ refl (f δ)
-ap-REFL {Δ} A f δ = ap-AP {ε} (λ _ → δ) [] f  
+ap-REFL {Δ} A f δ = ap-AP {ε} (λ _ → δ) f []
 
 AP-REFL : {Δ Θ : Tel} (f : el Δ → el Θ) (δ : el Δ) →
   AP f (REFL δ) ≡ REFL (f δ)
-AP-REFL f δ = AP-AP {ε} (λ _ → δ) [] f
+AP-REFL f δ = AP-AP {ε} (λ _ → δ) f []
 
 {-# REWRITE ap-REFL AP-REFL #-}
 
 -- We can now assert that the functoriality rules for constant
 -- families and functions reduce to reflexivity, which is well-typed
 -- since both sides reduce to a homogeneous Id or a refl.
-postulate
-  Id′-AP-constty : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) (A : Type) (a₀ a₁ : A) →
-    Id′-AP f t₂ (λ _ → A) a₀ a₁ ≡ reflᵉ
+Id′-AP-CONST : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (A : Type) (a₀ a₁ : A) →
+  Id′-AP f γ (λ _ → A) a₀ a₁ ≡ reflᵉ
+Id′-AP-CONST f γ A a₀ a₁ = axiomK
 
-{-# REWRITE Id′-AP-constty #-}
+{-# REWRITE Id′-AP-CONST #-}
 
-postulate
-  ap-AP-constty : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) {A : Type} (g : A) →
-    ap-AP f t₂ (λ _ → g) ≡ reflᵉ
-  AP-AP-constty : {Θ Δ : Tel} (f : el Θ → el Δ) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) {Γ : Tel} (g : el Γ) →
-    AP-AP f t₂ (λ _ → g) ≡ reflᵉ
+ap-AP-CONST : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) {A : Type} (g : A) →
+  ap-AP f (λ _ → g) γ ≡ reflᵉ
+ap-AP-CONST f γ g = axiomK
 
-{-# REWRITE ap-AP-constty AP-AP-constty #-}
+AP-AP-CONST : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) {Θ : Tel} (g : el Θ) →
+  AP-AP f (λ _ → g) γ ≡ reflᵉ
+AP-AP-CONST f γ g = axiomK
 
+{-# REWRITE ap-AP-CONST AP-AP-CONST #-}
+
+{-
 -- The choice not to define Id as an instance of Id′ does mean that
 -- all the rewrites we postulate for Id′, ap, and AP have to be given
 -- separately for Id, refl, and REFL, in case the former get reduced
