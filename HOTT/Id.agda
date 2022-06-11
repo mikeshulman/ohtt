@@ -63,13 +63,16 @@ AP {Δ = Δ ▸ A} f γ = AP (λ x → pop (f x)) γ ∷
 postulate
   AP : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → el (ID Δ)
 
--- We define this mutually with proofs that its projections are the
--- action of the original f on the projections.
-postulate
-  AP₀ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → ((AP f γ)₀) ≡ f (γ ₀)
-  AP₁ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → ((AP f γ)₁) ≡ f (γ ₁)
+-- We define AP mutually with proofs that its projections are the
+-- action of the original f on the projections.  We don't need
+-- computation rules for these on variables, so we can define them as
+-- actual functions that compute only on the telescope Δ, rather than
+-- postulates with rewrite rules that restrict computation to terms f
+-- that involving ∷.
+AP₀ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → ((AP f γ)₀) ≡ f (γ ₀)
+AP₁ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → ((AP f γ)₁) ≡ f (γ ₁)
 
--- We also define it mutually with postulated naturality for Id′.
+-- We also define AP mutually with postulated naturality for Id′.
 -- This rule should be admissible, meaning we will give rewrite rules
 -- making it hold definitionally on all concrete telescopes and terms.
 -- Specifically, Id′-AP should compute on types, like Id′.
@@ -77,7 +80,8 @@ postulate
   Id′-AP : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (A : el Δ → Type) (a₀ : A (f (γ ₀))) (a₁ : A (f (γ ₁))) →
     Id′ (λ w → A (f w)) γ a₀ a₁ ≡ Id′ A (AP f γ) (coe← (cong A (AP₀ f γ)) a₀) (coe← (cong A (AP₁ f γ)) a₁)
 
--- In defining AP, we have to coerce along AP₀, AP₁ and Id′-AP.
+-- Note that in defining AP, we have to coerce along AP₀, AP₁ and
+-- Id′-AP, justifying the mutual definition.
 postulate
   APε : {Γ : Tel} (f : el Γ → el ε) (γ : el (ID Γ)) → AP {Δ = ε} f γ ≡ []
   AP∷ : {Γ Δ : Tel} (γ : el (ID Γ)) (f : el Γ → el Δ) (A : el Δ → Type) (g : (x : el Γ) → A (f x)) →
@@ -89,30 +93,34 @@ postulate
 
 {-# REWRITE APε AP∷ #-}
 
--- Similarly, AP₀ and AP₁ also have to be "defined" on ∷ by matching inside λ.
-postulate
-  AP₀ε : {Γ : Tel} (f : el Γ → el ε) (γ : el (ID Γ)) → AP₀ {Δ = ε} f γ ≡ reflᵉ
-  AP₀∷ : {Γ Δ : Tel} (γ : el (ID Γ)) (f : el Γ → el Δ) (A : el Δ → Type) (g : (x : el Γ) → A (f x)) →
-    AP₀ {Δ = Δ ▸ A} (λ x → f x ∷ g x) γ ≡
-    ∷≡ʰ A (AP₀ f γ) (coe←≡ʰ (cong A (AP₀ f γ)) (g (γ ₀)))
-  AP₁ε : {Γ : Tel} (f : el Γ → el ε) (γ : el (ID Γ)) → AP₁ {Δ = ε} f γ ≡ reflᵉ
-  AP₁∷ : {Γ Δ : Tel} (γ : el (ID Γ)) (f : el Γ → el Δ) (A : el Δ → Type) (g : (x : el Γ) → A (f x)) →
-    AP₁ {Δ = Δ ▸ A} (λ x → f x ∷ g x) γ ≡
-    ∷≡ʰ A (AP₁ f γ) (coe←≡ʰ (cong A (AP₁ f γ)) (g (γ ₁)))
+-- AP₀ and AP₁ also have to be "defined" on ∷ by matching inside λ.
+-- But since ∷ has an eta-rule, and we don't care about preventing
+-- computation on non-constructors, it suffices to decompose the
+-- argument with top and pop and pass it off to a helper function.
+AP₀▸ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
+  ((AP (λ x → f x ∷ g x) γ)₀) ≡ f (γ ₀) ∷ g (γ ₀)
+AP₀▸ A f g γ = ∷≡ʰ A (AP₀ f γ) (coe←≡ʰ (cong A (AP₀ f γ)) (g (γ ₀)))
 
-{-# REWRITE AP₀ε AP₀∷ AP₁ε AP₁∷ #-}
+AP₁▸ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
+  ((AP (λ x → f x ∷ g x) γ)₁) ≡ f (γ ₁) ∷ g (γ ₁)
+AP₁▸ A f g γ = ∷≡ʰ A (AP₁ f γ) (coe←≡ʰ (cong A (AP₁ f γ)) (g (γ ₁)))
+
+AP₀ {Δ = ε} f γ = reflᵉ
+AP₀ {Δ = Δ ▸ A} f γ = AP₀▸ A (λ x → pop (f x)) (λ x → top (f x)) γ
+AP₁ {Δ = ε} f γ = reflᵉ
+AP₁ {Δ = Δ ▸ A} f γ = AP₁▸ A (λ x → pop (f x)) (λ x → top (f x)) γ
 
 -- The proofs of AP₀ and AP₁ imply that they should hold
--- definitionally for all concrete terms.  Thus, it is reasonable to
--- assert them as rewrite rules for all terms.  Note that they have a
--- volatile LHS, which reduces on concrete or partially-concrete
--- contexts and terms, but they are consistent with such reductions by
--- the definitions of AP₀ and AP₁.  Thus, AP₀ and AP₁ hold
--- definitionally for partially-concrete contexts/terms as well.
+-- definitionally for all concrete telescopes.  Thus, it is reasonable
+-- to assert them as rewrite rules for all telescopens.  Note that
+-- they have a volatile LHS, which reduces on concrete or
+-- partially-concrete telescopes; but their definitions make them
+-- consistent with such reductions.  Thus, they hold definitionally
+-- for partially-concrete telescopes as well.
 {-# REWRITE AP₀ AP₁ #-}
 
--- Since AP₀ and AP₁ hold definitionally on abstract contexts/terms
--- (at least), we can prove by UIP that they are equal to reflexivity.
+-- Since AP₀ and AP₁ hold definitionally on abstract telescopes
+-- (at least), we can also prove by UIP that they are equal to reflexivity.
 AP₀-reflᵉ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → AP₀ f γ ≡ reflᵉ
 AP₀-reflᵉ f γ = axiomK
 
@@ -137,7 +145,7 @@ Id′-AP≡ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (δ : el (ID
 Id′-AP≡ f γ .(AP f γ) reflᵉ A {a₀} {a₁} {b₀} {b₁} e₀ e₁ =
   Id′-AP f γ A a₀ a₁ • cong2 (Id′ A (AP f γ)) (≡ʰ→≡ e₀) (≡ʰ→≡ e₁)
 
--- Functoriality for ap should also be admissible, like Id′-AP.
+-- Functoriality for ap should be admissible, like Id′-AP.
 -- However, like ap, it should compute on terms, not types.
 postulate
   ap-AP : {Γ Δ : Tel} {A : el Δ → Type} (f : el Γ → el Δ) (g : (x : el Δ) → A x) (γ : el (ID Γ)) →
