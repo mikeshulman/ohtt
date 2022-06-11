@@ -11,6 +11,8 @@ open import Agda.Primitive renaming (Set to Type; SSet to Typeᵉ) public
 data _≡_ {A : Typeᵉ} (a : A) : A → Typeᵉ where
   reflᵉ : a ≡ a
 
+infix 5 _≡_
+
 {-# BUILTIN REWRITE _≡_ #-}
 
 _•_ : {A : Typeᵉ} {a b c : A} (p : a ≡ b) (q : b ≡ c) → a ≡ c

@@ -63,16 +63,16 @@ _₁₂ : {Δ : Tel} → el (SQ Δ) → el (ID Δ)
 
 -- Our existing rewrite rules give us the cubical identities definitionally.
 
-₀₂-₀ : {Δ : Tel} (δ : el (SQ Δ)) → (δ ₀₂ ₀) ≡ (δ ₀₀)
+₀₂-₀ : {Δ : Tel} (δ : el (SQ Δ)) → δ ₀₂ ₀ ≡ δ ₀₀
 ₀₂-₀ δ = reflᵉ
 
-₀₂-₁ : {Δ : Tel} (δ : el (SQ Δ)) → (δ ₀₂ ₁) ≡ (δ ₀₁)
+₀₂-₁ : {Δ : Tel} (δ : el (SQ Δ)) → δ ₀₂ ₁ ≡ δ ₀₁
 ₀₂-₁ δ = reflᵉ
 
-₁₂-₀ : {Δ : Tel} (δ : el (SQ Δ)) → (δ ₁₂ ₀) ≡ (δ ₁₀)
+₁₂-₀ : {Δ : Tel} (δ : el (SQ Δ)) → δ ₁₂ ₀ ≡ δ ₁₀
 ₁₂-₀ δ = reflᵉ
 
-₁₂-₁ : {Δ : Tel} (δ : el (SQ Δ)) → (δ ₁₂ ₁) ≡ (δ ₁₁)
+₁₂-₁ : {Δ : Tel} (δ : el (SQ Δ)) → δ ₁₂ ₁ ≡ δ ₁₁
 ₁₂-₁ δ = reflᵉ
 
 -- We can now extract a definition of squares in a type by having Agda

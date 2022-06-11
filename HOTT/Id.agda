@@ -70,8 +70,8 @@ postulate
 -- actual functions that compute only on the telescope Δ, rather than
 -- postulates with rewrite rules that restrict computation to terms f
 -- that involving ∷.
-AP₀ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → ((AP f γ)₀) ≡ f (γ ₀)
-AP₁ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → ((AP f γ)₁) ≡ f (γ ₁)
+AP₀ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → (AP f γ)₀ ≡ f (γ ₀)
+AP₁ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → (AP f γ)₁ ≡ f (γ ₁)
 
 -- We also define AP mutually with postulated naturality for Id′.
 -- This rule should be admissible, meaning we will give rewrite rules
@@ -99,7 +99,7 @@ postulate
 -- computation on non-constructors, it suffices to decompose the
 -- argument with top and pop and pass it off to a helper function.
 AP₀∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
-  ((AP (λ x → f x ∷ g x) γ)₀) ≡ f (γ ₀) ∷ g (γ ₀)
+  (AP (λ x → f x ∷ g x) γ)₀ ≡ f (γ ₀) ∷ g (γ ₀)
 AP₀∷ A f g γ = ∷≡ʰ A (AP₀ f γ) (coe←≡ʰ (cong A (AP₀ f γ)) (g (γ ₀)))
 
 AP₁∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
@@ -309,8 +309,8 @@ postulate
 REFL : {Δ : Tel} (δ : el Δ) → el (ID Δ)
 
 -- Like AP, we need to simultaneously prove that it respects ₀ and ₁
-REFL₀ : {Δ : Tel} (δ : el Δ) → ((REFL δ)₀) ≡ δ
-REFL₁ : {Δ : Tel} (δ : el Δ) → ((REFL δ)₁) ≡ δ
+REFL₀ : {Δ : Tel} (δ : el Δ) → (REFL δ)₀ ≡ δ
+REFL₁ : {Δ : Tel} (δ : el Δ) → (REFL δ)₁ ≡ δ
 
 -- Moreover, in order to define REFL we'll also need to know its
 -- analogue of Id′-AP, which in this case is something we can prove.
