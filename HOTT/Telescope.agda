@@ -54,7 +54,7 @@ postulate
 
 {-# REWRITE βpop η∷ #-}
 
-infixl 30 _▸_ _►_ _∷_
+infixl 30 _▸_ _∷_
 
 postulate
   βtop : {Δ : Tel} {B : el Δ → Type} (a : el Δ) (b : B a) → top {B = B} (a ∷ b) ≡ b
@@ -67,82 +67,6 @@ uncurry B w = B (pop w) (top w)
 eq-coe← : {Δ : Tel} {B : el Δ → Type} {a₀ a₁ : el Δ} (a₂ : a₀ ≡ a₁) {b₁ : B a₁} →
   (a₀ ∷ coe← (cong B a₂) b₁) ≡ (a₁ ∷ b₁)
 eq-coe← reflᵉ = reflᵉ
-
-----------------------------------------
--- Concatenation of telescopes
-----------------------------------------
-
--- Concatenation of telescopes is defined by recursion on the second
--- argument.  Morally, the definition should look like this:
-
-{-
-_►_ : (Δ : Tel) (Θ : el Δ → Tel) → Tel
-Δ ► (λ _ → ε) = Δ
-Δ ► (λ w → Θ w ▸ A w) = (Δ ► Θ) ▸ "A"
--}
-
--- However, this doesn't actually make sense because it's trying to
--- pattern-match under a λ.  Thus, we instead postulate concatenation
--- and give its definition with rewrite rules.  In addition, in order
--- to make sense of the "A" above we need to treat ► as a kind of
--- Σ-type on elements, with its own pairing and projection functions.
-postulate
-  _►_ : (Δ : Tel) (Θ : el Δ → Tel) → Tel
-  POP : {Δ : Tel} (Θ : el Δ → Tel) → el (Δ ► Θ) → el Δ
-  TOP : {Δ : Tel} (Θ : el Δ → Tel) (w : el (Δ ► Θ)) → el (Θ (POP Θ w))
-  PAIR : {Δ : Tel} (Θ : el Δ → Tel) (w : el Δ) → el (Θ w) → el (Δ ► Θ)
-  βPOP : {Δ : Tel} {Θ : el Δ → Tel} (w : el Δ) (v : el (Θ w)) → POP Θ (PAIR Θ w v) ≡ w
-  ηPAIR : {Δ : Tel} {Θ : el Δ → Tel} (w : el (Δ ► Θ)) → (PAIR Θ (POP Θ w) (TOP Θ w)) ≡ w
-  ►ε : (Δ : Tel) → Δ ► (λ _ → ε) ≡ Δ
-  ►▸ : (Δ : Tel) (Θ : el Δ → Tel) (A : (w : el Δ) → el (Θ w) → Type) →
-    Δ ► (λ w → Θ w ▸ A w) ≡ (Δ ► Θ) ▸ (λ w → A (POP Θ w) (TOP Θ w))
-
-{-# REWRITE βPOP ηPAIR ►ε ►▸ #-}
-
-postulate
-  βTOP : {Δ : Tel} {Θ : el Δ → Tel} (w : el Δ) (v : el (Θ w)) → TOP Θ (PAIR Θ w v) ≡ v
-
-{-# REWRITE βTOP #-}
-
--- We also make these consistent, by giving rules for POP, TOP, and
--- PAIR on the cases for the right-hand argument.
-postulate
-  POPε : (Δ : Tel) (w : el Δ) → POP (λ _ → ε) w ≡ w
-  TOPε : (Δ : Tel) (w : el Δ) → TOP (λ _ → ε) w ≡ []
-  PAIRε : (Δ : Tel) (w : el Δ) (v : el ε) → (PAIR (λ _ → ε) w v) ≡ w
-  POP▸ : (Δ : Tel) (Θ : el Δ → Tel) (A : (w : el Δ) → el (Θ w) → Type)
-    (w : el (Δ ► (λ v → Θ v ▸ A v))) → POP (λ v → Θ v ▸ A v) w ≡ POP Θ (pop w)
-
-{-# REWRITE POPε TOPε PAIRε POP▸ #-}
-
-postulate
-  TOP▸ : (Δ : Tel) (Θ : el Δ → Tel) (A : (w : el Δ) → el (Θ w) → Type)
-    (w : el (Δ ► (λ v → Θ v ▸ A v))) → TOP (λ v → Θ v ▸ A v) w ≡ (TOP Θ (pop w) ∷ top w)
-
-{-# REWRITE TOP▸ #-}
-
-postulate
-  PAIR▸ : (Δ : Tel) (Θ : el Δ → Tel) (A : (w : el Δ) → el (Θ w) → Type) (w : el Δ) (v : el (Θ w ▸ A w)) →
-    (PAIR (λ w → Θ w ▸ A w) w v) ≡ (PAIR Θ w (pop v)) ∷ top v
-
-{-# REWRITE PAIR▸ #-}
-
-UNCURRY : {T : Typeᵉ} {Δ : Tel} (Θ : el Δ → Tel) (Γ : (w : el Δ) → el (Θ w) → T) → el (Δ ► Θ) → T
-UNCURRY Θ B w = B (POP Θ w) (TOP Θ w)
-
--- Special names for the non-dependent case
-
-PROD : Tel → Tel → Tel
-PROD Δ Θ = Δ ► (λ _ → Θ)
-
-FST : (Δ Θ : Tel) → el (PROD Δ Θ) → el Δ
-FST Δ Θ w = POP (λ _ → Θ) w
-
-SND : (Δ Θ : Tel) → el (PROD Δ Θ) → el Θ
-SND Δ Θ w = TOP (λ _ → Θ) w
-
-PR : (Δ Θ : Tel) → el Δ → el Θ → el (PROD Δ Θ)
-PR Δ Θ u v = PAIR (λ _ → Θ) u v
 
 ------------------------------
 -- Equality of telescopes
@@ -163,9 +87,6 @@ COE←COE← {Γ} {Δ} {Θ}  p q r {x} = coe←coe←ᵉ {el Γ} {el Δ} {el Θ}
 _▸≡_ : {Δ₀ Δ₁ : Tel} {A₀ : el Δ₀ → Type} {A₁ : el Δ₁ → Type} (e : Δ₀ ≡ Δ₁) (f : A₀ ≡[ e ] A₁) → (Δ₀ ▸ A₀) ≡ (Δ₁ ▸ A₁)
 _▸≡_ reflᵉ reflᵉ = reflᵉ
 
-_►≡_ : {Δ₀ Δ₁ : Tel} {Θ₀ : el Δ₀ → Tel} {Θ₁ : el Δ₁ → Tel} (e : Δ₀ ≡ Δ₁) (f : Θ₀ ≡[ e ] Θ₁) → (Δ₀ ► Θ₀) ≡ (Δ₁ ► Θ₁)
-_►≡_ reflᵉ reflᵉ = reflᵉ
-
 ∷≡ : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (e : δ₀ ≡ δ₁) {a₀ : A δ₀} {a₁ : A δ₁} (f : a₀ ≡[ e ] a₁) →
   (δ₀ ∷ a₀) ≡ (δ₁ ∷ a₁)
 ∷≡ A reflᵉ reflᵉ = reflᵉ
@@ -174,19 +95,10 @@ _►≡_ reflᵉ reflᵉ = reflᵉ
   (δ₀ ∷ a₀) ≡ (δ₁ ∷ a₁)
 ∷≡ʰ A reflᵉ reflʰ = reflᵉ
 
-PAIR≡ : {Δ : Tel} (Θ : el Δ → Tel) {δ₀ δ₁ : el Δ} (e : δ₀ ≡ δ₁) {t₀ : el (Θ δ₀)} {t₁ : el (Θ δ₁)} (f : t₀ ≡[ e ] t₁) →
-  PAIR Θ δ₀ t₀ ≡ PAIR Θ δ₁ t₁
-PAIR≡ Θ reflᵉ reflᵉ = reflᵉ
-
-PAIR≡ʰ : {Δ : Tel} (Θ : el Δ → Tel) {δ₀ δ₁ : el Δ} (e : δ₀ ≡ δ₁) {t₀ : el (Θ δ₀)} {t₁ : el (Θ δ₁)} (f : t₀ ≡ʰ t₁) →
-  PAIR Θ δ₀ t₀ ≡ PAIR Θ δ₁ t₁
-PAIR≡ʰ Θ reflᵉ reflʰ = reflᵉ
-
 postulate
   ▸≡-reflish : {Δ : Tel} (A : el Δ → Type) (e : Δ ≡ Δ) (f : A ≡[ e ] A) → (e ▸≡ f) ≡ reflᵉ
-  ►≡-reflish : {Δ : Tel} (Θ : el Δ → Tel) (e : Δ ≡ Δ) (f : Θ ≡[ e ] Θ) → (e ►≡ f) ≡ reflᵉ
 
-{-# REWRITE ▸≡-reflish ►≡-reflish #-}
+{-# REWRITE ▸≡-reflish #-}
 
 postulate
   ≡λ : {T : Typeᵉ} {Δ₀ Δ₁ : Tel} {A₀ : el Δ₀ → T} {A₁ : el Δ₁ → T} {e : Δ₀ ≡ Δ₁} →
@@ -245,12 +157,8 @@ postulate
     coe→ᵉ (cong el (e ▸≡ f)) (δ₀ ∷ a₀) ≡ (COE→ e δ₀ ∷ coe→[] e f a₀)
   COE←-▸≡ : {Δ₀ Δ₁ : Tel} {A₀ : el Δ₀ → Type} {A₁ : el Δ₁ → Type} (e : Δ₀ ≡ Δ₁) (f : A₀ ≡[ e ] A₁) (δ₁ : el Δ₁) (a₁ : A₁ δ₁) →
     coe←ᵉ (cong el (e ▸≡ f)) (δ₁ ∷ a₁) ≡ (COE← e δ₁ ∷ coe←[] e f a₁)
-  COE→-►≡ : {Δ₀ Δ₁ : Tel} {Θ₀ : el Δ₀ → Tel} {Θ₁ : el Δ₁ → Tel} (e : Δ₀ ≡ Δ₁) (f : Θ₀ ≡[ e ] Θ₁) (δ₀ : el Δ₀) (t₀ : el (Θ₀ δ₀)) →
-    coe→ᵉ (cong el (e ►≡ f)) (PAIR Θ₀ δ₀ t₀) ≡ (PAIR Θ₁ (COE→ e δ₀) (COE→[] e f t₀))
-  COE←-►≡ : {Δ₀ Δ₁ : Tel} {Θ₀ : el Δ₀ → Tel} {Θ₁ : el Δ₁ → Tel} (e : Δ₀ ≡ Δ₁) (f : Θ₀ ≡[ e ] Θ₁) (δ₁ : el Δ₁) (t₁ : el (Θ₁ δ₁)) →
-    coe←ᵉ (cong el (e ►≡ f)) (PAIR Θ₁ δ₁ t₁) ≡ (PAIR Θ₀ (COE← e δ₁) (COE←[] e f t₁))
     
-{-# REWRITE COE→-▸≡ COE←-▸≡ COE→-►≡ COE←-►≡ #-}
+{-# REWRITE COE→-▸≡ COE←-▸≡ #-}
 
 postulate
   coe→[]-reflᵉ : {Δ : Tel} {A₀ A₁ : el Δ → Type} (f : (x₀ : el Δ) → A₀ x₀ ≡ A₁ x₀) {δ₀ : el Δ} (a₀ : A₀ δ₀) →

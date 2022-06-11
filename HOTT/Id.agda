@@ -44,7 +44,8 @@ postulate
   -- Id′, it depends on an element of the bundled (ID Δ).
   ap : {Δ : Tel} {A : el Δ → Type} (f : (δ : el Δ) → A δ) (δ : el (ID Δ)) → Id′ A δ (f (δ ₀)) (f (δ ₁))
 
--- Telescope AP.  I hope we can get away with only the non-dependent version.  We'd like to *define* it by recursion on the target telescope:
+-- Telescope AP.  I hope we can get away with only the non-dependent
+-- version.  We'd like to *define* it by recursion on the target:
 {-
 AP {Δ = ε} f γ = []
 AP {Δ = Δ ▸ A} f γ = AP (λ x → pop (f x)) γ ∷
@@ -182,8 +183,7 @@ AP-AP {Γ} {Δ} {Θ ▸ A} f g γ = AP-AP-∷ A f (λ x → pop (g x)) (λ x →
 -- away to reflexivity too.
 
 -- Now, since we defined AP to compute only on ∷ rather than just ▸,
--- we can also make it compute on top and pop.  More generally, we can
--- "prove" that all the pieces of the original ▸-only definition hold.
+-- we can also make it compute on top and pop.
 
 postulate
   AP-pop : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
@@ -191,8 +191,10 @@ postulate
 
 {-# REWRITE AP-pop #-}
 
--- Unfortunately, these can't be rewrite rules, but we can make them
--- reduce on ∷.  (Below we will reduce them on idmap and pop too.)
+-- We can also prove that all the pieces of the original ▸-only
+-- definition hold.  In fact, we need to do this before we can assert
+-- that AP computes on top.
+
 top-pop-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
   top (pop (pop (AP f γ))) ≡ coe← (cong A (AP₀ (λ x → pop (f x)) γ)) (top (f (γ ₀)))
 
