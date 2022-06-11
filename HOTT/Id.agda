@@ -97,18 +97,18 @@ postulate
 -- But since ∷ has an eta-rule, and we don't care about preventing
 -- computation on non-constructors, it suffices to decompose the
 -- argument with top and pop and pass it off to a helper function.
-AP₀▸ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
+AP₀∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
   ((AP (λ x → f x ∷ g x) γ)₀) ≡ f (γ ₀) ∷ g (γ ₀)
-AP₀▸ A f g γ = ∷≡ʰ A (AP₀ f γ) (coe←≡ʰ (cong A (AP₀ f γ)) (g (γ ₀)))
+AP₀∷ A f g γ = ∷≡ʰ A (AP₀ f γ) (coe←≡ʰ (cong A (AP₀ f γ)) (g (γ ₀)))
 
-AP₁▸ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
+AP₁∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
   ((AP (λ x → f x ∷ g x) γ)₁) ≡ f (γ ₁) ∷ g (γ ₁)
-AP₁▸ A f g γ = ∷≡ʰ A (AP₁ f γ) (coe←≡ʰ (cong A (AP₁ f γ)) (g (γ ₁)))
+AP₁∷ A f g γ = ∷≡ʰ A (AP₁ f γ) (coe←≡ʰ (cong A (AP₁ f γ)) (g (γ ₁)))
 
 AP₀ {Δ = ε} f γ = reflᵉ
-AP₀ {Δ = Δ ▸ A} f γ = AP₀▸ A (λ x → pop (f x)) (λ x → top (f x)) γ
+AP₀ {Δ = Δ ▸ A} f γ = AP₀∷ A (λ x → pop (f x)) (λ x → top (f x)) γ
 AP₁ {Δ = ε} f γ = reflᵉ
-AP₁ {Δ = Δ ▸ A} f γ = AP₁▸ A (λ x → pop (f x)) (λ x → top (f x)) γ
+AP₁ {Δ = Δ ▸ A} f γ = AP₁∷ A (λ x → pop (f x)) (λ x → top (f x)) γ
 
 -- The proofs of AP₀ and AP₁ imply that they should hold
 -- definitionally for all concrete telescopes.  Thus, it is reasonable
@@ -151,16 +151,16 @@ postulate
   ap-AP : {Γ Δ : Tel} {A : el Δ → Type} (f : el Γ → el Δ) (g : (x : el Δ) → A x) (γ : el (ID Γ)) →
     ap g (AP f γ) ≡ coe→ (Id′-AP f γ A (g (f (γ ₀))) (g (f (γ ₁)))) (ap (λ w → g (f w)) γ) 
 
--- From this we can "prove" the analogous functoriality property for AP,
+-- From this we can prove the analogous functoriality property for AP,
 -- with some awful wrangling of heterogeneous exo-equality.
-postulate
-  AP-AP : {Γ Δ Θ : Tel} (f : el Γ → el Δ) (g : el Δ → el Θ) (γ : el (ID Γ)) →
-    AP g (AP f γ) ≡ AP (λ w → g (f w)) γ
-  AP-AP-ε : {Γ Δ : Tel} (f : el Γ → el Δ) (g : el Δ → el ε) (γ : el (ID Γ)) →
-    AP-AP {Θ = ε} f g γ ≡ reflᵉ
-  AP-AP-∷ : {Γ Δ Θ : Tel} (f : el Γ → el Δ) (g : el Δ → el Θ) (γ : el (ID Γ))
-    (A : el Θ → Type) (h : (x : el Δ) → A (g x)) →
-    AP-AP {Γ} {Δ} {Θ ▸ A} f (λ x → g x ∷ h x) γ ≡
+AP-AP : {Γ Δ Θ : Tel} (f : el Γ → el Δ) (g : el Δ → el Θ) (γ : el (ID Γ)) →
+  AP g (AP f γ) ≡ AP (λ w → g (f w)) γ
+
+-- The proof requires a helper lemma for ∷, just like AP₀ and AP₁.
+AP-AP-∷ : {Γ Δ Θ : Tel} (A : el Θ → Type) (f : el Γ → el Δ)
+  (g : el Δ → el Θ) (h : (x : el Δ) → A (g x)) (γ : el (ID Γ)) →
+  AP (λ x → g x ∷ h x) (AP f γ) ≡ AP (λ w → g (f w) ∷ h (f w)) γ
+AP-AP-∷ A f g h γ =
       ∷≡ʰ (λ δaa → Id′ A (pop (pop δaa)) (top (pop δaa)) (top δaa))
       (∷≡ʰ (λ δa → A ((pop δa)₁))
            (∷≡ʰ (λ δ → A (δ ₀))
@@ -171,18 +171,19 @@ postulate
        (≡→≡ʰ (ap-AP f h γ) •ʰ
        (coe→≡ʰ (Id′-AP f γ (λ z → A (g z)) (h (f (γ ₀))) (h (f (γ ₁)))) _ •ʰ
         revʰ (coe→≡ʰ (Id′-AP (λ x → g (f x)) γ A (h (f (γ ₀))) (h (f (γ ₁)))) _))))
--- Inspecting this definition, we see that on a concrete telescope,
--- AP-AP consists essentially of reflexivities on points and complex
--- combinations of Id′-AP and ap-AP on identifications.  Thus, if the
--- types and terms are also concrete, it should reduce away to
--- reflexivity too.
 
-{-# REWRITE AP-AP-ε AP-AP-∷ #-}
+AP-AP {Θ = ε} f g γ = reflᵉ
+AP-AP {Γ} {Δ} {Θ ▸ A} f g γ = AP-AP-∷ A f (λ x → pop (g x)) (λ x → top (g x)) γ
 
--- Since we "defined" AP and AP-AP to compute only on ∷ rather than
--- just ▸, we can also make them compute on top and pop.  More
--- generally, we can "prove" that all the pieces of the original
--- ▸-only definition hold.
+-- Inspecting the above definition, we see that on a concrete
+-- telescope, AP-AP consists essentially of reflexivities on points
+-- and complex combinations of Id′-AP and ap-AP on identifications.
+-- Thus, if the types and terms are also concrete, it should reduce
+-- away to reflexivity too.
+
+-- Now, since we defined AP to compute only on ∷ rather than just ▸,
+-- we can also make it compute on top and pop.  More generally, we can
+-- "prove" that all the pieces of the original ▸-only definition hold.
 
 postulate
   AP-pop : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
