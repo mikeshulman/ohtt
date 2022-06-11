@@ -192,18 +192,24 @@ postulate
 {-# REWRITE AP-pop #-}
 
 -- Unfortunately, these can't be rewrite rules, but we can make them
--- reduce on ∷.
-postulate
-  top-pop-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
-    top (pop (pop (AP f γ))) ≡ coe← (cong A (AP₀ (λ x → pop (f x)) γ)) (top (f (γ ₀)))
-  top-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
-    top (pop (AP f γ)) ≡ coe← (cong A (AP₁ (λ x → pop (f x)) γ)) (top (f (γ ₁)))
-  top-pop-pop-AP-∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
-    top-pop-pop-AP A (λ x → f x ∷ g x) γ ≡ reflᵉ
-  top-pop-AP-∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
-    top-pop-AP A (λ x → f x ∷ g x) γ ≡ reflᵉ
+-- reduce on ∷.  (Below we will reduce them on idmap and pop too.)
+top-pop-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
+  top (pop (pop (AP f γ))) ≡ coe← (cong A (AP₀ (λ x → pop (f x)) γ)) (top (f (γ ₀)))
 
-{-# REWRITE top-pop-pop-AP-∷ top-pop-AP-∷ #-}
+top-pop-pop-AP-∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
+  top (pop (pop (AP {Δ = Δ ▸ A} (λ x → f x ∷ g x) γ))) ≡ coe← (cong A (AP₀ f γ)) (g (γ ₀))
+top-pop-pop-AP-∷ A f g γ = reflᵉ
+
+top-pop-pop-AP A f γ = top-pop-pop-AP-∷ A (λ x → pop (f x)) (λ x → top (f x)) γ
+
+top-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
+  top (pop (AP f γ)) ≡ coe← (cong A (AP₁ (λ x → pop (f x)) γ)) (top (f (γ ₁)))
+
+top-pop-AP-∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
+  top (pop (AP {Δ = Δ ▸ A} (λ x → f x ∷ g x) γ)) ≡ coe← (cong A (AP₁ f γ)) (g (γ ₁))
+top-pop-AP-∷ A f g γ = reflᵉ
+
+top-pop-AP A f γ = top-pop-AP-∷ A (λ x → pop (f x)) (λ x → top (f x)) γ
 
 postulate
   ap-top : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
@@ -248,7 +254,22 @@ Id′-AP-idmap : {Δ : Tel} (δ : el (ID Δ)) (A : el Δ → Type) (a₀ : A (δ
   Id′-AP {Δ} {Δ} (λ w → w) δ A a₀ a₁ ≡ reflᵉ
 Id′-AP-idmap δ A a₀ a₁ = axiomK
 
+{-
+top-pop-pop-AP-idmap : {Δ : Tel} (A : el Δ → Type) (γ : el (ID (Δ ▸ A))) →
+  top-pop-pop-AP A (λ x → x) γ ≡ reflᵉ
+top-pop-pop-AP-idmap A γ = axiomK
+
+top-pop-AP-idmap : {Δ : Tel} (A : el Δ → Type) (γ : el (ID (Δ ▸ A))) →
+  top-pop-AP A (λ x → x) γ ≡ reflᵉ
+top-pop-AP-idmap A γ = axiomK
+
+top-pop-pop-AP-pop : {Γ Δ : Tel} (A : el Δ → Type) (B : el (Δ ▸ A) → Type) (f : el Γ → el (Δ ▸ A ▸ B)) (γ : el (ID Γ)) →
+  top-pop-pop-AP A (λ x → pop (f x)) γ ≡ {!top-pop-pop-AP B f γ!}
+top-pop-pop-AP-pop A B γ = {!!}
+-}
+
 {-# REWRITE AP-AP-idmap AP-AP-idmap′ Id′-AP-idmap #-}
+
 
 ------------------------------
 -- Homogeneous Id and refl
