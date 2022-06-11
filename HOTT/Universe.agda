@@ -43,16 +43,16 @@ postulate
 {-# REWRITE ↑↓ #-}
 
 postulate
-  Id-Copy : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ : Copy (A δ₀)) (a₁ : Copy (A δ₁)) →
-    Id′ (λ w → Copy (A w)) δ₂ a₀ a₁ ≡ Copy (Id′ A δ₂ (a₀ ↓) (a₁ ↓))
+  Id-Copy : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₀ : Copy (A (δ ₀))) (a₁ : Copy (A (δ ₁))) →
+    Id′ (λ w → Copy (A w)) δ a₀ a₁ ≡ Copy (Id′ A δ (a₀ ↓) (a₁ ↓))
 
 {-# REWRITE Id-Copy #-}
 
 postulate
-  ap↑ : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a : (w : el Δ) → A w) →
-    ap (λ w → (a w) ↑) δ₂ ≡ (ap a δ₂) ↑
-  ap↓ : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a : (w : el Δ) → Copy (A w)) →
-    ap (λ w → (a w) ↓) δ₂ ≡ (ap a δ₂) ↓
+  ap↑ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a : (w : el Δ) → A w) →
+    ap (λ w → (a w) ↑) δ ≡ (ap a δ) ↑
+  ap↓ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a : (w : el Δ) → Copy (A w)) →
+    ap (λ w → (a w) ↓) δ ≡ (ap a δ) ↓
 
 {-# REWRITE ap↑ ap↓ #-}
 
@@ -65,22 +65,13 @@ postulate
 
 {-# REWRITE IdU #-}
 
---- In Agda <2.6.3, apU with Copy-types leads to an internal error.
--- postulate
-  -- uncopy : (Δ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) {A B : Type} →
-  --   Id′ {Δ} (λ _ → Type) δ₂ A B → 11Corr A B
-  -- copy : (Δ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) {A B : Type} →
-  --   11Corr A B → Id′ {Δ} (λ _ → Type) δ₂ A B
-  -- uncopy-copy : (Δ : Tel) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) {A B : Type} (E : 11Corr A B) →
-  --   uncopy Δ δ₂ (copy Δ δ₂ E) ≡ E
-
 postulate
-  apU : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) →
-    (ap A δ₂) ↓ ≡
-    ((Λ a₀ ⇒ Λ a₁ ⇒ Id′ A δ₂ a₀ a₁) ﹐
-    ((Λ a₀ ⇛ (tr→ A δ₂ a₀ ﹐ lift→ A δ₂ a₀ ,
-              Λ x ⇛ Λ x' ⇛ utr→ A δ₂ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift→ A δ₂ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x'))) ,
-     (Λ a₁ ⇛ (tr← A δ₂ a₁ ﹐ lift← A δ₂ a₁ ,
-              Λ x ⇛ Λ x' ⇛ utr← A δ₂ a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift← A δ₂ a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x')))))
+  apU : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) →
+    (ap A δ) ↓ ≡
+    ((Λ a₀ ⇒ Λ a₁ ⇒ Id′ A δ a₀ a₁) ﹐
+    ((Λ a₀ ⇛ (tr→ A δ a₀ ﹐ lift→ A δ a₀ ,
+              Λ x ⇛ Λ x' ⇛ utr→ A δ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift→ A δ a₀ (π₁ x) (π₁ x') (π₂ x) (π₂ x'))) ,
+     (Λ a₁ ⇛ (tr← A δ a₁ ﹐ lift← A δ a₁ ,
+              Λ x ⇛ Λ x' ⇛ utr← A δ a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift← A δ a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x')))))
 
 {-# REWRITE apU #-}

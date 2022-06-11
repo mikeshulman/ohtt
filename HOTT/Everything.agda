@@ -6,11 +6,11 @@ open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Transport
-open import HOTT.Square
-open import HOTT.Square.Degenerate
+-- open import HOTT.Square
+-- open import HOTT.Square.Degenerate
 -- open import HOTT.Square.Extend
-open import HOTT.Sym
-open import HOTT.Fill
+-- open import HOTT.Sym
+-- open import HOTT.Fill
 open import HOTT.Unit
 open import HOTT.Prod
 open import HOTT.Sigma
