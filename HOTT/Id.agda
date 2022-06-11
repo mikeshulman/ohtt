@@ -60,6 +60,8 @@ AP {Δ = Δ ▸ A} f γ = AP (λ x → pop (f x)) γ ∷
 -- matching inside a λ, so it has to be done with rewrite rules.
 postulate
   AP : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → el (ID Δ)
+-- TODO: Can we make this an actualy definition by using a helper
+-- lemma, like AP-const below?
 
 -- We define this mutually with proofs that its projections are the
 -- action of the original f on the projections.
@@ -438,13 +440,43 @@ REFL₀ {Δ ▸ A} δ = ∷≡ʰ A (REFL₀ (pop δ)) (coe←≡ʰ (cong A (REFL
 REFL₁ {ε} δ = reflᵉ
 REFL₁ {Δ ▸ A} δ = ∷≡ʰ A (REFL₁ (pop δ)) (coe←≡ʰ (cong A (REFL₁ (pop δ))) _)
 
+-- The proof of AP-const in the ▸ case also requires case-analysis on
+-- the term t, whose "constructor" ∷ isn't actually a constructor, so
+-- we have to do the "case analysis" in a separate lemma.
+AP-const-∷ : {Δ : Tel} (Θ : Tel) (A : el Θ → Type) (δ : el (ID Δ)) (t : el Θ) (a : A t) →
+  AP {Δ} (λ _ → _∷_ {Θ} {A} t a) δ ≡ REFL (_∷_ {Θ} {A} t a)
+AP-const-∷ {Δ} Θ A δ t a =
+  ∷≡ʰ _ (∷≡ʰ _ (∷≡ʰ _
+  (AP-const {Δ} Θ δ t)
+  (revʰ (coe←≡ʰ (cong A (REFL₀ t)) a)))
+  (revʰ (coe←≡ʰ (cong A (REFL₁ t)) a)))
+  (coe→≡ʰ (Id′-AP (λ _ → t) δ A a a) (refl a) •ʰ
+   revʰ (coe←≡ʰ (Id′-REFL≡ A t (coe←≡ʰ (cong A (REFL₀ t)) a) (coe←≡ʰ (cong A (REFL₁ t)) a)) (refl a)))
+
 AP-const {Δ} ε δ t = reflᵉ
-AP-const {Δ} (Θ ▸ A) δ t = {!!} -- More heterogeneous equality wrangling
+AP-const {Δ} (Θ ▸ A) δ t = AP-const-∷ Θ A δ (pop t) (top t)
 
 -- Many of these can be made rewrites.
--- {-# REWRITE REFL₀ REFL₁ Id′-REFL AP-const #-}
+{-# REWRITE REFL₀ REFL₁ Id′-REFL AP-const #-}
 
--- TODO: And once they are, we can make them identities, as for AP above.
+-- And once they are, we can make them identities, as for AP above.
+REFL₀-reflᵉ : {Δ : Tel} (δ : el Δ) → REFL₀ {Δ} δ ≡ reflᵉ
+REFL₀-reflᵉ δ = axiomK
+
+REFL₁-reflᵉ : {Δ : Tel} (δ : el Δ) → REFL₁ {Δ} δ ≡ reflᵉ
+REFL₁-reflᵉ δ = axiomK
+
+AP-const-reflᵉ : {Δ : Tel} (Θ : Tel) (δ : el (ID Δ)) (t : el Θ) →
+  AP-const Θ δ t ≡ reflᵉ
+AP-const-reflᵉ Θ δ t = axiomK
+
+{-# REWRITE REFL₀-reflᵉ REFL₁-reflᵉ AP-const-reflᵉ #-}
+
+-- This one can't be a rewrite since its LHS reduces directly rather
+-- than by case-analysis.
+Id′-REFL-reflᵉ : {Δ : Tel} (A : el Δ → Type) (δ : el Δ) (a₀ : A ((REFL δ)₀)) (a₁ : A ((REFL δ)₁)) →
+  Id′-REFL A δ a₀ a₁ ≡ reflᵉ
+Id′-REFL-reflᵉ A δ a₀ a₁ = axiomK
 
 {-
 
