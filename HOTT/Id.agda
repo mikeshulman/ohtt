@@ -218,12 +218,14 @@ postulate
 -- telescopes".  Hopefully this won't ever occur.
 
 -- Combining ap-top and AP-pop with AP on the identity, we will be
--- able to compute ap on any (De Bruijn) variable.
+-- able to compute ap on any (De Bruijn) variable.  It may seem like
+-- this should be provable at this point, but I don't think it is.
 postulate
   AP-idmap : {Δ : Tel} (δ : el (ID Δ)) → AP {Δ} {Δ} (λ w → w) δ ≡ δ
 
 {-# REWRITE AP-idmap #-}
 
+-- However, we can make it reduce away on endpoints.
 AP-idmap₀ : {Δ : Tel} (δ : el (ID Δ)) → cong _₀ (AP-idmap δ) ≡ reflᵉ
 AP-idmap₀ δ = axiomK
 
@@ -247,134 +249,6 @@ Id′-AP-idmap : {Δ : Tel} (δ : el (ID Δ)) (A : el Δ → Type) (a₀ : A (δ
 Id′-AP-idmap δ A a₀ a₁ = axiomK
 
 {-# REWRITE AP-AP-idmap AP-AP-idmap′ Id′-AP-idmap #-}
-
--- TODO: Left off porting
-
-{-
-------------------------------
--- Computing with ap
-------------------------------
-
--- AP and AP′ are "defined" to be lists of ap.  It's tempting to make
--- them compute based on the target *telescope*, i.e. AP into a ▸
--- computes to a ∷, AP into a ► computes to a PAIR, like this:
-{-
-postulate
-  APε : {Θ : Tel} (f : el Θ → el ε) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) → AP {Θ} f t₂ ≡ []
-  AP▸ : {Θ Δ : Tel} (A : el Δ → Type) (f : el Θ → el (Δ ▸ A)) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) →
-    AP {Θ} {Δ ▸ A} f t₂ ≡ AP {Θ} {Δ} (λ w → pop (f w)) t₂ ∷ coe→ (Id-AP (λ w → pop (f w)) t₂ A (top (f t₀)) (top (f t₁)))
-                                                                   (ap (λ w → top (f w)) t₂)
-  AP► : {Γ Δ : Tel} (Θ : el Δ → Tel) (f : el Γ → el (Δ ► Θ)) {γ₀ γ₁ : el Γ} (γ₂ : el (ID Γ γ₀ γ₁)) →
-    AP {Γ} {Δ ► Θ} f γ₂ ≡ PAIR (λ e → ID′ Θ e (TOP Θ (f γ₀)) (TOP Θ (f γ₁)))
-                             (AP {Γ} {Δ} (λ w → POP Θ (f w)) γ₂)
-                             (COE← (ID-AP (λ w → POP Θ (f w)) γ₂ Θ (TOP Θ (f γ₀)) (TOP Θ (f γ₁)))
-                               (AP′ {Γ} (λ w → Θ (POP Θ (f w))) (λ w → TOP Θ (f w)) γ₂)) 
-
-{-# REWRITE APε AP▸ AP► #-}
-
-postulate
-  AP′ε : {Θ : Tel} (f : (x : el Θ) → el ε) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) →
-    AP′ {Θ} (λ _ → ε) f t₂ ≡ []
-  AP′▸ : {Θ : Tel} (Δ : el Θ → Tel) (A : (x : el Θ) → el (Δ x) → Type) (f : (x : el Θ) → el (Δ x ▸ A x))
-    {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) →
-    AP′ {Θ} (λ w → Δ w ▸ A w) f t₂ ≡
-    AP′ {Θ} Δ (λ w → pop (f w)) t₂ ∷
-      coe→ (Id-AP (λ w → PAIR Δ w (pop (f w))) t₂ (λ w → A (POP Δ w) (TOP Δ w)) (top (f t₀)) (top (f t₁)))
-           (ap (λ w → top (f w)) t₂)
-  AP′► : {Θ : Tel} (Δ : el Θ → Tel) (Γ : (x : el Θ) → el (Δ x) → Tel) (f : (x : el Θ) → el (Δ x ► Γ x))
-    {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) →
-    AP′ {Θ} (λ w → Δ w ► Γ w) f t₂ ≡
-    PAIR (λ γ₂ → ID′ (UNCURRY Δ Γ) (PAIR (λ w → ID′ Δ w (POP (Γ t₀) (f t₀)) (POP (Γ t₁) (f t₁))) t₂ γ₂)
-                     (TOP (Γ t₀) (f t₀)) (TOP (Γ t₁) (f t₁)))
-         (AP′ {Θ} Δ (λ w → POP (Γ w) (f w)) t₂)
-         (COE← (ID-AP (λ w → PAIR Δ w (POP (Γ w) (f w))) t₂ (UNCURRY Δ Γ) (TOP (Γ t₀) (f t₀)) (TOP (Γ t₁) (f t₁)))
-           (AP′ (λ w → Γ w (POP (Γ w) (f w))) (λ w → TOP (Γ w) (f w)) t₂))
-
-{-# REWRITE AP′ε AP′▸ AP′► #-}
--}
--- However, we also need to deal with AP on things like pop, POP, and
--- TOP, and if we also gave rules for those, the result would be
--- circular.  Thus, we instead follow the lead of ap into a Σ-type,
--- which computes only on an actual pair _,_, and define AP and AP′ to
--- compute only on the *terms* ∷ and PAIR.  Pleasingly, the terms we
--- get here are shorter too.
-
-postulate
-  AP[] : {Θ : Tel} {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) → AP {Θ} (λ _ → []) t₂ ≡ []
-  AP∷ : {Θ Δ : Tel} (A : el Δ → Type) (f : el Θ → el Δ) (g : (t : el Θ) → A (f t)) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) →
-    AP (λ t → f t ∷ g t) t₂ ≡ AP f t₂ ∷ coe← (Id′-AP f t₂ A (g t₀) (g t₁)) (ap g t₂)
-  AP-PAIR : {Γ Δ : Tel} (Θ : el Δ → Tel) (f : el Γ → el Δ) (g : (γ : el Γ) → el (Θ (f γ))) {γ₀ γ₁ : el Γ} (γ₂ : el (ID Γ γ₀ γ₁)) →
-    AP (λ t → PAIR Θ (f t) (g t)) γ₂ ≡
-    PAIR (λ e → ID′ Θ e (g γ₀) (g γ₁)) (AP f γ₂) (COE← (ID′-AP f γ₂ Θ (g γ₀) (g γ₁)) (AP′ (λ w → Θ (f w)) g γ₂))
-
-{-# REWRITE AP[] AP∷ AP-PAIR #-}
-
-postulate
-  -- AP′[] would follow from AP[] and AP′-CONST
-  AP′[] : {Θ : Tel} {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) → AP′ {Θ} (λ _ → ε) (λ _ → []) t₂ ≡ []
-  AP′∷ : {Θ : Tel} (Δ : el Θ → Tel) (A : (x : el Θ) → el (Δ x) → Type)
-    (f : (x : el Θ) → el (Δ x)) (g : (x : el Θ) → A x (f x)) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) →
-    AP′ (λ w → Δ w ▸ A w) (λ w → f w ∷ g w) t₂ ≡
-    AP′ Δ f t₂ ∷ coe← (Id′-AP (λ w → PAIR Δ w (f w)) t₂ (UNCURRY Δ A) (g t₀) (g t₁)) (ap g t₂)
-  AP′-PAIR : {Θ : Tel} (Δ : el Θ → Tel) (Γ : (x : el Θ) → el (Δ x) → Tel)
-    (f : (x : el Θ) → el (Δ x)) (g : (x : el Θ) → el (Γ x (f x))) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) →
-    AP′ (λ w → Δ w ► Γ w) (λ w → PAIR (Γ w) (f w) (g w)) t₂ ≡
-    PAIR (λ γ₂ → ID′ (UNCURRY Δ Γ) (PAIR (λ w → ID′ Δ w (f t₀) (f t₁)) t₂ γ₂) (g t₀) (g t₁))
-         (AP′ Δ f t₂)
-         (COE← (ID′-AP (λ w → PAIR Δ w (f w)) t₂ (UNCURRY Δ Γ) (g t₀) (g t₁)) (AP′ (λ w → Γ w (f w)) g t₂))
-
-{-# REWRITE AP′[] AP′∷ AP′-PAIR #-}
-
-postulate
-  AP-pop : {Γ : Tel} {Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) {γ₀ γ₁ : el Γ} (γ₂ : el (ID Γ γ₀ γ₁)) →
-    AP (λ w → pop (f w)) γ₂ ≡ pop (AP f γ₂)
-  AP-POP : {Γ : Tel} {Δ : Tel} (Θ : el Δ → Tel) (f : el Γ → el (Δ ► Θ)) (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
-    AP (λ w → POP Θ (f w)) γ₂ ≡
-    POP (λ w₂ → ID′ Θ w₂ (TOP Θ (f γ₀)) (TOP Θ (f γ₁))) (AP f γ₂)
-  AP′-pop : {Γ : Tel} {Δ : el Γ → Tel} (A : (x : el Γ) → el (Δ x) → Type) (f : (x : el Γ) → el (Δ x ▸ A x))
-            {γ₀ γ₁ : el Γ} (γ₂ : el (ID Γ γ₀ γ₁)) →
-    AP′ Δ (λ w → pop (f w)) γ₂ ≡
-      pop {ID′ Δ γ₂ (pop (f γ₀)) (pop (f γ₁))}
-          {λ t₂ → Id′ (UNCURRY Δ A) (PAIR (λ w → ID′ Δ w (pop (f γ₀)) (pop (f γ₁))) γ₂ t₂) (top (f γ₀)) (top (f γ₁))}
-          (AP′ (λ w → Δ w ▸ A w) f γ₂)
-  AP′-POP : {Γ : Tel} {Δ : el Γ → Tel} (Θ : (x : el Γ) → el (Δ x) → Tel) (f : (x : el Γ) → el (Δ x ► Θ x))
-           (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
-    AP′ Δ (λ w → POP (Θ w) (f w)) γ₂ ≡
-    POP (λ t₂ → ID′ (UNCURRY Δ Θ) (PAIR (λ w → ID′ Δ w (POP (Θ γ₀) (f γ₀)) (POP (Θ γ₁) (f γ₁))) γ₂ t₂)
-          (TOP (Θ γ₀) (f γ₀)) (TOP (Θ γ₁) (f γ₁)))
-        (AP′ (λ x → Δ x ► Θ x) f γ₂)
-
-{-# REWRITE AP-pop AP-POP AP′-pop AP′-POP #-}
-
-postulate
-  AP-TOP : {Γ : Tel} {Δ : Tel} (Θ : Tel) (f : el Γ → el (PROD Δ Θ)) (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
-    AP (λ w → TOP (λ _ → Θ) (f w)) γ₂ ≡
-    COE→ (ID′-CONST Θ _ _ _)
-          (TOP (λ w₂ → ID′ (λ _ → Θ) w₂ (SND Δ Θ (f γ₀)) (SND Δ Θ (f γ₁))) (AP f γ₂)) 
-  --- This is a weaker version of AP′-TOP, into a partially constant family
-  -- AP′-TOP : {Γ : Tel} {Δ : Tel} (Θ : el Δ → Tel) (f : el Γ → el (Δ ► Θ)) (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
-  --   AP′ (λ w → Θ (POP Θ (f w))) (λ w → TOP Θ (f w)) γ₂ ≡
-  --   COE→ (ID-AP (λ w → POP Θ (f w)) γ₂ Θ (TOP Θ (f γ₀)) (TOP Θ (f γ₁)))
-  --         (TOP (λ w₂ → ID′ Θ w₂ (TOP Θ (f γ₀)) (TOP Θ (f γ₁))) (AP f γ₂))
-  AP′-TOP : {Γ : Tel} {Δ : el Γ → Tel} (Θ : (x : el Γ) → el (Δ x) → Tel) (f : (x : el Γ) → el (Δ x ► Θ x))
-            (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
-    AP′ (λ w → Θ w (POP (Θ w) (f w))) (λ w → TOP (Θ w) (f w)) γ₂ ≡
-    COE→ (ID′-AP′ Δ (λ w → POP (Θ w) (f w)) γ₂ Θ (TOP (Θ γ₀) (f γ₀)) (TOP (Θ γ₁) (f γ₁)))
-          (TOP (λ t₂ → ID′ (UNCURRY Δ Θ) (PAIR (λ w → ID′ Δ w (POP (Θ γ₀) (f γ₀)) (POP (Θ γ₁) (f γ₁))) γ₂ t₂)
-                           (TOP (Θ γ₀) (f γ₀)) (TOP (Θ γ₁) (f γ₁)))
-               (AP′ (λ x → Δ x ► Θ x) f γ₂))
-  -- Since we have AP′-CONST, the dependent ap-top should subsume the non-dependent case.
-  ap-top : {Γ : Tel} (Δ : el Γ → Tel) (A : (x : el Γ) → el (Δ x) → Type) (f : (x : el Γ) → el (Δ x ▸ A x))
-           (γ₀ γ₁ : el Γ) (γ₂ : el (ID Γ γ₀ γ₁)) →
-    ap (λ w → top (f w)) γ₂ ≡
-    coe→ (Id′-AP (λ w → PAIR Δ w (pop (f w))) γ₂ (UNCURRY Δ A) (top (f γ₀)) (top (f γ₁)))
-         (top (AP′ {Γ} (λ x → Δ x ▸ A x) f γ₂))
-
-{-# REWRITE AP-TOP AP′-TOP ap-top #-}
-
--}
-
-
 
 ------------------------------
 -- Homogeneous Id and refl
@@ -535,35 +409,34 @@ AP-AP-CONST f γ g = axiomK
 
 {-# REWRITE ap-AP-CONST AP-AP-CONST #-}
 
-{-
--- The choice not to define Id as an instance of Id′ does mean that
--- all the rewrites we postulate for Id′, ap, and AP have to be given
--- separately for Id, refl, and REFL, in case the former get reduced
--- to the latter before these rules fire.
+-- The choice not to *define* Id, refl, and REFL as instances of Id′,
+-- ap, and AP does mean that some of the rewrites we postulate for the
+-- latter have to be given separately for the former in case the
+-- latter get reduced to the former before these rules fire.
+
+-- The computations of REFL on ε and ∷ hold already by definition.
+-- The computation of REFL on pop holds by definition in the other
+-- direction (since, unlike for AP, we defined REFL on ▸ to compute
+-- for any term, not just ∷.  Was that the right choice?)
 
 postulate
-  REFL[] : REFL [] ≡ []
-  REFL∷ : {Δ : Tel} (A : el Δ → Type) (f : el Δ) (g : A f) →
-    REFL {Δ ▸ A} (f ∷ g) ≡ REFL f ∷ coe← (Id-REFL A f g g) (refl g)
-  REFL-PAIR : {Δ : Tel} (Θ : el Δ → Tel) (f : el Δ) (g : el (Θ f)) →
-    REFL (PAIR Θ f g) ≡ PAIR (λ w₂ → ID′ Θ w₂ g g) (REFL f) (COE← (ID′-AP {ε} (λ _ → f) [] Θ g g) (REFL g))
+  top-pop-pop-REFL : {Δ : Tel} (A : el Δ → Type) (f : el (Δ ▸ A)) →
+    top (pop (pop (REFL f))) ≡ coe← (cong A (REFL₀ (pop f))) (top f)
+  top-pop-REFL : {Δ : Tel} (A : el Δ → Type) (f : el (Δ ▸ A)) →
+    top (pop (REFL f)) ≡ coe← (cong A (REFL₁ (pop f))) (top f)
+  top-pop-pop-REFL-∷ : {Δ : Tel} (A : el Δ → Type) (f : el Δ) (g : A f) →
+    top-pop-pop-REFL A (f ∷ g) ≡ reflᵉ
+  top-pop-REFL-∷ : {Δ : Tel} (A : el Δ → Type) (f : el Δ) (g : A f) →
+    top-pop-REFL A (f ∷ g) ≡ reflᵉ
 
-{-# REWRITE REFL[] REFL∷ REFL-PAIR #-}
-
-postulate
-  REFL-pop : {Δ : Tel} (A : el Δ → Type) (f : el (Δ ▸ A)) →
-    REFL (pop f) ≡ pop (REFL f)
-  REFL-POP : {Δ : Tel} (Θ : el Δ → Tel) (f : el (Δ ► Θ)) →
-    REFL (POP Θ f) ≡ POP (λ w₂ → ID′ Θ w₂ (TOP Θ f) (TOP Θ f)) (REFL f)
-
-{-# REWRITE REFL-pop REFL-POP #-}
+{-# REWRITE top-pop-pop-REFL-∷ top-pop-REFL-∷ #-}
 
 postulate
-  REFL-TOP : {Δ : Tel} (Θ : el Δ → Tel) (f : el (Δ ► Θ)) →
-    REFL (TOP Θ f) ≡
-    COE→ (ID′-AP {ε} (λ _ → POP Θ f) [] Θ (TOP Θ f) (TOP Θ f))
-          (TOP (λ w₂ → ID′ Θ w₂ (TOP Θ f) (TOP Θ f)) (REFL f))
   refl-top : (Δ : Tel) (A : el Δ → Type) (f : el (Δ ▸ A)) →
     refl (top f) ≡ coe→ (Id′-AP {ε} (λ _ → pop f) [] A (top f) (top f)) (top (REFL f)) 
 
--}
+{-# REWRITE refl-top #-}
+
+-- The same is true for the specific type formers considered in other
+-- files; all their rules for Id′ and ap have also to be given in
+-- separate forms for Id and refl.
