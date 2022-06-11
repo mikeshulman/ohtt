@@ -136,3 +136,10 @@ sq∷ {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ 
   δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ frob₁₂ A δ a₀₂ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂
 
 -- This file takes about 3 minutes to typecheck on my laptop, but it does!
+
+-- The "2-simplex" produced by ulift can be regarded as a square.  (TODO: Where does this go?)
+{-
+ulift→Sq : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ : A δ₀)
+  (a₁ a₁' : A δ₁) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀ a₁') →
+  Sq A (REFL δ₀) (REFL δ₁) δ₂ δ₂ (DEGSQ-LR Δ δ₂) (refl a₀) (utr→ A δ₂ a₀ a₁ a₁' a₂ a₂') a₂ a₂'
+-}
