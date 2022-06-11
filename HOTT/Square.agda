@@ -97,7 +97,24 @@ ID (ID Δ)
 ▸ (λ x → Id′ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y)) (pop (pop x)) (top (pop x)) (top x))
 -}
 -- Here the last term is clearly the type of squares in A.  Rewriting
--- this in terms of its explicit dependencies, we have:
+-- this in terms of its explicit dependencies, we have the following.
+
+-- It turns out that most of the boundary can be used without
+-- modification, but we need to frobnicate the types of a₀₂ and a₁₂.
+frob₀₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+  {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁) →
+  Id′ (λ x → A (x ₀)) δ a₀₀ a₀₁
+frob₀₂ {Δ} A δ {a₀₀} {a₀₁} a₀₂ = coe← (Id′-AP (_₀ {Δ}) δ A a₀₀ a₀₁) a₀₂
+
+frob₁₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+  {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁)
+  {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ A (δ ₁₂) a₁₀ a₁₁) →
+  Id′ (λ w → A (pop w ₁)) (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂) a₁₀ a₁₁
+frob₁₂ A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ =
+  coe← (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂) (δ ₁₂)
+                (AP-AP (pop {B = λ x → A (x ₀)}) _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂))
+                A reflʰ reflʰ)
+       a₁₂
 
 Sq : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
      {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁)
@@ -106,12 +123,7 @@ Sq : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
 Sq {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ =
   Id′ {ID Δ ▸ (λ x → A (x ₀)) ▸ (λ x → A ((pop x) ₁))}
       (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
-      (δ ∷ a₀₀ ∷ a₀₁ ∷ coe← (Id′-AP (_₀ {Δ}) δ A a₀₀ a₀₁) a₀₂ ∷
-           a₁₀ ∷ a₁₁ ∷ coe← (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ coe← (Id′-AP _₀ δ A a₀₀ a₀₁) a₀₂) (δ ₁₂)
-                                      (AP-AP (pop {B = λ x → A (x ₀)}) (_₁ {Δ}) (δ ∷ a₀₀ ∷ a₀₁ ∷ coe← (Id′-AP _₀ δ A a₀₀ a₀₁) a₀₂))
-                                      A reflʰ reflʰ)
-                             a₁₂)
-      a₂₀ a₂₁
+      (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ frob₁₂ A δ a₀₂ a₁₂) a₂₀ a₂₁
 
 -- Finally, we can extend a square in a telescope by a square in a type.
 sq∷ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
@@ -121,11 +133,6 @@ sq∷ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
       (a₂₂ : Sq A δ a₀₂ a₁₂ a₂₀ a₂₁) →
       el (SQ (Δ ▸ A))
 sq∷ {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ a₂₂ =
-  δ ∷ a₀₀ ∷ a₀₁ ∷ coe← (Id′-AP (_₀ {Δ}) δ A a₀₀ a₀₁) a₀₂ ∷
-      a₁₀ ∷ a₁₁ ∷ coe← (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ coe← (Id′-AP _₀ δ A a₀₀ a₀₁) a₀₂) (δ ₁₂)
-                                 (AP-AP (pop {B = λ x → A (x ₀)}) (_₁ {Δ}) (δ ∷ a₀₀ ∷ a₀₁ ∷ coe← (Id′-AP _₀ δ A a₀₀ a₀₁) a₀₂))
-                                 A reflʰ reflʰ)
-                        a₁₂ ∷
-      a₂₀ ∷ a₂₁ ∷ a₂₂
+  δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ frob₁₂ A δ a₀₂ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂
 
 -- This file takes about 3 minutes to typecheck on my laptop, but it does!
