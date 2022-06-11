@@ -6,113 +6,126 @@ open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
 
-------------------------------
--- Total identity telescopes
-------------------------------
-
--- The "total identity telescope" of a telescope is the "free path
--- space", whose elements are two elements of Δ together with an
--- identification between them.
-TID : Tel → Tel
-TID Δ = PROD Δ Δ ► (λ w₀w₁ → ID Δ (FST Δ Δ w₀w₁) (SND Δ Δ w₀w₁))
-
-left : {Δ : Tel} → el (TID Δ) → el Δ
-left {Δ} w = FST Δ Δ (POP (λ w₀w₁ → ID Δ (FST Δ Δ w₀w₁) (SND Δ Δ w₀w₁)) w)
-
-right : {Δ : Tel} → el (TID Δ) → el Δ
-right {Δ} w = SND Δ Δ (POP (λ w₀w₁ → ID Δ (FST Δ Δ w₀w₁) (SND Δ Δ w₀w₁)) w)
-
-mid : {Δ : Tel} (w : el (TID Δ)) → el (ID Δ (left w) (right w))
-mid {Δ} w = TOP (λ w₀w₁ → ID Δ (FST Δ Δ w₀w₁) (SND Δ Δ w₀w₁)) w
-
-tot : {Δ : Tel} (δ₀ δ₁ : el Δ) (δ₂ : el (ID Δ δ₀ δ₁)) → el (TID Δ)
-tot {Δ} δ₀ δ₁ δ₂ = PAIR (λ w₀w₁ → ID Δ (FST Δ Δ w₀w₁) (SND Δ Δ w₀w₁)) (PR Δ Δ δ₀ δ₁) δ₂
-
-TID′ : {Θ : Tel} (Δ : el Θ → Tel) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) → Tel
-TID′ {Θ} Δ {t₀} {t₁} t₂ = PROD (Δ t₀) (Δ t₁) ► (λ w₀w₁ → ID′ Δ t₂ (FST (Δ t₀) (Δ t₁) w₀w₁) (SND (Δ t₀) (Δ t₁) w₀w₁))
-
-left′ : {Θ : Tel} (Δ : el Θ → Tel) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) → el (TID′ Δ t₂) → el (Δ t₀)
-left′ Δ {t₀} {t₁} t₂ δ = FST (Δ t₀) (Δ t₁) (POP (λ w₀w₁ → ID′ Δ t₂ (FST (Δ t₀) (Δ t₁) w₀w₁) (SND (Δ t₀) (Δ t₁) w₀w₁)) δ)
-
-right′ : {Θ : Tel} (Δ : el Θ → Tel) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) → el (TID′ Δ t₂) → el (Δ t₁)
-right′ Δ {t₀} {t₁} t₂ δ = SND (Δ t₀) (Δ t₁) (POP (λ w₀w₁ → ID′ Δ t₂ (FST (Δ t₀) (Δ t₁) w₀w₁) (SND (Δ t₀) (Δ t₁) w₀w₁)) δ)
-
-mid′ : {Θ : Tel} (Δ : el Θ → Tel) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁)) (δ : el (TID′ Δ t₂)) → el (ID′ Δ t₂ (left′ Δ t₂ δ) (right′ Δ t₂ δ))
-mid′ Δ {t₀} {t₁} t₂ δ = TOP (λ w₀w₁ → ID′ Δ t₂ (FST (Δ t₀) (Δ t₁) w₀w₁) (SND (Δ t₀) (Δ t₁) w₀w₁)) δ
-
-tot′ : {Θ : Tel} (Δ : el Θ → Tel) {t₀ t₁ : el Θ} (t₂ : el (ID Θ t₀ t₁))
-       (δ₀ : el (Δ t₀)) (δ₁ : el (Δ t₁)) (δ₂ : el (ID′ Δ t₂ δ₀ δ₁)) → el (TID′ Δ t₂)
-tot′ Δ {t₀} {t₁} t₂ δ₀ δ₁ δ₂ = PAIR (λ w₀w₁ → ID′ Δ t₂ (FST (Δ t₀) (Δ t₁) w₀w₁) (SND (Δ t₀) (Δ t₁) w₀w₁)) (PR (Δ t₀) (Δ t₁) δ₀ δ₁) δ₂
-
-TID″ : {Θ : Tel} (Δ : el Θ → Tel) (t : el (TID Θ)) → Tel
-TID″ {Θ} Δ t = TID′ Δ {left t} {right t} (mid {Θ} t)
-
--- The uncurried identity telescope
-UID : (Δ : Tel) (w : el (PROD Δ Δ)) → Tel
-UID Δ w = ID Δ (FST Δ Δ w) (SND Δ Δ w)
-
 --------------------
 -- Squares
 --------------------
 
-SQ : (Δ : Tel) {δ₀₀ δ₀₁ : el Δ} (δ₀₂ : el (ID Δ δ₀₀ δ₀₁)) {δ₁₀ δ₁₁ : el Δ} (δ₁₂ : el (ID Δ δ₁₀ δ₁₁))
-  (δ₂₀ : el (ID Δ δ₀₀ δ₁₀)) (δ₂₁ : el (ID Δ δ₀₁ δ₁₁)) → Tel
-SQ Δ {δ₀₀} {δ₀₁} δ₀₂ {δ₁₀} {δ₁₁} δ₁₂ δ₂₀ δ₂₁ =
-  ID′ (UID Δ) {PR Δ Δ δ₀₀ δ₁₀} {PR Δ Δ δ₀₁ δ₁₁}
-      (PAIR {ID Δ δ₀₀ δ₀₁} (λ w → ID′ {Δ} (λ _ → Δ) w δ₁₀ δ₁₁) δ₀₂ (COE← (ID′-CONST {Δ} Δ δ₀₂ δ₁₀ δ₁₁) δ₁₂))
-      δ₂₀ δ₂₁
+-- With the "bundled, collated" definition of identity telescopes, the
+-- definition of square telescopes is trivial.
+SQ : Tel → Tel
+SQ Δ = ID (ID Δ)
 
--- Given the top and bottom of a square, this "total left-right
--- identity telescope" includes a left and right plus a filler.
-TSQ-LR : (Δ : Tel) {δ₀₀ δ₀₁ : el Δ} (δ₀₂ : el (ID Δ δ₀₀ δ₀₁)) {δ₁₀ δ₁₁ : el Δ} (δ₁₂ : el (ID Δ δ₁₀ δ₁₁)) → Tel
-TSQ-LR Δ {δ₀₀} {δ₀₁} δ₀₂ {δ₁₀} {δ₁₁} δ₁₂ =
-  TID′ (UID Δ) {PR Δ Δ δ₀₀ δ₁₀} {PR Δ Δ δ₀₁ δ₁₁}
-       (PAIR {ID Δ δ₀₀ δ₀₁} (λ w → ID′ {Δ} (λ _ → Δ) w δ₁₀ δ₁₁) δ₀₂ (COE← (ID′-CONST {Δ} Δ δ₀₂ δ₁₀ δ₁₁) δ₁₂))
+-- It's also easy to define the pieces of the boundary of such a square.
 
--- Similarly, given the left and right of a square, the "total
--- top-bottom identity telescope" includes a top and bottom plus a
--- filler.
-TSQ-TB : (Δ : Tel) {δ₀₀ δ₀₁ δ₁₀ δ₁₁ : el Δ} (δ₂₀ : el (ID Δ δ₀₀ δ₁₀)) (δ₂₁ : el (ID Δ δ₀₁ δ₁₁)) → Tel
-TSQ-TB Δ {δ₀₀} {δ₀₁} {δ₁₀} {δ₁₁} δ₂₀ δ₂₁ = ID (TID Δ) (tot δ₀₀ δ₁₀ δ₂₀) (tot δ₀₁ δ₁₁ δ₂₁)
+infix 10 _₀₀ _₀₁ _₀₂ _₁₀ _₁₁ _₁₂ _₂₀ _₂₁
 
-tsq-tb : (Δ : Tel) {δ₀₀ δ₀₁ : el Δ} (δ₀₂ : el (ID Δ δ₀₀ δ₀₁)) {δ₁₀ δ₁₁ : el Δ} (δ₁₂ : el (ID Δ δ₁₀ δ₁₁))
-  (δ₂₀ : el (ID Δ δ₀₀ δ₁₀)) (δ₂₁ : el (ID Δ δ₀₁ δ₁₁)) (δ₂₂ : el (SQ Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁)) →
-  el (TSQ-TB Δ δ₂₀ δ₂₁)
-tsq-tb Δ {δ₀₀} {δ₀₁} δ₀₂ {δ₁₀} {δ₁₁} δ₁₂ δ₂₀ δ₂₁ δ₂₂ =
-  PAIR (λ w₂ → ID′ (UID Δ) {PR Δ Δ δ₀₀ δ₁₀} {PR Δ Δ δ₀₁ δ₁₁} w₂ δ₂₀ δ₂₁)
-       (PAIR {ID Δ δ₀₀ δ₀₁} (λ w → ID′ {Δ} (λ _ → Δ) w δ₁₀ δ₁₁) δ₀₂ (COE← (ID′-CONST {Δ} Δ δ₀₂ δ₁₀ δ₁₁) δ₁₂)) δ₂₂
+-- Beta-reducing by hand, we get:
 
--- Given a type dependent on Δ, we can lift a top-bottom identity
--- telescope to that type with a pair of appropriate identifications,
--- leaving the left and right boundaries empty.
-tsq-tb-lift : (Δ : Tel) (A : el Δ → Type) {δ₀₀ δ₀₁ : el Δ} (δ₀₂ : el (ID Δ δ₀₀ δ₀₁)) {δ₁₀ δ₁₁ : el Δ} (δ₁₂ : el (ID Δ δ₁₀ δ₁₁))
-  (δ₂₀ : el (ID Δ δ₀₀ δ₁₀)) (δ₂₁ : el (ID Δ δ₀₁ δ₁₁)) (δ₂₂ : el (SQ Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁))
-  {a₀₀ : A δ₀₀} {a₀₁ : A δ₀₁} (a₀₂ : Id′ A δ₀₂ a₀₀ a₀₁) {a₁₀ : A δ₁₀} {a₁₁ : A δ₁₁} (a₁₂ : Id′ A δ₁₂ a₁₀ a₁₁) →
-  el (TSQ-TB Δ δ₂₀ δ₂₁
-    ▸ (λ w → Id′ {TID Δ} (λ z → A (left z)) {tot δ₀₀ δ₁₀ δ₂₀} {tot δ₀₁ δ₁₁ δ₂₁} w a₀₀ a₀₁)
-    ▸ (λ w → Id′ {TID Δ ▸ (λ z → A (left z))} (λ z → A (right (pop z))) {tot δ₀₀ δ₁₀ δ₂₀ ∷ a₀₀} {tot δ₀₁ δ₁₁ δ₂₁ ∷ a₀₁} w a₁₀ a₁₁))
-tsq-tb-lift Δ A {δ₀₀} {δ₀₁} δ₀₂ {δ₁₀} {δ₁₁} δ₁₂ δ₂₀ δ₂₁ δ₂₂ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ =
-  tsq-tb Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁ δ₂₂
-         ∷ coe→ (Id′-AP (λ w → left w) {tot δ₀₀ δ₁₀ δ₂₀} {tot δ₀₁ δ₁₁ δ₂₁} (tsq-tb Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁ δ₂₂) A a₀₀ a₀₁) a₀₂
-         ∷ coe→ (Id′-AP (λ z → right (pop z)) {tot δ₀₀ δ₁₀ δ₂₀ ∷ a₀₀} {tot δ₀₁ δ₁₁ δ₂₁ ∷ a₀₁}
-                       (tsq-tb Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁ δ₂₂ ∷
-                        coe→ (Id′-AP (λ w → left w)
-                                     {PAIR {PROD Δ Δ} (UID Δ) (PR Δ Δ δ₀₀ δ₁₀) δ₂₀}
-                                     {PAIR {PROD Δ Δ} (UID Δ) (PR Δ Δ δ₀₁ δ₁₁) δ₂₁}
-                                     (tsq-tb Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁ δ₂₂) A a₀₀ a₀₁) a₀₂)
-                       A a₁₀ a₁₁)
-                 (coe← (cong (λ e → Id′ A e a₁₀ a₁₁) (coe→coe←ᵉ (cong el (ID′-CONST {Δ} Δ {δ₀₀} {δ₀₁} δ₀₂ δ₁₀ δ₁₁)))) a₁₂)
+-- ID (Δ ▸ A)      = (δ : ID Δ) ▸ (a₀ : A) ▸ (a₁ ▸ A) ▸ (a₂ : Id′ A δ a₀ a₁)
+-- ID (ID (Δ ▸ A))
+--  = ID ( (δ : ID Δ) ▸ (a₀ : A)
+--                    ▸ (a₁ : A)
+--                    ▸ (a₂ : Id′ A δ a₀ a₁) )
+--  = (δ : ID (ID A)) ▸ (a₀₀ : A) ▸ (a₀₁ : A) ▸ (a₀₂ : Id′ A ? a₀₀ a₀₁)
+--                    ▸ (a₁₀ : A) ▸ (a₁₁ : A) ▸ (a₁₂ : Id′ A ? a₀₀ a₀₁)
+--                    ▸ (a₂₀ : Id′ A ? a₀₀ a₁₀) ▸ (a₂₁ : Id′ A ? a₀₁ a₁₁) ▸ (a₁₂ : Id′ (Id′ A) ? a₂₀ a₂₁)
 
--- Finally, with these auxiliary supporting definitions, we can define
--- a square in a type dependent on a square in a telescope.
-Sq : {Δ : Tel} (A : el Δ → Type) {δ₀₀ δ₀₁ : el Δ} (δ₀₂ : el (ID Δ δ₀₀ δ₀₁)) {δ₁₀ δ₁₁ : el Δ} (δ₁₂ : el (ID Δ δ₁₀ δ₁₁))
-     (δ₂₀ : el (ID Δ δ₀₀ δ₁₀)) (δ₂₁ : el (ID Δ δ₀₁ δ₁₁)) (δ₂₂ : el (SQ Δ δ₀₂ δ₁₂ δ₂₀ δ₂₁))
-     {a₀₀ : A δ₀₀} {a₀₁ : A δ₀₁} (a₀₂ : Id′ A δ₀₂ a₀₀ a₀₁) {a₁₀ : A δ₁₀} {a₁₁ : A δ₁₁} (a₁₂ : Id′ A δ₁₂ a₁₀ a₁₁)
-     (a₂₀ : Id′ A δ₂₀ a₀₀ a₁₀) (a₂₁ : Id′ A δ₂₁ a₀₁ a₁₁) → Type
-Sq {Δ} A {δ₀₀} {δ₀₁} δ₀₂ {δ₁₀} {δ₁₁} δ₁₂ δ₂₀ δ₂₁ δ₂₂ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ =
-  Id′ {TID Δ ▸ (λ w → A (left w)) ▸ (λ w → A (right (pop w)))}
-      (λ w → Id′ {Δ} A (mid {Δ} (pop (pop w))) (top (pop w)) (top w))
-      {tot δ₀₀ δ₁₀ δ₂₀ ∷ a₀₀ ∷ a₁₀} {tot δ₀₁ δ₁₁ δ₂₁ ∷ a₀₁ ∷ a₁₁}
-      (tsq-tb-lift Δ A δ₀₂ δ₁₂ δ₂₀ δ₂₁ δ₂₂ a₀₂ a₁₂)
+-- Now a first _₀ picks out the first component of each triple produced by the *outermost* ID.  Thus we have
+
+_₀₀ : {Δ : Tel} → el (SQ Δ) → el Δ
+δ ₀₀ = δ ₀ ₀
+
+_₁₀ : {Δ : Tel} → el (SQ Δ) → el Δ
+δ ₁₀ = δ ₀ ₁                    -- Note reversal!
+
+_₂₀ : {Δ : Tel} → el (SQ Δ) → el (ID Δ)
+δ ₂₀ = δ ₀
+
+-- Similarly, a first _₁ picks out the second component of each triple.
+
+_₀₁ : {Δ : Tel} → el (SQ Δ) → el Δ
+δ ₀₁ = δ ₁ ₀
+
+_₁₁ : {Δ : Tel} → el (SQ Δ) → el Δ
+δ ₁₁ = δ ₁ ₁
+
+_₂₁ : {Δ : Tel} → el (SQ Δ) → el (ID Δ)
+δ ₂₁ = δ ₁
+
+-- The other two boundaries δ₀₂ and δ₁₂ seem trickier, but they are
+-- actually just AP of _₀ and _₁.
+
+_₀₂ : {Δ : Tel} → el (SQ Δ) → el (ID Δ)
+δ ₀₂ = AP _₀ δ
+
+_₁₂ : {Δ : Tel} → el (SQ Δ) → el (ID Δ)
+δ ₁₂ = AP _₁ δ
+
+-- Our existing rewrite rules give us the cubical identities definitionally.
+
+₀₂-₀ : {Δ : Tel} (δ : el (SQ Δ)) → (δ ₀₂ ₀) ≡ (δ ₀₀)
+₀₂-₀ δ = reflᵉ
+
+₀₂-₁ : {Δ : Tel} (δ : el (SQ Δ)) → (δ ₀₂ ₁) ≡ (δ ₀₁)
+₀₂-₁ δ = reflᵉ
+
+₁₂-₀ : {Δ : Tel} (δ : el (SQ Δ)) → (δ ₁₂ ₀) ≡ (δ ₁₀)
+₁₂-₀ δ = reflᵉ
+
+₁₂-₁ : {Δ : Tel} (δ : el (SQ Δ)) → (δ ₁₂ ₁) ≡ (δ ₁₁)
+₁₂-₁ δ = reflᵉ
+
+-- We can now extract a definition of squares in a type by having Agda
+-- normalize (SQ (Δ ▸ A)) for us.  On my laptop this takes:
+
+-- > 15 sec if only the definition of ID is known
+-- > 30 sec once AP₀ and AP₁ are declared as rewrites
+-- > 1 min once REFL₀ and REFL₁ are also declared as rewrites
+-- > 1 min 30 sec once Id′-REFL and AP-const are also declared as rewrites
+
+-- Once done and cleaned up, we obtain:
+{-
+ID (ID Δ)
+▸ (λ x → A (x ₀₀))
+▸ (λ x → A ((pop x) ₀₁))
+▸ (λ x → Id′ (λ y → A (y ₀)) (pop (pop x)) (top (pop x)) (top x))
+▸ (λ x → A ((pop (pop (pop x))) ₁₀))
+▸ (λ x → A ((pop (pop (pop (pop x)))) ₁₁))
+▸ (λ x → Id′ (λ y → A ((pop y) ₁)) (pop (pop x)) (top (pop x)) (top x))
+▸ (λ x → Id′ A (pop (pop (pop (pop (pop (pop x))))) ₀) (top (pop (pop (pop (pop (pop x)))))) (top (pop (pop x))))
+▸ (λ x → Id′ A (pop (pop (pop (pop (pop (pop (pop x)))))) ₁) (top (pop (pop (pop (pop (pop x)))))) (top (pop (pop x))))}
+▸ (λ x → Id′ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y)) (pop (pop x)) (top (pop x)) (top x))
+-}
+-- Here the last term is clearly the type of squares in A.  Rewriting
+-- this in terms of its explicit dependencies, we have:
+
+Sq : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+     {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁)
+     {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ A (δ ₁₂) a₁₀ a₁₁)
+     (a₂₀ : Id′ A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id′ A (δ ₂₁) a₀₁ a₁₁) → Type
+Sq {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ =
+  Id′ {ID Δ ▸ (λ x → A (x ₀)) ▸ (λ x → A ((pop x) ₁))}
+      (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
+      (δ ∷ a₀₀ ∷ a₀₁ ∷ coe← (Id′-AP (_₀ {Δ}) δ A a₀₀ a₀₁) a₀₂ ∷
+           a₁₀ ∷ a₁₁ ∷ coe← (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ coe← (Id′-AP _₀ δ A a₀₀ a₀₁) a₀₂) (δ ₁₂)
+                                      (AP-AP (pop {B = λ x → A (x ₀)}) (_₁ {Δ}) (δ ∷ a₀₀ ∷ a₀₁ ∷ coe← (Id′-AP _₀ δ A a₀₀ a₀₁) a₀₂))
+                                      A reflʰ reflʰ)
+                             a₁₂)
       a₂₀ a₂₁
 
+-- Finally, we can extend a square in a telescope by a square in a type.
+sq∷ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+      {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁)
+      {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ A (δ ₁₂) a₁₀ a₁₁)
+      (a₂₀ : Id′ A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id′ A (δ ₂₁) a₀₁ a₁₁)
+      (a₂₂ : Sq A δ a₀₂ a₁₂ a₂₀ a₂₁) →
+      el (SQ (Δ ▸ A))
+sq∷ {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ a₂₂ =
+  δ ∷ a₀₀ ∷ a₀₁ ∷ coe← (Id′-AP (_₀ {Δ}) δ A a₀₀ a₀₁) a₀₂ ∷
+      a₁₀ ∷ a₁₁ ∷ coe← (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ coe← (Id′-AP _₀ δ A a₀₀ a₀₁) a₀₂) (δ ₁₂)
+                                 (AP-AP (pop {B = λ x → A (x ₀)}) (_₁ {Δ}) (δ ∷ a₀₀ ∷ a₀₁ ∷ coe← (Id′-AP _₀ δ A a₀₀ a₀₁) a₀₂))
+                                 A reflʰ reflʰ)
+                        a₁₂ ∷
+      a₂₀ ∷ a₂₁ ∷ a₂₂
+
+-- This file takes about 3 minutes to typecheck on my laptop, but it does!
