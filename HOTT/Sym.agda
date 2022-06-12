@@ -6,6 +6,7 @@ open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Square
+open import HOTT.Square.Top
 
 ------------------------------
 -- Symmetry

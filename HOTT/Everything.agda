@@ -8,6 +8,7 @@ open import HOTT.Id
 open import HOTT.Refl
 open import HOTT.Transport
 open import HOTT.Square
+open import HOTT.Square.Top
 -- open import HOTT.Sym
 -- open import HOTT.Fill
 open import HOTT.Unit
