@@ -6,9 +6,9 @@ open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
 
---------------------
--- Squares
---------------------
+------------------------------
+-- Square telescopes
+------------------------------
 
 -- With the "bundled, collated" definition of identity telescopes, the
 -- definition of square telescopes is trivial.
@@ -97,7 +97,12 @@ ID (ID Δ)
 ▸ (λ x → Id′ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y)) (pop (pop x)) (top (pop x)) (top x))
 -}
 -- Here the last term is clearly the type of squares in A.  Rewriting
--- this in terms of its explicit dependencies, we have the following.
+-- this in terms of its explicit dependencies, we obtain a definition
+-- of squares in a type, with boundary slightly frobnified.
+
+------------------------------
+-- Boundary frobnification
+------------------------------
 
 -- It turns out that most of the boundary can be used without
 -- modification, but we need to frobnicate the types of a₀₂ and a₁₂.
@@ -106,6 +111,29 @@ frob₀₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
   Id′ (λ x → A (x ₀)) δ a₀₀ a₀₁
 frob₀₂ {Δ} A δ {a₀₀} {a₀₁} a₀₂ = coe← (Id′-AP (_₀ {Δ}) δ A a₀₀ a₀₁) a₀₂
 
+unfrob₀₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+  {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ (λ x → A (x ₀)) δ a₀₀ a₀₁) →
+  Id′ A (δ ₀₂) a₀₀ a₀₁
+unfrob₀₂ {Δ} A δ {a₀₀} {a₀₁} a₀₂ = coe→ (Id′-AP (_₀ {Δ}) δ A a₀₀ a₀₁) a₀₂
+
+frob-unfrob₀₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+  {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ (λ x → A (x ₀)) δ a₀₀ a₀₁) →
+  frob₀₂ A δ (unfrob₀₂ A δ a₀₂) ≡ a₀₂
+frob-unfrob₀₂ A δ {a₀₀} {a₀₁} a₀₂ = coe←coe→ (Id′-AP _₀ δ A a₀₀ a₀₁)
+
+unfrob-frob₀₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+  {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁) →
+  unfrob₀₂ A δ (frob₀₂ A δ a₀₂) ≡ a₀₂
+unfrob-frob₀₂ A δ {a₀₀} {a₀₁} a₀₂ = coe→coe← (Id′-AP _₀ δ A a₀₀ a₀₁)
+
+-- Unfortunately, it doesn't seem to work to make frob-unfrob and
+-- unfrob-frob into rewrites.  (It does work if we make frob and
+-- unfrob postulates, but then they wouldn't reduce away on concrete
+-- types.)  So we have to coerce along them explicitly.  At least,
+-- with the concrete definitions we have given, they should also
+-- reduce automatically to reflᵉ on concrete types.
+
+-- Note that a₀₂ is also an explicit argument.
 frob₁₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
   {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁)
   {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ A (δ ₁₂) a₁₀ a₁₁) →
@@ -116,6 +144,46 @@ frob₁₂ A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ =
                 A reflʰ reflʰ)
        a₁₂
 
+unfrob₁₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+  {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ (λ x → A (x ₀)) δ a₀₀ a₀₁)
+  {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ (λ w → A (pop w ₁)) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) a₁₀ a₁₁) →
+  Id′ A (δ ₁₂) a₁₀ a₁₁
+unfrob₁₂ A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ =
+  coe→ (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) (δ ₁₂)
+                (AP-AP (pop {B = λ x → A (x ₀)}) _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂))
+                A {a₁₀} {a₁₁} {a₁₀} {a₁₁} reflʰ reflʰ)
+       a₁₂
+
+-- This one is a heterogeneous equality because the type of a₁₂ and
+-- its (un)frobnications depend on a₀₂ and its (un)frobnications.  And
+-- as long as we're being heterogeneous and using UIP, we may as well
+-- allow two arbitrary a₀₂'s in the frob and the unfrob.
+frob-unfrob₁₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+  {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ (λ x → A (x ₀)) δ a₀₀ a₀₁) (a₀₂′ : Id′ A (δ ₀₂) a₀₀ a₀₁)
+  {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ (λ w → A (pop w ₁)) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) a₁₀ a₁₁) →
+  frob₁₂ A δ a₀₂′ (unfrob₁₂ A δ a₀₂ a₁₂) ≡ʰ a₁₂
+frob-unfrob₁₂ A δ {a₀₀} {a₀₁} a₀₂ a₀₂′ {a₁₀} {a₁₁} a₁₂ =
+  coe←≡ʰ (Id′-AP≡ (λ x → pop x ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂′) (AP _₁ δ)
+                  (AP-AP pop _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂′)) A reflʰ reflʰ)
+         (coe→ (Id′-AP≡ (λ x → pop x ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) (AP _₁ δ)
+               (AP-AP pop _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂)) A reflʰ reflʰ) a₁₂)
+  •ʰ coe→≡ʰ (Id′-AP≡ (λ x → pop x ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) (AP _₁ δ) (AP-AP pop _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂)) A reflʰ reflʰ) a₁₂
+
+-- This one seems to work homogeneously, and we haven't needed it for
+-- anything yet anyway.
+unfrob-frob₁₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+  {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁)
+  {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ A (δ ₁₂) a₁₀ a₁₁) →
+  unfrob₁₂ A δ (frob₀₂ A δ a₀₂) (frob₁₂ A δ a₀₂ a₁₂) ≡ a₁₂
+unfrob-frob₁₂ A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ =
+  coe→coe← (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂) (δ ₁₂)
+                (AP-AP (pop {B = λ x → A (x ₀)}) _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂))
+                A reflʰ reflʰ)
+
+------------------------------
+-- Squares in a type
+------------------------------
+
 Sq : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
      {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁)
      {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ A (δ ₁₂) a₁₀ a₁₁)
@@ -125,7 +193,7 @@ Sq {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a�
       (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
       (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ frob₁₂ A δ a₀₂ a₁₂) a₂₀ a₂₁
 
--- Finally, we can extend a square in a telescope by a square in a type.
+-- We can extend a square in a telescope by a square in a type.
 sq∷ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
       {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁)
       {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ A (δ ₁₂) a₁₀ a₁₁)
@@ -135,11 +203,72 @@ sq∷ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
 sq∷ {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ a₂₂ =
   δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ frob₁₂ A δ a₀₂ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂
 
--- This file takes about 3 minutes to typecheck on my laptop, but it does!
-
 -- The "2-simplex" produced by ulift can be regarded as a square.  (TODO: Where does this go?)
 {-
 ulift→Sq : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (ID Δ δ₀ δ₁)) (a₀ : A δ₀)
   (a₁ a₁' : A δ₁) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀ a₁') →
   Sq A (REFL δ₀) (REFL δ₁) δ₂ δ₂ (DEGSQ-LR Δ δ₂) (refl a₀) (utr→ A δ₂ a₀ a₁ a₁' a₂ a₂') a₂ a₂'
 -}
+
+-- And we can extract the components of a square in an extended telescope.
+
+popsq : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) → el (SQ Δ)
+popsq δ = pop (pop (pop (pop (pop (pop (pop (pop (pop δ))))))))
+
+top₀₀ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) → A (popsq δ ₀₀)
+top₀₀ δ = top (pop (pop (pop (pop (pop (pop (pop (pop δ))))))))
+
+top₀₁ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) → A (popsq δ ₀₁)
+top₀₁ δ = top (pop (pop (pop (pop (pop (pop (pop δ)))))))
+
+top₀₂ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) →
+  Id′ A (popsq δ ₀₂) (top₀₀ δ) (top₀₁ δ)
+top₀₂ δ = unfrob₀₂ _ (popsq δ) (top (pop (pop (pop (pop (pop (pop δ)))))))
+
+top₁₀ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) → A (popsq δ ₁₀)
+top₁₀ δ = top (pop (pop (pop (pop (pop δ)))))
+
+top₁₁ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) → A (popsq δ ₁₁)
+top₁₁ δ = top (pop (pop (pop (pop δ))))
+
+top₁₂ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) →
+  Id′ A (popsq δ ₁₂) (top₁₀ δ) (top₁₁ δ)
+top₁₂ δ = unfrob₁₂ _ (popsq δ) (top (pop (pop (pop (pop (pop (pop δ))))))) (top (pop (pop (pop δ))))
+
+top₂₀ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) →
+  Id′ A (popsq δ ₂₀) (top₀₀ δ) (top₁₀ δ)
+top₂₀ δ = top (pop (pop δ))
+
+top₂₁ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) →
+  Id′ A (popsq δ ₂₁) (top₀₁ δ) (top₁₁ δ)
+top₂₁ δ = top (pop δ)
+
+-- This looks messy, but it's just a bunch of heterogeneous equality
+-- wrangling to apply the two frob-unfrob's in the right places.  It
+-- would all disappear if frob-unfrob were rewrites, and should also
+-- disappear on concrete types.
+top₂₂ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) →
+  Sq A (popsq δ) {top₀₀ δ} {top₀₁ δ} (top₀₂ δ) {top₁₀ δ} {top₁₁ δ} (top₁₂ δ) (top₂₀ δ) (top₂₁ δ)
+top₂₂ {Δ} {A} δ =
+  coe← (Id′≡ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
+             {popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ frob₀₂ A (popsq δ) (top₀₂ δ) ∷ top₁₀ δ ∷ top₁₁ δ ∷ frob₁₂ A (popsq δ) (top₀₂ δ) (top₁₂ δ)}
+             {pop (pop (pop δ))}
+             (∷≡ʰ (λ x → Id′ (λ y → A ((pop y) ₁)) (pop (pop x)) (top (pop x)) (top x))
+                  {popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ frob₀₂ A (popsq δ) (top₀₂ δ) ∷ top₁₀ δ ∷ top₁₁ δ}
+                  {pop (pop (pop (pop δ)))}
+                  (∷≡ʰ (λ x → A ((pop (pop (pop (pop x)))) ₁₁))
+                    {popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ frob₀₂ A (popsq δ) (top₀₂ δ) ∷ top₁₀ δ}
+                    {pop (pop (pop (pop (pop δ))))}
+                    (∷≡ʰ (λ x → A ((pop (pop (pop x))) ₁₀))
+                      {popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ frob₀₂ A (popsq δ) (top₀₂ δ)}
+                      {pop (pop (pop (pop (pop (pop δ)))))}
+                      (∷≡ʰ (λ x → Id′ (λ y → A (y ₀)) (pop (pop x)) (top (pop x)) (top x))
+                        {popsq δ ∷ top₀₀ δ ∷ top₀₁ δ} {pop (pop (pop (pop (pop (pop (pop δ))))))} reflᵉ
+                        {frob₀₂ A (popsq δ) (top₀₂ δ)} {top (pop (pop (pop (pop (pop (pop δ))))))}
+                        (≡→≡ʰ (frob-unfrob₀₂ A (popsq δ) (top (pop (pop (pop (pop (pop (pop δ))))))))))
+                    {top₁₀ δ} {top₁₀ δ} reflʰ)
+                  {top₁₁ δ} {top₁₁ δ} reflʰ)
+                  {frob₁₂ A (popsq δ) (top₀₂ δ) (top₁₂ δ)} {top (pop (pop (pop δ)))}
+                  (frob-unfrob₁₂ A (popsq δ) (top (pop (pop (pop (pop (pop (pop δ))))))) (top₀₂ δ) (top (pop (pop (pop δ))))))
+             {top₂₀ δ} {top₂₀ δ} reflʰ {top₂₁ δ} {top₂₁ δ} reflʰ)
+       (top δ)
