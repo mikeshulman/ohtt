@@ -5,6 +5,7 @@ module HOTT.Unit where
 open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
+open import HOTT.Refl
 open import HOTT.Transport
 
 --------------------

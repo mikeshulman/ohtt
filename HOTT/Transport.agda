@@ -5,6 +5,7 @@ module HOTT.Transport where
 open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
+open import HOTT.Refl
 
 ------------------------------
 -- Transport

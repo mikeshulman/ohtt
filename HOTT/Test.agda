@@ -5,6 +5,7 @@ module HOTT.Test where
 open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
+open import HOTT.Refl
 
 ----------------------------------------
 -- Examples for testing
