@@ -18,8 +18,8 @@ _₀ : {Δ : Tel} → el (ID Δ) → el Δ
 _₁ : {Δ : Tel} → el (ID Δ) → el Δ
 infix 40 _₀ _₁
 
--- They are also mutual with the (postulated) dependent/heterogeneous
--- identity *types* that they are composed of.
+-- They are also mutual with the (postulated) dependent identity
+-- *types* that they are composed of.
 postulate
   -- Note that these depend on an element of the bundled (ID Δ), which
   -- consists of two points of Δ and an identification between them.
@@ -108,11 +108,11 @@ postulate
 -- argument with top and pop and pass it off to a helper function.
 AP₀∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
   (AP (λ x → f x ∷ g x) γ)₀ ≡ f (γ ₀) ∷ g (γ ₀)
-AP₀∷ A f g γ = ∷≡ʰ A (AP₀ f γ) (coe←≡ʰ (cong A (AP₀ f γ)) (g (γ ₀)))
+AP₀∷ A f g γ = ∷≡ A (AP₀ f γ) (coe←≡ʰ (cong A (AP₀ f γ)) (g (γ ₀)))
 
 AP₁∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
   ((AP (λ x → f x ∷ g x) γ)₁) ≡ f (γ ₁) ∷ g (γ ₁)
-AP₁∷ A f g γ = ∷≡ʰ A (AP₁ f γ) (coe←≡ʰ (cong A (AP₁ f γ)) (g (γ ₁)))
+AP₁∷ A f g γ = ∷≡ A (AP₁ f γ) (coe←≡ʰ (cong A (AP₁ f γ)) (g (γ ₁)))
 
 AP₀ {Δ = ε} f γ = reflᵉ
 AP₀ {Δ = Δ ▸ A} f γ = AP₀∷ A (λ x → pop (f x)) (λ x → top (f x)) γ
@@ -170,9 +170,9 @@ AP-AP-∷ : {Γ Δ Θ : Tel} (A : el Θ → Type) (f : el Γ → el Δ)
   (g : el Δ → el Θ) (h : (x : el Δ) → A (g x)) (γ : el (ID Γ)) →
   AP (λ x → g x ∷ h x) (AP f γ) ≡ AP (λ w → g (f w) ∷ h (f w)) γ
 AP-AP-∷ A f g h γ =
-      ∷≡ʰ (λ δaa → Id′ A (pop (pop δaa)) (top (pop δaa)) (top δaa))
-      (∷≡ʰ (λ δa → A ((pop δa)₁))
-           (∷≡ʰ (λ δ → A (δ ₀))
+      ∷≡ (λ δaa → Id′ A (pop (pop δaa)) (top (pop δaa)) (top δaa))
+      (∷≡ (λ δa → A ((pop δa)₁))
+           (∷≡ (λ δ → A (δ ₀))
                 (AP-AP f g γ)
                 reflʰ)
            reflʰ)

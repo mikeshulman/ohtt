@@ -90,23 +90,6 @@ coe←coe→ᵉ′ reflᵉ reflᵉ a = reflᵉ
 coe→coe←ᵉ′ : {A B : Typeᵉ} (p q : A ≡ B) (b : B) → coe→ᵉ p (coe←ᵉ q b) ≡ coe→ᵉ (rev p • q) b
 coe→coe←ᵉ′ reflᵉ reflᵉ b = reflᵉ
 
--- {-# REWRITE coe←coe→ coe→coe← coe←coe→ᵉ coe→coe←ᵉ #-}
-
-postulate
-  funext : {A : Typeᵉ} {B : A → Typeᵉ} {f g : (x : A) → B x} (p : (x : A) → f x ≡ g x) → f ≡ g
-  funext-reflᵉ : {A : Typeᵉ} {B : A → Typeᵉ} {f : (x : A) → B x} → funext {f = f} {g = f} (λ x → reflᵉ) ≡ reflᵉ
-
-{-# REWRITE funext-reflᵉ #-}
-
--- Dependent equality
-
-_≡[_]_ : {A : Typeᵉ} {B : A → Typeᵉ} {a₀ : A} (b₀ : B a₀) {a₁ : A} (e : a₀ ≡ a₁) (b₁ : B a₁) → Typeᵉ
-b₀ ≡[ reflᵉ ] b₁ = b₀ ≡ b₁
-
-≡[]coe→ᵉ : {A : Typeᵉ} {B : A → Typeᵉ} {a₀ : A} (b₀ : B a₀) {a₁ : A} (e : a₀ ≡ a₁) (b₁ : B a₁) →
-  coe→ᵉ (cong B e) b₀ ≡ b₁ → b₀ ≡[ e ] b₁
-≡[]coe→ᵉ b₀ reflᵉ b₁ reflᵉ = reflᵉ
-
 -- Heterogeneous equality
 
 data _≡ʰ_ {A : Typeᵉ} (a : A) : {B : Typeᵉ} → B → Typeᵉ where
@@ -120,10 +103,6 @@ reflʰ •ʰ reflʰ = reflʰ
 
 revʰ : {A B : Typeᵉ} {a : A} {b : B} → (a ≡ʰ b) → (b ≡ʰ a)
 revʰ reflʰ = reflʰ
-
-≡[]ʰ : {A : Typeᵉ} {B : A → Typeᵉ} {a₀ : A} {b₀ : B a₀} {a₁ : A} {e : a₀ ≡ a₁} {b₁ : B a₁} →
-  (b₀ ≡ʰ b₁) → (b₀ ≡[ e ] b₁)
-≡[]ʰ {e = reflᵉ} reflʰ = reflᵉ
 
 ≡ʰ→≡ : {A : Typeᵉ} {a₀ a₁ : A} → (a₀ ≡ʰ a₁) → (a₀ ≡ a₁)
 ≡ʰ→≡ reflʰ = reflᵉ
@@ -139,3 +118,7 @@ coe→ᵉ≡ʰ reflᵉ _ = reflʰ
 
 coe←ᵉ≡ʰ : {A B : Typeᵉ} (e : A ≡ B) (b : B) → coe←ᵉ e b ≡ʰ b
 coe←ᵉ≡ʰ reflᵉ _ = reflʰ
+
+coe→←←←≡ʰ : {A B C D E : Type} (u : A ≡ B) (v : A ≡ C) (w : C ≡ D) (x : D ≡ E) (e : E) →
+  coe→ u (coe← v (coe← w (coe← x e))) ≡ʰ e
+coe→←←←≡ʰ reflᵉ reflᵉ reflᵉ reflᵉ _ = reflʰ

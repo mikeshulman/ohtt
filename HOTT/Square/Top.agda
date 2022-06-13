@@ -56,16 +56,16 @@ top₂₂ {Δ} {A} δ =
   coe← (Id′≡ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
              {popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ frob₀₂ A (popsq δ) (top₀₂ δ) ∷ top₁₀ δ ∷ top₁₁ δ ∷ frob₁₂ A (popsq δ) (top₀₂ δ) (top₁₂ δ)}
              {pop (pop (pop δ))}
-             (∷≡ʰ (λ x → Id′ (λ y → A ((pop y) ₁)) (pop (pop x)) (top (pop x)) (top x))
+             (∷≡ (λ x → Id′ (λ y → A ((pop y) ₁)) (pop (pop x)) (top (pop x)) (top x))
                   {popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ frob₀₂ A (popsq δ) (top₀₂ δ) ∷ top₁₀ δ ∷ top₁₁ δ}
                   {pop (pop (pop (pop δ)))}
-                  (∷≡ʰ (λ x → A ((pop (pop (pop (pop x)))) ₁₁))
+                  (∷≡ (λ x → A ((pop (pop (pop (pop x)))) ₁₁))
                     {popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ frob₀₂ A (popsq δ) (top₀₂ δ) ∷ top₁₀ δ}
                     {pop (pop (pop (pop (pop δ))))}
-                    (∷≡ʰ (λ x → A ((pop (pop (pop x))) ₁₀))
+                    (∷≡ (λ x → A ((pop (pop (pop x))) ₁₀))
                       {popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ frob₀₂ A (popsq δ) (top₀₂ δ)}
                       {pop (pop (pop (pop (pop (pop δ)))))}
-                      (∷≡ʰ (λ x → Id′ (λ y → A (y ₀)) (pop (pop x)) (top (pop x)) (top x))
+                      (∷≡ (λ x → Id′ (λ y → A (y ₀)) (pop (pop x)) (top (pop x)) (top x))
                         {popsq δ ∷ top₀₀ δ ∷ top₀₁ δ} {pop (pop (pop (pop (pop (pop (pop δ))))))} reflᵉ
                         {frob₀₂ A (popsq δ) (top₀₂ δ)} {top (pop (pop (pop (pop (pop (pop δ))))))}
                         (≡→≡ʰ (frob-unfrob₀₂ A (popsq δ) (top (pop (pop (pop (pop (pop (pop δ))))))))))

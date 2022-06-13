@@ -74,10 +74,10 @@ REFL {Δ ▸ A} δ = REFL (pop δ) ∷
                       (refl (top δ))
 
 REFL₀ {ε} δ = reflᵉ
-REFL₀ {Δ ▸ A} δ = ∷≡ʰ A (REFL₀ (pop δ)) (coe←≡ʰ (cong A (REFL₀ (pop δ))) _)
+REFL₀ {Δ ▸ A} δ = ∷≡ A (REFL₀ (pop δ)) (coe←≡ʰ (cong A (REFL₀ (pop δ))) _)
 
 REFL₁ {ε} δ = reflᵉ
-REFL₁ {Δ ▸ A} δ = ∷≡ʰ A (REFL₁ (pop δ)) (coe←≡ʰ (cong A (REFL₁ (pop δ))) _)
+REFL₁ {Δ ▸ A} δ = ∷≡ A (REFL₁ (pop δ)) (coe←≡ʰ (cong A (REFL₁ (pop δ))) _)
 
 -- The proof of AP-const in the ▸ case also requires case-analysis on
 -- the term t, whose "constructor" ∷ isn't actually a constructor, so
@@ -87,7 +87,7 @@ REFL₁ {Δ ▸ A} δ = ∷≡ʰ A (REFL₁ (pop δ)) (coe←≡ʰ (cong A (REFL
 AP-const-∷ : {Δ : Tel} (Θ : Tel) (A : el Θ → Type) (δ : el (ID Δ)) (t : el Θ) (a : A t) →
   AP {Δ} (λ _ → _∷_ {Θ} {A} t a) δ ≡ REFL (_∷_ {Θ} {A} t a)
 AP-const-∷ {Δ} Θ A δ t a =
-  ∷≡ʰ _ (∷≡ʰ _ (∷≡ʰ _
+  ∷≡ _ (∷≡ _ (∷≡ _
   (AP-const {Δ} Θ δ t)
   (revʰ (coe←≡ʰ (cong A (REFL₀ t)) a)))
   (revʰ (coe←≡ʰ (cong A (REFL₁ t)) a)))
