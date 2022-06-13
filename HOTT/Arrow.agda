@@ -16,6 +16,11 @@ open import HOTT.Pi
 -- Function-types
 --------------------
 
+-- As with product types and Σ-types, we could derive non-dependent
+-- function types as a special case of dependent Π-types.  But many
+-- things are simpler in the non-dependent case, so it's worth having
+-- them defined separately.
+
 postulate
   _⇒_ : Type → Type → Type
   lam⇒ : {A B : Type} (f : A → B) → (A ⇒ B)
@@ -34,9 +39,9 @@ postulate
 
 {-# REWRITE β∙ η⇒ #-}
 
--- Note that the definition of the identity types of non-dependent
--- function types requires *dependent* function-types!  So unlike Prod
--- which is independent of Sigma, we have to import Pi into Arrow.
+-- Note, though, that the identity types of non-dependent function
+-- types require *dependent* function-types!  So unlike Prod, which is
+-- completely independent of Sigma, we have to import Pi into Arrow.
 postulate
   Id′⇒ : {Δ : Tel} (A B : el Δ → Type)
     (δ : el (ID Δ)) (f₀ : (A (δ ₀)) ⇒ (B (δ ₀))) (f₁ : (A (δ ₁)) ⇒ (B (δ ₁))) →
@@ -71,6 +76,8 @@ postulate
     refl (f ∙ a) ≡ (refl f ⊙ a ⊙ a ∙ (refl a))
 
 {-# REWRITE apΛ⇒ reflΛ⇒ ap∙ refl∙ #-}
+
+-- TODO: Compute Id′-AP and ap-AP
 
 ----------------------------------------
 -- Transport in function-types

@@ -62,6 +62,8 @@ postulate
 
 {-# REWRITE apΛ reflΛ ap⊙ refl⊙ #-}
 
+-- TODO: Compute Id′-AP and ap-AP
+
 ----------------------------------------
 -- Transport in Π-types
 ----------------------------------------

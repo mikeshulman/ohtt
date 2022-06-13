@@ -12,7 +12,9 @@ open import HOTT.Transport
 -- Product types
 --------------------
 
--- Would it work to derive these from Σ-types?
+-- It may seem that we should derive these from Σ-types, but various
+-- things simplify in the non-dependent case, so I think it's worth
+-- defining them separately.
 
 postulate
   _×_ : Type → Type → Type

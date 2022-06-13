@@ -38,6 +38,10 @@ postulate
 
 {-# REWRITE ap-const #-}
 
+------------------------------
+-- Reflexivity telescopes
+------------------------------
+
 -- Now we can define reflexivity for telescopes.
 REFL : {Δ : Tel} (δ : el Δ) → el (ID Δ)
 
@@ -134,6 +138,10 @@ Id′-REFL-reflᵉ A δ a₀ a₁ = reflᵉ
 -- to fire.  So we still sometimes have to coerce along Id-REFL.  But
 -- the fact that it is definitionally reflexivity, at least on
 -- abstract arguments, minimizes the effect of these coercions.
+
+------------------------------
+-- ap and reflexivity
+------------------------------
 
 -- Now we do the same for ap on reflexivity.
 ap-REFL : {Δ : Tel} (A : el Δ → Type) (f : (δ : el Δ) → A δ) (δ : el Δ) →

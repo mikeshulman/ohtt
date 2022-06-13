@@ -43,7 +43,7 @@ Id′≡ : {Δ : Tel} (A : el Δ → Type)
 Id′≡ _ reflᵉ reflʰ reflʰ = reflᵉ
 
 ----------------------------------------
--- Telescope ap and functoriality, I
+-- ap, AP, and functoriality of Id′
 ----------------------------------------
 
 postulate
@@ -121,15 +121,15 @@ AP₁ {Δ = Δ ▸ A} f γ = AP₁∷ A (λ x → pop (f x)) (λ x → top (f x)
 
 -- The proofs of AP₀ and AP₁ imply that they should hold
 -- definitionally for all concrete telescopes.  Thus, it is reasonable
--- to assert them as rewrite rules for all telescopens.  Note that
+-- to assert them as rewrite rules for all telescopes.  Note that
 -- they have a volatile LHS, which reduces on concrete or
 -- partially-concrete telescopes; but their definitions make them
 -- consistent with such reductions.  Thus, they hold definitionally
 -- for partially-concrete telescopes as well.
 {-# REWRITE AP₀ AP₁ #-}
 
--- Since AP₀ and AP₁ hold definitionally on abstract telescopes
--- (at least), we can also prove by UIP that they are equal to reflexivity.
+-- Since AP₀ and AP₁ now also hold definitionally on abstract telescopes,
+-- we can also prove by UIP that they are equal to reflexivity.
 AP₀-reflᵉ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → AP₀ f γ ≡ reflᵉ
 AP₀-reflᵉ f γ = axiomK
 
@@ -153,6 +153,10 @@ Id′-AP≡ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (δ : el (ID
     Id′ (λ w → A (f w)) γ a₀ a₁ ≡ Id′ A δ b₀ b₁
 Id′-AP≡ f γ .(AP f γ) reflᵉ A {a₀} {a₁} {b₀} {b₁} e₀ e₁ =
   Id′-AP f γ A a₀ a₁ • cong2 (Id′ A (AP f γ)) (≡ʰ→≡ e₀) (≡ʰ→≡ e₁)
+
+------------------------------
+-- Functoriality of ap and AP
+------------------------------
 
 -- Functoriality for ap should be admissible, like Id′-AP.
 -- However, like ap, it should compute on terms, not types.
@@ -190,8 +194,32 @@ AP-AP {Γ} {Δ} {Θ ▸ A} f g γ = AP-AP-∷ A f (λ x → pop (g x)) (λ x →
 -- Thus, if the types and terms are also concrete, it should reduce
 -- away to reflexivity too.
 
--- Now, since we defined AP to compute only on ∷ rather than just ▸,
--- we can also make it compute on top and pop.
+------------------------------
+-- ap on variables
+------------------------------
+
+-- The action of ap on a variable appearing in the telescope is
+-- supposed to be to project to the corresponding identification
+-- argument.  (On variables not appearing in the telescope, it's
+-- supposed to reduce to reflexivity, which we'll get to later.)  We
+-- have no trouble distinguishing the "variables in the telescope"
+-- since they are represented by De Bruijn indices using top and pop,
+-- but we have to specify how to extract the correct identification.
+
+-- Recall that identity telescopes are bundled and collated.  Thus, an
+-- application like (ap (λ x → [n] x) δ), where [n] is a De Bruijn
+-- index (represented as (top ∘ popⁿ)), should compute to [3n] δ,
+-- picking out the correct identification component.  We obtain this by
+-- computing in the following steps
+
+-- ap (λ x → top (pop x)) δ
+--   = top (AP (λ x → pop x) δ)
+--   = top (pop (pop (pop (AP (λ x → x) δ)))))
+--   = top (pop (pop (pop δ)))
+
+-- Thus, we need to compute ap-top to top-AP, compute AP-pop to
+-- pop-pop-pop-AP, and compute AP on the identity map to the identity.
+-- We specify all three of these as postulated rewrite rules.
 
 postulate
   AP-pop : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
@@ -199,9 +227,9 @@ postulate
 
 {-# REWRITE AP-pop #-}
 
--- We can also prove that all the pieces of the original ▸-only
--- definition hold.  In fact, we need to do this before we can assert
--- that AP computes on top.
+-- Note that AP-pop is "one piece" of the originally proposed ▸-only
+-- definition of AP.  Before we can postulate ap-top, we need to also
+-- prove that all the other pieces of that definition also hold.
 
 top-pop-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
   top (pop (pop (AP f γ))) ≡ coe← (cong A (AP₀ (λ x → pop (f x)) γ)) (top (f (γ ₀)))
@@ -257,15 +285,14 @@ postulate
 -- Note that we don't have rules for computing ap-top on "dependent
 -- telescopes".  Hopefully this won't ever occur.
 
--- Combining ap-top and AP-pop with AP on the identity, we will be
--- able to compute ap on any (De Bruijn) variable.  It may seem like
--- this should be provable at this point, but I don't think it is.
 postulate
   AP-idmap : {Δ : Tel} (δ : el (ID Δ)) → AP {Δ} {Δ} (λ w → w) δ ≡ δ
 
 {-# REWRITE AP-idmap #-}
 
--- However, we can make it reduce away on endpoints.
+-- It may seem like AP-idmap this should be provable, but I don't
+-- think it is, because of how we've restricted AP to compute only on
+-- terms like ∷ and pop.  However, we can make it reduce on endpoints.
 AP-idmap₀ : {Δ : Tel} (δ : el (ID Δ)) → cong _₀ (AP-idmap δ) ≡ reflᵉ
 AP-idmap₀ δ = axiomK
 
