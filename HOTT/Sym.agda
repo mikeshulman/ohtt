@@ -60,64 +60,247 @@ postulate
 SYM ε δ = []
 SYM (Δ ▸ A) δ =
   sq∷ A (SYM Δ (popsq δ))
-  {coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)}
-  {coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)}
-  (coe← (Id′≡ A (SYM₀₂ (popsq δ))
-                (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)) (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
-                (top₂₀ δ))
-  {coe← (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)}
-  {coe← (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)}
-  (coe← (Id′≡ A (SYM₁₂ (popsq δ))
-                (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)) (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)))
-                (top₂₁ δ))
-  (coe← (Id′≡ A (SYM₂₀ (popsq δ))
-                (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)) (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)))
-                (top₀₂ δ))
-  (coe← (Id′≡ A (SYM₂₁ (popsq δ))
-                (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)) (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)))
-                (top₁₂ δ))
-  {!sym A (popsq δ) (top₀₂ δ) (top₁₂ δ) (top₂₀ δ) (top₂₁ δ) (top₂₂ δ)!}
+    {coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)}
+    {coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)}
+    (coe← (Id′≡ A (SYM₀₂ (popsq δ)) (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)) (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
+          (top₂₀ δ))
+    {coe← (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)}
+    {coe← (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)}
+    (coe← (Id′≡ A (SYM₁₂ (popsq δ)) (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)) (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)))
+          (top₂₁ δ))
+    (coe← (Id′≡ A (SYM₂₀ (popsq δ)) (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)) (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)))
+          (top₀₂ δ))
+    (coe← (Id′≡ A (SYM₂₁ (popsq δ)) (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)) (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)))
+          (top₁₂ δ))
+    (sym A (popsq δ) (top₀₂ δ) (top₁₂ δ) (top₂₀ δ) (top₂₁ δ) (top₂₂ δ))
 
 -- It remains to observe that this definition indeed transposes the boundary.
 
 SYM₀₀ {ε} δ = reflᵉ
-SYM₀₀ {Δ ▸ A} δ = ∷≡ʰ A (SYM₀₀ (popsq δ)) (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
+SYM₀₀ {Δ ▸ A} δ = ∷≡ A (SYM₀₀ (popsq δ)) (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
 
 SYM₀₁ {ε} δ = reflᵉ
-SYM₀₁ {Δ ▸ A} δ = ∷≡ʰ A (SYM₀₁ (popsq δ)) (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))
+SYM₀₁ {Δ ▸ A} δ = ∷≡ A (SYM₀₁ (popsq δ)) (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))
 
 SYM₀₂ {ε} δ = reflᵉ
-SYM₀₂ {Δ ▸ A} δ = {!∷≡ʰ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
-                     {(SYM Δ (popsq δ) ₀₂) ∷ (coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
-                                           ∷ (coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))}
-                     {(popsq δ ₂₀) ∷ top₀₀ δ ∷ top₁₀ δ}
-                     {!∷≡ʰ (λ y → A (pop y ₀))
-                       (∷≡ʰ (λ y → A (y ₁))
-                         (SYM₀₂ (popsq δ))
-                         {!coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)!})
-                       {!coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)!}!}
-                     {(coe← (Id′≡ A (SYM₀₂ (popsq δ))
-                            (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)) (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
-                            (top₂₀ δ))}
-                     {top₂₀ δ}
-                     {!coe←≡ʰ (Id′≡ A (SYM₀₂ (popsq δ))
-                                   (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)) (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
-                             (top₂₀ δ)!}!}
+SYM₀₂ {Δ ▸ A} δ =
+  ∷≡ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
+      -- {AP (λ z → pop (pop (pop z)) ₀) (SYM (Δ ▸ A) δ)
+      --   ∷ coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)
+      --   ∷ coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)}
+      -- {pop (δ ₂₀)}
+      (∷≡ (λ y → A (pop y ₁))
+           -- {AP (λ z → pop (pop (pop z)) ₀) (SYM (Δ ▸ A) δ)
+           --   ∷ coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)}
+           -- {pop (pop (δ ₂₀))}
+           (∷≡ (λ y → A (y ₀))
+                -- {AP (λ z → pop (pop (pop z)) ₀) (SYM (Δ ▸ A) δ)}
+                -- {pop (pop (pop (δ ₂₀)))}
+                  (rev (AP-AP (λ z → pop (pop (pop z))) _₀ (SYM (Δ ▸ A) δ)) • SYM₀₂ (popsq δ))
+                -- {coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)}
+                -- {top (pop (pop (δ ₂₀)))}
+                (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)))
+           -- {coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)}
+           -- {top (pop (δ ₂₀))}
+           (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
+      -- {coe→ (Id′-AP (λ z → pop (pop (pop z)) ₀)
+      --               (SYM (Δ ▸ A) δ) A
+      --               (coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
+      --               (coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
+      --   (coe← (Id′-AP (λ x → pop (pop (pop x)))
+      --                 (SYM (Δ ▸ A) δ) (λ z → A (z ₀))
+      --                 (coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
+      --                 (coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
+      --     (coe← (Id′-AP _₀ (SYM Δ (popsq δ)) A
+      --                   (coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
+      --                   (coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
+      --       (coe← (Id′≡ A (SYM₀₂ (popsq δ))
+      --             (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
+      --             (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
+      --         (top₂₀ δ))))}
+      -- {top (δ ₂₀)}
+      (coe→←←←≡ʰ
+        (Id′-AP (λ z → pop (pop (pop z)) ₀)
+          (SYM (Δ ▸ A) δ) A
+          (coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
+          (coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
+        (Id′-AP (λ x → pop (pop (pop x)))
+          (SYM (Δ ▸ A) δ) (λ z → A (z ₀))
+          (coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
+          (coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
+        (Id′-AP _₀ (SYM Δ (popsq δ)) A
+          (coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
+          (coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
+        (Id′≡ A (SYM₀₂ (popsq δ))
+          (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
+          (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
+        (top₂₀ δ))
 
 SYM₁₀ {ε} δ = reflᵉ
-SYM₁₀ {Δ ▸ A} δ = ∷≡ʰ A (SYM₁₀ (popsq δ)) (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ))
+SYM₁₀ {Δ ▸ A} δ = ∷≡ A (SYM₁₀ (popsq δ)) (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ))
 
 SYM₁₁ {ε} δ = reflᵉ
-SYM₁₁ {Δ ▸ A} δ = ∷≡ʰ A (SYM₁₁ (popsq δ)) (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ))
+SYM₁₁ {Δ ▸ A} δ = ∷≡ A (SYM₁₁ (popsq δ)) (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ))
 
 SYM₁₂ {ε} δ = reflᵉ
-SYM₁₂ {Δ ▸ A} δ = {!!}
+SYM₁₂ {Δ ▸ A} δ =
+  ∷≡ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
+    -- {AP (λ z → pop (pop (pop z)) ₁) (SYM (Δ ▸ A) δ)
+    --   ∷ coe← (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)
+    --   ∷ coe← (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)}
+    -- {pop (δ ₂₁)}
+    (∷≡ (λ y → A (pop y ₁))
+      -- {AP (λ z → pop (pop (pop z)) ₁) (SYM (Δ ▸ A) δ)
+      --   ∷ coe← (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)}
+      -- {pop (pop (δ ₂₁))}
+      (∷≡ (λ y → A (y ₀))
+        -- {AP (λ z → pop (pop (pop z)) ₁) (SYM (Δ ▸ A) δ)}
+        -- {pop (pop (pop (δ ₂₁)))}
+          (rev (AP-AP (λ z → pop (pop (pop z))) _₁ (SYM (Δ ▸ A) δ)) • SYM₁₂ (popsq δ))
+        -- {coe← (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)}
+        -- {top (pop (pop (δ ₂₁)))}
+        (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)))
+      -- {coe← (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)}
+      -- {top (pop (δ ₂₁))}
+      (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)))
+    -- {coe→ (Id′-AP (λ z → pop (pop (pop z)) ₁) (SYM (Δ ▸ A) δ) A
+    --         (coe← (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ))
+    --         (coe← (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)))
+    --  (coe← (Id′-AP (λ x → pop (pop x)) (SYM (Δ ▸ A) δ) (λ z → A (pop z ₁))
+    --         (coe← (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ))
+    --         (coe← (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)))
+    --  (coe← (Id′-AP≡ (λ x → pop x ₁)
+    --      (SYM Δ (popsq δ) ∷ coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ) ∷
+    --       coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)
+    --       ∷
+    --       frob₀₂ A (SYM Δ (popsq δ))
+    --       (coe←
+    --        (Id′≡ A (SYM₀₂ (popsq δ))
+    --         (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
+    --         (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
+    --        (top₂₀ δ)))
+    --      (SYM Δ (popsq δ) ₁₂)
+    --      (AP-AP pop _₁
+    --       (SYM Δ (popsq δ) ∷ coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ) ∷
+    --        coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)
+    --        ∷
+    --        frob₀₂ A (SYM Δ (popsq δ))
+    --        (coe←
+    --         (Id′≡ A (SYM₀₂ (popsq δ))
+    --          (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
+    --          (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
+    --         (top₂₀ δ))))
+    --      A reflʰ reflʰ)
+    --  (coe← (Id′≡ A (SYM₁₂ (popsq δ))
+    --              (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ))
+    --              (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)))
+    --        (top₂₁ δ))))}
+    -- {top (δ ₂₁)}
+    (coe→←←←≡ʰ
+      (Id′-AP (λ z → pop (pop (pop z)) ₁) (SYM (Δ ▸ A) δ) A
+        (coe← (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ))
+        (coe← (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)))
+      (Id′-AP (λ x → pop (pop x)) (SYM (Δ ▸ A) δ) (λ z → A (pop z ₁))
+        (coe← (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ))
+        (coe← (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)))
+      (Id′-AP≡ (λ x → pop x ₁)
+         (SYM Δ (popsq δ) ∷ coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ) ∷
+          coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)
+          ∷
+          frob₀₂ A (SYM Δ (popsq δ))
+          (coe←
+           (Id′≡ A (SYM₀₂ (popsq δ))
+            (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
+            (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
+           (top₂₀ δ)))
+         (SYM Δ (popsq δ) ₁₂)
+         (AP-AP pop _₁
+          (SYM Δ (popsq δ) ∷ coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ) ∷
+           coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)
+           ∷
+           frob₀₂ A (SYM Δ (popsq δ))
+           (coe←
+            (Id′≡ A (SYM₀₂ (popsq δ))
+             (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
+             (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
+            (top₂₀ δ))))
+         A reflʰ reflʰ)
+      (Id′≡ A (SYM₁₂ (popsq δ))
+          (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ))
+          (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)))
+      (top₂₁ δ))
 
 SYM₂₀ {ε} δ = reflᵉ
-SYM₂₀ {Δ ▸ A} δ = {!!}
+SYM₂₀ {Δ ▸ A} δ =
+  ∷≡ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
+    {(SYM Δ (popsq δ) ₀)
+      ∷ (coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
+      ∷ (coe← (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ))}
+    {pop (δ ₀₂)}
+    (∷≡ (λ y → A (pop y ₁))
+      {(SYM Δ (popsq δ) ₀)
+        ∷ (coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)) }
+      {pop (pop (δ ₀₂))}
+      (∷≡ (λ y → A (y ₀))
+        {SYM Δ (popsq δ) ₀}
+        {pop (pop (pop (δ ₀₂)))}
+          (SYM₂₀ (popsq δ) • (AP-AP (λ z → pop (pop (pop z))) _₀ δ))
+        {coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)}
+        {top (pop (pop (δ ₀₂)))}
+        (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)))
+      {coe← (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)}
+      {top (pop (δ ₀₂))}
+      (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)))
+    {coe← (Id′≡ A (SYM₂₀ (popsq δ))
+                    (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
+                    (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)))
+              (top₀₂ δ)}
+    {top (δ ₀₂)}
+    (coe←≡ʰ
+      (Id′≡ A (SYM₂₀ (popsq δ))
+       (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
+       (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)))
+      (top₀₂ δ)
+    •ʰ
+    -- top₀₂ δ ≡ʰ top (δ ₀₂)
+     {!coe→≡ʰ (Id′-AP (_₀ {Δ}) (popsq δ) A (top₀₀ δ) (top₀₁ δ)) (top (δ ₀₂))!})
+
 
 SYM₂₁ {ε} δ = reflᵉ
-SYM₂₁ {Δ ▸ A} δ = {!!}
+SYM₂₁ {Δ ▸ A} δ = 
+  ∷≡ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
+    {(SYM Δ (popsq δ) ₁)
+      ∷ (coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))
+      ∷ (coe← (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ))}
+    {pop (δ ₁₂)}
+    (∷≡ (λ y → A (pop y ₁))
+      {(SYM Δ (popsq δ) ₁)
+        ∷ (coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)) }
+      {pop (pop (δ ₁₂))}
+      (∷≡ (λ y → A (y ₀))
+        {SYM Δ (popsq δ) ₁}
+        {pop (pop (pop (δ ₁₂)))}
+          (SYM₂₁ (popsq δ) • (AP-AP (λ z → pop (pop (pop z))) _₁ δ))
+        {coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)}
+        {top (pop (pop (δ ₁₂)))}
+        (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
+      {coe← (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)}
+      {top (pop (δ ₁₂))}
+      (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)))
+    {coe← (Id′≡ A (SYM₂₁ (popsq δ))
+                    (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))
+                    (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)))
+              (top₁₂ δ)}
+    {top (δ ₁₂)}
+    (coe←≡ʰ
+      (Id′≡ A (SYM₂₁ (popsq δ))
+       (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))
+       (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)))
+      (top₁₂ δ)
+    •ʰ
+    -- top₁₂ δ ≡ʰ top (δ ₁₂)
+     {!coe→≡ʰ (Id′-AP (_₀ {Δ}) (popsq δ) A (top₁₀ δ) (top₁₁ δ)) (top (δ ₁₂)) ?!})
+
 
 -- {-# REWRITE SYM₀₀ SYM₀₁ SYM₀₂ SYM₁₀ SYM₁₁ SYM₂₀ SYM₁₂ SYM₂₁ #-}
 
