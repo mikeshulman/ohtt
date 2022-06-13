@@ -16,7 +16,7 @@ ID : Tel → Tel
 -- original telescope.
 _₀ : {Δ : Tel} → el (ID Δ) → el Δ
 _₁ : {Δ : Tel} → el (ID Δ) → el Δ
-infix 10 _₀ _₁
+infix 40 _₀ _₁
 
 -- They are also mutual with the (postulated) dependent/heterogeneous
 -- identity *types* that they are composed of.
@@ -29,10 +29,10 @@ ID ε = ε
 ID (Δ ▸ A) = ID Δ ▸ (λ δ → A (δ ₀)) ▸ (λ δa → A ((pop δa)₁)) ▸ (λ δaa → Id′ A (pop (pop δaa)) (top (pop δaa)) (top δaa))
 
 _₀ {ε} _ = []
-_₀ {Δ ▸ A} δ = ((pop (pop (pop δ)))₀) ∷ top (pop (pop δ))
+_₀ {Δ ▸ A} δ = (pop (pop (pop δ)))₀ ∷ top (pop (pop δ))
 
 _₁ {ε} _ = []
-_₁ {Δ ▸ A} δ = ((pop (pop (pop δ)))₁) ∷ top (pop δ)
+_₁ {Δ ▸ A} δ = (pop (pop (pop δ)))₁ ∷ top (pop δ)
 
 -- Congruence for dependent identity types
 Id′≡ : {Δ : Tel} (A : el Δ → Type)
