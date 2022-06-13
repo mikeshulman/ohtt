@@ -17,7 +17,7 @@ SQ Δ = ID (ID Δ)
 
 -- It's also easy to define the pieces of the boundary of such a square.
 
-infix 10 _₀₀ _₀₁ _₀₂ _₁₀ _₁₁ _₁₂ _₂₀ _₂₁
+infix 40 _₀₀ _₀₁ _₀₂ _₁₀ _₁₁ _₁₂ _₂₀ _₂₁
 
 -- Beta-reducing by hand, we get:
 
