@@ -228,6 +228,30 @@ postulate
       (coe→ (cong2 (Id′ A (pop (pop (pop (AP f γ))))) (top-pop-pop-AP A f γ) (top-pop-AP A f γ))
         (top (AP f γ)))
 
+-- Now we can explain why the first argument of Σᵉ is a Tel rather
+-- than a Typeᵉ: it enables ap-top to fire as a rewrite rule.  Look at
+-- the LHS of ap-top, with implicit arguments included:
+
+--  ap {Γ} {λ x → A (pop {Δ} {A} (f x))} (λ x → top {Δ} {A} (f x)) γ ≡
+
+-- For the rewrite rule to fire, Agda has to be able to recognize
+-- something of this form *and* deduce the values of all the arguments
+-- (Γ, Δ, A, f, and γ) by higher-order pattern unification.  The way
+-- we've set things up, this works because all of these arguments
+-- appear bare (or, in the case of f, eta-expanded) as an argument of
+-- a postulate in the above LHS.
+
+-- However, if the first argument of Σᵉ were a Typeᵉ instead of a Tel,
+-- and (el (Δ ▸ A)) reduced to (Σᵉ (el Δ) A) instead of (Σᵉ Δ A), then
+-- the LHS of ap-top would be
+
+--  ap {Γ} {λ x → A (pop {el Δ} {A} (f x))} (λ x → top {el Δ} {A} (f x)) γ ≡
+
+-- Note that Δ now only appears inside of el.  Thus, this fails to
+-- match instances where Δ is a concrete telescope, since then (el Δ)
+-- would have been reduced to some iterated Σᵉ-exotype in which Δ
+-- doesn't appear explicitly.
+
 {-# REWRITE ap-top #-}
 
 -- Note that we don't have rules for computing ap-top on "dependent
