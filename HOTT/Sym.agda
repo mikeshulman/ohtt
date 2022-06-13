@@ -68,19 +68,34 @@ SYM (Δ ▸ A) δ =
 -- It remains to observe that this definition indeed transposes the boundary.
 
 SYM₀₀ {ε} δ = reflᵉ
-SYM₀₀ {Δ ▸ A} δ = {!!}
+SYM₀₀ {Δ ▸ A} δ = ∷≡ʰ A (SYM₀₀ (popsq δ)) (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
 
 SYM₀₁ {ε} δ = reflᵉ
-SYM₀₁ {Δ ▸ A} δ = {!!}
+SYM₀₁ {Δ ▸ A} δ = ∷≡ʰ A (SYM₀₁ (popsq δ)) (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))
 
 SYM₀₂ {ε} δ = reflᵉ
-SYM₀₂ {Δ ▸ A} δ = {!!}
+SYM₀₂ {Δ ▸ A} δ = {!∷≡ʰ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
+                     {(SYM Δ (popsq δ) ₀₂) ∷ (coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
+                                           ∷ (coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))}
+                     {(popsq δ ₂₀) ∷ top₀₀ δ ∷ top₁₀ δ}
+                     {!∷≡ʰ (λ y → A (pop y ₀))
+                       (∷≡ʰ (λ y → A (y ₁))
+                         (SYM₀₂ (popsq δ))
+                         {!coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)!})
+                       {!coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)!}!}
+                     {(coe← (Id′≡ A (SYM₀₂ (popsq δ))
+                            (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)) (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
+                            (top₂₀ δ))}
+                     {top₂₀ δ}
+                     {!coe←≡ʰ (Id′≡ A (SYM₀₂ (popsq δ))
+                                   (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)) (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
+                             (top₂₀ δ)!}!}
 
 SYM₁₀ {ε} δ = reflᵉ
-SYM₁₀ {Δ ▸ A} δ = {!!}
+SYM₁₀ {Δ ▸ A} δ = ∷≡ʰ A (SYM₁₀ (popsq δ)) (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ))
 
 SYM₁₁ {ε} δ = reflᵉ
-SYM₁₁ {Δ ▸ A} δ = {!!}
+SYM₁₁ {Δ ▸ A} δ = ∷≡ʰ A (SYM₁₁ (popsq δ)) (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ))
 
 SYM₁₂ {ε} δ = reflᵉ
 SYM₁₂ {Δ ▸ A} δ = {!!}
