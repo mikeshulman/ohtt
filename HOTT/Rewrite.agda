@@ -32,8 +32,8 @@ cong2 f reflᵉ reflᵉ = reflᵉ
 cong3 : {A B C D : Typeᵉ} (f : A → B → C → D) {x y : A} (p : x ≡ y) {u v : B} (q : u ≡ v) {c d : C} (r : c ≡ d) → f x u c ≡ f y v d
 cong3 f reflᵉ reflᵉ reflᵉ = reflᵉ
 
-≡Type→≡Typeᵉ : {A B : Type} (e : A ≡ B) → _≡_ {Typeᵉ} A B
-≡Type→≡Typeᵉ reflᵉ = reflᵉ
+≡Type→≡ᵉ : {A B : Type} (e : A ≡ B) → _≡_ {Typeᵉ} A B
+≡Type→≡ᵉ reflᵉ = reflᵉ
 
 -- {A : Type} (B : A → Type) {x y : A} (p : x ≡ y) (u : B x) → B y
 coe→ : {A B : Type} → (A ≡ B) → A → B
