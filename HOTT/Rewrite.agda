@@ -119,6 +119,10 @@ scong2ʰ : {A B : Typeᵉ} {C : A → B → Typeᵉ} (f : (x : A) (y : B) → C 
   {a a' : A} (u : a ≡ a') {b b' : B} (v : b ≡ b') → f a b ≡ʰ f a' b'
 scong2ʰ f reflᵉ reflᵉ = reflʰ
 
+scong2dʰ : {A : Typeᵉ} {B : A → Typeᵉ} {C : (x : A) → B x → Typeᵉ} (f : (x : A) (y : B x) → C x y)
+  {a a' : A} (u : a ≡ a') {b : B a} {b' : B a'} (v : b ≡ʰ b') → f a b ≡ʰ f a' b'
+scong2dʰ f reflᵉ reflʰ = reflʰ
+
 congʰ : {A B A' B' : Typeᵉ} {f : A → B} {f' : A' → B'} (u : A ≡ A') (v : B ≡ B') (e : f ≡ʰ f')
   {x : A} {x' : A'} (p : x ≡ʰ x') → f x ≡ʰ f' x'
 congʰ reflᵉ reflᵉ reflʰ reflʰ = reflʰ
@@ -133,6 +137,16 @@ cong2ʰ reflᵉ reflᵉ reflᵉ reflʰ reflʰ reflʰ = reflʰ
 
 axiomKʰ : {A : Typeᵉ} {a : A} {p : a ≡ʰ a} → p ≡ reflʰ
 axiomKʰ {p = reflʰ} = reflᵉ
+
+postulate
+  funextʰ : {A : Typeᵉ} {B : A → Typeᵉ} {A' : Typeᵉ} {B' : A' → Typeᵉ}
+    {f : (x : A) → B x} {f' : (x : A') → B' x} (p : (x : A) (x' : A') → (x ≡ʰ x') → f x ≡ʰ f' x') →
+    f ≡ʰ f'
+  funextʰ-reflʰ : {A : Typeᵉ} {B : A → Typeᵉ} (f : (x : A) → B x)
+    (p : (x x' : A) → (x ≡ʰ x') → f x ≡ʰ f x') →
+    funextʰ p ≡ reflʰ
+
+{-# REWRITE funextʰ-reflʰ #-}
 
 coe→≡ʰ : {A B : Type} (e : A ≡ B) (a : A) → coe→ e a ≡ʰ a
 coe→≡ʰ reflᵉ _ = reflʰ
