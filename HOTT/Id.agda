@@ -151,8 +151,7 @@ Id′-AP≡ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (δ : el (ID
     (A : el Δ → Type) {a₀ : A (f (γ ₀))} {a₁ : A (f (γ ₁))} {b₀ : A (δ ₀)} {b₁ : A (δ ₁)}
     (e₀ : a₀ ≡ʰ b₀) (e₁ : a₁ ≡ʰ b₁) →
     Id′ (λ w → A (f w)) γ a₀ a₁ ≡ Id′ A δ b₀ b₁
-Id′-AP≡ f γ .(AP f γ) reflᵉ A {a₀} {a₁} {b₀} {b₁} e₀ e₁ =
-  Id′-AP f γ A a₀ a₁ • cong2 (Id′ A (AP f γ)) (≡ʰ→≡ e₀) (≡ʰ→≡ e₁)
+Id′-AP≡ f γ .(AP f γ) reflᵉ A {a₀} {a₁} .{a₀} .{a₁} reflʰ reflʰ = Id′-AP f γ A a₀ a₁
 
 ------------------------------
 -- Functoriality of ap and AP

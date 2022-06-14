@@ -122,3 +122,7 @@ coe←ᵉ≡ʰ reflᵉ _ = reflʰ
 coe→←←←≡ʰ : {A B C D E : Type} (u : A ≡ B) (v : A ≡ C) (w : C ≡ D) (x : D ≡ E) (e : E) →
   coe→ u (coe← v (coe← w (coe← x e))) ≡ʰ e
 coe→←←←≡ʰ reflᵉ reflᵉ reflᵉ reflᵉ _ = reflʰ
+
+coe→≡ʰcoe→← : {A B C D : Type} (u : A ≡ B) (v : C ≡ D) (w : C ≡ A) (a : A) →
+  coe→ u a ≡ʰ (coe→ v (coe← w a))
+coe→≡ʰcoe→← reflᵉ reflᵉ reflᵉ a = reflʰ
