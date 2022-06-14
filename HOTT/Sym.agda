@@ -83,7 +83,7 @@ SYM₀₁ {ε} δ = reflᵉ
 SYM₀₁ {Δ ▸ A} δ = ∷≡ A (SYM₀₁ (popsq δ)) (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))
 
 SYM₀₂ {ε} δ = reflᵉ
-SYM₀₂ {Δ ▸ A} δ =
+SYM₀₂ {Δ ▸ A} δ = {!
   ∷≡ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
       -- {AP (λ z → pop (pop (pop z)) ₀) (SYM (Δ ▸ A) δ)
       --   ∷ coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)
@@ -134,7 +134,7 @@ SYM₀₂ {Δ ▸ A} δ =
         (Id′≡ A (SYM₀₂ (popsq δ))
           (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
           (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
-        (top₂₀ δ))
+        (top₂₀ δ)) !}
 
 SYM₁₀ {ε} δ = reflᵉ
 SYM₁₀ {Δ ▸ A} δ = ∷≡ A (SYM₁₀ (popsq δ)) (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ))
@@ -143,7 +143,7 @@ SYM₁₁ {ε} δ = reflᵉ
 SYM₁₁ {Δ ▸ A} δ = ∷≡ A (SYM₁₁ (popsq δ)) (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ))
 
 SYM₁₂ {ε} δ = reflᵉ
-SYM₁₂ {Δ ▸ A} δ =
+SYM₁₂ {Δ ▸ A} δ = {!
   ∷≡ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
     -- {AP (λ z → pop (pop (pop z)) ₁) (SYM (Δ ▸ A) δ)
     --   ∷ coe← (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)
@@ -228,7 +228,39 @@ SYM₁₂ {Δ ▸ A} δ =
       (Id′≡ A (SYM₁₂ (popsq δ))
           (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ))
           (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)))
-      (top₂₁ δ))
+      (top₂₁ δ)) !}
+
+{-
+coe→≡ʰcoe→←→← : {A B C D E F : Type} (u : A ≡ B) (v : C ≡ A) (w : C ≡ D) (x : E ≡ D) (y : E ≡ F) (a : A) →
+  coe→ u a ≡ʰ coe→ y (coe← x (coe→ w (coe← v a)))
+coe→≡ʰcoe→←→← reflᵉ reflᵉ reflᵉ reflᵉ reflᵉ a = reflʰ
+-}
+
+coe→≡ʰcoe→← : {A B C D : Type} (u : A ≡ B) (v : C ≡ A) (w : C ≡ D) (a : A) →
+  coe→ u a ≡ʰ (coe→ w (coe← v a))
+coe→≡ʰcoe→← reflᵉ reflᵉ reflᵉ a = reflʰ
+
+{-
+lem₂₀ : (Δ : Tel) (A : el Δ → Type) (δ : el (SQ (Δ ▸ A))) → -- top₀₂ δ ≡ʰ top (δ ₀₂)
+  coe→ (Id′-AP (_₀ {Δ}) (popsq δ) A (top₀₀ δ) (top₀₁ δ)) (top (pop (pop (pop (pop (pop (pop δ)))))))
+  ≡ʰ
+  coe→ (Id′-AP (λ x → (pop (x ₀))) δ A (top (δ ₀₀)) (top (δ ₀₁)))
+       -- (ap (λ x → top (pop (pop x))) δ)
+       (coe← (Id′-AP (λ x → pop (pop (pop x))) δ (λ z → A (z ₀))
+                     (top (pop (pop (pop (pop (pop (pop (pop (pop δ)))))))))
+                     (top (pop (pop (pop (pop (pop (pop (pop δ))))))))
+                     • reflᵉ)   -- TODO: This will go away if we redefine Id′-AP≡ as in Temp
+             (top (pop (pop (pop (pop (pop (pop δ))))))))
+lem₂₀ Δ A δ =
+  coe→≡ʰcoe→←
+    (Id′-AP (_₀ {Δ}) (popsq δ) A (top₀₀ δ) (top₀₁ δ))
+    (Id′-AP (λ x → pop (pop (pop x))) δ (λ z → A (z ₀))
+            (top (pop (pop (pop (pop (pop (pop (pop (pop δ)))))))))
+            (top (pop (pop (pop (pop (pop (pop (pop δ))))))))
+            • reflᵉ)
+    (Id′-AP (λ x → (pop (x ₀))) δ A (top (δ ₀₀)) (top (δ ₀₁)))
+    (top (pop (pop (pop (pop (pop (pop δ)))))))
+-}    
 
 SYM₂₀ {ε} δ = reflᵉ
 SYM₂₀ {Δ ▸ A} δ =
@@ -262,12 +294,48 @@ SYM₂₀ {Δ ▸ A} δ =
        (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)))
       (top₀₂ δ)
     •ʰ
-    -- top₀₂ δ ≡ʰ top (δ ₀₂)
-     {!coe→≡ʰ (Id′-AP (_₀ {Δ}) (popsq δ) A (top₀₀ δ) (top₀₁ δ)) (top (δ ₀₂))!})
+    coe→≡ʰcoe→←
+    (Id′-AP (_₀ {Δ}) (popsq δ) A (top₀₀ δ) (top₀₁ δ))
+    (Id′-AP (λ x → pop (pop (pop x))) δ (λ z → A (z ₀))
+            (top (pop (pop (pop (pop (pop (pop (pop (pop δ)))))))))
+            (top (pop (pop (pop (pop (pop (pop (pop δ))))))))
+            • reflᵉ)   -- TODO: This will go away if we redefine Id′-AP≡ to destruct its heterogeneous arguments.
+    (Id′-AP (λ x → (pop (x ₀))) δ A (top (δ ₀₀)) (top (δ ₀₁)))
+    (top (pop (pop (pop (pop (pop (pop δ))))))))
 
+{-
+lem₂₁ : (Δ : Tel) (A : el Δ → Type) (δ : el (SQ (Δ ▸ A))) →
+  --top₁₂ δ
+  --unfrob₁₂ A (popsq δ) (top (pop (pop (pop (pop (pop (pop δ))))))) (top (pop (pop (pop δ))))
+  coe→ (Id′-AP≡ (λ x → (pop x) ₁)
+                (popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ top (pop (pop (pop (pop (pop (pop δ)))))))
+                (popsq δ ₁₂)
+                (AP-AP (pop {B = λ x → A (x ₀)}) _₁
+                       (popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ top (pop (pop (pop (pop (pop (pop δ))))))))
+                A reflʰ reflʰ)
+       (top (pop (pop (pop δ))))
+  ≡ʰ
+  -- top (δ ₁₂)
+  -- top (AP (λ x → (pop (pop (pop x)))₁ ∷ top (pop x)) δ)
+  coe→ (Id′-AP (λ x → (pop (pop (pop x)))₁) δ A (top (pop (δ ₀))) (top (pop (δ ₁))))
+       --(ap (λ x → top (pop x)) δ)
+       (coe← -- (Id′-AP≡ (λ x → pop (pop x)) δ (pop (pop (pop (AP pop δ)))) reflᵉ A
+            --       (top-pop-pop-AP A pop δ) (top-pop-AP A pop δ))
+            (Id′-AP (λ x → pop (pop x)) δ (λ x → A (pop x ₁)) (top (pop (δ ₀))) (top (pop (δ ₁))) • reflᵉ)
+            --(top (AP pop δ))
+            (top (pop (pop (pop δ)))))
+lem₂₁ Δ A δ =
+  coe→≡ʰcoe→←
+    (Id′-AP≡ (λ x → (pop x) ₁) (popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ top (pop (pop (pop (pop (pop (pop δ))))))) (popsq δ ₁₂)
+             (AP-AP (pop {B = λ x → A (x ₀)}) _₁ (popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ top (pop (pop (pop (pop (pop (pop δ))))))))
+             A reflʰ reflʰ)
+    (Id′-AP (λ x → pop (pop x)) δ (λ x → A (pop x ₁)) (top (pop (δ ₀))) (top (pop (δ ₁))) • reflᵉ) -- TODO: Will go away
+    (Id′-AP (λ x → (pop (pop (pop x)))₁) δ A (top (pop (δ ₀))) (top (pop (δ ₁))))
+    (top (pop (pop (pop δ))))
+    -}
 
 SYM₂₁ {ε} δ = reflᵉ
-SYM₂₁ {Δ ▸ A} δ = 
+SYM₂₁ {Δ ▸ A} δ =
   ∷≡ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
     {(SYM Δ (popsq δ) ₁)
       ∷ (coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))
@@ -298,8 +366,14 @@ SYM₂₁ {Δ ▸ A} δ =
        (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)))
       (top₁₂ δ)
     •ʰ
-    -- top₁₂ δ ≡ʰ top (δ ₁₂)
-     {!coe→≡ʰ (Id′-AP (_₀ {Δ}) (popsq δ) A (top₁₀ δ) (top₁₁ δ)) (top (δ ₁₂)) ?!})
+    coe→≡ʰcoe→←
+    (Id′-AP≡ (λ x → (pop x) ₁) (popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ top (pop (pop (pop (pop (pop (pop δ))))))) (popsq δ ₁₂)
+             (AP-AP (pop {B = λ x → A (x ₀)}) _₁ (popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ top (pop (pop (pop (pop (pop (pop δ))))))))
+             A reflʰ reflʰ)
+    (Id′-AP (λ x → pop (pop x)) δ (λ x → A (pop x ₁)) (top (pop (δ ₀))) (top (pop (δ ₁)))
+            • reflᵉ) -- TODO: Will go away
+    (Id′-AP (λ x → (pop (pop (pop x)))₁) δ A (top (pop (δ ₀))) (top (pop (δ ₁))))
+    (top (pop (pop (pop δ)))))
 
 
 -- {-# REWRITE SYM₀₀ SYM₀₁ SYM₀₂ SYM₁₀ SYM₁₁ SYM₂₀ SYM₁₂ SYM₂₁ #-}
