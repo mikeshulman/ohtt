@@ -1,5 +1,3 @@
-Move Sq≡ to Square.agda.  We aren't using it, but it shouldn't do any harm to have.
-
 top-pop-pop-REFL should be provable.
 
 Can Id′-AP≡ make the endpoints of the equality of base identifications implicit?

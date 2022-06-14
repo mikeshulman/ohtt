@@ -209,3 +209,17 @@ ulift→Sq : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (δ₂ : el (
   (a₁ a₁' : A δ₁) (a₂ : Id′ A δ₂ a₀ a₁) (a₂' : Id′ A δ₂ a₀ a₁') →
   Sq A (REFL δ₀) (REFL δ₁) δ₂ δ₂ (DEGSQ-LR Δ δ₂) (refl a₀) (utr→ A δ₂ a₀ a₁ a₁' a₂ a₂') a₂ a₂'
 -}
+
+-- Congruence for squares
+Sq≡ : {Δ : Tel} (A : el Δ → Type)
+     {δ δ' : el (SQ Δ)} (e : δ ≡ δ')
+     {a₀₀ : A (δ ₀₀)} {a₀₀' : A (δ' ₀₀)} (e₀₀ : a₀₀ ≡ʰ a₀₀')
+     {a₀₁ : A (δ ₀₁)} {a₀₁' : A (δ' ₀₁)} (e₀₁ : a₀₁ ≡ʰ a₀₁')
+     {a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁} {a₀₂' : Id′ A (δ' ₀₂) a₀₀' a₀₁'} (e₀₂ : a₀₂ ≡ʰ a₀₂')
+     {a₁₀ : A (δ ₁₀)} {a₁₀' : A (δ' ₁₀)} (e₁₀ : a₁₀ ≡ʰ a₁₀')
+     {a₁₁ : A (δ ₁₁)} {a₁₁' : A (δ' ₁₁)} (e₁₁ : a₁₁ ≡ʰ a₁₁')
+     {a₁₂ : Id′ A (δ ₁₂) a₁₀ a₁₁} {a₁₂' : Id′ A (δ' ₁₂) a₁₀' a₁₁'} (e₁₂ : a₁₂ ≡ʰ a₁₂')
+     {a₂₀ : Id′ A (δ ₂₀) a₀₀ a₁₀} {a₂₀' : Id′ A (δ' ₂₀) a₀₀' a₁₀'} (e₂₀ : a₂₀ ≡ʰ a₂₀')
+     {a₂₁ : Id′ A (δ ₂₁) a₀₁ a₁₁} {a₂₁' : Id′ A (δ' ₂₁) a₀₁' a₁₁'} (e₂₁ : a₂₁ ≡ʰ a₂₁') →
+  Sq A δ a₀₂ a₁₂ a₂₀ a₂₁ ≡ Sq A δ' a₀₂' a₁₂' a₂₀' a₂₁'
+Sq≡ A reflᵉ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ = reflᵉ
