@@ -153,7 +153,7 @@ Id′-REFL-reflᵉ A δ a₀ a₁ = reflᵉ
 -- Now we do the same for ap on reflexivity.
 ap-REFL : {Δ : Tel} (A : el Δ → Type) (f : (δ : el Δ) → A δ) (δ : el Δ) →
   ap f (REFL δ) ≡ refl (f δ)
-ap-REFL {Δ} A f δ = ap-AP {ε} (λ _ → δ) f []
+ap-REFL {Δ} A f δ = ≡ʰ→≡ (ap-AP {ε} (λ _ → δ) f [])
 
 AP-REFL : {Δ Θ : Tel} (f : el Δ → el Θ) (δ : el Δ) →
   AP f (REFL δ) ≡ REFL (f δ)
@@ -171,8 +171,8 @@ Id′-AP-CONST f γ A a₀ a₁ = axiomK
 {-# REWRITE Id′-AP-CONST #-}
 
 ap-AP-CONST : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) {A : Type} (g : A) →
-  ap-AP f (λ _ → g) γ ≡ reflᵉ
-ap-AP-CONST f γ g = axiomK
+  ap-AP f (λ _ → g) γ ≡ reflʰ
+ap-AP-CONST f γ g = axiomKʰ
 
 AP-AP-CONST : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) {Θ : Tel} (g : el Θ) →
   AP-AP f (λ _ → g) γ ≡ reflᵉ

@@ -2,9 +2,7 @@ top-pop-pop-REFL should be provable.
 
 Can Id′-AP≡ make the endpoints of the equality of base identifications implicit?
 
-If we ever have to remove the rewrite rules for AP₀ and AP₁, then the version of Id′-AP that's postulated and computes should involve heterogeneous equalities in the endpoints.  Otherwise, the computation rules would involve commuting constructors past coercions along AP₀ and AP₁.  I'm not sure whether this should be literally the current Id′-AP≡, or leave off the equality of base identifications.  Making such a change shouldn't be too invasive, since in either case Id′-AP is the special case of Id′-AP≡ with all refls (only the direction of that equality would change).
-
-Even now, I think ap-AP should postulate a heterogeneous equality, for the same reasons.
+If we ever have to remove the rewrite rules for AP₀ and AP₁, then the version of Id′-AP that's postulated and computes should involve heterogeneous equalities in the endpoints.  Otherwise, the computation rules would involve commuting constructors past coercions along AP₀ and AP₁.  I'm not sure whether this should be literally the current Id′-AP≡, or leave off the equality of base identifications.  Making such a change shouldn't be too invasive, since in either case Id′-AP is the special case of Id′-AP≡ with all refls (only the direction of that equality would change).  This is the same reason that ap-AP is already heterogeneous.
 
 The fact that AP only reduces on ∷, together with eta-contraction for ∷, breaks confluence and subject reduction in the presence of variable functions between telescopes.  Given a variable f : el Γ → el (Δ ▸ A), the term AP (λ x → pop (f x) ∷ top (f x)) γ reduces incompatibly AP-∷ and also by η∷.  But for only concrete telescopes and their elements, I hope it's okay.
 

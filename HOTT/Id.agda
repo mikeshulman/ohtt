@@ -161,7 +161,7 @@ Id′-AP≡ f γ .(AP f γ) reflᵉ A {a₀} {a₁} .{a₀} .{a₁} reflʰ refl�
 -- However, like ap, it should compute on terms, not types.
 postulate
   ap-AP : {Γ Δ : Tel} {A : el Δ → Type} (f : el Γ → el Δ) (g : (x : el Δ) → A x) (γ : el (ID Γ)) →
-    ap g (AP f γ) ≡ coe→ (Id′-AP f γ A (g (f (γ ₀))) (g (f (γ ₁)))) (ap (λ w → g (f w)) γ) 
+    ap g (AP f γ) ≡ʰ ap (λ w → g (f w)) γ
 
 -- From this we can prove the analogous functoriality property for AP,
 -- with some awful wrangling of heterogeneous exo-equality.
@@ -179,10 +179,9 @@ AP-AP-∷ A f g h γ =
                 (AP-AP f g γ)
                 reflʰ)
            reflʰ)
-       (coe→≡ʰ (Id′-AP g (AP f γ) A (h (f (γ ₀))) (h (f (γ ₁)))) _ •ʰ
-       (≡→≡ʰ (ap-AP f h γ) •ʰ
-       (coe→≡ʰ (Id′-AP f γ (λ z → A (g z)) (h (f (γ ₀))) (h (f (γ ₁)))) _ •ʰ
-        revʰ (coe→≡ʰ (Id′-AP (λ x → g (f x)) γ A (h (f (γ ₀))) (h (f (γ ₁)))) _))))
+       (coe→≡ʰ (Id′-AP g (AP f γ) A (h (f (γ ₀))) (h (f (γ ₁)))) _
+       •ʰ ap-AP f h γ
+       •ʰ revʰ (coe→≡ʰ (Id′-AP (λ x → g (f x)) γ A (h (f (γ ₀))) (h (f (γ ₁)))) _))
 
 AP-AP {Θ = ε} f g γ = reflᵉ
 AP-AP {Γ} {Δ} {Θ ▸ A} f g γ = AP-AP-∷ A f (λ x → pop (g x)) (λ x → top (g x)) γ

@@ -9,7 +9,9 @@ open import HOTT.Refl
 open import HOTT.Transport
 open import HOTT.Square
 open import HOTT.Square.Top
--- open import HOTT.Sym
+open import HOTT.Sym
+-- open import HOTT.Sym.Involution
+-- open import HOTT.Sym.ApRefl
 -- open import HOTT.Fill
 open import HOTT.Unit
 open import HOTT.Prod

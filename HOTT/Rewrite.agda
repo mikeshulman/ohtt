@@ -13,6 +13,8 @@ data _≡_ {A : Typeᵉ} (a : A) : A → Typeᵉ where
 
 infix 5 _≡_
 
+infixr 30 _•_ _•ʰ_
+
 {-# BUILTIN REWRITE _≡_ #-}
 
 _•_ : {A : Typeᵉ} {a b c : A} (p : a ≡ b) (q : b ≡ c) → a ≡ c
@@ -106,6 +108,9 @@ revʰ reflʰ = reflʰ
 
 ≡ʰ→≡ : {A : Typeᵉ} {a₀ a₁ : A} → (a₀ ≡ʰ a₁) → (a₀ ≡ a₁)
 ≡ʰ→≡ reflʰ = reflᵉ
+
+axiomKʰ : {A : Typeᵉ} {a : A} {p : a ≡ʰ a} → p ≡ reflʰ
+axiomKʰ {p = reflʰ} = reflᵉ
 
 coe→≡ʰ : {A B : Type} (e : A ≡ B) (a : A) → coe→ e a ≡ʰ a
 coe→≡ʰ reflᵉ _ = reflʰ
