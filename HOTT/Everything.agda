@@ -2,21 +2,18 @@
 
 module HOTT.Everything where
 
-open import HOTT.Rewrite
-open import HOTT.Telescope
-open import HOTT.Id
-open import HOTT.Refl
-open import HOTT.Transport
-open import HOTT.Square
-open import HOTT.Square.Top
-open import HOTT.Sym
--- open import HOTT.Sym.Involution
--- open import HOTT.Sym.ApRefl
--- open import HOTT.Fill
-open import HOTT.Unit
-open import HOTT.Prod
-open import HOTT.Sigma
-open import HOTT.Pi
-open import HOTT.Arrow
-open import HOTT.Universe
-open import HOTT.Test
+import HOTT.Rewrite
+import HOTT.Telescope
+import HOTT.Id
+import HOTT.Refl
+import HOTT.Transport
+import HOTT.Square
+import HOTT.Sym
+-- import HOTT.Fill
+import HOTT.Unit
+import HOTT.Prod
+import HOTT.Sigma
+import HOTT.Pi
+import HOTT.Arrow
+import HOTT.Universe
+import HOTT.Test
