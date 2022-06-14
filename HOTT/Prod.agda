@@ -57,6 +57,33 @@ postulate
 
 -- TODO: compute ap-AP on _,_ and fst and snd?
 
+-- We need a sort of "cong2" for heterogeneous equality.  We have two
+-- different instances of _,_ on both sides, so we need to identify
+-- them with each other somehow.  But we can't seemingly prove that by
+-- eliminating the assumed heterogeneous equalities of inputs to make
+-- the domain types equal, since those aren't generic over *exo-types*
+-- so the eliminator of ≡ʰ doesn't apply.  It seems that Agda does
+-- allow us to eliminate ≡ʰ between two elements of the *same*,
+-- *fixed* (non-generic), type, but not between two different fixed
+-- types.  We also have to mediate between equality of types and
+-- equality of exotypes.
+postulate
+  ap-AP, : {Γ Δ : Tel} {A B : el Δ → Type} (f : el Γ → el Δ) (g : (x : el Δ) → A x) (h : (x : el Δ) → B x) (γ : el (ID Γ)) →
+    ap-AP f (λ x → (g x , h x)) γ ≡
+    cong2ʰ {f = _,_ {Id′ {Δ} (λ z → A z) (AP {Γ} {Δ} f γ) (g (f (_₀ {Γ} γ))) (g (f (_₁ {Γ} γ)))}
+                    {Id′ {Δ} (λ z → B z) (AP {Γ} {Δ} f γ) (h (f (_₀ {Γ} γ))) (h (f (_₁ {Γ} γ)))}}
+           {f' = _,_ {Id′ {Γ} (λ z → A (f z)) γ (g (f (_₀ {Γ} γ))) (g (f (_₁ {Γ} γ)))}
+                     {Id′ {Γ} (λ z → B (f z)) γ (h (f (_₀ {Γ} γ))) (h (f (_₁ {Γ} γ)))}}
+           (rev (≡Type→≡Typeᵉ (Id′-AP f γ A (g (f (γ ₀))) (g (f (γ ₁))))))
+           (rev (≡Type→≡Typeᵉ (Id′-AP f γ B (h (f (γ ₀))) (h (f (γ ₁))))))
+           (rev (≡Type→≡Typeᵉ (cong2 _×_ (Id′-AP f γ A (g (f (γ ₀))) (g (f (γ ₁))))
+                                         (Id′-AP f γ B (h (f (γ ₀))) (h (f (γ ₁)))))))
+           (scong2ʰ (λ A B → _,_ {A} {B}) (rev (Id′-AP f γ A (g (f (γ ₀))) (g (f (γ ₁)))))
+                                          (rev (Id′-AP f γ B (h (f (γ ₀))) (h (f (γ ₁))))))
+           (ap-AP f g γ) (ap-AP f h γ)
+
+{-# REWRITE ap-AP, #-}
+
 ----------------------------------------
 -- Transport in product types
 ----------------------------------------

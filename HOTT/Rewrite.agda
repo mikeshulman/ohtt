@@ -32,6 +32,9 @@ cong2 f reflᵉ reflᵉ = reflᵉ
 cong3 : {A B C D : Typeᵉ} (f : A → B → C → D) {x y : A} (p : x ≡ y) {u v : B} (q : u ≡ v) {c d : C} (r : c ≡ d) → f x u c ≡ f y v d
 cong3 f reflᵉ reflᵉ reflᵉ = reflᵉ
 
+≡Type→≡Typeᵉ : {A B : Type} (e : A ≡ B) → _≡_ {Typeᵉ} A B
+≡Type→≡Typeᵉ reflᵉ = reflᵉ
+
 -- {A : Type} (B : A → Type) {x y : A} (p : x ≡ y) (u : B x) → B y
 coe→ : {A B : Type} → (A ≡ B) → A → B
 coe→ reflᵉ u = u
@@ -105,6 +108,25 @@ reflʰ •ʰ reflʰ = reflʰ
 
 revʰ : {A B : Typeᵉ} {a : A} {b : B} → (a ≡ʰ b) → (b ≡ʰ a)
 revʰ reflʰ = reflʰ
+
+≡ʰ→≡Typeᵉ : {A B : Typeᵉ} {a : A} {b : B} (e : a ≡ʰ b) → A ≡ B
+≡ʰ→≡Typeᵉ reflʰ = reflᵉ
+
+scongʰ : {A : Typeᵉ} {B : A → Typeᵉ} (f : (x : A) → B x) {a a' : A} (e : a ≡ a') → f a ≡ʰ f a'
+scongʰ f reflᵉ = reflʰ
+
+scong2ʰ : {A B : Typeᵉ} {C : A → B → Typeᵉ} (f : (x : A) (y : B) → C x y)
+  {a a' : A} (u : a ≡ a') {b b' : B} (v : b ≡ b') → f a b ≡ʰ f a' b'
+scong2ʰ f reflᵉ reflᵉ = reflʰ
+
+congʰ : {A B A' B' : Typeᵉ} {f : A → B} {f' : A' → B'} (u : A ≡ A') (v : B ≡ B') (e : f ≡ʰ f')
+  {x : A} {x' : A'} (p : x ≡ʰ x') → f x ≡ʰ f' x'
+congʰ reflᵉ reflᵉ reflʰ reflʰ = reflʰ
+
+cong2ʰ : {A B C A' B' C' : Typeᵉ} {f : A → B → C} {f' : A' → B' → C'}
+  (u : A ≡ A') (v : B ≡ B') (w : C ≡ C') (e : f ≡ʰ f')
+  {x : A} {x' : A'} (p : x ≡ʰ x') {y : B} {y' : B'} (q : y ≡ʰ y') → f x y ≡ʰ f' x' y'
+cong2ʰ reflᵉ reflᵉ reflᵉ reflʰ reflʰ reflʰ = reflʰ
 
 ≡ʰ→≡ : {A : Typeᵉ} {a₀ a₁ : A} → (a₀ ≡ʰ a₁) → (a₀ ≡ a₁)
 ≡ʰ→≡ reflʰ = reflᵉ
