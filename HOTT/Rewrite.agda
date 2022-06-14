@@ -132,6 +132,13 @@ cong2ʰ : {A B C A' B' C' : Typeᵉ} {f : A → B → C} {f' : A' → B' → C'}
   {x : A} {x' : A'} (p : x ≡ʰ x') {y : B} {y' : B'} (q : y ≡ʰ y') → f x y ≡ʰ f' x' y'
 cong2ʰ reflᵉ reflᵉ reflᵉ reflʰ reflʰ reflʰ = reflʰ
 
+cong2dʰ : {A : Typeᵉ} {B : A → Typeᵉ} {C : (x : A) → B x → Typeᵉ}
+          {A' : Typeᵉ} {B' : A' → Typeᵉ} {C' : (x : A') → B' x → Typeᵉ}
+          {f : (x : A) (y : B x) → C x y} {f' : (x : A') (y : B' x) → C' x y}
+  (u : A ≡ A') (v : B ≡ʰ B') (w : C ≡ʰ C') (e : f ≡ʰ f')
+  {x : A} {x' : A'} (p : x ≡ʰ x') {y : B x} {y' : B' x'} (q : y ≡ʰ y') → f x y ≡ʰ f' x' y'
+cong2dʰ reflᵉ reflʰ reflʰ reflʰ reflʰ reflʰ = reflʰ
+
 ≡ʰ→≡ : {A : Typeᵉ} {a₀ a₁ : A} → (a₀ ≡ʰ a₁) → (a₀ ≡ a₁)
 ≡ʰ→≡ reflʰ = reflᵉ
 

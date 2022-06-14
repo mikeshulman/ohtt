@@ -2,5 +2,5 @@
 
 module HOTT.Prod where
 
-import HOTT.Prod.Base
-import HOTT.Prod.Transport
+open import HOTT.Prod.Base public
+open import HOTT.Prod.Transport public

@@ -1,6 +1,6 @@
 {-# OPTIONS --exact-split --type-in-type --rewriting --two-level --cumulativity --without-K #-}
 
-module HOTT.Sym where
+module HOTT.Sym.Base where
 
 open import HOTT.Rewrite
 open import HOTT.Telescope

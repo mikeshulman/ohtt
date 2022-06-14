@@ -2,5 +2,5 @@
 
 module HOTT.Square where
 
-import HOTT.Square.Base
-import HOTT.Square.Top
+open import HOTT.Square.Base public
+open import HOTT.Square.Top public

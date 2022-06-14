@@ -2,5 +2,5 @@
 
 module HOTT.Arrow where
 
-open import HOTT.Arrow.Base
-open import HOTT.Arrow.Transport
+open import HOTT.Arrow.Base public
+open import HOTT.Arrow.Transport public

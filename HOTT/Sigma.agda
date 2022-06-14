@@ -2,5 +2,5 @@
 
 module HOTT.Sigma where
 
-import HOTT.Sigma.Base
-import HOTT.Sigma.Transport
+open import HOTT.Sigma.Base public
+open import HOTT.Sigma.Transport public

@@ -2,6 +2,6 @@
 
 module HOTT.Pi where
 
-open import HOTT.Pi.Base
-open import HOTT.Pi.Transport
+open import HOTT.Pi.Base public
+open import HOTT.Pi.Transport public
 
