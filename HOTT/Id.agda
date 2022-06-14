@@ -230,31 +230,33 @@ postulate
 -- Note that AP-pop is "one piece" of the originally proposed ▸-only
 -- definition of AP.  Before we can postulate ap-top, we need to also
 -- prove that all the other pieces of that definition also hold.
+-- Since these aren't rewrites, we can phrase them as heterogeneous
+-- equalities rather than equalities to a coercion.
 
 top-pop-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
-  top (pop (pop (AP f γ))) ≡ coe← (cong A (AP₀ (λ x → pop (f x)) γ)) (top (f (γ ₀)))
+  top (f (γ ₀)) ≡ʰ top (pop (pop (AP f γ)))
 
 top-pop-pop-AP-∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
-  top (pop (pop (AP {Δ = Δ ▸ A} (λ x → f x ∷ g x) γ))) ≡ coe← (cong A (AP₀ f γ)) (g (γ ₀))
-top-pop-pop-AP-∷ A f g γ = reflᵉ
+  g (γ ₀) ≡ʰ top (pop (pop (AP {Δ = Δ ▸ A} (λ x → f x ∷ g x) γ)))
+top-pop-pop-AP-∷ A f g γ = reflʰ
 
 top-pop-pop-AP A f γ = top-pop-pop-AP-∷ A (λ x → pop (f x)) (λ x → top (f x)) γ
 
 top-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
-  top (pop (AP f γ)) ≡ coe← (cong A (AP₁ (λ x → pop (f x)) γ)) (top (f (γ ₁)))
+  top (f (γ ₁)) ≡ʰ top (pop (AP f γ))
 
 top-pop-AP-∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
-  top (pop (AP {Δ = Δ ▸ A} (λ x → f x ∷ g x) γ)) ≡ coe← (cong A (AP₁ f γ)) (g (γ ₁))
-top-pop-AP-∷ A f g γ = reflᵉ
+  g (γ ₁) ≡ʰ top (pop (AP {Δ = Δ ▸ A} (λ x → f x ∷ g x) γ))
+top-pop-AP-∷ A f g γ = reflʰ
 
 top-pop-AP A f γ = top-pop-AP-∷ A (λ x → pop (f x)) (λ x → top (f x)) γ
 
 postulate
   ap-top : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
     ap (λ x → top (f x)) γ ≡
-    coe← (Id′-AP (λ x → pop (f x)) γ A (top (f (γ ₀))) (top (f (γ ₁))))
-      (coe→ (cong2 (Id′ A (pop (pop (pop (AP f γ))))) (top-pop-pop-AP A f γ) (top-pop-AP A f γ))
-        (top (AP f γ)))
+    coe← (Id′-AP≡ (λ x → pop (f x)) γ (pop (pop (pop (AP f γ)))) reflᵉ A
+                  (top-pop-pop-AP A f γ) (top-pop-AP A f γ))
+         (top (AP f γ))
 
 -- Now we can explain why the first argument of Σᵉ is a Tel rather
 -- than a Typeᵉ: it enables ap-top to fire as a rewrite rule.  Look at
@@ -317,11 +319,11 @@ Id′-AP-idmap δ A a₀ a₁ = axiomK
 
 {-
 top-pop-pop-AP-idmap : {Δ : Tel} (A : el Δ → Type) (γ : el (ID (Δ ▸ A))) →
-  top-pop-pop-AP A (λ x → x) γ ≡ reflᵉ
+  top-pop-pop-AP A (λ x → x) γ ≡ reflʰ
 top-pop-pop-AP-idmap A γ = axiomK
 
 top-pop-AP-idmap : {Δ : Tel} (A : el Δ → Type) (γ : el (ID (Δ ▸ A))) →
-  top-pop-AP A (λ x → x) γ ≡ reflᵉ
+  top-pop-AP A (λ x → x) γ ≡ reflʰ
 top-pop-AP-idmap A γ = axiomK
 
 top-pop-pop-AP-pop : {Γ Δ : Tel} (A : el Δ → Type) (B : el (Δ ▸ A) → Type) (f : el Γ → el (Δ ▸ A ▸ B)) (γ : el (ID Γ)) →
