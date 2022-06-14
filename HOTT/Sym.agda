@@ -317,6 +317,8 @@ SYM₂₁ {Δ ▸ A} δ =
 -- identities and make those assertions also rewrites, so that the
 -- coercions in sym and SYM vanish.
 
+-- TODO: Is it these that are making this file take forever?
+
 SYM₀₀-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₀₀ δ ≡ reflᵉ
 SYM₀₀-reflᵉ δ = axiomK
 
