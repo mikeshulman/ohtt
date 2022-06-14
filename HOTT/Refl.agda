@@ -104,7 +104,14 @@ AP-const {Δ} (Θ ▸ A) δ t = AP-const-∷ Θ A δ (pop t) (top t)
 -- Many of these can be made rewrites.
 {-# REWRITE REFL₀ REFL₁ Id′-REFL AP-const #-}
 
--- And once they are, we can make them identities, as for AP above.
+-- Rewriting along Id′-REFL and AP-const seems a bit more questionable
+-- than along AP₀ and REFL₀, since they don't already reduce to refl
+-- on arbitrary concrete telescopes, only on concrete telescopes of
+-- concrete types.  However, given the way they're defined in terms of
+-- each other, once we also make them both *be* refl as below, then I
+-- believe the above definitions of them do *also* reduce to refl on
+-- concrete telescopes.  Finally, this hasn't been a problem yet.
+
 REFL₀-reflᵉ : {Δ : Tel} (δ : el Δ) → REFL₀ {Δ} δ ≡ reflᵉ
 REFL₀-reflᵉ δ = axiomK
 

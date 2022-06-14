@@ -297,14 +297,19 @@ SYM₂₁ {Δ ▸ A} δ =
     (Id′-AP (λ x → pop (pop x)) δ (λ x → A (pop x ₁)) (top (pop (δ ₀))) (top (pop (δ ₁))))
     (top (pop (pop (pop δ)))))
 
+-- For now, I'm holding off on making these into rewrites.  For one
+-- thing, making them rewrites and also reduce to refl, as shown
+-- below, seems to blow up the compilation time of this file even
+-- more.  Also, it's more questionable to do this than it is for AP₀,
+-- REFL₀, and so on, since they involve nontrivial instances of Id′-AP
+-- and AP-AP, and thus don't already reduce to reflexivity even on
+-- concrete telescopes (only on concrete telescopes of concrete
+-- types).  And unlike Id′-REFL and AP-const, which also have this
+-- issue, making them refl as below wouldn't cause their definitions
+-- above to reduce to refl.
 
+{-
 {-# REWRITE SYM₀₀ SYM₀₁ SYM₀₂ SYM₁₀ SYM₁₁ SYM₂₀ SYM₁₂ SYM₂₁ #-}
-
--- As usual, now that they are rewrites, we can prove that they are
--- identities and make those assertions also rewrites, so that the
--- coercions in sym and SYM vanish.
-
--- TODO: Is it these that are making this file take forever?
 
 SYM₀₀-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₀₀ δ ≡ reflᵉ
 SYM₀₀-reflᵉ δ = axiomK
@@ -331,3 +336,4 @@ SYM₂₁-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₂₁ δ ≡ reflᵉ
 SYM₂₁-reflᵉ δ = axiomK
 
 {-# REWRITE SYM₀₀-reflᵉ SYM₀₁-reflᵉ SYM₀₂-reflᵉ SYM₁₀-reflᵉ SYM₁₁-reflᵉ SYM₂₀-reflᵉ SYM₁₂-reflᵉ SYM₂₁-reflᵉ #-}
+-}
