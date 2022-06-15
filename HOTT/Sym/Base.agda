@@ -25,22 +25,56 @@ SYM₁₂ : {Δ : Tel} (δ : el (SQ Δ)) → AP _₁ (SYM Δ δ) ≡ δ ₂₁
 SYM₂₀ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₀ ≡ δ ₀₂
 SYM₂₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁ ≡ δ ₁₂
 
--- Symmetry for types, of course, is a postulated operation.
+-- Symmetry for types, of course, is a postulated operation, which
+-- takes a square over δ to a square over (SYM Δ δ).  It also
+-- transposes the boundary, and moreover must coerce the boundary
+-- across the above proofs that SYM transposes the boundary.  For
+-- reasons explained in Sym.Involution, in the basic postulated
+-- operation we also incorporate coercions across equalities of the
+-- base square and the boundary (the latter heterogeneous).
 postulate
-  sym : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+  sym′ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+        {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁)
+        {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ A (δ ₁₂) a₁₀ a₁₁)
+        (a₂₀ : Id′ A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id′ A (δ ₂₁) a₀₁ a₁₁) →
+        {δ' : el (SQ Δ)} (ϕ : δ' ≡ SYM Δ δ)
+        {a₀₀' : A (δ' ₀₀)} {a₀₁' : A (δ' ₀₁)} (a₀₂' : Id′ A (δ' ₀₂) a₀₀' a₀₁')
+        {a₁₀' : A (δ' ₁₀)} {a₁₁' : A (δ' ₁₁)} (a₁₂' : Id′ A (δ' ₁₂) a₁₀' a₁₁')
+        (a₂₀' : Id′ A (δ' ₂₀) a₀₀' a₁₀') (a₂₁' : Id′ A (δ' ₂₁) a₀₁' a₁₁') →
+        (a₀₀' ≡ʰ a₀₀) → (a₀₁' ≡ʰ a₁₀) → (a₀₂' ≡ʰ a₂₀) →
+        (a₁₀' ≡ʰ a₀₁) → (a₁₁' ≡ʰ a₁₁) → (a₁₂' ≡ʰ a₂₁) →
+        (a₂₀' ≡ʰ a₀₂) → (a₂₁' ≡ʰ a₁₂) →
+        Sq A δ a₀₂ a₁₂ a₂₀ a₂₁ →
+        Sq A δ' a₀₂' a₁₂' a₂₀' a₂₁'
+
+-- From this we can derive the more obvious symmetry operation,
+-- without equalities to coerce along.  (Conversely, if we postulated
+-- this version, we could derive the coercion version from Sq≡.)
+sym : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
         {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁)
         {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ A (δ ₁₂) a₁₀ a₁₁)
         (a₂₀ : Id′ A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id′ A (δ ₂₁) a₀₁ a₁₁) →
         Sq A δ a₀₂ a₁₂ a₂₀ a₂₁ →
         Sq A (SYM Δ δ)
-             (coe← (Id′≡ A (SYM₀₂ δ) (coe←≡ʰ (cong A (SYM₀₀ δ)) a₀₀)
-                         (coe←≡ʰ (cong A (SYM₀₁ δ)) a₁₀)) a₂₀)
-             (coe← (Id′≡ A (SYM₁₂ δ) (coe←≡ʰ (cong A (SYM₁₀ δ)) a₀₁)
-                         (coe←≡ʰ (cong A (SYM₁₁ δ)) a₁₁)) a₂₁)
-             (coe← (Id′≡ A (SYM₂₀ δ) (coe←≡ʰ (cong A (SYM₀₀ δ)) a₀₀)
-                         (coe←≡ʰ (cong A (SYM₁₀ δ)) a₀₁)) a₀₂)
-             (coe← (Id′≡ A (SYM₂₁ δ) (coe←≡ʰ (cong A (SYM₀₁ δ)) a₁₀)
-                         (coe←≡ʰ (cong A (SYM₁₁ δ)) a₁₁)) a₁₂)
+           (coe← (Id′≡ A (SYM₀₂ δ) (coe←≡ʰ (cong A (SYM₀₀ δ)) a₀₀) (coe←≡ʰ (cong A (SYM₀₁ δ)) a₁₀)) a₂₀)
+           (coe← (Id′≡ A (SYM₁₂ δ) (coe←≡ʰ (cong A (SYM₁₀ δ)) a₀₁) (coe←≡ʰ (cong A (SYM₁₁ δ)) a₁₁)) a₂₁)
+           (coe← (Id′≡ A (SYM₂₀ δ) (coe←≡ʰ (cong A (SYM₀₀ δ)) a₀₀) (coe←≡ʰ (cong A (SYM₁₀ δ)) a₀₁)) a₀₂)
+           (coe← (Id′≡ A (SYM₂₁ δ) (coe←≡ʰ (cong A (SYM₀₁ δ)) a₁₀) (coe←≡ʰ (cong A (SYM₁₁ δ)) a₁₁)) a₁₂)
+sym A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ a₂₂ =
+  sym′ A δ a₀₂ a₁₂ a₂₀ a₂₁ reflᵉ
+      (coe← (Id′≡ A (SYM₀₂ δ) (coe←≡ʰ (cong A (SYM₀₀ δ)) a₀₀) (coe←≡ʰ (cong A (SYM₀₁ δ)) a₁₀)) a₂₀)
+      (coe← (Id′≡ A (SYM₁₂ δ) (coe←≡ʰ (cong A (SYM₁₀ δ)) a₀₁) (coe←≡ʰ (cong A (SYM₁₁ δ)) a₁₁)) a₂₁)
+      (coe← (Id′≡ A (SYM₂₀ δ) (coe←≡ʰ (cong A (SYM₀₀ δ)) a₀₀) (coe←≡ʰ (cong A (SYM₁₀ δ)) a₀₁)) a₀₂)
+      (coe← (Id′≡ A (SYM₂₁ δ) (coe←≡ʰ (cong A (SYM₀₁ δ)) a₁₀) (coe←≡ʰ (cong A (SYM₁₁ δ)) a₁₁)) a₁₂)
+      (coe←≡ʰ (cong A (SYM₀₀ δ)) a₀₀)
+      (coe←≡ʰ (cong A (SYM₀₁ δ)) a₁₀)
+      (coe←≡ʰ (Id′≡ A (SYM₀₂ δ) (coe←≡ʰ (cong A (SYM₀₀ δ)) a₀₀) (coe←≡ʰ (cong A (SYM₀₁ δ)) a₁₀)) a₂₀)
+      (coe←≡ʰ (cong A (SYM₁₀ δ)) a₀₁)
+      (coe←≡ʰ (cong A (SYM₁₁ δ)) a₁₁)
+      (coe←≡ʰ (Id′≡ A (SYM₁₂ δ) (coe←≡ʰ (cong A (SYM₁₀ δ)) a₀₁) (coe←≡ʰ (cong A (SYM₁₁ δ)) a₁₁)) a₂₁)
+      (coe←≡ʰ (Id′≡ A (SYM₂₀ δ) (coe←≡ʰ (cong A (SYM₀₀ δ)) a₀₀) (coe←≡ʰ (cong A (SYM₁₀ δ)) a₀₁)) a₀₂)
+      (coe←≡ʰ (Id′≡ A (SYM₂₁ δ) (coe←≡ʰ (cong A (SYM₀₁ δ)) a₁₀) (coe←≡ʰ (cong A (SYM₁₁ δ)) a₁₁)) a₁₂)
+      a₂₂
 
 -- Now we can define symmetry for telescopes by decomposing a collated
 -- SQ, transposing and applying symmetry, and recomposing again.
