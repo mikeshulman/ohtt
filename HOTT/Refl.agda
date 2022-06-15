@@ -189,19 +189,17 @@ AP-AP-CONST f γ g = axiomK
 -- The computation of REFL on pop holds by definition in the other
 -- direction (since, unlike for AP, we defined REFL on ▸ to compute
 -- for any term, not just ∷.  Was that the right choice?)
+-- Likewise, the intermediate computations hold by definition.
 
-postulate
-  top-pop-pop-REFL : {Δ : Tel} (A : el Δ → Type) (f : el (Δ ▸ A)) →
-    top (pop (pop (REFL f))) ≡ coe← (cong A (REFL₀ (pop f))) (top f)
-  top-pop-REFL : {Δ : Tel} (A : el Δ → Type) (f : el (Δ ▸ A)) →
-    top (pop (REFL f)) ≡ coe← (cong A (REFL₁ (pop f))) (top f)
-  top-pop-pop-REFL-∷ : {Δ : Tel} (A : el Δ → Type) (f : el Δ) (g : A f) →
-    top-pop-pop-REFL A (f ∷ g) ≡ reflᵉ
-  top-pop-REFL-∷ : {Δ : Tel} (A : el Δ → Type) (f : el Δ) (g : A f) →
-    top-pop-REFL A (f ∷ g) ≡ reflᵉ
+top-pop-pop-REFL : {Δ : Tel} (A : el Δ → Type) (f : el (Δ ▸ A)) →
+  top (pop (pop (REFL f))) ≡ coe← (cong A (REFL₀ (pop f))) (top f)
+top-pop-pop-REFL A f = reflᵉ
 
-{-# REWRITE top-pop-pop-REFL-∷ top-pop-REFL-∷ #-}
+top-pop-REFL : {Δ : Tel} (A : el Δ → Type) (f : el (Δ ▸ A)) →
+  top (pop (REFL f)) ≡ coe← (cong A (REFL₁ (pop f))) (top f)
+top-pop-REFL A f = reflᵉ
 
+-- Thus the only one thath needs to be postulated is refl-top.
 postulate
   refl-top : (Δ : Tel) (A : el Δ → Type) (f : el (Δ ▸ A)) →
     refl (top f) ≡ coe→ (Id′-AP {ε} (λ _ → pop f) [] A (top f) (top f)) (top (REFL f)) 

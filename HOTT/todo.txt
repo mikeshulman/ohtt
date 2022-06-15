@@ -1,1 +1,0 @@
-top-pop-pop-REFL should be provable.
