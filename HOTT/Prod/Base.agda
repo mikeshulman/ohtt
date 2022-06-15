@@ -59,17 +59,16 @@ postulate
     ap-AP f (λ x → (g x , h x)) γ ≡
     let p = rev (Id′-AP f γ A (g (f (γ ₀))) (g (f (γ ₁)))) in
     let q = rev (Id′-AP f γ B (h (f (γ ₀))) (h (f (γ ₁)))) in
-    cong2ʰ (≡Type→≡ᵉ p) (≡Type→≡ᵉ q) (≡Type→≡ᵉ (cong2 _×_ p q))
-           (scong2ʰ (λ A B → _,_ {A} {B}) p q) (ap-AP f g γ) (ap-AP f h γ)
+    cong2ʰ p q (cong2 _×_ p q) (scong2ʰ (λ A B → _,_ {A} {B}) p q) (ap-AP f g γ) (ap-AP f h γ)
   ap-AP-fst : {Γ Δ : Tel} {A B : el Δ → Type} (f : el Γ → el Δ) (g : (x : el Δ) → A x × B x) (γ : el (ID Γ)) →
     ap-AP f (λ x → fst (g x)) γ ≡
     let p = rev (Id′-AP f γ A (fst (g (f (γ ₀)))) (fst (g (f (γ ₁))))) in
     let q = rev (Id′-AP f γ B (snd (g (f (γ ₀)))) (snd (g (f (γ ₁))))) in
-    congʰ (≡Type→≡ᵉ (cong2 _×_ p q)) (≡Type→≡ᵉ p) (scong2ʰ (λ A B → fst {A} {B}) p q) (ap-AP f g γ) 
+    congʰ (cong2 _×_ p q) p (scong2ʰ (λ A B → fst {A} {B}) p q) (ap-AP f g γ)
   ap-AP-snd : {Γ Δ : Tel} {A B : el Δ → Type} (f : el Γ → el Δ) (g : (x : el Δ) → A x × B x) (γ : el (ID Γ)) →
     ap-AP f (λ x → snd (g x)) γ ≡
     let p = rev (Id′-AP f γ A (fst (g (f (γ ₀)))) (fst (g (f (γ ₁))))) in
     let q = rev (Id′-AP f γ B (snd (g (f (γ ₀)))) (snd (g (f (γ ₁))))) in
-    congʰ (≡Type→≡ᵉ (cong2 _×_ p q)) (≡Type→≡ᵉ q) (scong2ʰ (λ A B → snd {A} {B}) p q) (ap-AP f g γ) 
+    congʰ (cong2 _×_ p q) q (scong2ʰ (λ A B → snd {A} {B}) p q) (ap-AP f g γ)
 
 {-# REWRITE ap-AP, ap-AP-fst ap-AP-snd #-}

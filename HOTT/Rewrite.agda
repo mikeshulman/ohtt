@@ -95,61 +95,69 @@ coe←coe→ᵉ′ reflᵉ reflᵉ a = reflᵉ
 coe→coe←ᵉ′ : {A B : Typeᵉ} (p q : A ≡ B) (b : B) → coe→ᵉ p (coe←ᵉ q b) ≡ coe→ᵉ (rev p • q) b
 coe→coe←ᵉ′ reflᵉ reflᵉ b = reflᵉ
 
+------------------------------
 -- Heterogeneous equality
+------------------------------
 
-data _≡ʰ_ {A : Typeᵉ} (a : A) : {B : Typeᵉ} → B → Typeᵉ where
+-- We restrict heterogeneous equality to elements of types, not
+-- exotypes.  This suffices for our applications, and simplifies a lot
+-- of reasoning about it since we don't have to coerce equalities of
+-- types to equalities of their underlying exotypes or worry about
+-- whether we can go the other direction.
+
+data _≡ʰ_ {A : Type} (a : A) : {B : Type} → B → Typeᵉ where
   reflʰ : a ≡ʰ a
 
-≡→≡ʰ : {A : Typeᵉ} {a b : A} → a ≡ b → a ≡ʰ b
+≡→≡ʰ : {A : Type} {a b : A} → a ≡ b → a ≡ʰ b
 ≡→≡ʰ reflᵉ = reflʰ
 
-_•ʰ_ : {A B C : Typeᵉ} {a : A} {b : B} {c : C} (e : a ≡ʰ b) (f : b ≡ʰ c) → a ≡ʰ c
+_•ʰ_ : {A B C : Type} {a : A} {b : B} {c : C} (e : a ≡ʰ b) (f : b ≡ʰ c) → a ≡ʰ c
 reflʰ •ʰ reflʰ = reflʰ
 
-revʰ : {A B : Typeᵉ} {a : A} {b : B} → (a ≡ʰ b) → (b ≡ʰ a)
+revʰ : {A B : Type} {a : A} {b : B} → (a ≡ʰ b) → (b ≡ʰ a)
 revʰ reflʰ = reflʰ
 
-≡ʰ→≡Typeᵉ : {A B : Typeᵉ} {a : A} {b : B} (e : a ≡ʰ b) → A ≡ B
-≡ʰ→≡Typeᵉ reflʰ = reflᵉ
+≡ʰ→≡Type : {A B : Type} {a : A} {b : B} (e : a ≡ʰ b) → A ≡ B
+≡ʰ→≡Type reflʰ = reflᵉ
 
-scongʰ : {A : Typeᵉ} {B : A → Typeᵉ} (f : (x : A) → B x) {a a' : A} (e : a ≡ a') → f a ≡ʰ f a'
+scongʰ : {A : Type} {B : A → Type} (f : (x : A) → B x) {a a' : A} (e : a ≡ a') → f a ≡ʰ f a'
 scongʰ f reflᵉ = reflʰ
 
-scong2ʰ : {A B : Typeᵉ} {C : A → B → Typeᵉ} (f : (x : A) (y : B) → C x y)
+scong2ʰ : {A B : Type} {C : A → B → Type} (f : (x : A) (y : B) → C x y)
   {a a' : A} (u : a ≡ a') {b b' : B} (v : b ≡ b') → f a b ≡ʰ f a' b'
 scong2ʰ f reflᵉ reflᵉ = reflʰ
 
-scong2dʰ : {A : Typeᵉ} {B : A → Typeᵉ} {C : (x : A) → B x → Typeᵉ} (f : (x : A) (y : B x) → C x y)
+scong2dʰ : {A : Type} {B : A → Type} {C : (x : A) → B x → Type} (f : (x : A) (y : B x) → C x y)
   {a a' : A} (u : a ≡ a') {b : B a} {b' : B a'} (v : b ≡ʰ b') → f a b ≡ʰ f a' b'
 scong2dʰ f reflᵉ reflʰ = reflʰ
 
-congʰ : {A B A' B' : Typeᵉ} {f : A → B} {f' : A' → B'} (u : A ≡ A') (v : B ≡ B') (e : f ≡ʰ f')
+congʰ : {A B A' B' : Type} {f : A → B} {f' : A' → B'} (u : A ≡ A') (v : B ≡ B') (e : f ≡ʰ f')
   {x : A} {x' : A'} (p : x ≡ʰ x') → f x ≡ʰ f' x'
 congʰ reflᵉ reflᵉ reflʰ reflʰ = reflʰ
 
-cong2ʰ : {A B C A' B' C' : Typeᵉ} {f : A → B → C} {f' : A' → B' → C'}
+cong2ʰ : {A B C A' B' C' : Type} {f : A → B → C} {f' : A' → B' → C'}
   (u : A ≡ A') (v : B ≡ B') (w : C ≡ C') (e : f ≡ʰ f')
   {x : A} {x' : A'} (p : x ≡ʰ x') {y : B} {y' : B'} (q : y ≡ʰ y') → f x y ≡ʰ f' x' y'
 cong2ʰ reflᵉ reflᵉ reflᵉ reflʰ reflʰ reflʰ = reflʰ
 
-cong2dʰ : {A : Typeᵉ} {B : A → Typeᵉ} {C : (x : A) → B x → Typeᵉ}
-          {A' : Typeᵉ} {B' : A' → Typeᵉ} {C' : (x : A') → B' x → Typeᵉ}
+cong2dʰ : {A : Type} {B : A → Type} {C : (x : A) → B x → Type}
+          {A' : Type} {B' : A' → Type} {C' : (x : A') → B' x → Type}
           {f : (x : A) (y : B x) → C x y} {f' : (x : A') (y : B' x) → C' x y}
   (u : A ≡ A') (v : B ≡ʰ B') (w : C ≡ʰ C') (e : f ≡ʰ f')
   {x : A} {x' : A'} (p : x ≡ʰ x') {y : B x} {y' : B' x'} (q : y ≡ʰ y') → f x y ≡ʰ f' x' y'
 cong2dʰ reflᵉ reflʰ reflʰ reflʰ reflʰ reflʰ = reflʰ
 
-≡ʰ→≡ : {A : Typeᵉ} {a₀ a₁ : A} → (a₀ ≡ʰ a₁) → (a₀ ≡ a₁)
+≡ʰ→≡ : {A : Type} {a₀ a₁ : A} → (a₀ ≡ʰ a₁) → (a₀ ≡ a₁)
 ≡ʰ→≡ reflʰ = reflᵉ
 
-axiomKʰ : {A : Typeᵉ} {a : A} {p : a ≡ʰ a} → p ≡ reflʰ
+axiomKʰ : {A : Type} {a : A} {p : a ≡ʰ a} → p ≡ reflʰ
 axiomKʰ {p = reflʰ} = reflᵉ
 
 postulate
-  funextʰ : {A : Typeᵉ} {B : A → Typeᵉ} {A' : Typeᵉ} {B' : A' → Typeᵉ}
+  funextʰ : {A : Type} {B : A → Type} {A' : Type} {B' : A' → Type}
     {f : (x : A) → B x} {f' : (x : A') → B' x} (p : (x : A) (x' : A') → (x ≡ʰ x') → f x ≡ʰ f' x') →
     f ≡ʰ f'
-  funextʰ-reflʰ : {A : Typeᵉ} {B : A → Typeᵉ} (f : (x : A) → B x)
+  funextʰ-reflʰ : {A : Type} {B : A → Type} (f : (x : A) → B x)
     (p : (x x' : A) → (x ≡ʰ x') → f x ≡ʰ f x') →
     funextʰ p ≡ reflʰ
 
@@ -160,12 +168,6 @@ coe→≡ʰ reflᵉ _ = reflʰ
 
 coe←≡ʰ : {A B : Type} (e : A ≡ B) (b : B) → coe← e b ≡ʰ b
 coe←≡ʰ reflᵉ _ = reflʰ
-
-coe→ᵉ≡ʰ : {A B : Typeᵉ} (e : A ≡ B) (a : A) → coe→ᵉ e a ≡ʰ a
-coe→ᵉ≡ʰ reflᵉ _ = reflʰ
-
-coe←ᵉ≡ʰ : {A B : Typeᵉ} (e : A ≡ B) (b : B) → coe←ᵉ e b ≡ʰ b
-coe←ᵉ≡ʰ reflᵉ _ = reflʰ
 
 coe→←←←≡ʰ : {A B C D E : Type} (u : A ≡ B) (v : A ≡ C) (w : C ≡ D) (x : D ≡ E) (e : E) →
   coe→ u (coe← v (coe← w (coe← x e))) ≡ʰ e
