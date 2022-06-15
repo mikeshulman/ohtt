@@ -74,8 +74,7 @@ postulate
     Id′-AP f γ (λ w → Σ (A w) (B w)) u₀ u₁ ≡
       ≡ʰ→≡ (scong2dʰ Σ (Id′-AP f γ A (π₁ u₀) (π₁ u₁))
         (funextʰ (λ x₀ x₁ x₂ → ≡→≡ʰ
-          (Id′-AP≡ (λ w → (f (pop w) ∷ top w))
-            (γ ∷ π₁ u₀ ∷ π₁ u₁ ∷ x₀) (AP f γ ∷ π₁ u₀ ∷ π₁ u₁ ∷ x₁)
+          (Id′-AP≡ (λ w → (f (pop w) ∷ top w)) (γ ∷ π₁ u₀ ∷ π₁ u₁ ∷ x₀)
             (∷≡ (λ u → Id′ A (pop (pop u)) (top (pop u)) (top u))
               {AP f γ ∷ π₁ u₀ ∷ π₁ u₁} {AP (λ z → f (pop z)) (γ ∷ π₁ u₀ ∷ π₁ u₁ ∷ x₀) ∷ π₁ u₀ ∷ π₁ u₁}
               (∷≡ (λ u → A (pop u ₁)) {AP f γ ∷ π₁ u₀} {AP (λ z → f (pop z)) (γ ∷ π₁ u₀ ∷ π₁ u₁ ∷ x₀) ∷ π₁ u₀}

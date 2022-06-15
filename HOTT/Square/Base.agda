@@ -139,7 +139,7 @@ frob₁₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
   {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ A (δ ₁₂) a₁₀ a₁₁) →
   Id′ (λ w → A (pop w ₁)) (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂) a₁₀ a₁₁
 frob₁₂ A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ =
-  coe← (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂) (δ ₁₂)
+  coe← (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂)
                 (AP-AP (pop {B = λ x → A (x ₀)}) _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂))
                 A reflʰ reflʰ)
        a₁₂
@@ -149,7 +149,7 @@ unfrob₁₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
   {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ (λ w → A (pop w ₁)) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) a₁₀ a₁₁) →
   Id′ A (δ ₁₂) a₁₀ a₁₁
 unfrob₁₂ A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ =
-  coe→ (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) (δ ₁₂)
+  coe→ (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂)
                 (AP-AP (pop {B = λ x → A (x ₀)}) _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂))
                 A {a₁₀} {a₁₁} {a₁₀} {a₁₁} reflʰ reflʰ)
        a₁₂
@@ -163,11 +163,11 @@ frob-unfrob₁₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
   {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ (λ w → A (pop w ₁)) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) a₁₀ a₁₁) →
   frob₁₂ A δ a₀₂′ (unfrob₁₂ A δ a₀₂ a₁₂) ≡ʰ a₁₂
 frob-unfrob₁₂ A δ {a₀₀} {a₀₁} a₀₂ a₀₂′ {a₁₀} {a₁₁} a₁₂ =
-  coe←≡ʰ (Id′-AP≡ (λ x → pop x ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂′) (AP _₁ δ)
+  coe←≡ʰ (Id′-AP≡ (λ x → pop x ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂′)
                   (AP-AP pop _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂′)) A reflʰ reflʰ)
-         (coe→ (Id′-AP≡ (λ x → pop x ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) (AP _₁ δ)
+         (coe→ (Id′-AP≡ (λ x → pop x ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂)
                (AP-AP pop _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂)) A reflʰ reflʰ) a₁₂)
-  •ʰ coe→≡ʰ (Id′-AP≡ (λ x → pop x ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) (AP _₁ δ) (AP-AP pop _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂)) A reflʰ reflʰ) a₁₂
+  •ʰ coe→≡ʰ (Id′-AP≡ (λ x → pop x ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) (AP-AP pop _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂)) A reflʰ reflʰ) a₁₂
 
 -- This one seems to work homogeneously, and we haven't needed it for
 -- anything yet anyway.
@@ -176,7 +176,7 @@ unfrob-frob₁₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
   {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ A (δ ₁₂) a₁₀ a₁₁) →
   unfrob₁₂ A δ (frob₀₂ A δ a₀₂) (frob₁₂ A δ a₀₂ a₁₂) ≡ a₁₂
 unfrob-frob₁₂ A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ =
-  coe→coe← (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂) (δ ₁₂)
+  coe→coe← (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂)
                 (AP-AP (pop {B = λ x → A (x ₀)}) _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂))
                 A reflʰ reflʰ)
 

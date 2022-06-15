@@ -162,11 +162,11 @@ AP₁-reflᵉ f γ = axiomK
 -- A useful derived rule for combining the admissible equality Id′-AP
 -- with an equality of base identifications and heterogeneous
 -- equalities of the endpoints.
-Id′-AP≡ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (δ : el (ID Δ)) (e : δ ≡ AP f γ)
+Id′-AP≡ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) {δ : el (ID Δ)} (e : δ ≡ AP f γ)
     (A : el Δ → Type) {a₀ : A (f (γ ₀))} {a₁ : A (f (γ ₁))} {b₀ : A (δ ₀)} {b₁ : A (δ ₁)}
     (e₀ : a₀ ≡ʰ b₀) (e₁ : a₁ ≡ʰ b₁) →
     Id′ (λ w → A (f w)) γ a₀ a₁ ≡ Id′ A δ b₀ b₁
-Id′-AP≡ f γ .(AP f γ) reflᵉ A {a₀} {a₁} .{a₀} .{a₁} reflʰ reflʰ = Id′-AP f γ A a₀ a₁
+Id′-AP≡ f γ reflᵉ A {a₀} {a₁} .{a₀} .{a₁} reflʰ reflʰ = Id′-AP f γ A a₀ a₁
 
 ------------------------------
 -- Functoriality of ap and AP
@@ -289,7 +289,7 @@ top-pop-AP A f γ = top-pop-AP-∷ A (λ x → pop (f x)) (λ x → top (f x)) �
 postulate
   ap-top : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
     ap (λ x → top (f x)) γ ≡
-    coe← (Id′-AP≡ (λ x → pop (f x)) γ (pop (pop (pop (AP f γ)))) reflᵉ A
+    coe← (Id′-AP≡ (λ x → pop (f x)) γ reflᵉ A
                   (top-pop-pop-AP A f γ) (top-pop-AP A f γ))
          (top (AP f γ))
 

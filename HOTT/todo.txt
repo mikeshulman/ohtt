@@ -1,3 +1,1 @@
 top-pop-pop-REFL should be provable.
-
-Can Id′-AP≡ make the endpoints of the equality of base identifications implicit?

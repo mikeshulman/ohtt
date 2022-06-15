@@ -60,14 +60,14 @@ Id′-REFL : {Δ : Tel} (A : el Δ → Type) (δ : el Δ) (a₀ : A ((REFL δ)�
 AP-const : {Δ : Tel} (Θ : Tel) (δ : el (ID Δ)) (t : el Θ) →
   AP {Δ} (λ _ → t) δ ≡ REFL t
 
-Id′-REFL {Δ} A δ a₀ a₁ = rev (Id′-AP≡ {ε} (λ _ → δ) [] (REFL δ) (rev (AP-const Δ [] δ)) A
+Id′-REFL {Δ} A δ a₀ a₁ = rev (Id′-AP≡ {ε} (λ _ → δ) [] (rev (AP-const Δ [] δ)) A
                                       (coe→≡ʰ (cong A (REFL₀ δ)) a₀) ((coe→≡ʰ (cong A (REFL₁ δ)) a₁)))
 
 -- A useful extended version of Id′-REFL, like Id′-AP≡.
 Id′-REFL≡ : {Δ : Tel} (A : el Δ → Type) (δ : el Δ)
   {a₀ : A ((REFL δ)₀)} {a₁ : A ((REFL δ)₁)} {b₀ b₁ : A δ} (e₀ : a₀ ≡ʰ b₀) (e₁ : a₁ ≡ʰ b₁) →
   Id′ A (REFL δ) a₀ a₁ ≡ Id (A δ) b₀ b₁
-Id′-REFL≡ {Δ} A δ e₀ e₁ = rev (Id′-AP≡ {ε} (λ _ → δ) [] (REFL δ) (rev (AP-const Δ [] δ)) A (revʰ e₀) (revʰ e₁)) 
+Id′-REFL≡ {Δ} A δ e₀ e₁ = rev (Id′-AP≡ {ε} (λ _ → δ) [] (rev (AP-const Δ [] δ)) A (revʰ e₀) (revʰ e₁)) 
 
 -- Note that in defining REFL we have to coerce along REFL₀ and REFL₁, and also ID′-REFL≡.
 REFL {ε} δ = []
