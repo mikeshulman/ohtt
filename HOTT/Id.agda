@@ -172,8 +172,15 @@ Id′-AP≡ f γ .(AP f γ) reflᵉ A {a₀} {a₁} .{a₀} .{a₁} reflʰ refl�
 -- Functoriality of ap and AP
 ------------------------------
 
--- Functoriality for ap should be admissible, like Id′-AP.
--- However, like ap, it should compute on terms, not types.
+-- Functoriality for ap should be admissible, like Id′-AP.  However,
+-- like ap, it should compute on terms, not types.  We make this a
+-- heterogeneous equality because the two sides lie over different
+-- types (which are equal by Id′-AP).  We could instead coerce one
+-- side or the other, but it seems more convenient for computing ap-AP
+-- on concrete term-formers to not have the coercion (otherwise we'd
+-- have to explicitly commute that coercion past all the
+-- term-formers).  (If we ever had to remove the rewrite rules for AP₀
+-- and AP₁, then Id′-AP would become heterogeneous too.)
 postulate
   ap-AP : {Γ Δ : Tel} {A : el Δ → Type} (f : el Γ → el Δ) (g : (x : el Δ) → A x) (γ : el (ID Γ)) →
     ap g (AP f γ) ≡ʰ ap (λ w → g (f w)) γ
