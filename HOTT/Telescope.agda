@@ -27,8 +27,18 @@ el : Tel → Typeᵉ
 -- make this a generic Σ-exotype, we make its first argument a Tel,
 -- with the second argument depending on the first via el.  The reason
 -- for this is explained in the comments to ap-top.  Thus, it also has
--- to be defined mutually with Tel and el.  We make it a postulate
--- rather than a datatype because rewriting works better that way.
+-- to be defined mutually with Tel and el.
+
+-- We make Σᵉ a postulate rather than a datatype because our
+-- applications of rewrite rules don't work otherwise.  Specifically,
+-- rewriting in Agda happens modulo eta-expansion, so if Σᵉ were a
+-- record with constructor ∷, then every element of an extended
+-- telescope would be considered to have the form ∷ for rewriting
+-- purposes.  This would break our approach to AP on variables, where
+-- we want AP to reduce on ∷ to make the telescope smaller, but to
+-- reduce on pop to make the telescope *larger* until the function
+-- becomes the identity.  For similar reasons, we will later use
+-- postulates and rewrite rules for our actual type formers Σ, Π, etc.
 postulate
   Σᵉ : (Δ : Tel) (B : el Δ → Type) → Typeᵉ
 
