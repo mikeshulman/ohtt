@@ -58,7 +58,12 @@ postulate
   _∷_ : {Δ : Tel} {B : el Δ → Type} (a : el Δ) (b : B a) → Σᵉ Δ B
   pop : {Δ : Tel} {B : el Δ → Type} (u : Σᵉ Δ B) → el Δ
   top : {Δ : Tel} {B : el Δ → Type} (u : Σᵉ Δ B) → B (pop u)
+  -- Since Σᵉ is a postulate rather than a record, we assert its
+  -- beta-reduction rules as postulated rewrites.  (βtop, below,
+  -- depends for its well-typedness of βpop being a rewrite first.)
   βpop : {Δ : Tel} {B : el Δ → Type} (a : el Δ) (b : B a) → pop {B = B} (a ∷ b) ≡ a
+  -- We also assert eta *contraction* as a postulated rewrite.  This
+  -- mostly suffices to obtain eta-equality, but causes a few hiccups.
   η∷ : {Δ : Tel} {B : el Δ → Type} (u : Σᵉ Δ B) → (pop u ∷ top u) ≡ u
 
 {-# REWRITE βpop η∷ #-}

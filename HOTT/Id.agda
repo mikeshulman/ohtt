@@ -90,7 +90,7 @@ postulate
     Id′ (λ w → A (f w)) γ a₀ a₁ ≡ Id′ A (AP f γ) (coe← (cong A (AP₀ f γ)) a₀) (coe← (cong A (AP₁ f γ)) a₁)
 
 -- Note that in defining AP, we have to coerce along AP₀, AP₁ and
--- Id′-AP, justifying the mutual definition.
+-- Id′-AP, explaining why we need a mutual definition.
 postulate
   APε : {Γ : Tel} (f : el Γ → el ε) (γ : el (ID Γ)) → AP {Δ = ε} f γ ≡ []
   AP∷ : {Γ Δ : Tel} (γ : el (ID Γ)) (f : el Γ → el Δ) (A : el Δ → Type) (g : (x : el Γ) → A (f x)) →
@@ -101,6 +101,21 @@ postulate
       coe→ (Id′-AP f γ A (g (γ ₀)) (g (γ ₁))) (ap g γ)
 
 {-# REWRITE APε AP∷ #-}
+
+-- Unfortunately, AP∷ is non-confluent with eta-contraction η∷.  In
+-- the context of a variable (f : el Γ → el (Δ ▸ A)), the term
+--- AP (λ x → pop (f x) ∷ top (f x)) γ
+-- reduces by AP-∷ to a 3-fold ∷ as above, but also reduces by η∷ to
+-- (AP f γ) which is then neutral.  As we will see below, this
+-- non-confluence in turn actually breaks subject reduction.
+
+-- However, I hope that none of this bad stuff can happen in the
+-- intended object-language fragment, where elements of telescopes and
+-- functions valued in telescopes are never hypothesized.  In this
+-- fragment, any such f has to be built from the variable (x : el Γ)
+-- along with ∷, top, and pop, and since AP will compute on all of
+-- them, (AP f γ) is not neutral and should eventually reduce to the
+-- same result.
 
 -- AP₀ and AP₁ also have to be "defined" on ∷ by matching inside λ.
 -- But since ∷ has an eta-rule, and we don't care about preventing
@@ -234,11 +249,22 @@ postulate
 top-pop-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
   top (f (γ ₀)) ≡ʰ top (pop (pop (AP f γ)))
 
+-- As with AP₀ and AP₁, we prove top-pop-pop-AP by eta-expanding using
+-- a helper lemma.
 top-pop-pop-AP-∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
   g (γ ₀) ≡ʰ top (pop (pop (AP {Δ = Δ ▸ A} (λ x → f x ∷ g x) γ)))
 top-pop-pop-AP-∷ A f g γ = reflʰ
 
 top-pop-pop-AP A f γ = top-pop-pop-AP-∷ A (λ x → pop (f x)) (λ x → top (f x)) γ
+
+-- This combination means that (top-pop-pop-AP A f γ) actually
+-- *always* reduces to reflʰ.  Unfortunately, since reflʰ doesn't
+-- actually store its parameters as arguments, there is no way to
+-- annotate it so that it will typecheck directly at the type of
+-- (top-pop-pop-AP A f γ).  Thus, subject reduction fails.  However,
+-- as noted before AP∷, this shouldn't be a problem in the
+-- object-language fragment, where f will always be something
+-- concrete.
 
 top-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
   top (f (γ ₁)) ≡ʰ top (pop (AP f γ))
@@ -249,6 +275,10 @@ top-pop-AP-∷ A f g γ = reflʰ
 
 top-pop-AP A f γ = top-pop-AP-∷ A (λ x → pop (f x)) (λ x → top (f x)) γ
 
+-- Since top-pop-pop-AP and top-pop-AP always reduce to reflʰ, as
+-- above, their appearance below immediately disappears and the result
+-- reduces to a coercion along Id′-AP.  But we need to insert them to
+-- make it typecheck in the general case.
 postulate
   ap-top : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
     ap (λ x → top (f x)) γ ≡
