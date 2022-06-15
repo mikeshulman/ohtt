@@ -119,16 +119,33 @@ postulate
 
 SYM-SYM ε δ = reflᵉ
 SYM-SYM (Δ ▸ A) δ =
-  {!sq∷≡ A (SYM-SYM Δ (popsq δ))
+  sq∷≡ A (SYM-SYM Δ (popsq δ))
     ?
     ?
+    (coe←≡ʰ (Id′≡ A (SYM₀₂ (SYM Δ (popsq δ))) reflʰ reflʰ) (coe← (Id′≡ A (SYM₂₀ (popsq δ)) reflʰ reflʰ) (top₀₂ δ))
+      •ʰ coe←≡ʰ (Id′≡ A (SYM₂₀ (popsq δ)) reflʰ reflʰ) (top₀₂ δ)
+      •ʰ coe→≡ʰ (Id′-AP (_₀ {Δ}) (popsq δ) A _ _) (top (pop (pop (pop (pop (pop (pop δ))))))))
     ?
     ?
+    (coe←≡ʰ (Id′≡ A (SYM₁₂ (SYM Δ (popsq δ))) reflʰ reflʰ) (coe← (Id′≡ A (SYM₂₁ (popsq δ)) reflʰ reflʰ) (top₁₂ δ))
+      •ʰ coe←≡ʰ (Id′≡ A (SYM₂₁ (popsq δ)) reflʰ reflʰ) (top₁₂ δ)
+      •ʰ coe→≡ʰ (Id′-AP≡ (λ x → (pop x) ₁) (popsq δ ∷ _ ∷ _ ∷ top (pop (pop (pop (pop (pop (pop δ))))))) (popsq δ ₁₂)
+                (AP-AP (pop {B = λ x → A (x ₀)}) _₁ (popsq δ ∷ _ ∷ _ ∷ top (pop (pop (pop (pop (pop (pop δ))))))))
+                A reflʰ reflʰ)
+         (top (pop (pop (pop δ)))))
+    (coe←≡ʰ (Id′≡ A (SYM₂₀ (SYM Δ (popsq δ)) reflʰ reflʰ)
+            (unfrob₀₂ A (popsq δ) (coe← (Id′≡ A (SYM₀₂ (popsq δ)) reflʰ reflʰ) (top₂₀ δ))))
+      •ʰ coe→≡ʰ (Id′-AP (_₀ {Δ}) (popsq δ) A _ _) (coe← (Id′≡ A (SYM₀₂ (popsq δ)) reflʰ reflʰ) (top₂₀ δ))
+      •ʰ coe←≡ʰ (Id′≡ A (SYM₀₂ (popsq δ)) reflʰ reflʰ) (top₂₀ δ))
+    (coe←≡ʰ (Id′≡ A (SYM₂₁ (SYM Δ (popsq δ))) reflʰ reflʰ)
+            (unfrob₁₂ A (popsq δ) (coe← (Id′≡ A (SYM₀₂ (popsq δ)) reflʰ reflʰ) (top₂₀ δ))
+                                  (coe← (Id′≡ A (SYM₁₂ (popsq δ)) reflʰ reflʰ) (top₂₁ δ)))
+      •ʰ coe→≡ʰ (Id′-AP≡ (λ x → (pop x) ₁) (popsq δ ∷ _ ∷ _ ∷ coe← (Id′≡ A (SYM₀₂ (popsq δ)) reflʰ reflʰ) (top₂₀ δ)) (δ ₁₂)
+                         (AP-AP (pop {B = λ x → A (x ₀)}) _₁ (popsq δ ∷ _ ∷ _ ∷ coe← (Id′≡ A (SYM₀₂ (popsq δ)) reflʰ reflʰ) (top₂₀ δ)))
+                         A reflʰ reflʰ)
+                (coe← (Id′≡ A (SYM₁₂ (popsq δ)) reflʰ reflʰ) (top₂₁ δ))
+      •ʰ coe←≡ʰ (Id′≡ A (SYM₁₂ (popsq δ)) reflʰ reflʰ) (top₂₁ δ))
     ?
-    ?
-    ?
-    ?
-    ? !}
 
 {-
 sq∷ A
