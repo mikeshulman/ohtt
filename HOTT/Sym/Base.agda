@@ -297,19 +297,15 @@ SYM₂₁ {Δ ▸ A} δ =
     (Id′-AP (λ x → pop (pop x)) δ (λ x → A (pop x ₁)) (top (pop (δ ₀))) (top (pop (δ ₁))))
     (top (pop (pop (pop δ)))))
 
--- For now, I'm holding off on making these into rewrites.  For one
--- thing, making them rewrites and also reduce to refl, as shown
--- below, seems to blow up the compilation time of this file even
--- more.  Also, it's more questionable to do this than it is for AP₀,
--- REFL₀, and so on, since they involve nontrivial instances of Id′-AP
--- and AP-AP, and thus don't already reduce to reflexivity even on
--- concrete telescopes (only on concrete telescopes of concrete
--- types).  And unlike Id′-REFL and AP-const, which also have this
--- issue, making them refl as below wouldn't cause their definitions
--- above to reduce to refl.
+-- It would be nice to make all the SYMₘₙ equalities into rewrites,
+-- but for now we only do this with those for the vertices: SYM₀₀,
+-- SYM₀₁, SYM₁₀, and SYM₁₁.  The reason is that these, like AP₀,
+-- REFL₀, and so on, are defined recursively purely in terms of
+-- themselves, and thus already reduce to reflexivity on concrete
+-- telescopes, so making them reduce to reflexivity on abstract
+-- telescopes as well is unlikely to be problematic.
 
-{-
-{-# REWRITE SYM₀₀ SYM₀₁ SYM₀₂ SYM₁₀ SYM₁₁ SYM₂₀ SYM₁₂ SYM₂₁ #-}
+{-# REWRITE SYM₀₀ SYM₀₁ SYM₁₀ SYM₁₁ #-}
 
 SYM₀₀-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₀₀ δ ≡ reflᵉ
 SYM₀₀-reflᵉ δ = axiomK
@@ -317,14 +313,28 @@ SYM₀₀-reflᵉ δ = axiomK
 SYM₀₁-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₀₁ δ ≡ reflᵉ
 SYM₀₁-reflᵉ δ = axiomK
 
-SYM₀₂-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₀₂ δ ≡ reflᵉ
-SYM₀₂-reflᵉ δ = axiomK
-
 SYM₁₀-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₁₀ δ ≡ reflᵉ
 SYM₁₀-reflᵉ δ = axiomK
 
 SYM₁₁-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₁₁ δ ≡ reflᵉ
 SYM₁₁-reflᵉ δ = axiomK
+
+{-# REWRITE SYM₀₀-reflᵉ SYM₀₁-reflᵉ SYM₁₀-reflᵉ SYM₁₁-reflᵉ #-}
+
+-- In contrast, the rules for the 1-cell boundary, SYM₀₂, SYM₁₂,
+-- SYM₂₀, and SYM₂₁, involve nontrivial instances of the functoriality
+-- rules Id′-AP and AP-AP, and thus don't already reduce to
+-- reflexivity even on concrete telescopes -- only on concrete
+-- telescopes *of concrete types*.  And unlike Id′-REFL and AP-const,
+-- which also have this issue, making them refl as below wouldn't
+-- cause their definitions above to also reduce to refl.
+
+{-
+
+{-# REWRITE SYM₀₂ SYM₂₀ SYM₁₂ SYM₂₁ #-}
+
+SYM₀₂-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₀₂ δ ≡ reflᵉ
+SYM₀₂-reflᵉ δ = axiomK
 
 SYM₁₂-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₁₂ δ ≡ reflᵉ
 SYM₁₂-reflᵉ δ = axiomK
@@ -335,5 +345,6 @@ SYM₂₀-reflᵉ δ = axiomK
 SYM₂₁-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₂₁ δ ≡ reflᵉ
 SYM₂₁-reflᵉ δ = axiomK
 
-{-# REWRITE SYM₀₀-reflᵉ SYM₀₁-reflᵉ SYM₀₂-reflᵉ SYM₁₀-reflᵉ SYM₁₁-reflᵉ SYM₂₀-reflᵉ SYM₁₂-reflᵉ SYM₂₁-reflᵉ #-}
+{-# REWRITE SYM₀₂-reflᵉ SYM₂₀-reflᵉ SYM₁₂-reflᵉ SYM₂₁-reflᵉ #-}
+
 -}
