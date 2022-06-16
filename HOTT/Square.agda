@@ -3,5 +3,4 @@
 module HOTT.Square where
 
 open import HOTT.Square.Base public
-open import HOTT.Square.Top public
 open import HOTT.Square.Equality public
