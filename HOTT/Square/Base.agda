@@ -97,6 +97,7 @@ ID (ID Δ)
 -- Boundary frobnification
 ------------------------------
 
+{-
 -- It turns out that most of the boundary can be used without
 -- modification, but we need to frobnicate the types of a₀₂ and a₁₂.
 frob₀₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
@@ -218,6 +219,7 @@ unfrob-frob₁₂ A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ =
   coe→coe← (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂)
                 (AP-AP (pop {B = λ x → A (x ₀)}) _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂))
                 A reflʰ reflʰ)
+-}
 
 ------------------------------
 -- Squares in a type

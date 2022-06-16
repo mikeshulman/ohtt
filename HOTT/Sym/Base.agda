@@ -19,12 +19,12 @@ SYM : (Δ : Tel) → el (SQ Δ) → el (SQ Δ)
 -- We also have to define it mutually with proofs that it transposes the boundary.
 SYM₀₀ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₀ ₀ ≡ δ ₀₀
 SYM₀₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁ ₀ ≡ δ ₁₀
-SYM₀₂ : {Δ : Tel} (δ : el (SQ Δ)) → AP _₀ (SYM Δ δ) ≡ δ ₂₀
 SYM₁₀ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₀ ₁ ≡ δ ₀₁
 SYM₁₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁ ₁ ≡ δ ₁₁
-SYM₁₂ : {Δ : Tel} (δ : el (SQ Δ)) → AP _₁ (SYM Δ δ) ≡ δ ₂₁
-SYM₂₀ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₀ ≡ δ ₀₂
-SYM₂₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁ ≡ δ ₁₂
+SYM₀₂ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₀₂ ≡ δ ₂₀
+SYM₁₂ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁₂ ≡ δ ₂₁
+SYM₂₀ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₂₀ ≡ δ ₀₂
+SYM₂₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₂₁ ≡ δ ₁₂
 
 -- Symmetry for types, of course, is a postulated operation, which
 -- takes a square over δ to a square over (SYM Δ δ).  It also
@@ -115,25 +115,11 @@ SYM (Δ ▸ A) δ =
 
 -- It remains to observe that this definition indeed transposes the boundary.
 
--- Move this to Id.agda
-ID∷≡ : {Δ : Tel} (A : el Δ → Type)
-       {δ δ' : el (ID Δ)} (ϕ : δ ≡ δ')
-       {a₀ : A (δ ₀)} {a₀' : A (δ' ₀)} (e₀ : a₀ ≡ʰ a₀')
-       {a₁ : A (δ ₁)} {a₁' : A (δ' ₁)} (e₁ : a₁ ≡ʰ a₁')
-       {a₂ : Id′ A δ a₀ a₁} {a₂' : Id′ A δ' a₀' a₁'} (e₂ : a₂ ≡ʰ a₂') →
-       _≡_ {el (ID (Δ ▸ A))} (δ ∷ a₀ ∷ a₁ ∷ a₂) (δ' ∷ a₀' ∷ a₁' ∷ a₂')
-ID∷≡ A reflᵉ reflʰ reflʰ reflʰ = reflᵉ
-
 SYM₀₀ {ε} δ = reflᵉ
 SYM₀₀ {Δ ▸ A} δ = ∷≡ A (SYM₀₀ (popsq δ)) (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
 
 SYM₀₁ {ε} δ = reflᵉ
 SYM₀₁ {Δ ▸ A} δ = ∷≡ A (SYM₀₁ (popsq δ)) (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))
-
-SYM₀₂ {ε} δ = reflᵉ
-SYM₀₂ {Δ ▸ A} δ = ID∷≡ A (rev (AP-AP (λ z → pop (pop (pop z))) _₀ (SYM (Δ ▸ A) δ)) • SYM₀₂ (popsq δ))
-                         (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)) (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))
-                         {!!}
 
 SYM₁₀ {ε} δ = reflᵉ
 SYM₁₀ {Δ ▸ A} δ = ∷≡ A (SYM₁₀ (popsq δ)) (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ))
@@ -141,14 +127,27 @@ SYM₁₀ {Δ ▸ A} δ = ∷≡ A (SYM₁₀ (popsq δ)) (coe←≡ʰ (cong A (
 SYM₁₁ {ε} δ = reflᵉ
 SYM₁₁ {Δ ▸ A} δ = ∷≡ A (SYM₁₁ (popsq δ)) (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ))
 
+-- The others should be easily provable by combining a few more
+-- coercions, but Agda can't manage to normalize their types in a
+-- sensible amount of time.  So for now, we just postulate the hard
+-- cases.  We also note that we can prove the first few cases by reflᵉ.
+postulate
+  SYM₀₂▸ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ (Δ ▸ A))) → (SYM (Δ ▸ A) δ) ₀₂ ≡ δ ₂₀
+  SYM₁₂▸ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ (Δ ▸ A))) → (SYM (Δ ▸ A) δ) ₁₂ ≡ δ ₂₁
+  SYM₂₀▸ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ (Δ ▸ A))) → (SYM (Δ ▸ A) δ) ₂₀ ≡ δ ₀₂
+  SYM₂₁▸ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ (Δ ▸ A))) → (SYM (Δ ▸ A) δ) ₂₁ ≡ δ ₁₂
+
+SYM₀₂ {ε} δ = reflᵉ
+SYM₀₂ {Δ ▸ A} δ = SYM₀₂▸ A δ
+
 SYM₁₂ {ε} δ = reflᵉ
-SYM₁₂ {Δ ▸ A} δ = {!!}
+SYM₁₂ {Δ ▸ A} δ = SYM₁₂▸ A δ
 
 SYM₂₀ {ε} δ = reflᵉ
-SYM₂₀ {Δ ▸ A} δ = {!!}
+SYM₂₀ {Δ ▸ A} δ = SYM₂₀▸ A δ
 
 SYM₂₁ {ε} δ = reflᵉ
-SYM₂₁ {Δ ▸ A} δ = {!!}
+SYM₂₁ {Δ ▸ A} δ = SYM₂₁▸ A δ
 
 -- It would be nice to make all the SYMₘₙ equalities into rewrites,
 -- but for now we only do this with those for the vertices: SYM₀₀,
@@ -157,8 +156,6 @@ SYM₂₁ {Δ ▸ A} δ = {!!}
 -- themselves, and thus already reduce to reflexivity on concrete
 -- telescopes, so making them reduce to reflexivity on abstract
 -- telescopes as well is unlikely to be problematic.
-
-{-
 
 {-# REWRITE SYM₀₀ SYM₀₁ SYM₁₀ SYM₁₁ #-}
 
@@ -202,5 +199,4 @@ SYM₂₁-reflᵉ δ = axiomK
 
 {-# REWRITE SYM₀₂-reflᵉ SYM₂₀-reflᵉ SYM₁₂-reflᵉ SYM₂₁-reflᵉ #-}
 
--}
 -}

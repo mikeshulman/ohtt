@@ -42,6 +42,15 @@ Id′≡ : {Δ : Tel} (A : el Δ → Type)
     Id′ A γ a₀ a₁ ≡ Id′ A δ b₀ b₁
 Id′≡ _ reflᵉ reflʰ reflʰ = reflᵉ
 
+-- And for elements of an identity telescope
+ID∷≡ : {Δ : Tel} (A : el Δ → Type)
+       {δ δ' : el (ID Δ)} (ϕ : δ ≡ δ')
+       {a₀ : A (δ ₀)} {a₀' : A (δ' ₀)} (e₀ : a₀ ≡ʰ a₀')
+       {a₁ : A (δ ₁)} {a₁' : A (δ' ₁)} (e₁ : a₁ ≡ʰ a₁')
+       {a₂ : Id′ A δ a₀ a₁} {a₂' : Id′ A δ' a₀' a₁'} (e₂ : a₂ ≡ʰ a₂') →
+       _≡_ {el (ID (Δ ▸ A))} (δ ∷ a₀ ∷ a₁ ∷ a₂) (δ' ∷ a₀' ∷ a₁' ∷ a₂')
+ID∷≡ A reflᵉ reflʰ reflʰ reflʰ = reflᵉ
+
 ----------------------------------------
 -- ap, AP, and functoriality of Id′
 ----------------------------------------
