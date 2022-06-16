@@ -87,7 +87,12 @@ AP₁ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → (AP f γ)₁ �
 -- Specifically, Id′-AP should compute on types, like Id′.
 postulate
   Id′-AP : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (A : el Δ → Type) (a₀ : A (f (γ ₀))) (a₁ : A (f (γ ₁))) →
-    Id′ (λ w → A (f w)) γ a₀ a₁ ≡ Id′ A (AP f γ) (coe← (cong A (AP₀ f γ)) a₀) (coe← (cong A (AP₁ f γ)) a₁)
+    -- Does this go in the wrong direction?  It might make sense for
+    -- coe→ along it to go in the same direction as the function f.
+    Id′ (λ w → A (f w)) γ a₀ a₁
+    -- Note that the coercions here will disappear once we make AP₀
+    -- and AP₁ rewrite to refl.
+    ≡ Id′ A (AP f γ) (coe← (cong A (AP₀ f γ)) a₀) (coe← (cong A (AP₁ f γ)) a₁)
 
 -- Note that in defining AP, we have to coerce along AP₀, AP₁ and
 -- Id′-AP, explaining why we need a mutual definition.

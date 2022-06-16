@@ -133,7 +133,23 @@ unfrob-frob₀₂ A δ {a₀₀} {a₀₁} a₀₂ = coe→coe← (Id′-AP _₀
 -- with the concrete definitions we have given, they should also
 -- reduce automatically to reflᵉ on concrete types.
 
--- Note that a₀₂ is also an explicit argument.
+-- There is a potential way to make frob-unfrob and unfrob-frob hold
+-- definitionally: if we augmented Id′-AP and Id′-AP≡ by explicit
+-- functions that "coerce" along them, and heterogeneous equalities
+-- for these "coercions", which are all computed type-wise in the same
+-- way.  The Id′-AP≡ coercions would reduce over refls to the Id′-AP
+-- ones, just as the equalities do, and we would also postulate
+-- heterogeneous equalities between these "coercions" and their inputs
+-- which satisfy some triangle identities.  Finally, we could also
+-- assert by a rewrite that the two "coercions" are definitionally
+-- inverse.  I tried this, and it worked to simplify the definition of
+-- top₂₂ to just (top δ).  However, it seemed unlikely to greatly
+-- simplify later problems such as SYM-SYM, and would require a *lot*
+-- more boilerplate for each type former (computation of four
+-- coercions and four heterogeneous equalities), so I've dropped the
+-- idea for now.
+
+-- When frobnicating a₁₂, note that we need a₀₂ as an explicit argument.
 frob₁₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
   {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁)
   {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ A (δ ₁₂) a₁₀ a₁₁) →
