@@ -7,6 +7,7 @@ open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Square.Base
 open import HOTT.Square.Top
+open import HOTT.Square.Equality
 
 ------------------------------
 -- Symmetry

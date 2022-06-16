@@ -7,59 +7,8 @@ open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Square.Base
 open import HOTT.Square.Top
+open import HOTT.Square.Equality
 open import HOTT.Sym.Base
-
--- TODO: Move these to Square.Base
-
-sqbase≡ : {Δ : Tel} (A : el Δ → Type) {δ δ' : el (SQ Δ)} (ϕ : δ ≡ δ')
-    {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} {a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁}
-    {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} {a₁₂ : Id′ A (δ ₁₂) a₁₀ a₁₁}
-    {a₀₀' : A (δ' ₀₀)} {a₀₁' : A (δ' ₀₁)} {a₀₂' : Id′ A (δ' ₀₂) a₀₀' a₀₁'}
-    {a₁₀' : A (δ' ₁₀)} {a₁₁' : A (δ' ₁₁)} {a₁₂' : Id′ A (δ' ₁₂) a₁₀' a₁₁'}
-    (e₀₀ : a₀₀ ≡ʰ a₀₀') (e₀₁ : a₀₁ ≡ʰ a₀₁') (e₀₂ : a₀₂ ≡ʰ a₀₂')
-    (e₁₀ : a₁₀ ≡ʰ a₁₀') (e₁₁ : a₁₁ ≡ʰ a₁₁') (e₁₂ : a₁₂ ≡ʰ a₁₂')
-  → _≡_
-    {el (ID (ID Δ)
-    ▸ (λ x → A (x ₀₀))
-    ▸ (λ x → A ((pop x) ₀₁))
-    ▸ (λ x → Id′ (λ y → A (y ₀)) (pop (pop x)) (top (pop x)) (top x))
-    ▸ (λ x → A ((pop (pop (pop x))) ₁₀))
-    ▸ (λ x → A ((pop (pop (pop (pop x)))) ₁₁))
-    ▸ (λ x → Id′ (λ y → A ((pop y) ₁)) (pop (pop x)) (top (pop x)) (top x)))}
-    (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ frob₁₂ A δ a₀₂ a₁₂)
-    (δ' ∷ a₀₀' ∷ a₀₁' ∷ frob₀₂ A δ' a₀₂' ∷ a₁₀' ∷ a₁₁' ∷ frob₁₂ A δ' a₀₂' a₁₂')
-sqbase≡ A reflᵉ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ = reflᵉ
-
-sq∷≡ : {Δ : Tel} (A : el Δ → Type) {δ δ' : el (SQ Δ)} (ϕ : δ ≡ δ')
-    {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} {a₀₂ : Id′ (λ x → A (x ₀)) δ a₀₀ a₀₁}
-    {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} {a₁₂ : Id′ (λ w → A (pop w ₁)) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) a₁₀ a₁₁}
-    {a₂₀ : Id′ A (δ ₂₀) a₀₀ a₁₀} {a₂₁ : Id′ A (δ ₂₁) a₀₁ a₁₁}
-    {a₂₂ : Id′ -- {ID Δ ▸ (λ x → A (x ₀)) ▸ (λ x → A ((pop x) ₁))}
-      (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
-      (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂) a₂₀ a₂₁}
-    {a₀₀' : A (δ' ₀₀)} {a₀₁' : A (δ' ₀₁)} {a₀₂' : Id′ (λ x → A (x ₀)) δ' a₀₀' a₀₁'}
-    {a₁₀' : A (δ' ₁₀)} {a₁₁' : A (δ' ₁₁)} {a₁₂' : Id′ (λ w → A (pop w ₁)) (δ' ∷ a₀₀' ∷ a₀₁' ∷ a₀₂') a₁₀' a₁₁'}
-    {a₂₀' : Id′ A (δ' ₂₀) a₀₀' a₁₀'} {a₂₁' : Id′ A (δ' ₂₁) a₀₁' a₁₁'}
-    {a₂₂' : Id′ -- {ID Δ ▸ (λ x → A (x ₀)) ▸ (λ x → A ((pop x) ₁))}
-      (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
-      (δ' ∷ a₀₀' ∷ a₀₁' ∷ a₀₂' ∷ a₁₀' ∷ a₁₁' ∷ a₁₂') a₂₀' a₂₁'}
-    (e₀₀ : a₀₀ ≡ʰ a₀₀') (e₀₁ : a₀₁ ≡ʰ a₀₁') (e₀₂ : a₀₂ ≡ʰ a₀₂')
-    (e₁₀ : a₁₀ ≡ʰ a₁₀') (e₁₁ : a₁₁ ≡ʰ a₁₁') (e₁₂ : a₁₂ ≡ʰ a₁₂')
-    (e₂₀ : a₂₀ ≡ʰ a₂₀') (e₂₁ : a₂₁ ≡ʰ a₂₁') (e₂₂ : a₂₂ ≡ʰ a₂₂')
-  → _≡_
-    {el (ID (ID Δ)
-    ▸ (λ x → A (x ₀₀))
-    ▸ (λ x → A ((pop x) ₀₁))
-    ▸ (λ x → Id′ (λ y → A (y ₀)) (pop (pop x)) (top (pop x)) (top x))
-    ▸ (λ x → A ((pop (pop (pop x))) ₁₀))
-    ▸ (λ x → A ((pop (pop (pop (pop x)))) ₁₁))
-    ▸ (λ x → Id′ (λ y → A ((pop y) ₁)) (pop (pop x)) (top (pop x)) (top x))
-    ▸ (λ x → Id′ A (pop (pop (pop (pop (pop (pop x))))) ₀) (top (pop (pop (pop (pop (pop x)))))) (top (pop (pop x))))
-    ▸ (λ x → Id′ A (pop (pop (pop (pop (pop (pop (pop x)))))) ₁) (top (pop (pop (pop (pop (pop x)))))) (top (pop (pop x))))
-    ▸ (λ x → Id′ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y)) (pop (pop x)) (top (pop x)) (top x)))}
-    (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂)
-    (δ' ∷ a₀₀' ∷ a₀₁' ∷ a₀₂' ∷ a₁₀' ∷ a₁₁' ∷ a₁₂' ∷ a₂₀' ∷ a₂₁' ∷ a₂₂')
-sq∷≡ A reflᵉ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ = reflᵉ
 
 ------------------------------
 -- Symmetry is an involution
@@ -110,23 +59,60 @@ postulate
     sym′ A δ' a₀₂' a₁₂' a₂₀' a₂₁' ϕ' a₀₂'' a₁₂'' a₂₀'' a₂₁'' e₀₀' e₀₁' e₀₂' e₁₀' e₁₁' e₁₂' e₂₀' e₂₁'
       (sym′ A δ a₀₂ a₁₂ a₂₀ a₂₁ ϕ a₀₂' a₁₂' a₂₀' a₂₁' e₀₀ e₀₁ e₀₂ e₁₀ e₁₁ e₁₂ e₂₀ e₂₁ a₂₂) ≡
     coe← (Id′≡ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
-           (sqbase≡ A (ϕ' • (cong (SYM Δ) ϕ) • SYM-SYM Δ δ)
+           (sq₁₂≡ A (ϕ' • (cong (SYM Δ) ϕ) • SYM-SYM Δ δ)
              (e₀₀' •ʰ e₀₀) (e₀₁' •ʰ e₁₀) (e₀₂' •ʰ e₂₀) (e₁₀' •ʰ e₀₁) (e₁₁' •ʰ e₁₁) (e₁₂' •ʰ e₂₁))
            (e₂₀' •ʰ e₀₂) (e₂₁' •ʰ e₁₂))
          a₂₂
 
 -- The extra freedom in sym-sym′ is also convenient when proving SYM-SYM.
 
+-- With SYM₀₀ etc as refls, sym normalizes to
+{-
+  sym′ A δ a₀₂ a₁₂ a₂₀ a₂₁ reflᵉ
+  (coe← (Id′≡ A (SYM₀₂ δ) reflʰ reflʰ) a₂₀)
+  (coe← (Id′≡ A (SYM₁₂ δ) reflʰ reflʰ) a₂₁)
+  (coe← (Id′≡ A (SYM₂₀ δ) reflʰ reflʰ) a₀₂)
+  (coe← (Id′≡ A (SYM₂₁ δ) reflʰ reflʰ) a₁₂)
+  reflʰ
+  reflʰ
+  (coe←≡ʰ (Id′≡ A (SYM₀₂ δ) reflʰ reflʰ) a₂₀)
+  reflʰ
+  reflʰ
+  (coe←≡ʰ (Id′≡ A (SYM₁₂ δ) reflʰ reflʰ) a₂₁)
+  (coe←≡ʰ (Id′≡ A (SYM₂₀ δ) reflʰ reflʰ) a₀₂)
+  (coe←≡ʰ (Id′≡ A (SYM₂₁ δ) reflʰ reflʰ) a₁₂) a₂₂
+-}
+-- So the top of (SYM (Δ ▸ A) δ) becomes
+{-
+(sym A (popsq δ) (top₀₂ δ) (top₁₂ δ) (top₂₀ δ) (top₂₁ δ) (top₂₂ δ))
+=
+  sym′ A δ (top₀₂ δ) (top₁₂ δ) (top₂₀ δ) (top₂₁ δ) reflᵉ
+  (coe← (Id′≡ A (SYM₀₂ δ) reflʰ reflʰ) (top₂₀ δ))
+  (coe← (Id′≡ A (SYM₁₂ δ) reflʰ reflʰ) (top₂₁ δ))
+  (coe← (Id′≡ A (SYM₂₀ δ) reflʰ reflʰ) (top₀₂ δ))
+  (coe← (Id′≡ A (SYM₂₁ δ) reflʰ reflʰ) (top₁₂ δ))
+  reflʰ
+  reflʰ
+  (coe←≡ʰ (Id′≡ A (SYM₀₂ δ) reflʰ reflʰ) (top₂₀ δ))
+  reflʰ
+  reflʰ
+  (coe←≡ʰ (Id′≡ A (SYM₁₂ δ) reflʰ reflʰ) (top₂₁ δ))
+  (coe←≡ʰ (Id′≡ A (SYM₂₀ δ) reflʰ reflʰ) (top₀₂ δ))
+  (coe←≡ʰ (Id′≡ A (SYM₂₁ δ) reflʰ reflʰ) (top₁₂ δ)) (top₂₂ δ)
+-}
+
+
+
 SYM-SYM ε δ = reflᵉ
-SYM-SYM (Δ ▸ A) δ =
-  sq∷≡ A (SYM-SYM Δ (popsq δ))
-    ?
-    ?
+SYM-SYM (Δ ▸ A) δ = {!
+  sq₂₂≡ A (SYM-SYM Δ (popsq δ))
+    reflʰ
+    reflʰ
     (coe←≡ʰ (Id′≡ A (SYM₀₂ (SYM Δ (popsq δ))) reflʰ reflʰ) (coe← (Id′≡ A (SYM₂₀ (popsq δ)) reflʰ reflʰ) (top₀₂ δ))
       •ʰ coe←≡ʰ (Id′≡ A (SYM₂₀ (popsq δ)) reflʰ reflʰ) (top₀₂ δ)
       •ʰ coe→≡ʰ (Id′-AP (_₀ {Δ}) (popsq δ) A _ _) (top (pop (pop (pop (pop (pop (pop δ))))))))
-    ?
-    ?
+    reflʰ
+    reflʰ
     (coe←≡ʰ (Id′≡ A (SYM₁₂ (SYM Δ (popsq δ))) reflʰ reflʰ) (coe← (Id′≡ A (SYM₂₁ (popsq δ)) reflʰ reflʰ) (top₁₂ δ))
       •ʰ coe←≡ʰ (Id′≡ A (SYM₂₁ (popsq δ)) reflʰ reflʰ) (top₁₂ δ)
       •ʰ coe→≡ʰ (Id′-AP≡ (λ x → (pop x) ₁) (popsq δ ∷ _ ∷ _ ∷ top (pop (pop (pop (pop (pop (pop δ))))))) (popsq δ ₁₂)
@@ -146,6 +132,7 @@ SYM-SYM (Δ ▸ A) δ =
                 (coe← (Id′≡ A (SYM₁₂ (popsq δ)) reflʰ reflʰ) (top₂₁ δ))
       •ʰ coe←≡ʰ (Id′≡ A (SYM₁₂ (popsq δ)) reflʰ reflʰ) (top₂₁ δ))
     ?
+  !}
 
 {-
 sq∷ A
