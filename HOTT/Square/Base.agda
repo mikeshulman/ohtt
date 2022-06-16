@@ -76,14 +76,7 @@ _₁₂ : {Δ : Tel} → el (SQ Δ) → el (ID Δ)
 ₁₂-₁ δ = reflᵉ
 
 -- We can now extract a definition of squares in a type by having Agda
--- normalize (SQ (Δ ▸ A)) for us.  On my laptop this takes:
-
--- > 15 sec if only the definition of ID is known
--- > 30 sec once AP₀ and AP₁ are declared as rewrites
--- > 1 min once REFL₀ and REFL₁ are also declared as rewrites
--- > 1 min 30 sec once Id′-REFL and AP-const are also declared as rewrites
-
--- Once done and cleaned up, we obtain:
+-- normalize (SQ (Δ ▸ A)) for us.  Once done and cleaned up, we obtain:
 {-
 ID (ID Δ)
 ▸ (λ x → A (x ₀₀))
