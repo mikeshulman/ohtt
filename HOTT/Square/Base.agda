@@ -109,6 +109,16 @@ unfrob₀₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
   Id′ A (δ ₀₂) a₀₀ a₀₁
 unfrob₀₂ {Δ} A δ {a₀₀} {a₀₁} a₀₂ = coe→ (Id′-AP (_₀ {Δ}) δ A a₀₀ a₀₁) a₀₂
 
+frob₀₂≡ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+  {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁) →
+  frob₀₂ A δ a₀₂ ≡ʰ a₀₂
+frob₀₂≡ {Δ} A δ {a₀₀} {a₀₁} a₀₂ = coe←≡ʰ (Id′-AP (_₀ {Δ}) δ A a₀₀ a₀₁) a₀₂
+
+unfrob₀₂≡ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+  {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ (λ x → A (x ₀)) δ a₀₀ a₀₁) →
+  unfrob₀₂ A δ a₀₂ ≡ʰ a₀₂
+unfrob₀₂≡ {Δ} A δ {a₀₀} {a₀₁} a₀₂ = coe→≡ʰ (Id′-AP (_₀ {Δ}) δ A a₀₀ a₀₁) a₀₂
+
 frob-unfrob₀₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
   {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ (λ x → A (x ₀)) δ a₀₀ a₀₁) →
   frob₀₂ A δ (unfrob₀₂ A δ a₀₂) ≡ a₀₂
@@ -163,6 +173,26 @@ unfrob₁₂ A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ =
                 A {a₁₀} {a₁₁} {a₁₀} {a₁₁} reflʰ reflʰ)
        a₁₂
 
+frob₁₂≡ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+  {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁)
+  {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ A (δ ₁₂) a₁₀ a₁₁) →
+  frob₁₂ A δ a₀₂ a₁₂ ≡ʰ a₁₂
+frob₁₂≡ A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ =
+  coe←≡ʰ (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂)
+                (AP-AP (pop {B = λ x → A (x ₀)}) _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂))
+                A reflʰ reflʰ)
+       a₁₂
+
+unfrob₁₂≡ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+  {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ (λ x → A (x ₀)) δ a₀₀ a₀₁)
+  {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ (λ w → A (pop w ₁)) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) a₁₀ a₁₁) →
+  unfrob₁₂ A δ a₀₂ a₁₂ ≡ʰ a₁₂
+unfrob₁₂≡ A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ =
+  coe→≡ʰ (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂)
+                (AP-AP (pop {B = λ x → A (x ₀)}) _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂))
+                A {a₁₀} {a₁₁} {a₁₀} {a₁₁} reflʰ reflʰ)
+       a₁₂
+
 -- This one is a heterogeneous equality because the type of a₁₂ and
 -- its (un)frobnications depend on a₀₂ and its (un)frobnications.  And
 -- as long as we're being heterogeneous and using UIP, we may as well
@@ -193,15 +223,58 @@ unfrob-frob₁₂ A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ =
 -- Squares in a type
 ------------------------------
 
+Id′₀₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ)) (a₀₀ : A (δ ₀₀)) (a₀₁ : A (δ ₀₁)) → Type
+Id′₀₂ A δ a₀₀ a₀₁ = Id′ (λ x → A (x ₀)) δ a₀₀ a₀₁
+
+Id′₁₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+  {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′₀₂ A δ a₀₀ a₀₁) (a₁₀ : A (δ ₁₀)) (a₁₁ : A (δ ₁₁)) → Type
+Id′₁₂ A δ {a₀₀} {a₀₁} a₀₂ a₁₀ a₁₁ = Id′ (λ w → A (pop w ₁)) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) a₁₀ a₁₁
+
 Sq : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
-     {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁)
-     {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ A (δ ₁₂) a₁₀ a₁₁)
+     {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′₀₂ A δ a₀₀ a₀₁)
+     {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′₁₂ A δ a₀₂ a₁₀ a₁₁)
      (a₂₀ : Id′ A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id′ A (δ ₂₁) a₀₁ a₁₁) → Type
 Sq {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ =
   Id′ {ID Δ ▸ (λ x → A (x ₀)) ▸ (λ x → A ((pop x) ₁))}
       (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
-      (δ ∷ a₀₀ ∷ a₀₁ ∷ frob₀₂ A δ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ frob₁₂ A δ a₀₂ a₁₂) a₂₀ a₂₁
+      (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂) a₂₀ a₂₁
 
+popsq : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) → el (SQ Δ)
+popsq δ = pop (pop (pop (pop (pop (pop (pop (pop (pop δ))))))))
+
+top₀₀ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) → A (popsq δ ₀₀)
+top₀₀ δ = top (pop (pop (pop (pop (pop (pop (pop (pop δ))))))))
+
+top₀₁ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) → A (popsq δ ₀₁)
+top₀₁ δ = top (pop (pop (pop (pop (pop (pop (pop δ)))))))
+
+top₀₂ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) →
+  Id′₀₂ A (popsq δ) (top₀₀ δ) (top₀₁ δ)
+top₀₂ δ = top (pop (pop (pop (pop (pop (pop δ))))))
+
+top₁₀ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) → A (popsq δ ₁₀)
+top₁₀ δ = top (pop (pop (pop (pop (pop δ)))))
+
+top₁₁ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) → A (popsq δ ₁₁)
+top₁₁ δ = top (pop (pop (pop (pop δ))))
+
+top₁₂ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) →
+  Id′₁₂ A (popsq δ) (top₀₂ δ) (top₁₀ δ) (top₁₁ δ)
+top₁₂ δ = top (pop (pop (pop δ)))
+
+top₂₀ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) →
+  Id′ A (popsq δ ₂₀) (top₀₀ δ) (top₁₀ δ)
+top₂₀ δ = top (pop (pop δ))
+
+top₂₁ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) →
+  Id′ A (popsq δ ₂₁) (top₀₁ δ) (top₁₁ δ)
+top₂₁ δ = top (pop δ)
+
+top₂₂ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) →
+  Sq A (popsq δ) (top₀₂ δ) (top₁₂ δ) (top₂₀ δ) (top₂₁ δ)
+top₂₂ δ = top δ
+
+{-
 -- We can extend a square in a telescope by a square in a type.
 sq∷ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
       {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁)
@@ -232,3 +305,4 @@ Sq≡ : {Δ : Tel} (A : el Δ → Type)
      {a₂₁ : Id′ A (δ ₂₁) a₀₁ a₁₁} {a₂₁' : Id′ A (δ' ₂₁) a₀₁' a₁₁'} (e₂₁ : a₂₁ ≡ʰ a₂₁') →
   Sq A δ a₀₂ a₁₂ a₂₀ a₂₁ ≡ Sq A δ' a₀₂' a₁₂' a₂₀' a₂₁'
 Sq≡ A reflᵉ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ = reflᵉ
+-}
