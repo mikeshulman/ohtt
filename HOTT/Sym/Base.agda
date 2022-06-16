@@ -200,7 +200,6 @@ SYM₁₂ {Δ ▸ A} δ =
     --         (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
     --         (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
     --        (top₂₀ δ)))
-    --      (SYM Δ (popsq δ) ₁₂)
     --      (AP-AP pop _₁
     --       (SYM Δ (popsq δ) ∷ coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ) ∷
     --        coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)
@@ -234,7 +233,6 @@ SYM₁₂ {Δ ▸ A} δ =
             (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
             (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)))
            (top₂₀ δ)))
-         (SYM Δ (popsq δ) ₁₂)
          (AP-AP pop _₁
           (SYM Δ (popsq δ) ∷ coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ) ∷
            coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ)
@@ -324,7 +322,7 @@ SYM₂₁ {Δ ▸ A} δ =
       (top₁₂ δ)
     •ʰ
     coe→≡ʰcoe→←
-    (Id′-AP≡ (λ x → (pop x) ₁) (popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ top (pop (pop (pop (pop (pop (pop δ))))))) (popsq δ ₁₂)
+    (Id′-AP≡ (λ x → (pop x) ₁) (popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ top (pop (pop (pop (pop (pop (pop δ)))))))
              (AP-AP (pop {B = λ x → A (x ₀)}) _₁ (popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ top (pop (pop (pop (pop (pop (pop δ))))))))
              A reflʰ reflʰ)
     (Id′-AP (λ x → (pop (pop (pop x)))₁) δ A (top (pop (δ ₀))) (top (pop (δ ₁))))
