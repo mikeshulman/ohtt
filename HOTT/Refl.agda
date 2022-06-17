@@ -105,11 +105,11 @@ AP-const {Δ} (Θ ▸ A) δ t = AP-const-∷ Θ A δ (pop t) (top t)
 {-# REWRITE REFL₀ REFL₁ Id′-REFL AP-const #-}
 
 -- Rewriting along Id′-REFL and AP-const seems a bit more questionable
--- than along AP₀ and REFL₀, since they don't already reduce to refl
+-- than along AP₀ and REFL₀, since they don't already reduce to reflᵉ
 -- on arbitrary concrete telescopes, only on concrete telescopes of
 -- concrete types.  However, given the way they're defined in terms of
--- each other, once we also make them both *be* refl as below, then I
--- believe the above definitions of them do *also* reduce to refl on
+-- each other, once we also make them both *be* reflᵉ as below, then I
+-- believe the above definitions of them do *also* reduce to reflᵉ on
 -- concrete telescopes.  Finally, this hasn't been a problem yet.
 
 REFL₀-reflᵉ : {Δ : Tel} (δ : el Δ) → REFL₀ {Δ} δ ≡ reflᵉ
@@ -143,8 +143,8 @@ Id′-REFL-reflᵉ A δ a₀ a₁ = reflᵉ
 -- practice, because if δ has internal structure, REFL will compute on
 -- it, and can't be "un-rewritten" back to a REFL in order for Id-REFL
 -- to fire.  So we still sometimes have to coerce along Id-REFL.  But
--- the fact that it is definitionally reflexivity, at least on
--- abstract arguments, minimizes the effect of these coercions.
+-- the fact that it is definitionally reflᵉ, at least on abstract
+-- arguments, minimizes the effect of these coercions.
 
 ------------------------------
 -- ap and reflexivity

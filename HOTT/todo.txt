@@ -1,0 +1,6 @@
+Do the coercions in the definition of REFL vanish after we declare enough rewrites?  I.e. does the following typecheck?
+
+eg : {Δ : Tel} (A : el Δ → Type) (δ : el (Δ ▸ A)) → REFL δ ≡ REFL (pop δ) ∷ top δ ∷ top δ ∷ refl (top δ)
+eg A δ = reflᵉ
+
+If so, why does it take so long?
