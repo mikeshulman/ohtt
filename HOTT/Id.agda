@@ -4,6 +4,7 @@ module HOTT.Id where
 
 open import HOTT.Rewrite
 open import HOTT.Telescope
+open Σᵉ
 
 --------------------------------------------------
 -- Identity types and identity telescopes
@@ -29,10 +30,10 @@ ID ε = ε
 ID (Δ ▸ A) = ID Δ ▸ (λ δ → A (δ ₀)) ▸ (λ δa → A ((pop δa)₁)) ▸ (λ δaa → Id′ A (pop (pop δaa)) (top (pop δaa)) (top δaa))
 
 _₀ {ε} _ = []
-_₀ {Δ ▸ A} δ = (pop (pop (pop δ)))₀ ∷ top (pop (pop δ))
+_₀ {Δ ▸ A} (δ ∷ a₀ ∷ a₁ ∷ a₂) = δ ₀ ∷ a₀
 
 _₁ {ε} _ = []
-_₁ {Δ ▸ A} δ = (pop (pop (pop δ)))₁ ∷ top (pop δ)
+_₁ {Δ ▸ A} (δ ∷ a₀ ∷ a₁ ∷ a₂) = δ ₁ ∷ a₁
 
 -- Congruence for dependent identity types
 Id′≡ : {Δ : Tel} (A : el Δ → Type)
@@ -87,8 +88,11 @@ postulate
 -- actual functions that compute only on the telescope Δ, rather than
 -- postulates with rewrite rules that restrict computation to terms f
 -- that involving ∷.
-AP₀ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → (AP f γ)₀ ≡ f (γ ₀)
-AP₁ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → (AP f γ)₁ ≡ f (γ ₁)
+postulate
+  AP₀ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → (AP f γ)₀ ≡ f (γ ₀)
+  AP₁ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → (AP f γ)₁ ≡ f (γ ₁)
+
+{-# REWRITE AP₀ AP₁ #-}
 
 -- We also define AP mutually with postulated naturality for Id′.
 -- This rule should be admissible, meaning we will give rewrite rules
@@ -98,10 +102,7 @@ postulate
   Id′-AP : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (A : el Δ → Type) (a₀ : A (f (γ ₀))) (a₁ : A (f (γ ₁))) →
     -- Does this go in the wrong direction?  It might make sense for
     -- coe→ along it to go in the same direction as the function f.
-    Id′ (λ w → A (f w)) γ a₀ a₁
-    -- Note that the coercions here will disappear once we make AP₀
-    -- and AP₁ rewrite to refl.
-    ≡ Id′ A (AP f γ) (coe← (cong A (AP₀ f γ)) a₀) (coe← (cong A (AP₁ f γ)) a₁)
+    Id′ (λ w → A (f w)) γ a₀ a₁ ≡ Id′ A (AP f γ) a₀ a₁
 
 -- Note that in defining AP, we have to coerce along AP₀, AP₁ and
 -- Id′-AP, explaining why we need a mutual definition.
@@ -109,10 +110,7 @@ postulate
   APε : {Γ : Tel} (f : el Γ → el ε) (γ : el (ID Γ)) → AP {Δ = ε} f γ ≡ []
   AP∷ : {Γ Δ : Tel} (γ : el (ID Γ)) (f : el Γ → el Δ) (A : el Δ → Type) (g : (x : el Γ) → A (f x)) →
     AP {Δ = Δ ▸ A} (λ x → f x ∷ g x) γ ≡
-      AP f γ ∷
-      coe← (cong A (AP₀ f γ)) (g (γ ₀)) ∷
-      coe← (cong A (AP₁ f γ)) (g (γ ₁)) ∷
-      coe→ (Id′-AP f γ A (g (γ ₀)) (g (γ ₁))) (ap g γ)
+    AP f γ ∷ g (γ ₀) ∷ g (γ ₁) ∷ coe→ (Id′-AP f γ A (g (γ ₀)) (g (γ ₁))) (ap g γ)
 
 {-# REWRITE APε AP∷ #-}
 
@@ -130,48 +128,6 @@ postulate
 -- along with ∷, top, and pop, and since AP will compute on all of
 -- them, (AP f γ) is not neutral and should eventually reduce to the
 -- same result.
-
--- AP₀ and AP₁ also have to be "defined" on ∷ by matching inside λ.
--- But since ∷ has an eta-rule, and we don't care about preventing
--- computation on non-constructors, it suffices to decompose the
--- argument with top and pop and pass it off to a helper function.
-AP₀∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
-  (AP (λ x → f x ∷ g x) γ)₀ ≡ f (γ ₀) ∷ g (γ ₀)
-AP₀∷ A f g γ = ∷≡ A (AP₀ f γ) (coe←≡ʰ (cong A (AP₀ f γ)) (g (γ ₀)))
-
-AP₁∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
-  ((AP (λ x → f x ∷ g x) γ)₁) ≡ f (γ ₁) ∷ g (γ ₁)
-AP₁∷ A f g γ = ∷≡ A (AP₁ f γ) (coe←≡ʰ (cong A (AP₁ f γ)) (g (γ ₁)))
-
-AP₀ {Δ = ε} f γ = reflᵉ
-AP₀ {Δ = Δ ▸ A} f γ = AP₀∷ A (λ x → pop (f x)) (λ x → top (f x)) γ
-AP₁ {Δ = ε} f γ = reflᵉ
-AP₁ {Δ = Δ ▸ A} f γ = AP₁∷ A (λ x → pop (f x)) (λ x → top (f x)) γ
-
--- The proofs of AP₀ and AP₁ imply that they should hold
--- definitionally for all concrete telescopes.  Thus, it is reasonable
--- to assert them as rewrite rules for all telescopes.  Note that
--- they have a volatile LHS, which reduces on concrete or
--- partially-concrete telescopes; but their definitions make them
--- consistent with such reductions.  Thus, they hold definitionally
--- for partially-concrete telescopes as well.
-{-# REWRITE AP₀ AP₁ #-}
-
--- Since AP₀ and AP₁ now also hold definitionally on abstract telescopes,
--- we can also prove by UIP that they are equal to reflexivity.
-AP₀-reflᵉ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → AP₀ f γ ≡ reflᵉ
-AP₀-reflᵉ f γ = axiomK
-
-AP₁-reflᵉ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → AP₁ f γ ≡ reflᵉ
-AP₁-reflᵉ f γ = axiomK
-
--- If we now declare these proofs also as rewrites, then the coercions
--- along AP₀ and AP₁ that we had to insert in the type of Id′-AP and
--- the definition of AP to make them well-typed will disappear.  I
--- think/hope that this won't produce any ill-typed terms, since as
--- noted above AP₀ and AP₁ should hold definitionally on concrete and
--- partially-concrete telescopes and terms too.
-{-# REWRITE AP₀-reflᵉ AP₁-reflᵉ #-}
 
 -- A useful derived rule for combining the admissible equality Id′-AP
 -- with an equality of base identifications and heterogeneous
@@ -201,14 +157,14 @@ postulate
 
 -- From this we can prove the analogous functoriality property for AP,
 -- with some awful wrangling of heterogeneous exo-equality.
-AP-AP : {Γ Δ Θ : Tel} (f : el Γ → el Δ) (g : el Δ → el Θ) (γ : el (ID Γ)) →
-  AP g (AP f γ) ≡ AP (λ w → g (f w)) γ
-
--- The proof requires a helper lemma for ∷, just like AP₀ and AP₁.
-AP-AP-∷ : {Γ Δ Θ : Tel} (A : el Θ → Type) (f : el Γ → el Δ)
-  (g : el Δ → el Θ) (h : (x : el Δ) → A (g x)) (γ : el (ID Γ)) →
-  AP (λ x → g x ∷ h x) (AP f γ) ≡ AP (λ w → g (f w) ∷ h (f w)) γ
-AP-AP-∷ A f g h γ =
+postulate
+  AP-AP : {Γ Δ Θ : Tel} (f : el Γ → el Δ) (g : el Δ → el Θ) (γ : el (ID Γ)) →
+    AP g (AP f γ) ≡ AP (λ w → g (f w)) γ
+  AP-AP-ε : {Γ Δ : Tel} (f : el Γ → el Δ) (g : el Δ → el ε) (γ : el (ID Γ)) →
+    AP-AP {Θ = ε} f g γ ≡ reflᵉ
+  AP-AP-∷ : {Γ Δ Θ : Tel} (A : el Θ → Type) (f : el Γ → el Δ)
+    (g : el Δ → el Θ) (h : (x : el Δ) → A (g x)) (γ : el (ID Γ)) →
+    AP-AP f (λ x → g x ∷ h x) γ ≡
       ∷≡ (λ δaa → Id′ A (pop (pop δaa)) (top (pop δaa)) (top δaa))
       (∷≡ (λ δa → A ((pop δa)₁))
            (∷≡ (λ δ → A (δ ₀))
@@ -219,8 +175,7 @@ AP-AP-∷ A f g h γ =
        •ʰ ap-AP f h γ
        •ʰ revʰ (coe→≡ʰ (Id′-AP (λ x → g (f x)) γ A (h (f (γ ₀))) (h (f (γ ₁)))) _))
 
-AP-AP {Θ = ε} f g γ = reflᵉ
-AP-AP {Γ} {Δ} {Θ ▸ A} f g γ = AP-AP-∷ A f (λ x → pop (g x)) (λ x → top (g x)) γ
+{-# REWRITE AP-AP-ε AP-AP-∷ #-}
 
 -- Inspecting the above definition, we see that on a concrete
 -- telescope, AP-AP consists essentially of reflexivities on points
@@ -381,3 +336,4 @@ top-pop-pop-AP-pop A B γ = {!!}
 -}
 
 {-# REWRITE AP-AP-idmap AP-AP-idmap′ Id′-AP-idmap #-}
+
