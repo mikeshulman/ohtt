@@ -6,7 +6,7 @@ open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Square.Base
---open import HOTT.Square.Equality
+open import HOTT.Square.Equality
 
 ------------------------------
 -- Symmetry
@@ -18,10 +18,14 @@ SYM : (Δ : Tel) → el (SQ Δ) → el (SQ Δ)
 -- We also have to define it mutually with proofs that it transposes
 -- the boundary.  We expand out the left-hand sides of those that will
 -- be rewrites, since rewriting requires the LHS to not be a redex.
-SYM₀₀ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₀ ₀ ≡ δ ₀₀
-SYM₀₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁ ₀ ≡ δ ₁₀
-SYM₁₀ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₀ ₁ ≡ δ ₀₁
-SYM₁₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁ ₁ ≡ δ ₁₁
+postulate
+  SYM₀₀ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₀ ₀ ≡ δ ₀₀
+  SYM₀₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁ ₀ ≡ δ ₁₀
+  SYM₁₀ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₀ ₁ ≡ δ ₀₁
+  SYM₁₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁ ₁ ≡ δ ₁₁
+
+{-# REWRITE SYM₀₀ SYM₀₁ SYM₁₀ SYM₁₁ #-}
+
 SYM₀₂ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₀₂ ≡ δ ₂₀
 SYM₁₂ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁₂ ≡ δ ₂₁
 SYM₂₀ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₂₀ ≡ δ ₀₂
@@ -52,55 +56,32 @@ postulate
 -- Now we can define symmetry for telescopes by decomposing a collated
 -- SQ, transposing and applying symmetry, and recomposing again.
 SYM ε δ = []
-SYM (Δ ▸ A) δ =
-  let SYMpopδ₀₂ = (SYM Δ (popsq δ) ∷ coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ) ∷ coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ) ∷ coe← (Id′-AP≡ _₀ (SYM Δ (popsq δ)) (rev (SYM₀₂ (popsq δ))) A (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)) (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))) (top₂₀ δ))
+SYM (Δ ▸ A) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) =
+  let a₂₀' = coe← (Id′-AP≡ _₀ (SYM Δ δ) (rev (SYM₀₂ δ)) A reflʰ reflʰ) a₂₀
   in
-  SYM Δ (popsq δ) ∷
-  coe← (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ) ∷
-  coe← (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ) ∷
-  coe← (Id′-AP≡ _₀ (SYM Δ (popsq δ)) (rev (SYM₀₂ (popsq δ))) A (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)) (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))) (top₂₀ δ) ∷
-  coe← (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ) ∷
-  coe← (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ) ∷
-  coe← (Id′-AP≡ (λ x → (pop x ₁)) SYMpopδ₀₂ (rev (SYM₁₂ (popsq δ)) • AP-AP pop _₁ SYMpopδ₀₂) A
-                (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)) (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)))
-       (top₂₁ δ) ∷
-  coe→ (Id′-AP≡ _₀ (popsq δ) (SYM₂₀ (popsq δ)) A (revʰ (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))) (revʰ (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)))) (top₀₂ δ) ∷
-  coe→ (Id′-AP≡ (λ x → (pop x) ₁) (popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ top₀₂ δ) (SYM₂₁ (popsq δ) • AP-AP pop _₁ (popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ top₀₂ δ)) A
-                (revʰ (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))) (revʰ (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ))))
-       (top₁₂ δ) ∷
-  sym A (popsq δ) (top₀₂ δ) (top₁₂ δ) (top₂₀ δ) (top₂₁ δ) reflᵉ _ _ _ _
-    (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
-    (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))
-    (coe←≡ʰ (Id′-AP≡ _₀ (SYM Δ (popsq δ)) (rev (SYM₀₂ (popsq δ))) A (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)) (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))) (top₂₀ δ))
-    (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ))
-    (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ))
-    (coe←≡ʰ (Id′-AP≡ (λ x → pop x ₁) SYMpopδ₀₂ (rev (SYM₁₂ (popsq δ)) • AP-AP pop _₁ SYMpopδ₀₂) A
-                     (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)) (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ)))
-            (top₂₁ δ))
-    (coe→≡ʰ (Id′-AP≡ _₀ (popsq δ) (SYM₂₀ (popsq δ)) A (revʰ (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))) (revʰ (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ)))) (top₀₂ δ))
-    (coe→≡ʰ (Id′-AP≡ (λ x → pop x ₁) (popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ top₀₂ δ) (SYM₂₁ (popsq δ) • AP-AP pop _₁ (popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ top₀₂ δ)) A
-                     (revʰ (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))) (revʰ (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ))))
-            (top₁₂ δ))
-    (top₂₂ δ)
+  SYM Δ δ ∷
+  a₀₀ ∷
+  a₁₀ ∷
+  a₂₀' ∷
+  a₀₁ ∷
+  a₁₁ ∷
+  coe← (Id′-AP≡ (λ x → (pop x ₁)) (SYM Δ δ ∷ a₀₀ ∷ a₁₀ ∷ a₂₀')
+                (rev (SYM₁₂ δ) • AP-AP pop _₁ (SYM Δ δ ∷ a₀₀ ∷ a₁₀ ∷ a₂₀')) A reflʰ reflʰ) a₂₁ ∷
+  coe→ (Id′-AP≡ _₀ δ (SYM₂₀ δ) A reflʰ reflʰ) a₀₂ ∷
+  coe→ (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂)
+                (SYM₂₁ δ • AP-AP pop _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂)) A reflʰ reflʰ) a₁₂ ∷
+  sym A δ a₀₂ a₁₂ a₂₀ a₂₁ reflᵉ _ _ _ _
+    reflʰ reflʰ
+    (coe←≡ʰ (Id′-AP≡ _₀ (SYM Δ δ) (rev (SYM₀₂ δ)) A reflʰ reflʰ) a₂₀)
+    reflʰ reflʰ
+    (coe←≡ʰ (Id′-AP≡ (λ x → pop x ₁) (SYM Δ δ ∷ a₀₀ ∷ a₁₀ ∷ a₂₀')
+                     (rev (SYM₁₂ δ) • AP-AP pop _₁ (SYM Δ δ ∷ a₀₀ ∷ a₁₀ ∷ a₂₀')) A reflʰ reflʰ) a₂₁)
+    (coe→≡ʰ (Id′-AP≡ _₀ δ (SYM₂₀ δ) A reflʰ reflʰ) a₀₂)
+    (coe→≡ʰ (Id′-AP≡ (λ x → pop x ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) (SYM₂₁ δ • AP-AP pop _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂)) A reflʰ reflʰ) a₁₂)
+    a₂₂
 
 -- It remains to observe that this definition indeed transposes the boundary.
 
-SYM₀₀ {ε} δ = reflᵉ
-SYM₀₀ {Δ ▸ A} δ = ∷≡ A (SYM₀₀ (popsq δ)) (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
-
-SYM₀₁ {ε} δ = reflᵉ
-SYM₀₁ {Δ ▸ A} δ = ∷≡ A (SYM₀₁ (popsq δ)) (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))
-
-SYM₁₀ {ε} δ = reflᵉ
-SYM₁₀ {Δ ▸ A} δ = ∷≡ A (SYM₁₀ (popsq δ)) (coe←≡ʰ (cong A (SYM₁₀ (popsq δ))) (top₀₁ δ))
-
-SYM₁₁ {ε} δ = reflᵉ
-SYM₁₁ {Δ ▸ A} δ = ∷≡ A (SYM₁₁ (popsq δ)) (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ))
-
--- The others should be easily provable by combining a few more
--- coercions, but Agda can't manage to normalize their types in a
--- sensible amount of time.  So for now, we just postulate the hard
--- cases.  We also note that we can prove the first few cases by reflᵉ.
 postulate
   SYM₀₂▸ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ (Δ ▸ A))) → (SYM (Δ ▸ A) δ) ₀₂ ≡ δ ₂₀
   SYM₁₂▸ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ (Δ ▸ A))) → (SYM (Δ ▸ A) δ) ₁₂ ≡ δ ₂₁
@@ -109,6 +90,7 @@ postulate
 
 SYM₀₂ {ε} δ = reflᵉ
 SYM₀₂ {Δ ▸ A} δ = SYM₀₂▸ A δ
+-- ID∷≡ A (SYM₀₂ δ) reflʰ reflʰ (coe←≡ʰ (Id′-AP≡ _₀ (SYM Δ δ) (rev (SYM₀₂ δ)) A reflʰ reflʰ) a₂₀)
 
 SYM₁₂ {ε} δ = reflᵉ
 SYM₁₂ {Δ ▸ A} δ = SYM₁₂▸ A δ
@@ -127,21 +109,6 @@ SYM₂₁ {Δ ▸ A} δ = SYM₂₁▸ A δ
 -- telescopes, so making them reduce to reflexivity on abstract
 -- telescopes as well is unlikely to be problematic.
 
-{-# REWRITE SYM₀₀ SYM₀₁ SYM₁₀ SYM₁₁ #-}
-
-SYM₀₀-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₀₀ δ ≡ reflᵉ
-SYM₀₀-reflᵉ δ = axiomK
-
-SYM₀₁-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₀₁ δ ≡ reflᵉ
-SYM₀₁-reflᵉ δ = axiomK
-
-SYM₁₀-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₁₀ δ ≡ reflᵉ
-SYM₁₀-reflᵉ δ = axiomK
-
-SYM₁₁-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₁₁ δ ≡ reflᵉ
-SYM₁₁-reflᵉ δ = axiomK
-
-{-# REWRITE SYM₀₀-reflᵉ SYM₀₁-reflᵉ SYM₁₀-reflᵉ SYM₁₁-reflᵉ #-}
 
 -- In contrast, the rules for the 1-cell boundary, SYM₀₂, SYM₁₂,
 -- SYM₂₀, and SYM₂₁, involve nontrivial instances of the functoriality
