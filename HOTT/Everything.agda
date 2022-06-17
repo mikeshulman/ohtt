@@ -7,13 +7,17 @@ import HOTT.Telescope
 import HOTT.Id
 import HOTT.Refl
 import HOTT.Transport
+
 import HOTT.Square
 import HOTT.Sym
 import HOTT.Fill
+
 import HOTT.Unit
 import HOTT.Prod
 import HOTT.Sigma
 import HOTT.Pi
 import HOTT.Arrow
+import HOTT.Copy
 import HOTT.Universe
+
 import HOTT.Test

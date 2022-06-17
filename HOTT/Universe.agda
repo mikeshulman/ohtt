@@ -11,6 +11,7 @@ open import HOTT.Prod
 open import HOTT.Sigma
 open import HOTT.Pi
 open import HOTT.Arrow
+open import HOTT.Copy
 
 --------------------------------------------------
 -- Contractibility and 1-1 correspondences
@@ -27,35 +28,6 @@ is11 {A} {B} R = Π A (λ a → isContr (Σ B (λ b → R ∙ a ∙ b))) × Π B
 
 11Corr : Type → Type → Type
 11Corr A B = Σ (A ⇒ B ⇒ Type) is11
-
-------------------------------
--- Copy-types
-------------------------------
-
-infixl 30 _↑
-infixl 30 _↓
-
-postulate
-  Copy : Type → Type
-  _↑ : {A : Type} → A → Copy A
-  _↓ : {A : Type} → Copy A → A
-  ↑↓ : {A : Type} (a : A) → a ↑ ↓ ≡ a
-
-{-# REWRITE ↑↓ #-}
-
-postulate
-  Id-Copy : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₀ : Copy (A (δ ₀))) (a₁ : Copy (A (δ ₁))) →
-    Id′ (λ w → Copy (A w)) δ a₀ a₁ ≡ Copy (Id′ A δ (a₀ ↓) (a₁ ↓))
-
-{-# REWRITE Id-Copy #-}
-
-postulate
-  ap↑ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a : (w : el Δ) → A w) →
-    ap (λ w → (a w) ↑) δ ≡ (ap a δ) ↑
-  ap↓ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a : (w : el Δ) → Copy (A w)) →
-    ap (λ w → (a w) ↓) δ ≡ (ap a δ) ↓
-
-{-# REWRITE ap↑ ap↓ #-}
 
 ------------------------------
 -- The universe
@@ -76,3 +48,5 @@ postulate
               Λ x ⇛ Λ x' ⇛ utr← A δ a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x') ﹐ ulift← A δ a₁ (π₁ x) (π₁ x') (π₂ x) (π₂ x')))))
 
 {-# REWRITE apU #-}
+
+-- TODO: Id-top, the Tarski eliminator
