@@ -39,20 +39,19 @@ el : Tel → Typeᵉ
 -- reduce on pop to make the telescope *larger* until the function
 -- becomes the identity.  For similar reasons, we will later use
 -- postulates and rewrite rules for our actual type formers Σ, Π, etc.
-record Σᵉ (Δ : Tel) (B : el Δ → Type) : Typeᵉ where
+data Σᵉ (Δ : Tel) (B : el Δ → Type) : Typeᵉ where
 -- We name the constructor ∷ because we think of the
 -- elements of a telescope as a snoc-list, and we name its projections
 -- 'top' and 'pop' because we think of them as De Bruijn indices
 -- accessing elements of such a list.
-  inductive                     -- I don't know why this is necessary
-  no-eta-equality
-  pattern
-  constructor _∷_
-  field
-    pop : el Δ
-    top : B pop
-
+  _∷_ : (x : el Δ) → B x → Σᵉ Δ B
 open Σᵉ
+
+pop : {Δ : Tel} {B : el Δ → Type} → Σᵉ Δ B → el Δ
+pop (δ ∷ _) = δ
+
+top : {Δ : Tel} {B : el Δ → Type} (δ : Σᵉ Δ B) → B (pop δ)
+top (_ ∷ b) = b
 
 data Tel where
   ε : Tel

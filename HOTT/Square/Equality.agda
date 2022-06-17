@@ -33,12 +33,12 @@ sq₁₂≡ : {Δ : Tel} (A : el Δ → Type) {δ δ' : el (SQ Δ)} (ϕ : δ ≡
     (e₁₀ : a₁₀ ≡ʰ a₁₀') (e₁₁ : a₁₁ ≡ʰ a₁₁') (e₁₂ : a₁₂ ≡ʰ a₁₂')
   → _≡_
     {el (ID (ID Δ)
-    ▸ (λ x → A (x ₀₀))
-    ▸ (λ x → A ((pop x) ₀₁))
-    ▸ (λ x → Id′ (λ y → A (y ₀)) (pop (pop x)) (top (pop x)) (top x))
-    ▸ (λ x → A ((pop (pop (pop x))) ₁₀))
-    ▸ (λ x → A ((pop (pop (pop (pop x)))) ₁₁))
-    ▸ (λ x → Id′ (λ y → A ((pop y) ₁)) (pop (pop x)) (top (pop x)) (top x)))}
+     ▸ (λ x → A (x ₀₀))
+     ▸ (λ x → A (pop x ₀₁))
+     ▸ (λ x → Id′ (λ y → A (y ₀)) (pop (pop x)) (top (pop x)) (top x))
+     ▸ (λ x → A (pop (x ₀) ₁))
+     ▸ (λ x → A (pop (pop x ₁) ₁))
+     ▸ (λ x → Id′ (λ y → A (pop y ₁)) (pop (pop x)) (top (pop x)) (top x)))}
     (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂)
     (δ' ∷ a₀₀' ∷ a₀₁' ∷ a₀₂' ∷ a₁₀' ∷ a₁₁' ∷ a₁₂')
 sq₁₂≡ A reflᵉ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ = reflᵉ
@@ -59,15 +59,15 @@ sq₂₂≡ : {Δ : Tel} (A : el Δ → Type) {δ δ' : el (SQ Δ)} (ϕ : δ ≡
     (e₂₀ : a₂₀ ≡ʰ a₂₀') (e₂₁ : a₂₁ ≡ʰ a₂₁') (e₂₂ : a₂₂ ≡ʰ a₂₂')
   → _≡_
     {el (ID (ID Δ)
-    ▸ (λ x → A (x ₀₀))
-    ▸ (λ x → A ((pop x) ₀₁))
-    ▸ (λ x → Id′ (λ y → A (y ₀)) (pop (pop x)) (top (pop x)) (top x))
-    ▸ (λ x → A ((pop (pop (pop x))) ₁₀))
-    ▸ (λ x → A ((pop (pop (pop (pop x)))) ₁₁))
-    ▸ (λ x → Id′ (λ y → A ((pop y) ₁)) (pop (pop x)) (top (pop x)) (top x))
-    ▸ (λ x → Id′ A (pop (pop (pop (pop (pop (pop x))))) ₀) (top (pop (pop (pop (pop (pop x)))))) (top (pop (pop x))))
-    ▸ (λ x → Id′ A (pop (pop (pop (pop (pop (pop (pop x)))))) ₁) (top (pop (pop (pop (pop (pop x)))))) (top (pop (pop x))))
-    ▸ (λ x → Id′ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y)) (pop (pop x)) (top (pop x)) (top x)))}
+     ▸ (λ x → A (x ₀₀))
+     ▸ (λ x → A (pop x ₀₁))
+     ▸ (λ x → Id′ (λ y → A (y ₀)) (pop (pop x)) (top (pop x)) (top x))
+     ▸ (λ x → A (pop (x ₀) ₁))
+     ▸ (λ x → A (pop (pop x ₁) ₁))
+     ▸ (λ x → Id′ (λ y → A (pop y ₁)) (pop (pop x)) (top (pop x)) (top x))
+     ▸ (λ x → Id′ A (pop (pop (x ₀))) (top (pop (x ₀))) (top (x ₀)))
+     ▸ (λ x → Id′ A (pop (pop (pop x ₁))) (top (pop (pop x ₁))) (top (pop x ₁)))
+     ▸ (λ x → Id′ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y)) (pop (pop x)) (top (pop x)) (top x)))}
     (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂)
     (δ' ∷ a₀₀' ∷ a₀₁' ∷ a₀₂' ∷ a₁₀' ∷ a₁₁' ∷ a₁₂' ∷ a₂₀' ∷ a₂₁' ∷ a₂₂')
 sq₂₂≡ A reflᵉ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ = reflᵉ

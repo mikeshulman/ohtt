@@ -114,6 +114,27 @@ postulate
 
 {-# REWRITE APε AP∷ #-}
 
+-- We need these because _₀ and _₁ were defined by decomposing their
+-- identification argument, rather than as a λ-abstraction whose head
+-- is ∷.  For some reason, doing the latter is very slow.  But we
+-- still want (AP _₀ δ) to reduce *as if* _₀ and _₁ had been defined
+-- that way.
+postulate
+  AP-₀ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (ID (Δ ▸ A))) (γ : el (ID Γ)) →
+    AP (λ x → f x ₀) γ ≡
+    AP (λ x → pop (pop (pop (f x))) ₀) γ
+    ∷ top (pop (pop (f (γ ₀))))
+    ∷ top (pop (pop (f (γ ₁))))
+    ∷ coe→ (Id′-AP (λ x → pop (pop (pop (f x)))₀) γ A (top (pop (pop (f (γ ₀))))) (top (pop (pop (f (γ ₁)))))) (ap (λ x → top (pop (pop (f x)))) γ)
+  AP-₁ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (ID (Δ ▸ A))) (γ : el (ID Γ)) →
+    AP (λ x → f x ₁) γ ≡
+    AP (λ x → pop (pop (pop (f x))) ₀) γ
+    ∷ top (pop (pop (f (γ ₀))))
+    ∷ top (pop (pop (f (γ ₁))))
+    ∷ coe→ (Id′-AP (λ x → pop (pop (pop (f x)))₀) γ A (top (pop (pop (f (γ ₀))))) (top (pop (pop (f (γ ₁)))))) (ap (λ x → top (pop (pop (f x)))) γ)
+
+{-# REWRITE AP-₀ AP-₁ #-}
+
 -- Unfortunately, AP∷ is non-confluent with eta-contraction η∷.  In
 -- the context of a variable (f : el Γ → el (Δ ▸ A)), the term
 --- AP (λ x → pop (f x) ∷ top (f x)) γ
@@ -222,16 +243,22 @@ postulate
 -- Since these aren't rewrites, we can phrase them as heterogeneous
 -- equalities rather than equalities to a coercion.
 
-top-pop-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
-  top (f (γ ₀)) ≡ʰ top (pop (pop (AP f γ)))
+-- TODO: Discuss.  Is this a nu-equation?
+postulate
+  pop-pop-pop₀ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID (Δ ▸ A))) →
+    (pop (pop (pop δ)))₀ ≡ pop (δ ₀)
+  pop-pop-pop₁ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID (Δ ▸ A))) →
+    (pop (pop (pop δ)))₁ ≡ pop (δ ₁)
 
--- As with AP₀ and AP₁, we prove top-pop-pop-AP by eta-expanding using
--- a helper lemma.
-top-pop-pop-AP-∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
-  g (γ ₀) ≡ʰ top (pop (pop (AP {Δ = Δ ▸ A} (λ x → f x ∷ g x) γ)))
-top-pop-pop-AP-∷ A f g γ = reflʰ
+{-# REWRITE pop-pop-pop₀ pop-pop-pop₁ #-}
 
-top-pop-pop-AP A f γ = top-pop-pop-AP-∷ A (λ x → pop (f x)) (λ x → top (f x)) γ
+postulate
+  top-pop-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
+    top (pop (pop (AP f γ))) ≡ top (f (γ ₀))
+  top-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
+    top (pop (AP f γ)) ≡ top (f (γ ₁))
+
+{-# REWRITE top-pop-pop-AP top-pop-AP #-}
 
 -- This combination means that (top-pop-pop-AP A f γ) actually
 -- *always* reduces to reflʰ.  Unfortunately, since reflʰ doesn't
@@ -242,24 +269,10 @@ top-pop-pop-AP A f γ = top-pop-pop-AP-∷ A (λ x → pop (f x)) (λ x → top 
 -- object-language fragment, where f will always be something
 -- concrete.
 
-top-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
-  top (f (γ ₁)) ≡ʰ top (pop (AP f γ))
-
-top-pop-AP-∷ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → A (f x)) (γ : el (ID Γ)) →
-  g (γ ₁) ≡ʰ top (pop (AP {Δ = Δ ▸ A} (λ x → f x ∷ g x) γ))
-top-pop-AP-∷ A f g γ = reflʰ
-
-top-pop-AP A f γ = top-pop-AP-∷ A (λ x → pop (f x)) (λ x → top (f x)) γ
-
--- Since top-pop-pop-AP and top-pop-AP always reduce to reflʰ, as
--- above, their appearance below immediately disappears and the result
--- reduces to a coercion along Id′-AP.  But we need to insert them to
--- make it typecheck in the general case.
 postulate
   ap-top : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
     ap (λ x → top (f x)) γ ≡
-    coe← (Id′-AP≡ (λ x → pop (f x)) γ reflᵉ A
-                  (top-pop-pop-AP A f γ) (top-pop-AP A f γ))
+    coe← (Id′-AP≡ (λ x → pop (f x)) γ reflᵉ A reflʰ reflʰ)
          (top (AP f γ))
 
 -- Now we can explain why the first argument of Σᵉ is a Tel rather
@@ -321,19 +334,4 @@ Id′-AP-idmap : {Δ : Tel} (δ : el (ID Δ)) (A : el Δ → Type) (a₀ : A (δ
   Id′-AP {Δ} {Δ} (λ w → w) δ A a₀ a₁ ≡ reflᵉ
 Id′-AP-idmap δ A a₀ a₁ = axiomK
 
-{-
-top-pop-pop-AP-idmap : {Δ : Tel} (A : el Δ → Type) (γ : el (ID (Δ ▸ A))) →
-  top-pop-pop-AP A (λ x → x) γ ≡ reflʰ
-top-pop-pop-AP-idmap A γ = axiomK
-
-top-pop-AP-idmap : {Δ : Tel} (A : el Δ → Type) (γ : el (ID (Δ ▸ A))) →
-  top-pop-AP A (λ x → x) γ ≡ reflʰ
-top-pop-AP-idmap A γ = axiomK
-
-top-pop-pop-AP-pop : {Γ Δ : Tel} (A : el Δ → Type) (B : el (Δ ▸ A) → Type) (f : el Γ → el (Δ ▸ A ▸ B)) (γ : el (ID Γ)) →
-  top-pop-pop-AP A (λ x → pop (f x)) γ ≡ {!top-pop-pop-AP B f γ!}
-top-pop-pop-AP-pop A B γ = {!!}
--}
-
 {-# REWRITE AP-AP-idmap AP-AP-idmap′ Id′-AP-idmap #-}
-

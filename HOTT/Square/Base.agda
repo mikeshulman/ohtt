@@ -79,14 +79,14 @@ _₁₂ : {Δ : Tel} → el (SQ Δ) → el (ID Δ)
 -- normalize (SQ (Δ ▸ A)) for us.  Once done and cleaned up, we obtain:
 {-
 ID (ID Δ)
-▸ (λ x → A (x ₀₀))
-▸ (λ x → A ((pop x) ₀₁))
+▸ (λ x → A (x ₀₀)
+▸ (λ x → A (pop x ₀₁)
 ▸ (λ x → Id′ (λ y → A (y ₀)) (pop (pop x)) (top (pop x)) (top x))
-▸ (λ x → A ((pop (pop (pop x))) ₁₀))
-▸ (λ x → A ((pop (pop (pop (pop x)))) ₁₁))
-▸ (λ x → Id′ (λ y → A ((pop y) ₁)) (pop (pop x)) (top (pop x)) (top x))
-▸ (λ x → Id′ A (pop (pop (pop (pop (pop (pop x))))) ₀) (top (pop (pop (pop (pop (pop x)))))) (top (pop (pop x))))
-▸ (λ x → Id′ A (pop (pop (pop (pop (pop (pop (pop x)))))) ₁) (top (pop (pop (pop (pop (pop x)))))) (top (pop (pop x))))}
+▸ (λ x → A (pop (x ₀) ₁))
+▸ (λ x → A (pop (pop x ₁) ₁))
+▸ (λ x → Id′ (λ y → A (pop y ₁)) (pop (pop x)) (top (pop x)) (top x))
+▸ (λ x → Id′ A (pop (pop (x ₀))) (top (pop (x ₀))) (top (x ₀)))
+▸ (λ x → Id′ A (pop (pop (pop x ₁))) (top (pop (pop x ₁))) (top (pop x ₁)))
 ▸ (λ x → Id′ (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y)) (pop (pop x)) (top (pop x)) (top x))
 -}
 -- Here the last term is clearly the type of squares in A.  Rewriting
@@ -114,39 +114,39 @@ Sq {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a�
       (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂) a₂₀ a₂₁
 
 popsq : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) → el (SQ Δ)
-popsq δ = pop (pop (pop (pop (pop (pop (pop (pop (pop δ))))))))
+popsq (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) = δ
 
 top₀₀ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) → A (popsq δ ₀₀)
-top₀₀ δ = top (pop (pop (pop (pop (pop (pop (pop (pop δ))))))))
+top₀₀ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) = a₀₀
 
 top₀₁ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) → A (popsq δ ₀₁)
-top₀₁ δ = top (pop (pop (pop (pop (pop (pop (pop δ)))))))
+top₀₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) = a₀₁
 
 top₀₂ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) →
   Id′₀₂ A (popsq δ) (top₀₀ δ) (top₀₁ δ)
-top₀₂ δ = top (pop (pop (pop (pop (pop (pop δ))))))
+top₀₂ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) = a₀₂
 
 top₁₀ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) → A (popsq δ ₁₀)
-top₁₀ δ = top (pop (pop (pop (pop (pop δ)))))
+top₁₀ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) = a₁₀
 
 top₁₁ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) → A (popsq δ ₁₁)
-top₁₁ δ = top (pop (pop (pop (pop δ))))
+top₁₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) = a₁₁
 
 top₁₂ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) →
   Id′₁₂ A (popsq δ) (top₀₂ δ) (top₁₀ δ) (top₁₁ δ)
-top₁₂ δ = top (pop (pop (pop δ)))
+top₁₂ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) = a₁₂
 
 top₂₀ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) →
   Id′ A (popsq δ ₂₀) (top₀₀ δ) (top₁₀ δ)
-top₂₀ δ = top (pop (pop δ))
+top₂₀ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) = a₂₀
 
 top₂₁ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) →
   Id′ A (popsq δ ₂₁) (top₀₁ δ) (top₁₁ δ)
-top₂₁ δ = top (pop δ)
+top₂₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) = a₂₁
 
 top₂₂ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) →
   Sq A (popsq δ) (top₀₂ δ) (top₁₂ δ) (top₂₀ δ) (top₂₁ δ)
-top₂₂ δ = top δ
+top₂₂ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) = a₂₂
 
 {-
 -- The "2-simplex" produced by ulift can be regarded as a square.  (TODO: Where does this go?)
