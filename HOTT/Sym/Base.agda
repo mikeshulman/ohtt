@@ -6,7 +6,6 @@ open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Square.Base
---open import HOTT.Square.Top
 --open import HOTT.Square.Equality
 
 ------------------------------
@@ -16,7 +15,9 @@ open import HOTT.Square.Base
 -- Symmetry for telescopes will be defined in terms of symmetry for types.
 SYM : (Δ : Tel) → el (SQ Δ) → el (SQ Δ)
 
--- We also have to define it mutually with proofs that it transposes the boundary.
+-- We also have to define it mutually with proofs that it transposes
+-- the boundary.  We expand out the left-hand sides of those that will
+-- be rewrites, since rewriting requires the LHS to not be a redex.
 SYM₀₀ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₀ ₀ ≡ δ ₀₀
 SYM₀₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁ ₀ ≡ δ ₁₀
 SYM₁₀ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₀ ₁ ≡ δ ₀₁
@@ -34,7 +35,7 @@ SYM₂₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₂₁ ≡ δ ₁₂
 -- operation we also incorporate coercions across equalities of the
 -- base square and the boundary (the latter heterogeneous).
 postulate
-  sym′ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+  sym : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
         {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′₀₂ A δ a₀₀ a₀₁)
         {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′₁₂ A δ a₀₂ a₁₀ a₁₁)
         (a₂₀ : Id′ A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id′ A (δ ₂₁) a₀₁ a₁₁) →
@@ -47,37 +48,6 @@ postulate
         (a₂₀' ≡ʰ a₀₂) → (a₂₁' ≡ʰ a₁₂) →
         Sq A δ a₀₂ a₁₂ a₂₀ a₂₁ →
         Sq A δ' a₀₂' a₁₂' a₂₀' a₂₁'
-
--- From this we can derive the more obvious symmetry operation,
--- without equalities to coerce along.  (Conversely, if we postulated
--- this version, we could derive the coercion version from Sq≡.)
-{-
-sym : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
-        {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′ A (δ ₀₂) a₀₀ a₀₁)
-        {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′ A (δ ₁₂) a₁₀ a₁₁)
-        (a₂₀ : Id′ A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id′ A (δ ₂₁) a₀₁ a₁₁) →
-        Sq A δ a₀₂ a₁₂ a₂₀ a₂₁ →
-        Sq A (SYM Δ δ)
-           (coe← (Id′≡ A (SYM₀₂ δ) (coe←≡ʰ (cong A (SYM₀₀ δ)) a₀₀) (coe←≡ʰ (cong A (SYM₀₁ δ)) a₁₀)) a₂₀)
-           (coe← (Id′≡ A (SYM₁₂ δ) (coe←≡ʰ (cong A (SYM₁₀ δ)) a₀₁) (coe←≡ʰ (cong A (SYM₁₁ δ)) a₁₁)) a₂₁)
-           (coe← (Id′≡ A (SYM₂₀ δ) (coe←≡ʰ (cong A (SYM₀₀ δ)) a₀₀) (coe←≡ʰ (cong A (SYM₁₀ δ)) a₀₁)) a₀₂)
-           (coe← (Id′≡ A (SYM₂₁ δ) (coe←≡ʰ (cong A (SYM₀₁ δ)) a₁₀) (coe←≡ʰ (cong A (SYM₁₁ δ)) a₁₁)) a₁₂)
-sym A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ a₂₂ =
-  sym′ A δ a₀₂ a₁₂ a₂₀ a₂₁ reflᵉ
-      (coe← (Id′≡ A (SYM₀₂ δ) (coe←≡ʰ (cong A (SYM₀₀ δ)) a₀₀) (coe←≡ʰ (cong A (SYM₀₁ δ)) a₁₀)) a₂₀)
-      (coe← (Id′≡ A (SYM₁₂ δ) (coe←≡ʰ (cong A (SYM₁₀ δ)) a₀₁) (coe←≡ʰ (cong A (SYM₁₁ δ)) a₁₁)) a₂₁)
-      (coe← (Id′≡ A (SYM₂₀ δ) (coe←≡ʰ (cong A (SYM₀₀ δ)) a₀₀) (coe←≡ʰ (cong A (SYM₁₀ δ)) a₀₁)) a₀₂)
-      (coe← (Id′≡ A (SYM₂₁ δ) (coe←≡ʰ (cong A (SYM₀₁ δ)) a₁₀) (coe←≡ʰ (cong A (SYM₁₁ δ)) a₁₁)) a₁₂)
-      (coe←≡ʰ (cong A (SYM₀₀ δ)) a₀₀)
-      (coe←≡ʰ (cong A (SYM₀₁ δ)) a₁₀)
-      (coe←≡ʰ (Id′≡ A (SYM₀₂ δ) (coe←≡ʰ (cong A (SYM₀₀ δ)) a₀₀) (coe←≡ʰ (cong A (SYM₀₁ δ)) a₁₀)) a₂₀)
-      (coe←≡ʰ (cong A (SYM₁₀ δ)) a₀₁)
-      (coe←≡ʰ (cong A (SYM₁₁ δ)) a₁₁)
-      (coe←≡ʰ (Id′≡ A (SYM₁₂ δ) (coe←≡ʰ (cong A (SYM₁₀ δ)) a₀₁) (coe←≡ʰ (cong A (SYM₁₁ δ)) a₁₁)) a₂₁)
-      (coe←≡ʰ (Id′≡ A (SYM₂₀ δ) (coe←≡ʰ (cong A (SYM₀₀ δ)) a₀₀) (coe←≡ʰ (cong A (SYM₁₀ δ)) a₀₁)) a₀₂)
-      (coe←≡ʰ (Id′≡ A (SYM₂₁ δ) (coe←≡ʰ (cong A (SYM₀₁ δ)) a₁₀) (coe←≡ʰ (cong A (SYM₁₁ δ)) a₁₁)) a₁₂)
-      a₂₂
--}
 
 -- Now we can define symmetry for telescopes by decomposing a collated
 -- SQ, transposing and applying symmetry, and recomposing again.
@@ -98,7 +68,7 @@ SYM (Δ ▸ A) δ =
   coe→ (Id′-AP≡ (λ x → (pop x) ₁) (popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ top₀₂ δ) (SYM₂₁ (popsq δ) • AP-AP pop _₁ (popsq δ ∷ top₀₀ δ ∷ top₀₁ δ ∷ top₀₂ δ)) A
                 (revʰ (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))) (revʰ (coe←≡ʰ (cong A (SYM₁₁ (popsq δ))) (top₁₁ δ))))
        (top₁₂ δ) ∷
-  sym′ A (popsq δ) (top₀₂ δ) (top₁₂ δ) (top₂₀ δ) (top₂₁ δ) reflᵉ _ _ _ _
+  sym A (popsq δ) (top₀₂ δ) (top₁₂ δ) (top₂₀ δ) (top₂₁ δ) reflᵉ _ _ _ _
     (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ))
     (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))
     (coe←≡ʰ (Id′-AP≡ _₀ (SYM Δ (popsq δ)) (rev (SYM₀₂ (popsq δ))) A (coe←≡ʰ (cong A (SYM₀₀ (popsq δ))) (top₀₀ δ)) (coe←≡ʰ (cong A (SYM₀₁ (popsq δ))) (top₁₀ δ))) (top₂₀ δ))
