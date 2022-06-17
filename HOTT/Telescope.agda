@@ -30,15 +30,24 @@ el : Tel → Typeᵉ
 -- to be defined mutually with Tel and el.
 
 -- We make Σᵉ a postulate rather than a datatype because our
--- applications of rewrite rules don't work otherwise.  Specifically,
--- rewriting in Agda happens modulo eta-expansion, so if Σᵉ were a
--- record with constructor ∷, then every element of an extended
+-- applications of rewrite rules don't work otherwise.  There are at
+-- least two reasons for this:
+
+-- 1. Rewriting in Agda happens modulo eta-expansion.  Thus, if Σᵉ
+-- were a record with constructor ∷, then every element of an extended
 -- telescope would be considered to have the form ∷ for rewriting
 -- purposes.  This would break our approach to AP on variables, where
 -- we want AP to reduce on ∷ to make the telescope smaller, but to
 -- reduce on pop to make the telescope *larger* until the function
--- becomes the identity.  For similar reasons, we will later use
--- postulates and rewrite rules for our actual type formers Σ, Π, etc.
+-- becomes the identity.
+
+-- 2. Our rewrite rules need to match against pop and top (notable
+-- AP-pop and ap-top).  But this doesn't work if they are projections,
+-- since then Agda doesn't consider their argument to be bound by such
+-- a LHS pattern.
+
+-- For similar reasons, we will later use postulates and rewrite rules
+-- for our actual type formers Σ, Π, etc.
 postulate
   Σᵉ : (Δ : Tel) (B : el Δ → Type) → Typeᵉ
 
