@@ -118,18 +118,29 @@ AP-REFL₁₁ : (Δ : Tel) (δ : el (ID Δ)) → (AP REFL δ)₁₁ ≡ (SYM Δ 
 AP-REFL₁₁ Δ δ = reflᵉ
 
 AP-REFL₀₂ : (Δ : Tel) (δ : el (ID Δ)) → (AP REFL δ)₀₂ ≡ (SYM Δ (REFL δ))₀₂
-AP-REFL₀₂ ε [] = reflᵉ
-AP-REFL₀₂ (Δ ▸ A) (δ ∷ a₀ ∷ a₁ ∷ a₂) =
-  AP-AP REFL _₀ (δ ∷ a₀ ∷ a₁ ∷ a₂) •
-  {!rev (AP-AP REFL _₀ δ) • AP-REFL₀₂ Δ δ!}
--- This proposed filler for the base equality has type
---- (δ ≡ (SYM Δ (REFL δ))₀₂).
--- But how do we break the left-hand side
---- (AP (λ w → REFL w ₀) (δ ∷ a₀ ∷ a₁ ∷ a₂))
--- down into pieces?
+AP-REFL₀₂ Δ δ = DEGSQ-TB₀₂ δ • rev (SYM₀₂ (REFL δ))
 
 {-
 postulate
   AP-REFL≡SYM-REFL : {Δ : Tel} (δ : el (ID Δ)) →
     AP REFL δ ≡ {!SYM Δ (REFL δ)!}
 -}
+
+APREFL : {Δ : Tel} (δ : el (ID Δ)) → el (SQ Δ)
+
+postulate
+  AP-REFL-APREFL : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) →
+    AP (λ x → REFL (f x)) γ ≡ APREFL (AP f γ)
+  APREFL₂₀ : {Δ : Tel} (δ : el (ID Δ)) → APREFL δ ₀ ≡ REFL (δ ₀)
+  APREFL₂₁ : {Δ : Tel} (δ : el (ID Δ)) → APREFL δ ₁ ≡ REFL (δ ₁)
+  APREFL₀₂ : {Γ Δ : Tel} (f : el (ID Γ) → el (ID Δ)) (γ : el (ID Γ)) →
+    AP (λ x → f x ₀) (APREFL γ) ≡ f γ
+  APREFL₁₂ : {Γ Δ : Tel} (f : el (ID Γ) → el (ID Δ)) (γ : el (ID Γ)) →
+    AP (λ x → f x ₁) (APREFL γ) ≡ f γ
+  
+{-# REWRITE APREFL₀₂ APREFL₁₂ APREFL₂₀ APREFL₂₁ AP-REFL-APREFL #-}
+
+
+APREFL {ε} [] = []
+APREFL {Δ ▸ A} (δ ∷ a₀ ∷ a₁ ∷ a₂) =
+  APREFL δ ∷ a₀ ∷ a₁ ∷ {!top (AP REFL (δ ∷ a₀ ∷ a₁ ∷ a₂) ₀₂)!} ∷ a₀ ∷ a₁ ∷ {!!} ∷ refl a₀ ∷ refl a₁ ∷ {!!}
