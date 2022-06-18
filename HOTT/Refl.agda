@@ -54,39 +54,19 @@ postulate
 
 -- Moreover, in order to define REFL we'll also need to know its
 -- analogue of Id′-AP, which in this case is something we can prove.
-Id′-REFL : {Δ : Tel} (A : el Δ → Type) (δ : el Δ) (a₀ : A ((REFL δ)₀)) (a₁ : A ((REFL δ)₁)) →
-  Id′ A (REFL δ) a₀ a₁ ≡ Id (A δ) a₀ a₁
+postulate
+  Id′-REFL : {Δ : Tel} (A : el Δ → Type) (δ : el Δ) (a₀ : A ((REFL δ)₀)) (a₁ : A ((REFL δ)₁)) →
+    Id′ A (REFL δ) a₀ a₁ ≡ Id (A δ) a₀ a₁
 
 -- But in order to prove *that*, we'll also need to know that REFL is
 -- the image of AP on constant terms.
-AP-const : {Δ : Tel} (Θ : Tel) (δ : el (ID Δ)) (t : el Θ) → AP {Δ} (λ _ → t) δ ≡ REFL t
+  AP-const : {Δ : Tel} (Θ : Tel) (δ : el (ID Δ)) (t : el Θ) → AP {Δ} (λ _ → t) δ ≡ REFL t
 
-Id′-REFL {Δ} A δ a₀ a₁ = rev (Id′-AP≡ {ε} (λ _ → δ) [] (rev (AP-const Δ [] δ)) A reflʰ reflʰ)
-
--- A useful extended version of Id′-REFL, like Id′-AP≡.
-Id′-REFL≡ : {Δ : Tel} (A : el Δ → Type) (δ : el Δ)
-  {a₀ : A ((REFL δ)₀)} {a₁ : A ((REFL δ)₁)} {b₀ b₁ : A δ} (e₀ : a₀ ≡ʰ b₀) (e₁ : a₁ ≡ʰ b₁) →
-  Id′ A (REFL δ) a₀ a₁ ≡ Id (A δ) b₀ b₁
-Id′-REFL≡ {Δ} A δ e₀ e₁ = rev (Id′-AP≡ {ε} (λ _ → δ) [] (rev (AP-const Δ [] δ)) A (revʰ e₀) (revʰ e₁)) 
-
--- Note that in defining REFL we have to coerce along REFL₀ and REFL₁, and also ID′-REFL≡.
-REFL {ε} δ = []
-REFL {Δ ▸ A} δ = REFL (pop δ) ∷ top δ ∷ top δ ∷ coe← (Id′-REFL≡ A (pop δ) reflʰ reflʰ) (refl (top δ))
-
--- The proof of AP-const in the ▸ case also requires case-analysis on
--- the term t, whose "constructor" ∷ isn't actually a constructor, so
--- we have to do the "case analysis" in a separate lemma.  (We
--- couldn't do this for AP above, because in that case we needed the
--- *syntactic* restriction that it would only compute on ∷ terms.)
-
-AP-const ε δ t = reflᵉ
-AP-const {Δ} (Θ ▸ A) δ (t ∷ a) =
-  ∷≡ _ (∷≡ _ (∷≡ _ (AP-const {Δ} Θ δ t) reflʰ) reflʰ)
-       (coe→≡ʰ (Id′-AP (λ _ → t) δ A a a) (refl a) •ʰ
-       revʰ (coe←≡ʰ (Id′-REFL≡ A t reflʰ reflʰ) (refl a)))
-
--- Many of these can be made rewrites.
 {-# REWRITE Id′-REFL AP-const #-}
+
+REFL {ε} δ = []
+REFL {Δ ▸ A} (δ ∷ a) = REFL δ ∷ a ∷ a ∷ refl a
+
 
 -- Rewriting along Id′-REFL and AP-const seems a bit more questionable
 -- than along AP₀ and REFL₀, since they don't already reduce to reflᵉ
@@ -96,11 +76,6 @@ AP-const {Δ} (Θ ▸ A) δ (t ∷ a) =
 -- believe the above definitions of them do *also* reduce to reflᵉ on
 -- concrete telescopes.  Finally, this hasn't been a problem yet.
 
-AP-const-reflᵉ : {Δ : Tel} (Θ : Tel) (δ : el (ID Δ)) (t : el Θ) →
-  AP-const Θ δ t ≡ reflᵉ
-AP-const-reflᵉ Θ δ t = axiomK
-
-{-# REWRITE AP-const-reflᵉ #-}
 
 -- Id′-REFL-reflᵉ can't be a rewrite since its LHS reduces directly
 -- rather than by case-analysis.  Instead we make the following a
@@ -112,10 +87,6 @@ Id′-AP-const : {Γ Δ : Tel} (f : el Δ) (γ : el (ID Γ)) (A : el Δ → Type
 Id′-AP-const f γ A a₀ a₁ = axiomK
 
 {-# REWRITE Id′-AP-const #-}
-
-Id′-REFL-reflᵉ : {Δ : Tel} (A : el Δ → Type) (δ : el Δ) (a₀ : A ((REFL δ)₀)) (a₁ : A ((REFL δ)₁)) →
-  Id′-REFL A δ a₀ a₁ ≡ reflᵉ
-Id′-REFL-reflᵉ A δ a₀ a₁ = reflᵉ 
 
 -- The usefulness of having Id-REFL as a rewrite is limited in
 -- practice, because if δ has internal structure, REFL will compute on
@@ -163,11 +134,11 @@ AP-AP-CONST f γ g = axiomK
 -- latter have to be given separately for the former in case the
 -- latter get reduced to the former before these rules fire.
 
--- The computations of REFL on ε and ∷ hold already by definition.
--- The computation of REFL on pop holds by definition in the other
--- direction (since, unlike for AP, we defined REFL on ▸ to compute
--- for any term, not just ∷.  Was that the right choice?)
--- Likewise, the intermediate computations hold by definition.
+postulate
+  REFL-pop : {Δ : Tel} (A : el Δ → Type) (δ : el (Δ ▸ A)) →
+    REFL (pop δ) ≡ pop (pop (pop (REFL δ)))
+
+{-# REWRITE REFL-pop #-}
 
 top-pop-pop-REFL : {Δ : Tel} (A : el Δ → Type) (f : el (Δ ▸ A)) →
   top (pop (pop (REFL f))) ≡ top f
@@ -177,10 +148,12 @@ top-pop-REFL : {Δ : Tel} (A : el Δ → Type) (f : el (Δ ▸ A)) →
   top (pop (REFL f)) ≡ top f
 top-pop-REFL A (δ ∷ a) = reflᵉ
 
+{-# REWRITE top-pop-pop-REFL top-pop-REFL #-}
+
 -- Thus the only one thath needs to be postulated is refl-top.
 postulate
   refl-top : (Δ : Tel) (A : el Δ → Type) (f : el (Δ ▸ A)) →
-    refl (top f) ≡ coe→ (Id′-AP {ε} (λ _ → pop f) [] A (top f) (top f)) (top (REFL f)) 
+    refl (top f) ≡ coe← (Id′-AP {ε} {Δ} (λ _ → pop f) [] A (top f) (top f)) (top (REFL f)) 
 
 {-# REWRITE refl-top #-}
 
