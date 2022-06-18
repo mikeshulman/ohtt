@@ -133,6 +133,13 @@ postulate
     ∷ top (pop (pop (f (γ ₁))))
     ∷ coe→ (Id′-AP (λ x → pop (pop (pop (f x)))₀) γ A (top (pop (pop (f (γ ₀))))) (top (pop (pop (f (γ ₁)))))) (ap (λ x → top (pop (pop (f x)))) γ)
 
+-- Note that we compute (AP (λ x → f x ₀) γ) only if the codomain of f
+-- is a ▸, and in that case the first component of the output is
+-- another term of the same form but where the codomain of f is
+-- smaller.  So by repeated application, we reduce to the case when
+-- the codomain of f is either abstract (when the computation pauses)
+-- or ε (in which case _₀ computes immediately to []).
+
 {-# REWRITE AP-₀ AP-₁ #-}
 
 -- Unfortunately, AP∷ is non-confluent with eta-contraction η∷.  In
@@ -154,10 +161,11 @@ postulate
 -- with an equality of base identifications and heterogeneous
 -- equalities of the endpoints.
 Id′-AP≡ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) {δ : el (ID Δ)} (e : δ ≡ AP f γ)
-    (A : el Δ → Type) {a₀ : A (f (γ ₀))} {a₁ : A (f (γ ₁))} {b₀ : A (δ ₀)} {b₁ : A (δ ₁)}
-    (e₀ : a₀ ≡ʰ b₀) (e₁ : a₁ ≡ʰ b₁) →
+          (A : el Δ → Type)
+          {a₀ : A (f (γ ₀))} {b₀ : A (δ ₀)} (e₀ : a₀ ≡ʰ b₀)
+          {a₁ : A (f (γ ₁))} {b₁ : A (δ ₁)} (e₁ : a₁ ≡ʰ b₁) →
     Id′ (λ w → A (f w)) γ a₀ a₁ ≡ Id′ A δ b₀ b₁
-Id′-AP≡ f γ reflᵉ A {a₀} {a₁} .{a₀} .{a₁} reflʰ reflʰ = Id′-AP f γ A a₀ a₁
+Id′-AP≡ f γ reflᵉ A {a₀} reflʰ {a₁} reflʰ = Id′-AP f γ A a₀ a₁
 
 ------------------------------
 -- Functoriality of ap and AP

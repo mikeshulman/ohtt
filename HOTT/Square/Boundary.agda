@@ -84,7 +84,7 @@ unfrob₁₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
 unfrob₁₂ A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ =
   coe→ (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂)
                 (AP-AP (pop {B = λ x → A (x ₀)}) _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂))
-                A {a₁₀} {a₁₁} {a₁₀} {a₁₁} reflʰ reflʰ)
+                A {a₁₀} reflʰ {a₁₁} reflʰ)
        a₁₂
 
 frob₁₂≡ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
@@ -104,7 +104,7 @@ unfrob₁₂≡ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
 unfrob₁₂≡ A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ =
   coe→≡ʰ (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂)
                 (AP-AP (pop {B = λ x → A (x ₀)}) _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂))
-                A {a₁₀} {a₁₁} {a₁₀} {a₁₁} reflʰ reflʰ)
+                A {a₁₀} reflʰ {a₁₁} reflʰ)
        a₁₂
 
 -- This one is a heterogeneous equality because the type of a₁₂ and
