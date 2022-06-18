@@ -7,7 +7,6 @@ open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Refl
 open import HOTT.Square.Base
-open import HOTT.Sym.Base
 
 ----------------------------------------
 -- Left-right degenerate squares
@@ -38,14 +37,23 @@ DEGSQ-LR₂₁ δ = reflᵉ
 -- Top-bottom degenerate squares
 ----------------------------------------
 
--- The top-bottom degenerate square is (AP REFL δ), which is supposed
--- to compute to (SYM Δ (REFL δ)).  Unfortunately, neither of these
--- have the correct boundary definitionally (for abstract telescopes;
--- they should for concrete telescopes made of concrete types).
+-- The top-bottom degenerate square is (AP REFL δ).
 
--- As usual, we postulate the relevant computation for types and prove
--- it for telescopes.
+DEGSQ-TB : {Δ : Tel} (δ : el (ID Δ)) → el (SQ Δ)
+DEGSQ-TB δ = AP REFL δ
 
--- TODO
+-- Two of its boundaries are correct definitionally; the others differ by an AP-AP.
 
-  
+DEGSQ-TB₀₂ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-TB δ ₀₂ ≡ δ
+DEGSQ-TB₀₂ δ = AP-AP REFL _₀ δ
+
+DEGSQ-TB₁₂ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-TB δ ₁₂ ≡ δ
+DEGSQ-TB₁₂ δ = AP-AP REFL _₁ δ
+
+DEGSQ-TB₂₀ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-TB δ ₂₀ ≡ REFL (δ ₀)
+DEGSQ-TB₂₀ δ = reflᵉ
+
+DEGSQ-TB₂₁ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-TB δ ₂₁ ≡ REFL (δ ₁)
+DEGSQ-TB₂₁ δ = reflᵉ
+
+-- TODO: A version for a dependent square in a type?
