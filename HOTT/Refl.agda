@@ -95,6 +95,22 @@ Id′-AP-const f γ A a₀ a₁ = axiomK
 -- the fact that it is definitionally reflᵉ, at least on abstract
 -- arguments, minimizes the effect of these coercions.
 
+postulate
+  Id′-REFL▸ : {Δ : Tel} (B : el Δ → Type) (A : el (Δ ▸ B) → Type) (δ : el Δ) (b : B δ)
+    (a₀ : A ((REFL (_∷_ {Δ} {B} δ b))₀)) (a₁ : A ((REFL (_∷_ {Δ} {B} δ b))₁)) →
+    Id′ A (REFL δ ∷ b ∷ b ∷ refl b) a₀ a₁ ≡ Id (A (δ ∷ b)) a₀ a₁
+
+{-# REWRITE Id′-REFL▸ #-}
+
+postulate
+  Id′-REFL▸▸ : {Δ : Tel} (B : el Δ → Type) (C : el (Δ ▸ B) → Type)
+    (A : el (Δ ▸ B ▸ C) → Type) (δ : el Δ) (b : B δ) (c : C (δ ∷ b))
+    (a₀ : A (REFL (_∷_ {Δ ▸ B} {C} (_∷_ {Δ} {B} δ b) c)₀))
+    (a₁ : A (REFL (_∷_ {Δ ▸ B} {C} (_∷_ {Δ} {B} δ b) c)₁)) →
+    Id′ A (REFL δ ∷ b ∷ b ∷ refl b ∷ c ∷ c ∷ refl c) a₀ a₁ ≡ Id (A (δ ∷ b ∷ c)) a₀ a₁
+
+{-# REWRITE Id′-REFL▸▸ #-}
+
 ------------------------------
 -- ap and reflexivity
 ------------------------------
