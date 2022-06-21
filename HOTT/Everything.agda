@@ -13,7 +13,7 @@ import HOTT.Sym
 import HOTT.Fill
 
 import HOTT.Unit
--- import HOTT.Prod
+import HOTT.Prod
 -- import HOTT.Sigma
 -- import HOTT.Pi
 -- import HOTT.Arrow
