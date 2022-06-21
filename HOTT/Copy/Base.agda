@@ -35,5 +35,3 @@ postulate
     ap (λ w → (a w) ↓) δ ≡ (ap a δ) ↓
 
 {-# REWRITE ap↑ ap↓ #-}
-
--- TODO: Compute Id-AP, ap-AP

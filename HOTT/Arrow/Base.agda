@@ -55,14 +55,12 @@ postulate
 
 {-# REWRITE Id′⇒ Id⇒ #-}
 
--- Also note that although ap∙ and refl∙ are simpler than ap⊙ and
--- refl⊙, lacking coercions, apΛ⇒ requires an additional coercion
--- compared to apΛ.
+-- Note that apΛ⇒ requires a coercion compared to apΛ.
 postulate
   apΛ⇒ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ)) (f : (x : el Δ) → A x → B x) →
     ap (λ x → Λ y ⇒ f x y) δ ≡
-    Λ a₀ ⇛ Λ a₁ ⇛ Λ a₂ ⇒  coe→ (Id′-AP {Δ ▸ A} pop (δ ∷ a₀ ∷ a₁ ∷ a₂) B (f (δ ₀) a₀) (f (δ ₁) a₁))
-                                 (ap (λ w → f (pop w) (top w)) (δ ∷ a₀ ∷ a₁ ∷ a₂))  
+    Λ a₀ ⇛ Λ a₁ ⇛ Λ a₂ ⇒
+    Id′-pop← B A δ a₂ (ap {Δ ▸ A} (λ w → f (pop w) (top w)) (δ ∷ a₀ ∷ a₁ ∷ a₂))
   reflΛ⇒ : (A B : Type) (f : A → B) →
     refl (Λ x ⇒ f x) ≡ Λ a₀ ⇛ Λ a₁ ⇛ Λ a₂ ⇒ ap {ε ▸ (λ _ → A)} (λ x → f (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂)
   ap∙ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
@@ -72,5 +70,3 @@ postulate
     refl (f ∙ a) ≡ (refl f ⊙ a ⊙ a ∙ (refl a))
 
 {-# REWRITE apΛ⇒ reflΛ⇒ ap∙ refl∙ #-}
-
--- TODO: Compute Id′-AP and ap-AP
