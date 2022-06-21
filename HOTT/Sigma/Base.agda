@@ -60,8 +60,13 @@ postulate
 postulate
   apπ₂ : {Δ : Tel} {A : el Δ → Type} {B : (w : el Δ) → A w → Type} (δ : el (ID Δ))
     (u : (x : el Δ) → Σ (A x) (B x)) →
-    ap (λ x → π₂ (u x)) δ ≡  {!π₂ (ap u δ)!}
+    ap (λ x → π₂ (u x)) δ ≡
+    coe→ (Id′-AP▸ A (λ x → x) (λ x → π₁ (u x)) δ
+                   (λ w → B (pop w) (top w)) (π₂ (u (δ ₀))) (π₂ (u (δ ₁))))
+         (π₂ (ap u δ))
   reflπ₂ : {A : Type} {B : A → Type} (u : Σ A B) →
-    refl (π₂ u) ≡ {!π₂ (refl u)!} 
+    refl (π₂ u) ≡
+    coe→ (Id′-REFL[]▸ (λ _ → A) (λ x → B (top x)) (π₁ u) (π₂ u) (π₂ u))
+          (π₂ (refl u))
 
---{-# REWRITE apπ₂ reflπ₂ #-}
+{-# REWRITE apπ₂ reflπ₂ #-}
