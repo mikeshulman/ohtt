@@ -71,3 +71,23 @@ sq₂₂≡ : {Δ : Tel} (A : el Δ → Type) {δ δ' : el (SQ Δ)} (ϕ : δ ≡
     (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂)
     (δ' ∷ a₀₀' ∷ a₀₁' ∷ a₀₂' ∷ a₁₀' ∷ a₁₁' ∷ a₁₂' ∷ a₂₀' ∷ a₂₁' ∷ a₂₂')
 sq₂₂≡ A reflᵉ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ = reflᵉ
+
+--------------------
+-- Blips
+--------------------
+
+blip : {Δ : Tel} (δ : el (SQ Δ))
+  (β₀₂ : el (ID Δ)) (e₀₂ : β₀₂ ≡ δ ₀₂)
+  (β₁₂ : el (ID Δ)) (e₁₂ : β₁₂ ≡ δ ₁₂)
+  (β₂₀ : el (ID Δ)) (e₂₀ : β₂₀ ≡ δ ₂₀)
+  (β₂₁ : el (ID Δ)) (e₂₁ : β₂₁ ≡ δ ₂₁)
+  → el (SQ Δ)
+blip δ _ reflᵉ _  reflᵉ _ reflᵉ _ reflᵉ = δ
+
+blip≡ : {Δ : Tel} (δ : el (SQ Δ))
+  (β₀₂ : el (ID Δ)) (e₀₂ : β₀₂ ≡ δ ₀₂)
+  (β₁₂ : el (ID Δ)) (e₁₂ : β₁₂ ≡ δ ₁₂)
+  (β₂₀ : el (ID Δ)) (e₂₀ : β₂₀ ≡ δ ₂₀)
+  (β₂₁ : el (ID Δ)) (e₂₁ : β₂₁ ≡ δ ₂₁)
+  → δ ≡ blip δ β₀₂ e₀₂ β₁₂ e₁₂ β₂₀ e₂₀ β₂₁ e₂₁
+blip≡ δ _ reflᵉ _  reflᵉ _ reflᵉ _ reflᵉ = reflᵉ
