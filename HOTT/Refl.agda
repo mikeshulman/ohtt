@@ -67,6 +67,11 @@ postulate
 REFL {ε} δ = []
 REFL {Δ ▸ A} (δ ∷ a) = REFL δ ∷ a ∷ a ∷ refl a
 
+postulate
+  Id′-[] : (A : el ε → Type) (a₀ : A []) (a₁ : A []) →
+    Id′ A [] a₀ a₁ ≡ Id (A []) a₀ a₁
+
+{-# REWRITE Id′-[] #-}
 
 -- Rewriting along Id′-REFL and AP-const seems a bit more questionable
 -- than along AP₀ and REFL₀, since they don't already reduce to reflᵉ
@@ -82,12 +87,6 @@ REFL {Δ ▸ A} (δ ∷ a) = REFL δ ∷ a ∷ a ∷ refl a
 -- rewrite, which in particular makes Id′-REFL-reflᵉ hold
 -- definitionally.
 
-Id′-AP-const : {Γ Δ : Tel} (f : el Δ) (γ : el (ID Γ)) (A : el Δ → Type) (a₀ a₁ : A f) →
-  Id′-AP {Γ} (λ _ → f) γ A a₀ a₁ ≡ reflᵉ
-Id′-AP-const f γ A a₀ a₁ = axiomK
-
-{-# REWRITE Id′-AP-const #-}
-
 -- The usefulness of having Id-REFL as a rewrite is limited in
 -- practice, because if δ has internal structure, REFL will compute on
 -- it, and can't be "un-rewritten" back to a REFL in order for Id-REFL
@@ -101,6 +100,13 @@ postulate
     Id′ A (REFL δ ∷ b ∷ b ∷ refl b) a₀ a₁ ≡ Id (A (δ ∷ b)) a₀ a₁
 
 {-# REWRITE Id′-REFL▸ #-}
+
+postulate
+  Id′-REFL[]▸ : (B : el ε → Type) (A : el (ε ▸ B) → Type)  (b : B [])
+    (a₀ : A (_∷_ {ε} {B} [] b)) (a₁ : A (_∷_ {ε} {B} [] b)) →
+    Id′ A ([] ∷ b ∷ b ∷ refl b) a₀ a₁ ≡ Id (A ([] ∷ b)) a₀ a₁
+
+{-# REWRITE Id′-REFL[]▸ #-}
 
 postulate
   Id′-REFL▸▸ : {Δ : Tel} (B : el Δ → Type) (C : el (Δ ▸ B) → Type)
@@ -118,32 +124,13 @@ postulate
 -- Now we do the same for ap on reflexivity.
 ap-REFL : {Δ : Tel} (A : el Δ → Type) (f : (δ : el Δ) → A δ) (δ : el Δ) →
   ap f (REFL δ) ≡ refl (f δ)
-ap-REFL {Δ} A f δ = ≡ʰ→≡ (ap-AP {ε} (λ _ → δ) f [])
+ap-REFL {Δ} A f δ = (ap-AP {ε} (λ _ → δ) f [])
 
 AP-REFL : {Δ Θ : Tel} (f : el Δ → el Θ) (δ : el Δ) →
   AP f (REFL δ) ≡ REFL (f δ)
 AP-REFL f δ = AP-AP {ε} (λ _ → δ) f []
 
 {-# REWRITE ap-REFL AP-REFL #-}
-
--- We can now assert that the functoriality rules for constant
--- families and functions reduce to reflexivity, which is well-typed
--- since both sides reduce to a homogeneous Id or a refl.
-Id′-AP-CONST : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (A : Type) (a₀ a₁ : A) →
-  Id′-AP f γ (λ _ → A) a₀ a₁ ≡ reflᵉ
-Id′-AP-CONST f γ A a₀ a₁ = axiomK
-
-{-# REWRITE Id′-AP-CONST #-}
-
-ap-AP-CONST : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) {A : Type} (g : A) →
-  ap-AP f (λ _ → g) γ ≡ reflʰ
-ap-AP-CONST f γ g = axiomKʰ
-
-AP-AP-CONST : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) {Θ : Tel} (g : el Θ) →
-  AP-AP f (λ _ → g) γ ≡ reflᵉ
-AP-AP-CONST f γ g = axiomK
-
-{-# REWRITE ap-AP-CONST AP-AP-CONST #-}
 
 -- The choice not to *define* Id, refl, and REFL as instances of Id′,
 -- ap, and AP does mean that some of the rewrites we postulate for the
@@ -155,6 +142,13 @@ postulate
     REFL (pop δ) ≡ pop (pop (pop (REFL δ)))
 
 {-# REWRITE REFL-pop #-}
+
+postulate
+  Id′-AP-pop³-REFL : {Δ : Tel} (A B : el Δ → Type) (f : el (Δ ▸ B))
+    (a₀ : A (pop f)) (a₁ : A (pop f)) →
+    Id′ A (pop (pop (pop (REFL f)))) a₀ a₁ ≡ Id (A (pop f)) a₀ a₁
+
+{-# REWRITE Id′-AP-pop³-REFL #-}
 
 top-pop-pop-REFL : {Δ : Tel} (A : el Δ → Type) (f : el (Δ ▸ A)) →
   top (pop (pop (REFL f))) ≡ top f
@@ -169,7 +163,7 @@ top-pop-REFL A (δ ∷ a) = reflᵉ
 -- Thus the only one thath needs to be postulated is refl-top.
 postulate
   refl-top : (Δ : Tel) (A : el Δ → Type) (f : el (Δ ▸ A)) →
-    refl (top f) ≡ coe← (Id′-AP {ε} {Δ} (λ _ → pop f) [] A (top f) (top f)) (top (REFL f)) 
+    refl (top f) ≡ top (REFL f)
 
 {-# REWRITE refl-top #-}
 

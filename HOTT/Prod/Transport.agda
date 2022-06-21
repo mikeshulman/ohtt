@@ -48,16 +48,9 @@ postulate
     (u₀ : A (δ ₀) × B (δ ₀)) (u₁ u₁' : A (δ ₁) × B (δ ₁))
     (u₂ : Id′ (λ w → A w × B w) δ u₀ u₁) (u₂' : Id′ (λ w → A w × B w) δ u₀ u₁') →
     ulift→ (λ w → A w × B w) δ u₀ u₁ u₁' u₂ u₂' ≡
-    (coe← (Id′-AP {ε ▸ (λ _ → A (δ ₁) × B (δ ₁))} {ε ▸ (λ _ → A (δ ₁))} (λ w → (pop w ∷ fst (top w)))
-                  ([] ∷ u₁ ∷ u₁' ∷ (utr→ A δ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂') ,
-                                    utr→ B δ (snd u₀) (snd u₁) (snd u₁') (snd u₂) (snd u₂')))
-                  (λ w → Id′ A δ (fst u₀) (top w)) (fst u₂) (fst u₂'))
-          (ulift→ A δ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂')) ,
-     coe← (Id′-AP {ε ▸ (λ _ → A (δ ₁) × B (δ ₁))} {ε ▸ (λ _ → B (δ ₁))} (λ w → (pop w ∷ snd (top w)))
-                  ([] ∷ u₁ ∷ u₁' ∷ (utr→ A δ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂') ,
-                                    utr→ B δ (snd u₀) (snd u₁) (snd u₁') (snd u₂) (snd u₂')))
-                  (λ w → Id′ B δ (snd u₀) (top w)) (snd u₂) (snd u₂'))
-          (ulift→ B δ (snd u₀) (snd u₁) (snd u₁') (snd u₂) (snd u₂')))
+    ({!ulift→ A δ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂')!} ,
+     {!ulift→ B δ (snd u₀) (snd u₁) (snd u₁') (snd u₂) (snd u₂')!})
+{-
   ulift←× : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
     (u₁ : A (δ ₁) × B (δ ₁)) (u₀ u₀' : A (δ ₀) × B (δ ₀))
     (u₂ : Id′ (λ w → A w × B w) δ u₀ u₁) (u₂' : Id′ (λ w → A w × B w) δ u₀' u₁) →
@@ -75,3 +68,4 @@ postulate
 
 {-# REWRITE ulift→× ulift←× #-}
 
+-}

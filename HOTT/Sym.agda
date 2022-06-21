@@ -3,5 +3,4 @@
 module HOTT.Sym where
 
 open import HOTT.Sym.Base public
--- import HOTT.Sym.Involution
--- import HOTT.Sym.ApRefl
+open import HOTT.Sym.Degenerate public

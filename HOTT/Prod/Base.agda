@@ -46,29 +46,3 @@ postulate
   refl-snd : {A B : Type} (u : A × B) → refl (snd u) ≡ snd (refl u)
 
 {-# REWRITE ap, ap-fst ap-snd refl, refl-fst refl-snd #-}
-
-postulate
-  Id′-AP× : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ))
-           (A B : el Δ → Type) {u₀ : A (f (γ ₀)) × B (f (γ ₀))} {u₁ : A (f (γ ₁)) × B (f (γ ₁))} →
-    Id′-AP f γ (λ w → A w × B w) u₀ u₁ ≡ cong2 _×_ (Id′-AP f γ A (fst u₀) (fst u₁)) (Id′-AP f γ B (snd u₀) (snd u₁))
-
-{-# REWRITE Id′-AP× #-}
-
-postulate
-  ap-AP, : {Γ Δ : Tel} {A B : el Δ → Type} (f : el Γ → el Δ) (g : (x : el Δ) → A x) (h : (x : el Δ) → B x) (γ : el (ID Γ)) →
-    ap-AP f (λ x → (g x , h x)) γ ≡
-    let p = rev (Id′-AP f γ A (g (f (γ ₀))) (g (f (γ ₁)))) in
-    let q = rev (Id′-AP f γ B (h (f (γ ₀))) (h (f (γ ₁)))) in
-    cong2ʰ p q (cong2 _×_ p q) (scong2ʰ (λ A B → _,_ {A} {B}) p q) (ap-AP f g γ) (ap-AP f h γ)
-  ap-AP-fst : {Γ Δ : Tel} {A B : el Δ → Type} (f : el Γ → el Δ) (g : (x : el Δ) → A x × B x) (γ : el (ID Γ)) →
-    ap-AP f (λ x → fst (g x)) γ ≡
-    let p = rev (Id′-AP f γ A (fst (g (f (γ ₀)))) (fst (g (f (γ ₁))))) in
-    let q = rev (Id′-AP f γ B (snd (g (f (γ ₀)))) (snd (g (f (γ ₁))))) in
-    congʰ (cong2 _×_ p q) p (scong2ʰ (λ A B → fst {A} {B}) p q) (ap-AP f g γ)
-  ap-AP-snd : {Γ Δ : Tel} {A B : el Δ → Type} (f : el Γ → el Δ) (g : (x : el Δ) → A x × B x) (γ : el (ID Γ)) →
-    ap-AP f (λ x → snd (g x)) γ ≡
-    let p = rev (Id′-AP f γ A (fst (g (f (γ ₀)))) (fst (g (f (γ ₁))))) in
-    let q = rev (Id′-AP f γ B (snd (g (f (γ ₀)))) (snd (g (f (γ ₁))))) in
-    congʰ (cong2 _×_ p q) q (scong2ʰ (λ A B → snd {A} {B}) p q) (ap-AP f g γ)
-
-{-# REWRITE ap-AP, ap-AP-fst ap-AP-snd #-}

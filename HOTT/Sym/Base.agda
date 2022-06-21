@@ -13,8 +13,12 @@ open import HOTT.Square.Equality
 ------------------------------
 
 -- Symmetry for telescopes will be defined in terms of symmetry for types.
-SYM : (Δ : Tel) → el (SQ Δ) → el (SQ Δ)
+postulate
+  SYM : (Δ : Tel) → el (SQ Δ) → el (SQ Δ)
+  SYM-SYM : (Δ : Tel) (δ : el (SQ Δ)) → SYM Δ (SYM Δ δ) ≡ δ
 
+{-# REWRITE SYM-SYM #-}
+  
 -- We also have to define it mutually with proofs that it transposes
 -- the boundary.  We expand out the left-hand sides of those that will
 -- be rewrites, since rewriting requires the LHS to not be a redex.
@@ -23,117 +27,107 @@ postulate
   SYM₀₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁ ₀ ≡ δ ₁₀
   SYM₁₀ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₀ ₁ ≡ δ ₀₁
   SYM₁₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁ ₁ ≡ δ ₁₁
+  SYM₀₂ : {Δ : Tel} (δ : el (SQ Δ)) → AP _₀ (SYM Δ δ) ≡ δ ₂₀
+  SYM₁₂ : {Δ : Tel} (δ : el (SQ Δ)) → AP _₁ (SYM Δ δ) ≡ δ ₂₁
+  SYM₂₀ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₀ ≡ δ ₀₂
+  SYM₂₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁ ≡ δ ₁₂
 
-{-# REWRITE SYM₀₀ SYM₀₁ SYM₁₀ SYM₁₁ #-}
+{-# REWRITE SYM₀₀ SYM₀₁ SYM₁₀ SYM₁₁ SYM₀₂ SYM₂₀ SYM₁₂ SYM₂₁ #-}
 
-SYM₀₂ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₀₂ ≡ δ ₂₀
-SYM₁₂ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁₂ ≡ δ ₂₁
-SYM₂₀ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₂₀ ≡ δ ₀₂
-SYM₂₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₂₁ ≡ δ ₁₂
+postulate
+  Id′-AP-₂₀-SYM : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ)) {a₀₀ : A (δ ₀₀)} {a₁₀ : A (δ ₁₀)} →
+    Id′ A (δ ₂₀) a₀₀ a₁₀ ≡ Id′ (λ x → A (x ₀)) (SYM Δ δ) a₀₀ a₁₀
+  Id′-AP-₂₁-SYM : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ)) {a₀₁ : A (δ ₀₁)} {a₁₁ : A (δ ₁₁)} →
+    Id′ A (δ ₂₁) a₀₁ a₁₁ ≡ Id′ (λ x → A (x ₁)) (SYM Δ δ) a₀₁ a₁₁
+
+{-# REWRITE Id′-AP-₂₀-SYM Id′-AP-₂₁-SYM #-}
 
 -- Symmetry for types, of course, is a postulated operation, which
 -- takes a square over δ to a square over (SYM Δ δ).  It also
 -- transposes the boundary, and moreover must coerce the boundary
--- across the above proofs that SYM transposes the boundary.  For
--- reasons explained in Sym.Involution, in the basic postulated
--- operation we also incorporate coercions across equalities of the
--- base square and the boundary (the latter heterogeneous).
+-- across the above proofs that SYM transposes the boundary.
 postulate
-  sym : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
-        {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′₀₂ A δ a₀₀ a₀₁)
-        {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′₁₂ A δ a₀₂ a₁₀ a₁₁)
-        (a₂₀ : Id′ A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id′ A (δ ₂₁) a₀₁ a₁₁) →
-        {δ' : el (SQ Δ)} (ϕ : δ' ≡ SYM Δ δ)
-        {a₀₀' : A (δ' ₀₀)} {a₀₁' : A (δ' ₀₁)} (a₀₂' : Id′₀₂ A δ' a₀₀' a₀₁')
-        {a₁₀' : A (δ' ₁₀)} {a₁₁' : A (δ' ₁₁)} (a₁₂' : Id′₁₂ A δ' a₀₂' a₁₀' a₁₁')
-        (a₂₀' : Id′ A (δ' ₂₀) a₀₀' a₁₀') (a₂₁' : Id′ A (δ' ₂₁) a₀₁' a₁₁') →
-        (a₀₀' ≡ʰ a₀₀) → (a₀₁' ≡ʰ a₁₀) → (a₀₂' ≡ʰ a₂₀) →
-        (a₁₀' ≡ʰ a₀₁) → (a₁₁' ≡ʰ a₁₁) → (a₁₂' ≡ʰ a₂₁) →
-        (a₂₀' ≡ʰ a₀₂) → (a₂₁' ≡ʰ a₁₂) →
-        Sq A δ a₀₂ a₁₂ a₂₀ a₂₁ →
-        Sq A δ' a₀₂' a₁₂' a₂₀' a₂₁'
+  sym′ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+    {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′₀₂ A δ a₀₀ a₀₁)
+    {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′₁₂ A δ a₀₂ a₁₀ a₁₁)
+    (a₂₀ : Id′ A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id′ A (δ ₂₁) a₀₁ a₁₁) →
+    {δ' : el (SQ Δ)} (ϕ : δ' ≡ SYM Δ δ)
+    {a₀₀' : A (δ' ₀₀)} {a₀₁' : A (δ' ₀₁)} (a₀₂' : Id′₀₂ A δ' a₀₀' a₀₁')
+    {a₁₀' : A (δ' ₁₀)} {a₁₁' : A (δ' ₁₁)} (a₁₂' : Id′₁₂ A δ' a₀₂' a₁₀' a₁₁')
+    (a₂₀' : Id′ A (δ' ₂₀) a₀₀' a₁₀') (a₂₁' : Id′ A (δ' ₂₁) a₀₁' a₁₁') →
+    (a₀₀' ≡ʰ a₀₀) → (a₀₁' ≡ʰ a₁₀) → (a₀₂' ≡ʰ a₂₀) →
+    (a₁₀' ≡ʰ a₀₁) → (a₁₁' ≡ʰ a₁₁) → (a₁₂' ≡ʰ a₂₁) →
+    (a₂₀' ≡ʰ a₀₂) → (a₂₁' ≡ʰ a₁₂) →
+    (a₂₂ : Sq A δ a₀₂ a₁₂ a₂₀ a₂₁) →
+    Sq A δ' {a₀₀'} {a₀₁'} a₀₂' {a₁₀'} {a₁₁'} a₁₂' a₂₀' a₂₁'
+
+sym : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+  {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′₀₂ A δ a₀₀ a₀₁)
+  {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′₁₂ A δ a₀₂ a₁₀ a₁₁)
+  (a₂₀ : Id′ A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id′ A (δ ₂₁) a₀₁ a₁₁)
+  (a₂₂ : Sq A δ a₀₂ a₁₂ a₂₀ a₂₁) →
+  Sq A (SYM Δ δ) {a₀₀} {a₁₀} a₂₀
+  {a₀₁} {a₁₁} (Id′-pop→ (λ x → A (x ₁)) (λ w → A (w ₀)) (SYM Δ δ) a₂₀ a₂₁)
+  a₀₂ (Id′-pop← (λ x → A (x ₁)) (λ w → A (w ₀)) δ a₀₂ a₁₂)
+sym {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ a₂₂ =
+  sym′ A δ a₀₂ a₁₂ a₂₀ a₂₁ reflᵉ
+    a₂₀ (Id′-pop→ (λ x → A (x ₁)) (λ w → A (w ₀)) (SYM Δ δ) a₂₀ a₂₁) a₀₂ (Id′-pop← (λ x → A (x ₁)) (λ w → A (w ₀)) δ a₀₂ a₁₂)
+    reflʰ reflʰ reflʰ reflʰ reflʰ (Id′-pop→≡ (λ x → A (x ₁)) (λ w → A (w ₀)) (SYM Δ δ) a₂₀ a₂₁)
+    reflʰ (Id′-pop←≡ (λ x → A (x ₁)) (λ w → A (w ₀)) δ a₀₂ a₁₂)
+    a₂₂ 
 
 -- Now we can define symmetry for telescopes by decomposing a collated
 -- SQ, transposing and applying symmetry, and recomposing again.
-SYM ε δ = []
-SYM (Δ ▸ A) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) =
-  let a₂₀' = coe← (Id′-AP≡ _₀ (SYM Δ δ) (rev (SYM₀₂ δ)) A reflʰ reflʰ) a₂₀
-  in
-  SYM Δ δ ∷
-  a₀₀ ∷
-  a₁₀ ∷
-  a₂₀' ∷
-  a₀₁ ∷
-  a₁₁ ∷
-  coe← (Id′-AP≡ (λ x → (pop x ₁)) (SYM Δ δ ∷ a₀₀ ∷ a₁₀ ∷ a₂₀')
-                (rev (SYM₁₂ δ) • AP-AP pop _₁ (SYM Δ δ ∷ a₀₀ ∷ a₁₀ ∷ a₂₀')) A reflʰ reflʰ) a₂₁ ∷
-  coe→ (Id′-AP≡ _₀ δ (SYM₂₀ δ) A reflʰ reflʰ) a₀₂ ∷
-  coe→ (Id′-AP≡ (λ x → (pop x) ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂)
-                (SYM₂₁ δ • AP-AP pop _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂)) A reflʰ reflʰ) a₁₂ ∷
-  sym A δ a₀₂ a₁₂ a₂₀ a₂₁ reflᵉ _ _ _ _
-    reflʰ reflʰ
-    (coe←≡ʰ (Id′-AP≡ _₀ (SYM Δ δ) (rev (SYM₀₂ δ)) A reflʰ reflʰ) a₂₀)
-    reflʰ reflʰ
-    (coe←≡ʰ (Id′-AP≡ (λ x → pop x ₁) (SYM Δ δ ∷ a₀₀ ∷ a₁₀ ∷ a₂₀')
-                     (rev (SYM₁₂ δ) • AP-AP pop _₁ (SYM Δ δ ∷ a₀₀ ∷ a₁₀ ∷ a₂₀')) A reflʰ reflʰ) a₂₁)
-    (coe→≡ʰ (Id′-AP≡ _₀ δ (SYM₂₀ δ) A reflʰ reflʰ) a₀₂)
-    (coe→≡ʰ (Id′-AP≡ (λ x → pop x ₁) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) (SYM₂₁ δ • AP-AP pop _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂)) A reflʰ reflʰ) a₁₂)
-    a₂₂
+postulate
+  SYMε : (δ : el (SQ ε)) → SYM ε δ ≡ []
+  SYM▸ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+    {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′₀₂ A δ a₀₀ a₀₁)
+    {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′₁₂ A δ a₀₂ a₁₀ a₁₁)
+    (a₂₀ : Id′ A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id′ A (δ ₂₁) a₀₁ a₁₁) →
+    (a₂₂ : Sq A δ a₀₂ a₁₂ a₂₀ a₂₁) →
+      SYM (Δ ▸ A) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) ≡
+        SYM Δ δ
+        ∷ a₀₀ ∷ a₁₀ ∷ a₂₀
+        ∷ a₀₁ ∷ a₁₁ ∷ (Id′-pop→ (λ x → A (x ₁)) (λ w → A (w ₀)) (SYM Δ δ) a₂₀ a₂₁)
+        ∷ a₀₂ ∷ (Id′-pop← (λ x → A (x ₁)) (λ w → A (w ₀)) δ a₀₂ a₁₂)
+        ∷ sym A δ a₀₂ a₁₂ a₂₀ a₂₁ a₂₂
 
--- It remains to observe that this definition indeed transposes the boundary.
+{-# REWRITE SYMε SYM▸ #-}
+
+-- We would like to declare the fact that symmetry on types is an
+-- involution as a rewrite.  Unfortunately, the naive postulate that
+-- would look something like
+---
+--- sym-sym : ... → sym A (SYM Δ δ) ... (sym A δ ... a₂₂) ≡ a₂₂
+---
+-- isn't very suitable as a rewrite, because it has the volatile SYM
+-- on the left.  When Δ is concrete, this SYM will reduce, and Agda
+-- won't be able to un-reduce it to notice that the two sym's match.
+-- This is the main reason for postulating instead the enhanced
+-- symmetry sym′, that incorporates coercion across equalities.  It
+-- allows us to formulate sym-sym′, below, whose LHS is not volatile
+-- and can hopefully be pattern-matched so that the rewrite will fire.
 
 postulate
-  SYM₀₂▸ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ (Δ ▸ A))) → (SYM (Δ ▸ A) δ) ₀₂ ≡ δ ₂₀
-  SYM₁₂▸ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ (Δ ▸ A))) → (SYM (Δ ▸ A) δ) ₁₂ ≡ δ ₂₁
-  SYM₂₀▸ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ (Δ ▸ A))) → (SYM (Δ ▸ A) δ) ₂₀ ≡ δ ₀₂
-  SYM₂₁▸ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ (Δ ▸ A))) → (SYM (Δ ▸ A) δ) ₂₁ ≡ δ ₁₂
-
-SYM₀₂ {ε} δ = reflᵉ
-SYM₀₂ {Δ ▸ A} δ = SYM₀₂▸ A δ
--- ID∷≡ A (SYM₀₂ δ) reflʰ reflʰ (coe←≡ʰ (Id′-AP≡ _₀ (SYM Δ δ) (rev (SYM₀₂ δ)) A reflʰ reflʰ) a₂₀)
-
-SYM₁₂ {ε} δ = reflᵉ
-SYM₁₂ {Δ ▸ A} δ = SYM₁₂▸ A δ
-
-SYM₂₀ {ε} δ = reflᵉ
-SYM₂₀ {Δ ▸ A} δ = SYM₂₀▸ A δ
-
-SYM₂₁ {ε} δ = reflᵉ
-SYM₂₁ {Δ ▸ A} δ = SYM₂₁▸ A δ
-
--- It would be nice to make all the SYMₘₙ equalities into rewrites,
--- but for now we only do this with those for the vertices: SYM₀₀,
--- SYM₀₁, SYM₁₀, and SYM₁₁.  The reason is that these, like AP₀,
--- REFL₀, and so on, are defined recursively purely in terms of
--- themselves, and thus already reduce to reflexivity on concrete
--- telescopes, so making them reduce to reflexivity on abstract
--- telescopes as well is unlikely to be problematic.
-
-
--- In contrast, the rules for the 1-cell boundary, SYM₀₂, SYM₁₂,
--- SYM₂₀, and SYM₂₁, involve nontrivial instances of the functoriality
--- rules Id′-AP and AP-AP, and thus don't already reduce to
--- reflexivity even on concrete telescopes -- only on concrete
--- telescopes *of concrete types*.  And unlike Id′-REFL and AP-const,
--- which also have this issue, making them refl as below wouldn't
--- cause their definitions above to also reduce to refl.
-
-{-
-
-{-# REWRITE SYM₀₂ SYM₂₀ SYM₁₂ SYM₂₁ #-}
-
-SYM₀₂-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₀₂ δ ≡ reflᵉ
-SYM₀₂-reflᵉ δ = axiomK
-
-SYM₁₂-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₁₂ δ ≡ reflᵉ
-SYM₁₂-reflᵉ δ = axiomK
-
-SYM₂₀-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₂₀ δ ≡ reflᵉ
-SYM₂₀-reflᵉ δ = axiomK
-
-SYM₂₁-reflᵉ : {Δ : Tel} (δ : el (SQ Δ)) → SYM₂₁ δ ≡ reflᵉ
-SYM₂₁-reflᵉ δ = axiomK
-
-{-# REWRITE SYM₀₂-reflᵉ SYM₂₀-reflᵉ SYM₁₂-reflᵉ SYM₂₁-reflᵉ #-}
-
--}
+  sym-sym : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
+    {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′₀₂ A δ a₀₀ a₀₁)
+    {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′₁₂ A δ a₀₂ a₁₀ a₁₁)
+    (a₂₀ : Id′ A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id′ A (δ ₂₁) a₀₁ a₁₁)
+    {δ' : el (SQ Δ)} (ϕ : δ' ≡ SYM Δ δ)
+    {a₀₀' : A (δ' ₀₀)} {a₀₁' : A (δ' ₀₁)} (a₀₂' : Id′₀₂ A δ' a₀₀' a₀₁')
+    {a₁₀' : A (δ' ₁₀)} {a₁₁' : A (δ' ₁₁)} (a₁₂' : Id′₁₂ A δ' a₀₂' a₁₀' a₁₁')
+    (a₂₀' : Id′ A (δ' ₂₀) a₀₀' a₁₀') (a₂₁' : Id′ A (δ' ₂₁) a₀₁' a₁₁')
+    (e₀₀ : a₀₀' ≡ʰ a₀₀) (e₀₁ : a₀₁' ≡ʰ a₁₀) (e₀₂ : a₀₂' ≡ʰ a₂₀)
+    (e₁₀ : a₁₀' ≡ʰ a₀₁) (e₁₁ : a₁₁' ≡ʰ a₁₁) (e₁₂ : a₁₂' ≡ʰ a₂₁)
+    (e₂₀ : a₂₀' ≡ʰ a₀₂) (e₂₁ : a₂₁' ≡ʰ a₁₂)
+    {δ'' : el (SQ Δ)} (ϕ' : δ'' ≡ SYM Δ δ')
+    {a₀₀'' : A (δ'' ₀₀)} {a₀₁'' : A (δ'' ₀₁)} (a₀₂'' : Id′₀₂ A δ'' a₀₀'' a₀₁'')
+    {a₁₀'' : A (δ'' ₁₀)} {a₁₁'' : A (δ'' ₁₁)} (a₁₂'' : Id′₁₂ A δ'' a₀₂'' a₁₀'' a₁₁'')
+    (a₂₀'' : Id′ A (δ'' ₂₀) a₀₀'' a₁₀'') (a₂₁'' : Id′ A (δ'' ₂₁) a₀₁'' a₁₁'')
+    (e₀₀' : a₀₀'' ≡ʰ a₀₀') (e₀₁' : a₀₁'' ≡ʰ a₁₀') (e₀₂' : a₀₂'' ≡ʰ a₂₀')
+    (e₁₀' : a₁₀'' ≡ʰ a₀₁') (e₁₁' : a₁₁'' ≡ʰ a₁₁') (e₁₂' : a₁₂'' ≡ʰ a₂₁')
+    (e₂₀' : a₂₀'' ≡ʰ a₀₂') (e₂₁' : a₂₁'' ≡ʰ a₁₂')
+    (a₂₂ : Sq A δ a₀₂ a₁₂ a₂₀ a₂₁) →
+    sym′ A δ' a₀₂' a₁₂' a₂₀' a₂₁' ϕ' a₀₂'' a₁₂'' a₂₀'' a₂₁'' e₀₀' e₀₁' e₀₂' e₁₀' e₁₁' e₁₂' e₂₀' e₂₁'
+      (sym′ A δ a₀₂ a₁₂ a₂₀ a₂₁ ϕ a₀₂' a₁₂' a₂₀' a₂₁' e₀₀ e₀₁ e₀₂ e₁₀ e₁₁ e₁₂ e₂₀ e₂₁ a₂₂) ≡
+    coe← (Sq≡ A (ϕ' • (cong (SYM Δ) ϕ)) (e₀₀' •ʰ e₀₀) (e₀₁' •ʰ e₁₀) (e₀₂' •ʰ e₂₀) (e₁₀' •ʰ e₀₁) (e₁₁' •ʰ e₁₁) (e₁₂' •ʰ e₂₁) (e₂₀' •ʰ e₀₂) (e₂₁' •ʰ e₁₂)) a₂₂
