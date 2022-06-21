@@ -172,13 +172,19 @@ postulate
 -- Sometimes we have to coerce along that equality explicitly to get
 -- things to have the right type, so we ensure this way that such
 -- coercions vanish.
+Id′-AP▸-reflᵉ : {Γ Δ : Tel} (B : el Δ → Type)
+  (f : el Γ → el Δ) (g : (x : el Γ) → B (f x)) (γ : el (ID Γ))
+  (A : el (Δ ▸ B) → Type) (a₀ : A (f (γ ₀) ∷ g (γ ₀))) (a₁ : A (f (γ ₁) ∷ g (γ ₁))) →
+  Id′-AP▸ B f g γ A a₀ a₁ ≡ reflᵉ
+Id′-AP▸-reflᵉ  B f g γ A a₀ a₁ = axiomK
+
 Id′-AP▸▸-reflᵉ : {Γ Δ : Tel} (B : el Δ → Type) (C : el (Δ ▸ B) → Type)
   (f : el Γ → el Δ) (g : (x : el Γ) → B (f x)) (h : (x : el Γ) → C (f x ∷ g x)) (γ : el (ID Γ))
   (A : el (Δ ▸ B ▸ C) → Type) (a₀ : A (f (γ ₀) ∷ g (γ ₀) ∷ h (γ ₀))) (a₁ : A (f (γ ₁) ∷ g (γ ₁) ∷ h (γ ₁))) →
   Id′-AP▸▸ B C f g h γ A a₀ a₁ ≡ reflᵉ
 Id′-AP▸▸-reflᵉ B C f g h γ A a₀ a₁ = axiomK
 
-{-# REWRITE Id′-AP▸▸-reflᵉ #-}
+{-# REWRITE Id′-AP▸-reflᵉ Id′-AP▸▸-reflᵉ #-}
 
 -- Note that in defining AP, we have to coerce along AP₀, AP₁ and
 -- Id′-AP, explaining why we need a mutual definition.
@@ -348,7 +354,7 @@ postulate
 -- would have been reduced to some iterated Σᵉ-exotype in which Δ
 -- doesn't appear explicitly.
 
--- {-# REWRITE ap-top #-}
+{-# REWRITE ap-top #-}
 
 -- Note that we don't have rules for computing ap-top on "dependent
 -- telescopes".  Hopefully this won't ever occur.

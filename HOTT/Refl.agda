@@ -102,7 +102,7 @@ postulate
 {-# REWRITE Id′-REFL▸ #-}
 
 postulate
-  Id′-REFL[]▸ : (B : el ε → Type) (A : el (ε ▸ B) → Type)  (b : B [])
+  Id′-REFL[]▸ : (B : el ε → Type) (A : el (ε ▸ B) → Type) (b : B [])
     (a₀ : A (_∷_ {ε} {B} [] b)) (a₁ : A (_∷_ {ε} {B} [] b)) →
     Id′ A ([] ∷ b ∷ b ∷ refl b) a₀ a₁ ≡ Id (A ([] ∷ b)) a₀ a₁
 
@@ -116,6 +116,25 @@ postulate
     Id′ A (REFL δ ∷ b ∷ b ∷ refl b ∷ c ∷ c ∷ refl c) a₀ a₁ ≡ Id (A (δ ∷ b ∷ c)) a₀ a₁
 
 {-# REWRITE Id′-REFL▸▸ #-}
+
+Id′-REFL▸-reflᵉ : {Δ : Tel} (B : el Δ → Type) (A : el (Δ ▸ B) → Type) (δ : el Δ) (b : B δ)
+  (a₀ : A ((REFL (_∷_ {Δ} {B} δ b))₀)) (a₁ : A ((REFL (_∷_ {Δ} {B} δ b))₁)) →
+  Id′-REFL▸ B A δ b a₀ a₁ ≡ reflᵉ
+Id′-REFL▸-reflᵉ B A δ b a₀ a₁ = axiomK
+
+Id′-REFL[]▸-reflᵉ : (B : el ε → Type) (A : el (ε ▸ B) → Type) (b : B [])
+  (a₀ : A (_∷_ {ε} {B} [] b)) (a₁ : A (_∷_ {ε} {B} [] b)) →
+  Id′-REFL[]▸ B A b a₀ a₁ ≡ reflᵉ
+Id′-REFL[]▸-reflᵉ B A b a₀ a₁ = axiomK
+
+Id′-REFL▸▸-reflᵉ : {Δ : Tel} (B : el Δ → Type) (C : el (Δ ▸ B) → Type)
+  (A : el (Δ ▸ B ▸ C) → Type) (δ : el Δ) (b : B δ) (c : C (δ ∷ b))
+  (a₀ : A (REFL (_∷_ {Δ ▸ B} {C} (_∷_ {Δ} {B} δ b) c)₀))
+  (a₁ : A (REFL (_∷_ {Δ ▸ B} {C} (_∷_ {Δ} {B} δ b) c)₁)) →
+  Id′-REFL▸▸ B C A δ b c a₀ a₁ ≡ reflᵉ
+Id′-REFL▸▸-reflᵉ B C A δ b c a₀ a₁ = axiomK
+
+{-# REWRITE Id′-REFL▸-reflᵉ Id′-REFL[]▸-reflᵉ Id′-REFL▸▸-reflᵉ #-}
 
 ------------------------------
 -- ap and reflexivity
