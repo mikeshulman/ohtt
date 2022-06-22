@@ -207,13 +207,14 @@ postulate
     AP (λ x → pop (pop (pop (f x))) ₀) γ
     ∷ top (pop (pop (f (γ ₀))))
     ∷ top (pop (pop (f (γ ₁))))
-    ∷ coe→ (Id′-AP (λ x → pop (pop (pop (f x)))₀) γ A (top (pop (pop (f (γ ₀))))) (top (pop (pop (f (γ ₁)))))) (ap (λ x → top (pop (pop (f x)))) γ)
+    ∷ ap (λ x → top (pop (pop (f x)))) γ
   AP-₁ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (ID (Δ ▸ A))) (γ : el (ID Γ)) →
     AP (λ x → f x ₁) γ ≡
     AP (λ x → pop (pop (pop (f x))) ₀) γ
     ∷ top (pop (pop (f (γ ₀))))
     ∷ top (pop (pop (f (γ ₁))))
-    ∷ coe→ (Id′-AP (λ x → pop (pop (pop (f x)))₀) γ A (top (pop (pop (f (γ ₀))))) (top (pop (pop (f (γ ₁)))))) (ap (λ x → top (pop (pop (f x)))) γ)
+    ∷ ap (λ x → top (pop (pop (f x)))) γ
+
 
 -- Note that we compute (AP (λ x → f x ₀) γ) only if the codomain of f
 -- is a ▸, and in that case the first component of the output is
