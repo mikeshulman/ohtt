@@ -40,20 +40,21 @@ postulate
 
 {-# REWRITE lift→Σ lift←Σ #-}
 
-{-
-
 postulate
   utr→Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type) (δ : el (ID Δ))
     (u₀ : Σ (A (δ ₀)) (B (δ ₀))) (u₁ u₁' : Σ (A (δ ₁)) (B (δ ₁)))
     (u₂ : Id′ (λ w → Σ (A w) (B w)) δ u₀ u₁) (u₂' : Id′ (λ w → Σ (A w) (B w)) δ u₀ u₁') →
     utr→ (λ w → Σ (A w) (B w)) δ u₀ u₁ u₁' u₂ u₂' ≡
     (utr→ A δ (π₁ u₀) (π₁ u₁) (π₁ u₁') (π₁ u₂) (π₁ u₂') ﹐
-     {!comp→ {Δ ▸ A} (uncurry B)
-       (DEGSQ-TB δ ∷ π₁ u₀ ∷ π₁ u₁ ∷ π₁ u₂ ∷ π₁ u₀ ∷ π₁ u₁' ∷ {!π₁ u₂'!}
-         ∷ refl (π₁ u₀) ∷ utr→ A δ (π₁ u₀) (π₁ u₁) (π₁ u₁') (π₁ u₂) (π₁ u₂')
-         ∷ ?)
-       {π₂ u₀} {π₂ u₁} (π₂ u₂) {π₂ u₀} {π₂ u₁'} (π₂ u₂')
-       (refl (π₂ u₀))!})
--}
+     coe→ (Id′-AP {ε ▸ (λ _ → A (δ ₁))} {Δ ▸ A} (λ x → δ ₁ ∷ top x)
+              ([] ∷ π₁ u₁ ∷ π₁ u₁' ∷ utr→ A δ (π₁ u₀) (π₁ u₁) (π₁ u₁') (π₁ u₂) (π₁ u₂'))
+              (uncurry B) (π₂ u₁) (π₂ u₁'))
+          -- Id′ {Δ ▸ A} (uncurry B) (REFL (δ ₁) ∷ π₁ u₁ ∷ π₁ u₁' ∷ utr→ A δ (π₁ u₀) (π₁ u₁) (π₁ u₁') (π₁ u₂) (π₁ u₂')) (π₂ u₁) (π₂ u₁')
+          {!--comp↑ {Δ ▸ A} (uncurry B)
+           _₁₂ {Δ ▸ A} (sq▸ {Δ} A (DEGSQ-LR δ) {π₁ u₀} {π₁ u₀} (refl (π₁ u₀)) {π₁ u₁} {π₁ u₁'}
+                 (Id′-pop→ (λ x → A (x ₁)) (λ x → A (x ₀)) (DEGSQ-LR δ) (refl (π₁ u₀))
+                           (utr→ A δ (π₁ u₀) (π₁ u₁) (π₁ u₁') (π₁ u₂) (π₁ u₂')))
+                 (π₁ u₂) (π₁ u₂') (ulift→sq A δ (π₁ u₀) (π₁ u₁) (π₁ u₁') (π₁ u₂) (π₁ u₂')))
+            {-{π₂ u₀} {π₂ u₀} (refl (π₂ u₀)) {π₂ u₁} {π₂ u₁'} (π₂ u₂) (π₂ u₂') -}!})
 
 --{-# REWRITE utr→Σ utr←Σ #-}

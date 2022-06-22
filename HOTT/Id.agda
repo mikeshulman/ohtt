@@ -196,35 +196,6 @@ postulate
 
 {-# REWRITE APε AP∷ #-}
 
--- We need these because _₀ and _₁ were defined by decomposing their
--- identification argument, rather than as a λ-abstraction whose head
--- is ∷.  For some reason, doing the latter is very slow.  But we
--- still want (AP _₀ δ) to reduce *as if* _₀ and _₁ had been defined
--- that way.
-postulate
-  AP-₀ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (ID (Δ ▸ A))) (γ : el (ID Γ)) →
-    AP (λ x → f x ₀) γ ≡
-    AP (λ x → pop (pop (pop (f x))) ₀) γ
-    ∷ top (pop (pop (f (γ ₀))))
-    ∷ top (pop (pop (f (γ ₁))))
-    ∷ ap (λ x → top (pop (pop (f x)))) γ
-  AP-₁ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (ID (Δ ▸ A))) (γ : el (ID Γ)) →
-    AP (λ x → f x ₁) γ ≡
-    AP (λ x → pop (pop (pop (f x))) ₀) γ
-    ∷ top (pop (pop (f (γ ₀))))
-    ∷ top (pop (pop (f (γ ₁))))
-    ∷ ap (λ x → top (pop (pop (f x)))) γ
-
-
--- Note that we compute (AP (λ x → f x ₀) γ) only if the codomain of f
--- is a ▸, and in that case the first component of the output is
--- another term of the same form but where the codomain of f is
--- smaller.  So by repeated application, we reduce to the case when
--- the codomain of f is either abstract (when the computation pauses)
--- or ε (in which case _₀ computes immediately to []).
-
-{-# REWRITE AP-₀ AP-₁ #-}
-
 -- Unfortunately, AP∷ is non-confluent with eta-contraction η∷.  In
 -- the context of a variable (f : el Γ → el (Δ ▸ A)), the term
 --- AP (λ x → pop (f x) ∷ top (f x)) γ
@@ -303,6 +274,16 @@ postulate
 
 {-# REWRITE pop-pop-pop₀ pop-pop-pop₁ #-}
 
+pop-pop-pop₀-reflᵉ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID (Δ ▸ A))) →
+  pop-pop-pop₀ A δ ≡ reflᵉ
+pop-pop-pop₀-reflᵉ A δ = axiomK
+
+pop-pop-pop₁-reflᵉ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID (Δ ▸ A))) →
+  pop-pop-pop₁ A δ ≡ reflᵉ
+pop-pop-pop₁-reflᵉ A δ = axiomK
+
+{-# REWRITE pop-pop-pop₀-reflᵉ pop-pop-pop₁-reflᵉ #-}
+
 postulate
   top-pop-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
     top (pop (pop (AP f γ))) ≡ top (f (γ ₀))
@@ -312,11 +293,30 @@ postulate
 {-# REWRITE top-pop-pop-AP top-pop-AP #-}
 
 postulate
-  Id′-AP-pop³-AP : {Γ Δ : Tel} (A B : el Δ → Type) (f : el Γ → el (Δ ▸ B)) (γ : el (ID Γ))
+  Id′-pop³-AP : {Γ Δ : Tel} (A B : el Δ → Type) (f : el Γ → el (Δ ▸ B)) (γ : el (ID Γ))
     (a₀ : A (pop (f (γ ₀)))) (a₁ : A (pop (f (γ ₁)))) →
     Id′ A (pop (pop (pop (AP f γ)))) a₀ a₁ ≡ Id′ (λ w → A (pop (f w))) γ a₀ a₁
+  Id′-pop⁶-AP : {Γ Δ : Tel} (A B : el Δ → Type) (C : el (Δ ▸ B) → Type)
+    (f : el Γ → el (Δ ▸ B ▸ C)) (γ : el (ID Γ))
+    (a₀ : A (pop (pop (pop (pop (AP f γ))) ₀))) (a₁ : A (pop (pop (pop (pop (AP f γ))) ₁))) →
+    Id′ A (pop (pop (pop (pop (pop (pop (AP f γ))))))) a₀ a₁
+       ≡
+    Id′ (λ w → A (pop (pop (f w)))) γ
+      (coe→ (cong (λ x → A (pop x)) (pop-pop-pop₀ C (AP f γ))) a₀)
+      (coe→ (cong (λ x → A (pop x)) (pop-pop-pop₁ C (AP f γ))) a₁)
+  Id′-pop⁹-AP : {Γ Δ : Tel} (A B : el Δ → Type) (C : el (Δ ▸ B) → Type) (D : el (Δ ▸ B ▸ C) → Type)
+    (f : el Γ → el (Δ ▸ B ▸ C ▸ D)) (γ : el (ID Γ))
+    (a₀ : A (pop (pop (pop (pop (pop (pop (pop (AP f γ)))))) ₀)))
+    (a₁ : A (pop (pop (pop (pop (pop (pop (pop (AP f γ)))))) ₁))) →
+    Id′ A (pop (pop (pop (pop (pop (pop (pop (pop (pop (AP f γ)))))))))) a₀ a₁
+       ≡
+    Id′ (λ w → A (pop (pop (pop (f w))))) γ
+      (coe→ (cong (λ x → A (pop x)) (pop-pop-pop₀ C (pop (pop (pop (AP f γ))))) •
+             cong (λ x → A (pop (pop x))) (pop-pop-pop₀ D (AP f γ))) a₀)
+      (coe→ (cong (λ x → A (pop x)) (pop-pop-pop₁ C (pop (pop (pop (AP f γ))))) •
+             cong (λ x → A (pop (pop x))) (pop-pop-pop₁ D (AP f γ))) a₁)
 
-{-# REWRITE Id′-AP-pop³-AP #-}
+{-# REWRITE Id′-pop³-AP Id′-pop⁶-AP Id′-pop⁹-AP #-}
 
 -- This combination means that (top-pop-pop-AP A f γ) actually
 -- *always* reduces to reflʰ.  Unfortunately, since reflʰ doesn't
@@ -360,3 +360,52 @@ postulate
 -- Note that we don't have rules for computing ap-top on "dependent
 -- telescopes".  Hopefully this won't ever occur.
 
+-- We need these because _₀ and _₁ were defined by decomposing their
+-- identification argument, rather than as a λ-abstraction whose head
+-- is ∷.  For some reason, doing the latter is very slow.  But we
+-- still want (AP _₀ δ) to reduce *as if* _₀ and _₁ had been defined
+-- that way.
+postulate
+  AP-₀ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (ID (Δ ▸ A))) (γ : el (ID Γ)) →
+    AP (λ x → f x ₀) γ ≡
+      AP _₀ (pop (pop (pop (pop (pop (pop (pop (pop (pop (AP f γ))))))))))
+      ∷ top (pop (pop (pop (pop (pop (pop (pop (pop (AP f γ)))))))))
+      ∷ top (pop (pop (pop (pop (pop (pop (pop (AP f γ))))))))
+      ∷ top (pop (pop (pop (pop (pop (pop (AP f γ)))))))
+    {-
+    AP (λ x → pop (pop (pop (f x))) ₀) γ
+    -- This causes all sorts of problems.  We could precompute it with AP-pop to
+    --- AP _₀ (pop (pop (pop (pop (pop (pop (pop (pop (pop (AP f γ))))))))))
+    -- But then the other three components have also to be changed somehow (coerced?).
+    ∷ top (pop (pop (f (γ ₀))))
+    ∷ top (pop (pop (f (γ ₁))))
+    ∷ ap (λ x → top (pop (pop (f x)))) γ
+    -- This could be precomputed to
+    {! top (pop (pop (pop (pop (pop (pop (AP f γ))))))) !}
+    -- But that doesn't typecheck.
+    -}
+  AP-₁ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (ID (Δ ▸ A))) (γ : el (ID Γ)) →
+    AP (λ x → f x ₁) γ ≡
+      AP _₁ (pop (pop (pop (pop (pop (pop (pop (pop (pop (AP f γ))))))))))
+      ∷ top (pop (pop (pop (pop (pop (AP f γ))))))
+      ∷ top (pop (pop (pop (pop (AP f γ)))))
+      -- I don't know why Id′-pop⁶-AP doesn't fire here
+      ∷ {!coe→ (Id′-pop⁶-AP _ _ _ f γ
+                (top (pop (pop (pop (pop (pop (AP f γ)))))))
+                (top (pop (pop (pop (pop (AP f γ)))))))
+          (top (pop (pop (pop (AP f γ)))))!}
+  {-
+    AP (λ x → pop (pop (pop (f x))) ₀) γ
+    ∷ top (pop (pop (f (γ ₀))))
+    ∷ top (pop (pop (f (γ ₁))))
+    ∷ ap (λ x → top (pop (pop (f x)))) γ
+  -}
+
+-- Note that we compute (AP (λ x → f x ₀) γ) only if the codomain of f
+-- is a ▸, and in that case the first component of the output is
+-- another term of the same form but where the codomain of f is
+-- smaller.  So by repeated application, we reduce to the case when
+-- the codomain of f is either abstract (when the computation pauses)
+-- or ε (in which case _₀ computes immediately to []).
+
+-- {-# REWRITE AP-₀ AP-₁ #-}
