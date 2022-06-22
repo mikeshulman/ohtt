@@ -24,6 +24,8 @@ Sq≡ : {Δ : Tel} (A : el Δ → Type)
   Sq A δ a₀₂ a₁₂ a₂₀ a₂₁ ≡ Sq A δ' a₀₂' a₁₂' a₂₀' a₂₁'
 Sq≡ A reflᵉ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ = reflᵉ
 
+{-
+
 sq₁₂≡ : {Δ : Tel} (A : el Δ → Type) {δ δ' : el (SQ Δ)} (ϕ : δ ≡ δ')
     {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} {a₀₂ : Id′₀₂ A δ a₀₀ a₀₁}
     {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} {a₁₂ : Id′₁₂ A δ a₀₂ a₁₀ a₁₁}
@@ -91,3 +93,5 @@ blip≡ : {Δ : Tel} (δ : el (SQ Δ))
   (β₂₁ : el (ID Δ)) (e₂₁ : β₂₁ ≡ δ ₂₁)
   → δ ≡ blip δ β₀₂ e₀₂ β₁₂ e₁₂ β₂₀ e₂₀ β₂₁ e₂₁
 blip≡ δ _ reflᵉ _  reflᵉ _ reflᵉ _ reflᵉ = reflᵉ
+
+-}

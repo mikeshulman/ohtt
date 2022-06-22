@@ -6,10 +6,10 @@ open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Refl
-open import HOTT.Transport
-open import HOTT.Fill
 open import HOTT.Square.Base
 open import HOTT.Square.Degenerate
+open import HOTT.Transport
+open import HOTT.Fill
 open import HOTT.Sigma.Base
 
 ----------------------------------------

@@ -8,7 +8,6 @@ open import HOTT.Id
 open import HOTT.Refl
 open import HOTT.Square.Base
 open import HOTT.Square.Degenerate
-open import HOTT.Square.Equality
 open import HOTT.Sym.Base
 
 postulate
