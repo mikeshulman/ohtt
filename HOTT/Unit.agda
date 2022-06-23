@@ -36,6 +36,8 @@ postulate
   lift→⊤ : {Δ : Tel} (δ : el (ID Δ)) (a₀ : ⊤) → lift→ {Δ} (λ _ → ⊤) δ a₀ ≡ ★
   tr←⊤ : {Δ : Tel} (δ : el (ID Δ)) (a₁ : ⊤) → tr← {Δ} (λ _ → ⊤) δ a₁ ≡ a₁
   lift←⊤ : {Δ : Tel} (δ : el (ID Δ)) (a₁ : ⊤) → lift← {Δ} (λ _ → ⊤) δ a₁ ≡ ★
+  -- The unit type is so trivial that we can easily define utr and
+  -- ulift directly, rather than by way of filling.
   utr→⊤ : {Δ : Tel} (δ : el (ID Δ)) (a₀ : ⊤)
     (a₁ a₁' : ⊤) (a₂ : Id′ {Δ} (λ _ → ⊤) δ a₀ a₁) (a₂' : Id′ {Δ} (λ _ → ⊤) δ a₀ a₁') →
     utr→ {Δ} (λ _ → ⊤) δ a₀ a₁ a₁' a₂ a₂' ≡ ★

@@ -1,6 +1,6 @@
-- Rework comments
-- compute sym
-- Copy/Transport
+- lift for Pi-types
+- compute sym on all types
+- transport in copy-types
 - Universe stuff
 - ap-naturality for sym (two kinds?)
 - braid equation

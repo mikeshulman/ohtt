@@ -127,7 +127,11 @@ ulift←sq {Δ} A δ a₁ a₀ a₀' a₂ a₂' =
                  ([] ∷ a₀ ∷ a₀' ∷ utr← A δ a₁ a₀ a₀' a₂ a₂') (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y)) a₂ a₂')
         (ulift← A δ a₁ a₀ a₀' a₂ a₂')
 
--- Conversely, we can construct utr and ulift from filling.
+-- Conversely, we can construct operations having the type of utr and
+-- ulift from filling.  We include utr and ulift explicitly so that ↓
+-- on Id-U can extract precisely the ones that were put in by ↑, but
+-- when computing utr and ulift for type formers like Σ and Π it is
+-- almost always easier to derive them in this way.
 
 fill-utr→ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₀ : A (δ ₀))
     (a₁ a₁' : A (δ ₁)) (a₂ : Id′ A δ a₀ a₁) (a₂' : Id′ A δ a₀ a₁') → Id (A (δ ₁)) a₁ a₁'

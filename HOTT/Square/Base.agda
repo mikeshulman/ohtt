@@ -75,6 +75,10 @@ _₁₂ : {Δ : Tel} → el (SQ Δ) → el (ID Δ)
 ₁₂-₁ : {Δ : Tel} (δ : el (SQ Δ)) → δ ₁₂ ₁ ≡ δ ₁₁
 ₁₂-₁ δ = reflᵉ
 
+------------------------------
+-- Squares in a type
+------------------------------
+
 -- We can now extract a definition of squares in a type by having Agda
 -- normalize (SQ (Δ ▸ A)) for us.  Once done and cleaned up, we obtain:
 {-
@@ -91,11 +95,12 @@ ID (ID Δ)
 -}
 -- Here the last term is clearly the type of squares in A.  Rewriting
 -- this in terms of its explicit dependencies, we obtain a definition
--- of squares in a type, with boundary slightly frobnified.
+-- of squares in a type.
 
-------------------------------
--- Squares in a type
-------------------------------
+-- However, note that the ₀₂ and ₁₂ boundaries are slightly
+-- frobnified, living in an identity type that differs from the
+-- obvious one by an Id′-AP.  For convenience, we introduce names for
+-- these variant identity types.
 
 Id′₀₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ)) (a₀₀ : A (δ ₀₀)) (a₀₁ : A (δ ₀₁)) → Type
 Id′₀₂ A δ a₀₀ a₀₁ = Id′ (λ x → A (x ₀)) δ a₀₀ a₀₁
@@ -113,6 +118,8 @@ Sq {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a�
       (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y))
       (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂) a₂₀ a₂₁
 
+-- We can extend a square telescope by a square in a type together
+-- with its boundary.
 sq∷ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
      {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′₀₂ A δ a₀₀ a₀₁)
      {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′₁₂ A δ a₀₂ a₁₀ a₁₁)
@@ -122,20 +129,7 @@ sq∷ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
 sq∷ A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ a₂₂ =
   δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂
 
-{-
-postulate
-  sq∷₁₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
-     {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′₀₂ A δ a₀₀ a₀₁)
-     {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′₁₂ A δ a₀₂ a₁₀ a₁₁)
-     (a₂₀ : Id′ A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id′ A (δ ₂₁) a₀₁ a₁₁)
-     (a₂₂ : Sq A δ a₀₂ a₁₂ a₂₀ a₂₁) →
-     (sq∷ A δ a₀₂ a₁₂ a₂₀ a₂₁ a₂₂) ₁₂ ≡
-     δ ₁₂ ∷ a₁₀ ∷ a₁₁ ∷ Id′-pop← _ _ δ a₀₂ a₁₂
--- sq∷₁₂ A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ a₂₂ = reflᵉ
-
-{-# REWRITE sq∷₁₂ #-}
--}
-
+-- And we can extract the pieces of a square in an extended telescope.
 popsq : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) → el (SQ Δ)
 popsq (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) = δ
 
@@ -167,6 +161,8 @@ top₂₁ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) →
   Id′ A (popsq δ ₂₁) (top₀₁ δ) (top₁₁ δ)
 top₂₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) = a₂₁
 
+-- This, in particular, is much simpler than it would be without
+-- Id′-AP as a rewrite!
 top₂₂ : {Δ : Tel} {A : el Δ → Type} (δ : el (SQ (Δ ▸ A))) →
   Sq A (popsq δ) (top₀₂ δ) (top₁₂ δ) (top₂₀ δ) (top₂₁ δ)
 top₂₂ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) = a₂₂

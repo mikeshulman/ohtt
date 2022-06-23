@@ -43,57 +43,11 @@ coe→ reflᵉ u = u
 coe← : {A B : Type} → (A ≡ B) → B → A
 coe← reflᵉ v = v
 
--- Apparently we can't make A B : Typeᵉ in coe→, even with cumulativity
-coe→ᵉ : {A B : Typeᵉ} → (A ≡ B) → A → B
-coe→ᵉ reflᵉ u = u
-
-coe←ᵉ : {A B : Typeᵉ} → (A ≡ B) → B → A
-coe←ᵉ reflᵉ v = v
-
-coe←≡ : {A : Type} {e : A ≡ A} {a : A} → coe← e a ≡ a
-coe←≡ {e = reflᵉ} = reflᵉ
-
 axiomK : {A : Typeᵉ} {a : A} {p : a ≡ a} → p ≡ reflᵉ
 axiomK {p = reflᵉ} = reflᵉ
 
 uip : {A : Typeᵉ} {a b : A} {p q : a ≡ b} → p ≡ q
 uip {q = reflᵉ} = axiomK
-
-coe←coe← : {A B C : Type} (p : A ≡ B) (q : B ≡ C) (r : A ≡ C) {c : C} → coe← p (coe← q c) ≡ coe← r c
-coe←coe← reflᵉ reflᵉ reflᵉ = reflᵉ
-
-coe→coe→ : {A B C : Type} (p : A ≡ B) (q : B ≡ C) (r : A ≡ C) {a : A} → coe→ q (coe→ p a) ≡ coe→ r a
-coe→coe→ reflᵉ reflᵉ reflᵉ = reflᵉ
-
-coe←coe←ᵉ : {A B C : Typeᵉ} (p : A ≡ B) (q : B ≡ C) (r : A ≡ C) {c : C} → coe←ᵉ p (coe←ᵉ q c) ≡ coe←ᵉ r c
-coe←coe←ᵉ reflᵉ reflᵉ reflᵉ = reflᵉ
-
-coe→coe→ᵉ : {A B C : Typeᵉ} (p : A ≡ B) (q : B ≡ C) (r : A ≡ C) {a : A} → coe→ᵉ q (coe→ᵉ p a) ≡ coe→ᵉ r a
-coe→coe→ᵉ reflᵉ reflᵉ reflᵉ = reflᵉ
-
-coe←coe→ : {A B : Type} (p : A ≡ B) {a : A} → coe← p (coe→ p a) ≡ a
-coe←coe→ reflᵉ = reflᵉ
-
-coe→coe← : {A B : Type} (p : A ≡ B) {b : B} → coe→ p (coe← p b) ≡ b
-coe→coe← reflᵉ = reflᵉ
-
-coe←coe→ᵉ : {A B : Typeᵉ} (p : A ≡ B) {a : A} → coe←ᵉ p (coe→ᵉ p a) ≡ a
-coe←coe→ᵉ reflᵉ = reflᵉ
-
-coe→coe←ᵉ : {A B : Typeᵉ} (p : A ≡ B) {b : B} → coe→ᵉ p (coe←ᵉ p b) ≡ b
-coe→coe←ᵉ reflᵉ = reflᵉ
-
-coe←coe→′ : {A B : Type} (p q : A ≡ B) (a : A) → coe← p (coe→ q a) ≡ coe← (p • rev q) a
-coe←coe→′ reflᵉ reflᵉ a = reflᵉ
-
-coe→coe←′ : {A B : Type} (p q : A ≡ B) (b : B) → coe→ p (coe← q b) ≡ coe→ (rev p • q) b
-coe→coe←′ reflᵉ reflᵉ b = reflᵉ
-
-coe←coe→ᵉ′ : {A B : Typeᵉ} (p q : A ≡ B) (a : A) → coe←ᵉ p (coe→ᵉ q a) ≡ coe←ᵉ (p • rev q) a
-coe←coe→ᵉ′ reflᵉ reflᵉ a = reflᵉ
-
-coe→coe←ᵉ′ : {A B : Typeᵉ} (p q : A ≡ B) (b : B) → coe→ᵉ p (coe←ᵉ q b) ≡ coe→ᵉ (rev p • q) b
-coe→coe←ᵉ′ reflᵉ reflᵉ b = reflᵉ
 
 ------------------------------
 -- Heterogeneous equality

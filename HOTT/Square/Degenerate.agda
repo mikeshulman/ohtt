@@ -31,8 +31,6 @@ DEGSQ-LR₂₀ δ = reflᵉ
 DEGSQ-LR₂₁ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-LR δ ₂₁ ≡ δ
 DEGSQ-LR₂₁ δ = reflᵉ
 
--- TODO: A version for a dependent square in a type?
-
 ----------------------------------------
 -- Top-bottom degenerate squares
 ----------------------------------------
@@ -42,7 +40,7 @@ DEGSQ-LR₂₁ δ = reflᵉ
 DEGSQ-TB : {Δ : Tel} (δ : el (ID Δ)) → el (SQ Δ)
 DEGSQ-TB δ = AP REFL δ
 
--- Two of its boundaries are correct definitionally; the others differ by an AP-AP.
+-- Its boundaries are also correct definitionally.
 
 DEGSQ-TB₀₂ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-TB δ ₀₂ ≡ δ
 DEGSQ-TB₀₂ δ = AP-AP REFL _₀ δ
@@ -55,5 +53,3 @@ DEGSQ-TB₂₀ δ = reflᵉ
 
 DEGSQ-TB₂₁ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-TB δ ₂₁ ≡ REFL (δ ₁)
 DEGSQ-TB₂₁ δ = reflᵉ
-
--- TODO: A version for a dependent square in a type?

@@ -10,6 +10,9 @@ open import HOTT.Square.Base
 open import HOTT.Square.Degenerate
 open import HOTT.Sym.Base
 
+-- Symmetry relates the two degenerate squares, both for telescopes
+-- and for types.
+
 postulate
   AP-REFL′ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) →
     AP (λ x → REFL (f x)) γ ≡ SYM Δ (REFL (AP f γ))

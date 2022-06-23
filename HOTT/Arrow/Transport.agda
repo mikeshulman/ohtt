@@ -48,7 +48,9 @@ postulate
 
 {-# REWRITE lift→⇒ lift←⇒ #-}
 
--- Again, we deduce utr and ulift from square-filling.
+-- Again, we deduce utr and ulift from square-filling.  It might
+-- conceivably be feasible to do these explicitly, but it's not worth
+-- the trouble.
 
 postulate
   utr→⇒ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))

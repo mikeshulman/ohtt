@@ -6,10 +6,10 @@ import HOTT.Rewrite
 import HOTT.Telescope
 import HOTT.Id
 import HOTT.Refl
-import HOTT.Transport
 
 import HOTT.Square
 import HOTT.Sym
+import HOTT.Transport
 import HOTT.Fill
 
 import HOTT.Unit

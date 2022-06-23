@@ -42,24 +42,24 @@ postulate
 -- Reflexivity telescopes
 ------------------------------
 
--- Now we can define reflexivity for telescopes.
+-- Now we can define reflexivity for telescopes.  Unlike for AP, this
+-- doesn't require matching inside a λ, so we can make it an actual
+-- definition instead of rewrite rules.
 REFL : {Δ : Tel} (δ : el Δ) → el (ID Δ)
 
--- Like AP, we need to simultaneously prove that it respects ₀ and ₁
+-- Like AP, we need to simultaneously postulate how REFL behaves on _₀
+-- and _₁.
 postulate
   REFL₀ : {Δ : Tel} (δ : el Δ) → (REFL δ)₀ ≡ δ
   REFL₁ : {Δ : Tel} (δ : el Δ) → (REFL δ)₁ ≡ δ
 
 {-# REWRITE REFL₀ REFL₁ #-}
 
--- Moreover, in order to define REFL we'll also need to know its
--- analogue of Id′-AP, which in this case is something we can prove.
+-- Moreover, to define REFL we'll also need to know its analogue of
+-- Id′-AP, and that REFL is the image of AP on constant terms.
 postulate
   Id′-REFL : {Δ : Tel} (A : el Δ → Type) (δ : el Δ) (a₀ : A ((REFL δ)₀)) (a₁ : A ((REFL δ)₁)) →
     Id′ A (REFL δ) a₀ a₁ ≡ Id (A δ) a₀ a₁
-
--- But in order to prove *that*, we'll also need to know that REFL is
--- the image of AP on constant terms.
   AP-const : {Δ : Tel} (Θ : Tel) (δ : el (ID Δ)) (t : el Θ) → AP {Δ} (λ _ → t) δ ≡ REFL t
 
 {-# REWRITE Id′-REFL AP-const #-}
@@ -73,40 +73,21 @@ postulate
 
 {-# REWRITE Id′-[] #-}
 
--- Rewriting along Id′-REFL and AP-const seems a bit more questionable
--- than along AP₀ and REFL₀, since they don't already reduce to reflᵉ
--- on arbitrary concrete telescopes, only on concrete telescopes of
--- concrete types.  However, given the way they're defined in terms of
--- each other, once we also make them both *be* reflᵉ as below, then I
--- believe the above definitions of them do *also* reduce to reflᵉ on
--- concrete telescopes.  Finally, this hasn't been a problem yet.
-
-
--- Id′-REFL-reflᵉ can't be a rewrite since its LHS reduces directly
--- rather than by case-analysis.  Instead we make the following a
--- rewrite, which in particular makes Id′-REFL-reflᵉ hold
--- definitionally.
-
--- The usefulness of having Id-REFL as a rewrite is limited in
--- practice, because if δ has internal structure, REFL will compute on
--- it, and can't be "un-rewritten" back to a REFL in order for Id-REFL
--- to fire.  So we still sometimes have to coerce along Id-REFL.  But
--- the fact that it is definitionally reflᵉ, at least on abstract
--- arguments, minimizes the effect of these coercions.
+-- As with Id′-AP, if δ has internal structure, REFL will compute on
+-- it, and can't be "un-rewritten" back to a REFL in order for
+-- rewriting along Id′-REFL to fire.  So we still sometimes have to
+-- coerce along Id′-REFL.  We also need some specialized version of
+-- it, like for Id′-AP.
 
 postulate
   Id′-REFL▸ : {Δ : Tel} (B : el Δ → Type) (A : el (Δ ▸ B) → Type) (δ : el Δ) (b : B δ)
     (a₀ : A ((REFL (_∷_ {Δ} {B} δ b))₀)) (a₁ : A ((REFL (_∷_ {Δ} {B} δ b))₁)) →
     Id′ A (REFL δ ∷ b ∷ b ∷ refl b) a₀ a₁ ≡ Id (A (δ ∷ b)) a₀ a₁
-
-{-# REWRITE Id′-REFL▸ #-}
-
-postulate
   Id′-REFL[]▸ : (B : el ε → Type) (A : el (ε ▸ B) → Type) (b : B [])
     (a₀ : A (_∷_ {ε} {B} [] b)) (a₁ : A (_∷_ {ε} {B} [] b)) →
     Id′ A ([] ∷ b ∷ b ∷ refl b) a₀ a₁ ≡ Id (A ([] ∷ b)) a₀ a₁
 
-{-# REWRITE Id′-REFL[]▸ #-}
+{-# REWRITE Id′-REFL▸ Id′-REFL[]▸ #-}
 
 postulate
   Id′-REFL▸▸ : {Δ : Tel} (B : el Δ → Type) (C : el (Δ ▸ B) → Type)
@@ -140,7 +121,6 @@ Id′-REFL▸▸-reflᵉ B C A δ b c a₀ a₁ = axiomK
 -- ap and reflexivity
 ------------------------------
 
--- Now we do the same for ap on reflexivity.
 ap-REFL : {Δ : Tel} (A : el Δ → Type) (f : (δ : el Δ) → A δ) (δ : el Δ) →
   ap f (REFL δ) ≡ refl (f δ)
 ap-REFL {Δ} A f δ = (ap-AP {ε} (λ _ → δ) f [])
@@ -179,7 +159,7 @@ top-pop-REFL A (δ ∷ a) = reflᵉ
 
 {-# REWRITE top-pop-pop-REFL top-pop-REFL #-}
 
--- Thus the only one thath needs to be postulated is refl-top.
+-- Thus the only one that needs to be postulated is refl-top.
 postulate
   refl-top : (Δ : Tel) (A : el Δ → Type) (f : el (Δ ▸ A)) →
     refl (top f) ≡ top (REFL f)

@@ -66,55 +66,85 @@ postulate
 -- version.  We'd like to *define* it by recursion on the target:
 {-
 AP {Δ = ε} f γ = []
-AP {Δ = Δ ▸ A} f γ = AP (λ x → pop (f x)) γ ∷
-                     coe← (cong A (AP₀ (λ x → pop (f x)) γ)) (top (f (γ ₀))) ∷
-                     coe← (cong A (AP₁ (λ x → pop (f x)) γ)) (top (f (γ ₁))) ∷
-                     coe→ (Id′-AP (λ x → pop (f x)) γ A (top (f (γ ₀))) (top (f (γ ₁)))) (ap (λ x → top (f x)) γ)
+AP {Δ = Δ ▸ A} f γ = AP (λ x → pop (f x)) γ ∷ top (f (γ ₀)) ∷ top (f (γ ₁)) ∷ ap (λ x → top (f x)) γ
 -}
 -- However, in order to get ap to compute on variables, we need AP to
 -- compute on pop, and if it also computed on arbitrary telescopes
--- that would produce infinite loops.  (You can see an AP-pop in the
--- above definition.)  So instead we "define" it to compute in this
--- way only when the *term* is also of the form ∷.  This requires
+-- that would produce infinite loops.  (You can see an AP-pop redex in
+-- the above definition.)  So instead we "define" AP to compute in
+-- this way only when the *term* is also of the form ∷.  This requires
 -- matching inside a λ, so it has to be done with rewrite rules.  Note
 -- that this is a *syntactic* restriction, not a semantic one: since ∷
--- satisfies an eta-rule, the two definitions have the same semantics.
+-- satisfies an eta-rule (which is a rewrite contraction, not a record
+-- expansion), the two definitions have the same semantics.
 postulate
   AP : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → el (ID Δ)
 
--- We define AP mutually with proofs that its projections are the
--- action of the original f on the projections.  We don't need
--- computation rules for these on variables, so we can define them as
--- actual functions that compute only on the telescope Δ, rather than
--- postulates with rewrite rules that restrict computation to terms f
--- that involving ∷.
+-- We "define" AP mutually with the assertions that its projections
+-- are the action of the original f on the projections.  We could
+-- *prove* these, mutually with the other definitions in this block.
+-- But we want to declare them as rewrites eventually anyway, and
+-- carrying around terms for them causes things to blow up and slow
+-- down.  So we just postulate them as rewrites.
 postulate
   AP₀ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → (AP f γ)₀ ≡ f (γ ₀)
   AP₁ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) → (AP f γ)₁ ≡ f (γ ₁)
 
 {-# REWRITE AP₀ AP₁ #-}
 
+-- For AP to be well-defined, we also need to mutually prove/postulate
+-- its behavior on identity maps and pops, and its naturality.
 postulate
   AP-idmap : {Δ : Tel} (δ : el (ID Δ)) → AP {Δ} {Δ} (λ w → w) δ ≡ δ
-
-{-# REWRITE AP-idmap #-}
-
--- This has to be here for Id′-pop to typecheck.  TODO: Rearrange.
-postulate
   AP-pop : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
     AP (λ x → pop (f x)) γ ≡ pop (pop (pop (AP f γ)))
-
-{-# REWRITE AP-pop #-}
-
--- We also define AP mutually with postulated naturality for Id′.
--- This rule should be admissible, meaning we will give rewrite rules
--- making it hold definitionally on all concrete telescopes and terms.
--- Specifically, Id′-AP should compute on types, like Id′.
-postulate
   Id′-AP : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (A : el Δ → Type) (a₀ : A (f (γ ₀))) (a₁ : A (f (γ ₁))) →
     Id′ A (AP f γ) a₀ a₁ ≡ Id′ (λ w → A (f w)) γ a₀ a₁
 
--- TODO: Do we still need these?  If so, maybe we can just coerce across Id′-AP explicitly instead?
+-- Of these, AP-pop and AP-idmap are "real" computation rules, which
+-- are 2/3 of how we specify the behavior of AP on our De Bruijn
+-- variables in telescopes.  The other 1/3 is ap-top, which requires
+-- other things so we postpone it to below.
+
+-- Id′-AP, on the other hand, is morally an *admissible* equality,
+-- proven by induction on the type formers constituting A.  The "more
+-- correct" way to deal with it would be to postulate it as an
+-- exo-equality and give rewrite rules saying how this exo-equality
+-- *computes* on different type-formers in A, thereby essentially
+-- implementing the proof of admissibility.  But we would then have to
+-- coerce along that exo-equality explicitly in lots of places (at
+-- least, in the framework code), making for annoying coding, large
+-- terms, and slower typechecking.
+
+-- We can alleviate some of that (though not all) by declaring Id′-AP
+-- as a rewrite, so that *sometimes* Agda will be able to apply it
+-- automatically so we don't have to coerce.  The direction chosen
+-- above, though arguably morally the "less right" direction, is the
+-- only possible direction for this, since Agda can't match against
+-- the RHS to rewrite.  Sometimes it fails to match against the LHS
+-- too, since AP is volatile and might be reduced to something that
+-- Agda can't un-rewrite in order to match; thus we have to either
+-- coerce explicitly or use additional rewrite lemmas.
+
+{-# REWRITE AP-idmap AP-pop Id′-AP #-}
+
+-- Having Id′-AP as a rewrite is at least sufficient for us to be able
+-- to "define" AP without any coercions.
+postulate
+  APε : {Γ : Tel} (f : el Γ → el ε) (γ : el (ID Γ)) → AP {Δ = ε} f γ ≡ []
+  AP∷ : {Γ Δ : Tel} (γ : el (ID Γ)) (f : el Γ → el Δ) (A : el Δ → Type) (g : (x : el Γ) → A (f x)) →
+    AP {Δ = Δ ▸ A} (λ x → f x ∷ g x) γ ≡
+    AP f γ ∷ g (γ ₀) ∷ g (γ ₁) ∷ ap g γ
+
+{-# REWRITE APε AP∷ #-}
+
+----------------------------------------
+-- Auxiliary forms of Id′-naturality
+----------------------------------------
+
+-- We give special names to coercion along Id′-AP for pop, since it
+-- happens a lot.
+
 Id′-pop→ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
   {b₀ : B (δ ₀)} {b₁ : B (δ ₁)} (b₂ : Id′ B δ b₀ b₁)
   {a₀ : A (δ ₀)} {a₁ : A (δ ₁)} →
@@ -139,7 +169,11 @@ Id′-pop←≡ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
   Id′-pop← {Δ} A B δ {b₀} {b₁} b₂ {a₀} {a₁} a₂ ≡ʰ a₂
 Id′-pop←≡ {Δ} A B δ {b₀} {b₁} b₂ {a₀} {a₁} a₂ = coe←≡ʰ (Id′-AP {Δ ▸ B} (λ x → pop x) (δ ∷ b₀ ∷ b₁ ∷ b₂) A a₀ a₁) a₂
 
-{-# REWRITE Id′-AP #-}
+-- We also declare that not only is Id′-AP a rewrite, it itself
+-- rewrites to reflᵉ.  Thus, the coercions we are sometimes forced to
+-- insert to make things typecheck will vanish when the term is
+-- normalized.  This is consistent because on concrete types, Id′-AP
+-- should hold definitionally.
 
 Id′-AP-reflᵉ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (A : el Δ → Type) (a₀ : A (f (γ ₀))) (a₁ : A (f (γ ₁))) →
   Id′-AP f γ A a₀ a₁ ≡ reflᵉ
@@ -147,20 +181,24 @@ Id′-AP-reflᵉ f γ A a₀ a₁ = axiomK
 
 {-# REWRITE Id′-AP-reflᵉ #-}
 
+-- As noted above, the AP on the LHS of Id′-AP is volatile and could
+-- appear in a reduced form.  To assist with this, we assert more
+-- rewrites applying directly to this case with a reduced AP.
 postulate
   Id′-AP▸ : {Γ Δ : Tel} (B : el Δ → Type) (f : el Γ → el Δ) (g : (x : el Γ) → B (f x)) (γ : el (ID Γ))
     (A : el (Δ ▸ B) → Type) (a₀ : A (f (γ ₀) ∷ g (γ ₀))) (a₁ : A (f (γ ₁) ∷ g (γ ₁))) →
     Id′ A (AP f γ ∷ g (γ ₀) ∷ g (γ ₁) ∷ ap g γ) a₀ a₁ ≡ Id′ (λ w → A (f w ∷ g w)) γ a₀ a₁
-
-{-# REWRITE Id′-AP▸ #-}
-
-postulate
   Id′-AP-idmap▸ : {Δ : Tel} (B : el Δ → Type) (g : (x : el Δ) → B x) (γ : el (ID Δ))
     (A : el (Δ ▸ B) → Type) (a₀ : A (γ ₀ ∷ g (γ ₀))) (a₁ : A (γ ₁ ∷ g (γ ₁))) →
     Id′ A (γ ∷ g (γ ₀) ∷ g (γ ₁) ∷ ap g γ) a₀ a₁ ≡ Id′ (λ w → A (w ∷ g w)) γ a₀ a₁
 
-{-# REWRITE Id′-AP-idmap▸ #-}
+{-# REWRITE Id′-AP▸ Id′-AP-idmap▸ #-}
 
+-- We could also have AP reduced more than once.  Obviously there is a
+-- potentially infinite family of rewrites here, but we don't need all
+-- of them; we just need enough that we can write down and typecheck
+-- the rest of the theory.  For concrete usage *in* the theory, as
+-- noted before, Id′-AP should hold definitionally anyway.
 postulate
   Id′-AP▸▸ : {Γ Δ : Tel} (B : el Δ → Type) (C : el (Δ ▸ B) → Type)
     (f : el Γ → el Δ) (g : (x : el Γ) → B (f x)) (h : (x : el Γ) → C (f x ∷ g x)) (γ : el (ID Γ))
@@ -169,14 +207,16 @@ postulate
 
 {-# REWRITE Id′-AP▸▸ #-}
 
--- Sometimes we have to coerce along that equality explicitly to get
--- things to have the right type, so we ensure this way that such
--- coercions vanish.
 Id′-AP▸-reflᵉ : {Γ Δ : Tel} (B : el Δ → Type)
   (f : el Γ → el Δ) (g : (x : el Γ) → B (f x)) (γ : el (ID Γ))
   (A : el (Δ ▸ B) → Type) (a₀ : A (f (γ ₀) ∷ g (γ ₀))) (a₁ : A (f (γ ₁) ∷ g (γ ₁))) →
   Id′-AP▸ B f g γ A a₀ a₁ ≡ reflᵉ
 Id′-AP▸-reflᵉ  B f g γ A a₀ a₁ = axiomK
+
+Id′-AP-idmap▸-reflᵉ : {Δ : Tel} (B : el Δ → Type) (g : (x : el Δ) → B x) (γ : el (ID Δ))
+  (A : el (Δ ▸ B) → Type) (a₀ : A (γ ₀ ∷ g (γ ₀))) (a₁ : A (γ ₁ ∷ g (γ ₁))) →
+  Id′-AP-idmap▸ B g γ A a₀ a₁ ≡ reflᵉ
+Id′-AP-idmap▸-reflᵉ B g γ A a₀ a₁ = axiomK
 
 Id′-AP▸▸-reflᵉ : {Γ Δ : Tel} (B : el Δ → Type) (C : el (Δ ▸ B) → Type)
   (f : el Γ → el Δ) (g : (x : el Γ) → B (f x)) (h : (x : el Γ) → C (f x ∷ g x)) (γ : el (ID Γ))
@@ -184,23 +224,16 @@ Id′-AP▸▸-reflᵉ : {Γ Δ : Tel} (B : el Δ → Type) (C : el (Δ ▸ B) �
   Id′-AP▸▸ B C f g h γ A a₀ a₁ ≡ reflᵉ
 Id′-AP▸▸-reflᵉ B C f g h γ A a₀ a₁ = axiomK
 
-{-# REWRITE Id′-AP▸-reflᵉ Id′-AP▸▸-reflᵉ #-}
+{-# REWRITE Id′-AP▸-reflᵉ Id′-AP-idmap▸-reflᵉ Id′-AP▸▸-reflᵉ #-}
 
--- Note that in defining AP, we have to coerce along AP₀, AP₁ and
--- Id′-AP, explaining why we need a mutual definition.
-postulate
-  APε : {Γ : Tel} (f : el Γ → el ε) (γ : el (ID Γ)) → AP {Δ = ε} f γ ≡ []
-  AP∷ : {Γ Δ : Tel} (γ : el (ID Γ)) (f : el Γ → el Δ) (A : el Δ → Type) (g : (x : el Γ) → A (f x)) →
-    AP {Δ = Δ ▸ A} (λ x → f x ∷ g x) γ ≡
-    AP f γ ∷ g (γ ₀) ∷ g (γ ₁) ∷ ap g γ
-
-{-# REWRITE APε AP∷ #-}
-
--- We need these because _₀ and _₁ were defined by decomposing their
--- identification argument, rather than as a λ-abstraction whose head
--- is ∷.  For some reason, doing the latter is very slow.  But we
--- still want (AP _₀ δ) to reduce *as if* _₀ and _₁ had been defined
--- that way.
+-- We also need some more helper rules for rewriting AP, specifically
+-- AP on _₀ and _₁ (so we are talking technically about squares
+-- already, although that isn't evident here.  We need these because
+-- _₀ and _₁ were defined by pattern-matching on their telescope
+-- argument, rather than as a λ-abstraction whose head is ∷.  For some
+-- reason, it's very slow if we try to define _₀ and _₁ as
+-- λ-abstractions.  But we still want (AP _₀ δ) to reduce *as if* _₀
+-- and _₁ had been defined that way, so we postulate it.
 postulate
   AP-₀ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (ID (Δ ▸ A))) (γ : el (ID Γ)) →
     AP (λ x → f x ₀) γ ≡
@@ -215,6 +248,7 @@ postulate
     ∷ top (pop (pop (f (γ ₁))))
     ∷ ap (λ x → top (pop (pop (f x)))) γ
 
+{-# REWRITE AP-₀ AP-₁ #-}
 
 -- Note that we compute (AP (λ x → f x ₀) γ) only if the codomain of f
 -- is a ▸, and in that case the first component of the output is
@@ -223,36 +257,10 @@ postulate
 -- the codomain of f is either abstract (when the computation pauses)
 -- or ε (in which case _₀ computes immediately to []).
 
-{-# REWRITE AP-₀ AP-₁ #-}
-
--- Unfortunately, AP∷ is non-confluent with eta-contraction η∷.  In
--- the context of a variable (f : el Γ → el (Δ ▸ A)), the term
---- AP (λ x → pop (f x) ∷ top (f x)) γ
--- reduces by AP-∷ to a 3-fold ∷ as above, but also reduces by η∷ to
--- (AP f γ) which is then neutral.  As we will see below, this
--- non-confluence in turn actually breaks subject reduction.
-
--- However, I hope that none of this bad stuff can happen in the
--- intended object-language fragment, where elements of telescopes and
--- functions valued in telescopes are never hypothesized.  In this
--- fragment, any such f has to be built from the variable (x : el Γ)
--- along with ∷, top, and pop, and since AP will compute on all of
--- them, (AP f γ) is not neutral and should eventually reduce to the
--- same result.
-
 ------------------------------
 -- Functoriality of ap and AP
 ------------------------------
 
--- Functoriality for ap should be admissible, like Id′-AP.  However,
--- like ap, it should compute on terms, not types.  We make this a
--- heterogeneous equality because the two sides lie over different
--- types (which are equal by Id′-AP).  We could instead coerce one
--- side or the other, but it seems more convenient for computing ap-AP
--- on concrete term-formers to not have the coercion (otherwise we'd
--- have to explicitly commute that coercion past all the
--- term-formers).  (If we ever had to remove the rewrite rules for AP₀
--- and AP₁, then Id′-AP would become heterogeneous too.)
 postulate
   ap-AP : {Γ Δ : Tel} {A : el Δ → Type} (f : el Γ → el Δ) (g : (x : el Δ) → A x) (γ : el (ID Γ)) →
     ap g (AP f γ) ≡ ap (λ w → g (f w)) γ
@@ -290,11 +298,12 @@ postulate
 
 -- Note that AP-pop is "one piece" of the originally proposed ▸-only
 -- definition of AP.  Before we can postulate ap-top, we need to also
--- prove that all the other pieces of that definition also hold.
--- Since these aren't rewrites, we can phrase them as heterogeneous
--- equalities rather than equalities to a coercion.
+-- postulate that all the other pieces of that definition also hold.
+-- And before that, we have to explain how _₀ and _₁ commute with pop.
+-- These can be regarded as "nu-eqquations" that hold automatically on
+-- concrete terms, and are enforced to hold also for neutral terms by
+-- rewrites.
 
--- TODO: Discuss.  Is this a nu-equation?
 postulate
   pop-pop-pop₀ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID (Δ ▸ A))) →
     (pop (pop (pop δ)))₀ ≡ pop (δ ₀)
@@ -303,6 +312,7 @@ postulate
 
 {-# REWRITE pop-pop-pop₀ pop-pop-pop₁ #-}
 
+-- Here are the other two pieces of the ▸-only definition of AP.
 postulate
   top-pop-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
     top (pop (pop (AP f γ))) ≡ top (f (γ ₀))
@@ -311,6 +321,7 @@ postulate
 
 {-# REWRITE top-pop-pop-AP top-pop-AP #-}
 
+-- We also need a specialized version of Id′ on pop.
 postulate
   Id′-AP-pop³-AP : {Γ Δ : Tel} (A B : el Δ → Type) (f : el Γ → el (Δ ▸ B)) (γ : el (ID Γ))
     (a₀ : A (pop (f (γ ₀)))) (a₁ : A (pop (f (γ ₁)))) →
@@ -318,18 +329,12 @@ postulate
 
 {-# REWRITE Id′-AP-pop³-AP #-}
 
--- This combination means that (top-pop-pop-AP A f γ) actually
--- *always* reduces to reflʰ.  Unfortunately, since reflʰ doesn't
--- actually store its parameters as arguments, there is no way to
--- annotate it so that it will typecheck directly at the type of
--- (top-pop-pop-AP A f γ).  Thus, subject reduction fails.  However,
--- as noted before AP∷, this shouldn't be a problem in the
--- object-language fragment, where f will always be something
--- concrete.
-
+-- Finally, we can postulate ap-top.
 postulate
   ap-top : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
     ap (λ x → top (f x)) γ ≡ top (AP f γ) 
+
+{-# REWRITE ap-top #-}
 
 -- Now we can explain why the first argument of Σᵉ is a Tel rather
 -- than a Typeᵉ: it enables ap-top to fire as a rewrite rule.  Look at
@@ -355,8 +360,5 @@ postulate
 -- would have been reduced to some iterated Σᵉ-exotype in which Δ
 -- doesn't appear explicitly.
 
-{-# REWRITE ap-top #-}
-
 -- Note that we don't have rules for computing ap-top on "dependent
 -- telescopes".  Hopefully this won't ever occur.
-

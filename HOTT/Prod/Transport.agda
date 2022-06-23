@@ -29,6 +29,10 @@ postulate
 
 {-# REWRITE lift→× lift←× #-}
 
+-- Product types are still simple enough that it's feasible to define
+-- utr and ulift explicitly rather than by way of square composites
+-- and filling.  We do this to make the point.
+
 postulate
   utr→× : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
     (u₀ : A (δ ₀) × B (δ ₀)) (u₁ u₁' : A (δ ₁) × B (δ ₁))

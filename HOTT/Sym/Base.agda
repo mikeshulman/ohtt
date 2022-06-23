@@ -9,19 +9,24 @@ open import HOTT.Square.Base
 open import HOTT.Square.Equality
 
 ------------------------------
--- Symmetry
+-- Symmetry for telescopes
 ------------------------------
 
--- Symmetry for telescopes will be defined in terms of symmetry for types.
+-- Symmetry for telescopes will be "defined" in terms of symmetry for types.
 postulate
   SYM : (Δ : Tel) → el (SQ Δ) → el (SQ Δ)
+  -- We also postulate that symmetry on telescopes is an involution.
+  -- We should be able to prove this from the analogous fact for
+  -- types, but it would be long and annoying, would blow up term size
+  -- and slow things down, and we'd want to declare it as a rewrite
+  -- anyway.  So we just postulate it.
   SYM-SYM : (Δ : Tel) (δ : el (SQ Δ)) → SYM Δ (SYM Δ δ) ≡ δ
 
 {-# REWRITE SYM-SYM #-}
   
--- We also have to define it mutually with proofs that it transposes
--- the boundary.  We expand out the left-hand sides of those that will
--- be rewrites, since rewriting requires the LHS to not be a redex.
+-- We also have to mutually postulate proofs that SYM transposes the
+-- boundary.  We expand out the left-hand sides since rewriting
+-- requires the LHS to not be a redex.
 postulate
   SYM₀₀ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₀ ₀ ≡ δ ₀₀
   SYM₀₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁ ₀ ≡ δ ₁₀
@@ -34,6 +39,7 @@ postulate
 
 {-# REWRITE SYM₀₀ SYM₀₁ SYM₁₀ SYM₁₁ SYM₀₂ SYM₂₀ SYM₁₂ SYM₂₁ #-}
 
+-- Some more useful variants of Id′-AP.
 postulate
   Id′-AP-₂₀-SYM : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ)) {a₀₀ : A (δ ₀₀)} {a₁₀ : A (δ ₁₀)} →
     Id′ A (δ ₂₀) a₀₀ a₁₀ ≡ Id′ (λ x → A (x ₀)) (SYM Δ δ) a₀₀ a₁₀
@@ -42,9 +48,17 @@ postulate
 
 {-# REWRITE Id′-AP-₂₀-SYM Id′-AP-₂₁-SYM #-}
 
+----------------------------------------
+-- Symmetry for types
+----------------------------------------
+
 -- Symmetry for types, of course, is a postulated operation, which
 -- takes a square over δ to a square over (SYM Δ δ), and transposes
--- the boundary.
+-- the boundary.  However, for reasons explained next to sym-sym
+-- below, instead of outputting a square over (SYM Δ δ), it's more
+-- convenient to take an exo-equality ϕ : δ' ≡ SYM Δ δ as input, and
+-- output a square over δ'.  With this in mind, we wrap up some
+-- necessary coercions for the boundaries into lemmas.
 
 sym₀₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ)) {δ' : el (SQ Δ)} (ϕ : δ' ≡ SYM Δ δ)
   {a₀₀ : A (δ ₀₀)} {a₁₀ : A (δ ₁₀)} (a₂₀ : Id′ A (δ ₂₀) a₀₀ a₁₀) →
@@ -79,6 +93,8 @@ sym₂₁ {Δ} A δ ϕ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ =
   coe← (Id′≡ _ (cong (SYM Δ) ϕ) (coe←≡ʰ (cong (λ x → A (x ₀₁)) ϕ) a₁₀) (coe←≡ʰ (cong (λ x → A (x ₁₁)) ϕ) a₁₁) •
        Id′-AP pop (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) (λ x → A (x ₁)) a₁₀ a₁₁) a₁₂
 
+-- Now we can postulate this generalized version of symmetry, which we
+-- call sym′.
 postulate
   sym′ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
     {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′₀₂ A δ a₀₀ a₀₁)
@@ -96,6 +112,7 @@ postulate
       (sym₂₀ A δ ϕ a₀₂)
       (sym₂₁ A δ ϕ a₀₂ a₁₂)
 
+-- The simpler version of symmetry is defined from this.
 sym : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
   {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id′₀₂ A δ a₀₀ a₀₁)
   {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id′₁₂ A δ a₀₂ a₁₀ a₁₁)
@@ -108,7 +125,7 @@ sym : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
 sym {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ a₂₂ =
   sym′ A δ a₀₂ a₁₂ a₂₀ a₂₁ reflᵉ a₂₂
 
--- Now we can define symmetry for telescopes by decomposing a collated
+-- Now we can "define" symmetry for telescopes by decomposing a collated
 -- SQ, transposing and applying symmetry, and recomposing again.
 postulate
   SYMε : (δ : el (SQ ε)) → SYM ε δ ≡ []
@@ -125,6 +142,10 @@ postulate
         ∷ sym A δ a₀₂ a₁₂ a₂₀ a₂₁ a₂₂
 
 {-# REWRITE SYMε SYM▸ #-}
+
+----------------------------------------
+-- Symmetry is an involution
+----------------------------------------
 
 -- We would like to declare the fact that symmetry on types is an
 -- involution as a rewrite.  Unfortunately, the naive postulate that
