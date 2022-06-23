@@ -1,4 +1,5 @@
 - Rework comments
+- compute sym
 - Copy/Transport
 - Universe stuff
 - ap-naturality for sym (two kinds?)
