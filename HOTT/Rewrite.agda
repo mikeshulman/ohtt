@@ -169,6 +169,9 @@ coe→≡ʰ reflᵉ _ = reflʰ
 coe←≡ʰ : {A B : Type} (e : A ≡ B) (b : B) → coe← e b ≡ʰ b
 coe←≡ʰ reflᵉ _ = reflʰ
 
+coe←←≡ʰ : {A B C : Type} (u : A ≡ B) (v : B ≡ C) (c : C) → coe← u (coe← v c) ≡ʰ c
+coe←←≡ʰ reflᵉ reflᵉ _ = reflʰ
+
 coe→←←←≡ʰ : {A B C D E : Type} (u : A ≡ B) (v : A ≡ C) (w : C ≡ D) (x : D ≡ E) (e : E) →
   coe→ u (coe← v (coe← w (coe← x e))) ≡ʰ e
 coe→←←←≡ʰ reflᵉ reflᵉ reflᵉ reflᵉ _ = reflʰ
