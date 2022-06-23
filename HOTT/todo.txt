@@ -1,0 +1,5 @@
+- Rework comments
+- Copy/Transport
+- Universe stuff
+- ap-naturality for sym (two kinds?)
+- braid equation
