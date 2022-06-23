@@ -7,6 +7,7 @@ open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Refl
 open import HOTT.Transport
+open import HOTT.Fill
 open import HOTT.Pi.Base
 
 ----------------------------------------
@@ -71,3 +72,36 @@ postulate
         (refl (tr→ (uncurry B) {(δ ₀) ∷ tr← A δ a₁} {(δ ₁) ∷ a₁} (δ ∷ lift← A δ a₁) (f₀ ⊙ (tr← A δ a₁)))))
       (lift→ (uncurry B) {(δ ₀) ∷ tr← A δ a₁} {(δ ₁) ∷ a₁} (δ ∷ lift← A δ a₁) (f₀ ⊙ tr← A δ a₁)) 
 -}
+
+-- Once we've defined tr and lift for Π-types, we can deduce utr and
+-- ulift from square-filling.  Since that involves transport in an
+-- identity type of a Π-type, which is again an (iterated) Π-type, the
+-- above definitions should suffice to compute it.
+
+postulate
+  utr→Π : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type) (δ : el (ID Δ))
+    (u₀ : Π (A (δ ₀)) (B (δ ₀))) (u₁ u₁' : Π (A (δ ₁)) (B (δ ₁)))
+    (u₂ : Id′ (λ w → Π (A w) (B w)) δ u₀ u₁) (u₂' : Id′ (λ w → Π (A w) (B w)) δ u₀ u₁') →
+    utr→      (λ w → Π (A w) (B w)) δ u₀ u₁ u₁' u₂ u₂' ≡
+    fill-utr→ (λ w → Π (A w) (B w)) δ u₀ u₁ u₁' u₂ u₂'
+  utr←Π : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type) (δ : el (ID Δ))
+    (u₁ : Π (A (δ ₁)) (B (δ ₁))) (u₀ u₀' : Π (A (δ ₀)) (B (δ ₀)))
+    (u₂ : Id′ (λ w → Π (A w) (B w)) δ u₀ u₁) (u₂' : Id′ (λ w → Π (A w) (B w)) δ u₀' u₁) →
+    utr←      (λ w → Π (A w) (B w)) δ u₁ u₀ u₀' u₂ u₂' ≡
+    fill-utr← (λ w → Π (A w) (B w)) δ u₁ u₀ u₀' u₂ u₂'
+
+{-# REWRITE utr→Π utr←Π #-}
+
+postulate
+  ulift→Π : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type) (δ : el (ID Δ))
+    (u₀ : Π (A (δ ₀)) (B (δ ₀))) (u₁ u₁' : Π (A (δ ₁)) (B (δ ₁)))
+    (u₂ : Id′ (λ w → Π (A w) (B w)) δ u₀ u₁) (u₂' : Id′ (λ w → Π (A w) (B w)) δ u₀ u₁') →
+    ulift→      (λ w → Π (A w) (B w)) δ u₀ u₁ u₁' u₂ u₂' ≡
+    fill-ulift→ (λ w → Π (A w) (B w)) δ u₀ u₁ u₁' u₂ u₂'
+  ulift←Π : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type) (δ : el (ID Δ))
+    (u₁ : Π (A (δ ₁)) (B (δ ₁))) (u₀ u₀' : Π (A (δ ₀)) (B (δ ₀)))
+    (u₂ : Id′ (λ w → Π (A w) (B w)) δ u₀ u₁) (u₂' : Id′ (λ w → Π (A w) (B w)) δ u₀' u₁) →
+    ulift←      (λ w → Π (A w) (B w)) δ u₁ u₀ u₀' u₂ u₂' ≡
+    fill-ulift← (λ w → Π (A w) (B w)) δ u₁ u₀ u₀' u₂ u₂'
+
+{-# REWRITE ulift→Π ulift←Π #-}

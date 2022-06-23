@@ -40,20 +40,35 @@ postulate
 
 {-# REWRITE lift→Σ lift←Σ #-}
 
-{-
+-- Once we've defined tr and lift for Σ-types, we can deduce utr and
+-- ulift from square-filling.  Since that involves transport in an
+-- identity type of a Σ-type, which is again a Σ-type, the above
+-- definitions should suffice to compute it.
 
 postulate
   utr→Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type) (δ : el (ID Δ))
     (u₀ : Σ (A (δ ₀)) (B (δ ₀))) (u₁ u₁' : Σ (A (δ ₁)) (B (δ ₁)))
     (u₂ : Id′ (λ w → Σ (A w) (B w)) δ u₀ u₁) (u₂' : Id′ (λ w → Σ (A w) (B w)) δ u₀ u₁') →
-    utr→ (λ w → Σ (A w) (B w)) δ u₀ u₁ u₁' u₂ u₂' ≡
-    (utr→ A δ (π₁ u₀) (π₁ u₁) (π₁ u₁') (π₁ u₂) (π₁ u₂') ﹐
-     {!comp→ {Δ ▸ A} (uncurry B)
-       (DEGSQ-TB δ ∷ π₁ u₀ ∷ π₁ u₁ ∷ π₁ u₂ ∷ π₁ u₀ ∷ π₁ u₁' ∷ {!π₁ u₂'!}
-         ∷ refl (π₁ u₀) ∷ utr→ A δ (π₁ u₀) (π₁ u₁) (π₁ u₁') (π₁ u₂) (π₁ u₂')
-         ∷ ?)
-       {π₂ u₀} {π₂ u₁} (π₂ u₂) {π₂ u₀} {π₂ u₁'} (π₂ u₂')
-       (refl (π₂ u₀))!})
--}
+    utr→      (λ w → Σ (A w) (B w)) δ u₀ u₁ u₁' u₂ u₂' ≡
+    fill-utr→ (λ w → Σ (A w) (B w)) δ u₀ u₁ u₁' u₂ u₂'
+  utr←Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type) (δ : el (ID Δ))
+    (u₁ : Σ (A (δ ₁)) (B (δ ₁))) (u₀ u₀' : Σ (A (δ ₀)) (B (δ ₀)))
+    (u₂ : Id′ (λ w → Σ (A w) (B w)) δ u₀ u₁) (u₂' : Id′ (λ w → Σ (A w) (B w)) δ u₀' u₁) →
+    utr←      (λ w → Σ (A w) (B w)) δ u₁ u₀ u₀' u₂ u₂' ≡
+    fill-utr← (λ w → Σ (A w) (B w)) δ u₁ u₀ u₀' u₂ u₂'
 
---{-# REWRITE utr→Σ utr←Σ #-}
+{-# REWRITE utr→Σ utr←Σ #-}
+
+postulate
+  ulift→Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type) (δ : el (ID Δ))
+    (u₀ : Σ (A (δ ₀)) (B (δ ₀))) (u₁ u₁' : Σ (A (δ ₁)) (B (δ ₁)))
+    (u₂ : Id′ (λ w → Σ (A w) (B w)) δ u₀ u₁) (u₂' : Id′ (λ w → Σ (A w) (B w)) δ u₀ u₁') →
+    ulift→      (λ w → Σ (A w) (B w)) δ u₀ u₁ u₁' u₂ u₂' ≡
+    fill-ulift→ (λ w → Σ (A w) (B w)) δ u₀ u₁ u₁' u₂ u₂'
+  ulift←Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type) (δ : el (ID Δ))
+    (u₁ : Σ (A (δ ₁)) (B (δ ₁))) (u₀ u₀' : Σ (A (δ ₀)) (B (δ ₀)))
+    (u₂ : Id′ (λ w → Σ (A w) (B w)) δ u₀ u₁) (u₂' : Id′ (λ w → Σ (A w) (B w)) δ u₀' u₁) →
+    ulift←      (λ w → Σ (A w) (B w)) δ u₁ u₀ u₀' u₂ u₂' ≡
+    fill-ulift← (λ w → Σ (A w) (B w)) δ u₁ u₀ u₀' u₂ u₂'
+
+{-# REWRITE ulift→Σ ulift←Σ #-}

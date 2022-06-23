@@ -5,13 +5,15 @@ module HOTT.Fill where
 open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
+open import HOTT.Refl
 open import HOTT.Transport
 open import HOTT.Square.Base
+open import HOTT.Square.Degenerate
 open import HOTT.Sym.Base
 
-------------------------------
--- Composition and filling
-------------------------------
+----------------------------------------
+-- Left-right composition and filling
+----------------------------------------
 
 -- Left-right and right-left fillers come from transport and lifting over squares.
 
@@ -55,6 +57,10 @@ fill← {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂�
       (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ Id′-pop→ (λ x → A (x ₁)) (λ x → A (x ₀)) δ {a₀₀} {a₀₁} a₀₂ a₁₂)
       a₂₁
 
+----------------------------------------
+-- Top-bottom composition and filling
+----------------------------------------
+
 -- The top-bottom fillers are then obtained from symmetry.
 
 comp↑ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
@@ -94,3 +100,57 @@ fill↓ {Δ} A δ {a₀₀} {a₀₁} {a₁₀} {a₁₁} a₁₂ a₂₀ a₂�
      (comp← A (SYM Δ δ) a₂₀ a₂₁ a₁₂)
      a₁₂
      (fill← A (SYM Δ δ) a₂₀ a₂₁ a₁₂)
+
+------------------------------
+-- utr/ulift versus filling
+------------------------------
+
+-- The "2-simplex" produced by ulift can be regarded as a square.
+
+ulift→sq : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₀ : A (δ ₀))
+    (a₁ a₁' : A (δ ₁)) (a₂ : Id′ A δ a₀ a₁) (a₂' : Id′ A δ a₀ a₁') →
+    Sq A (DEGSQ-LR δ)
+      (refl a₀) (Id′-pop→ (λ x → A (x ₁)) (λ x → A (x ₀)) (DEGSQ-LR δ) (refl a₀) (utr→ A δ a₀ a₁ a₁' a₂ a₂'))
+      a₂ a₂'
+ulift→sq {Δ} A δ a₀ a₁ a₁' a₂ a₂' =
+  coe← (Id′-AP {ε ▸ (λ _ → A (δ ₁))} {ID Δ ▸ (λ x → A (x ₀)) ▸ (λ x → A (pop x ₁))} (λ x → δ ∷ a₀ ∷ top x)
+                 ([] ∷ a₁ ∷ a₁' ∷ utr→ A δ a₀ a₁ a₁' a₂ a₂') (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y)) a₂ a₂')
+        (ulift→ A δ a₀ a₁ a₁' a₂ a₂')
+
+ulift←sq : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₁ : A (δ ₁))
+    (a₀ a₀' : A (δ ₀)) (a₂ : Id′ A δ a₀ a₁) (a₂' : Id′ A δ a₀' a₁) →
+    Sq A (DEGSQ-LR δ)
+      (utr← A δ a₁ a₀ a₀' a₂ a₂') (Id′-pop→ (λ x → A (x ₁)) (λ x → A (x ₀)) (DEGSQ-LR δ) (utr← A δ a₁ a₀ a₀' a₂ a₂') (refl a₁))
+      a₂ a₂'
+ulift←sq {Δ} A δ a₁ a₀ a₀' a₂ a₂' =
+  coe← (Id′-AP {ε ▸ (λ _ → A (δ ₀))} {ID Δ ▸ (λ x → A (x ₀)) ▸ (λ x → A (pop x ₁))} (λ x → δ ∷ top x ∷ a₁)
+                 ([] ∷ a₀ ∷ a₀' ∷ utr← A δ a₁ a₀ a₀' a₂ a₂') (λ y → Id′ A (pop (pop y)) (top (pop y)) (top y)) a₂ a₂')
+        (ulift← A δ a₁ a₀ a₀' a₂ a₂')
+
+-- Conversely, we can construct utr and ulift from filling.
+
+fill-utr→ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₀ : A (δ ₀))
+    (a₁ a₁' : A (δ ₁)) (a₂ : Id′ A δ a₀ a₁) (a₂' : Id′ A δ a₀ a₁') → Id (A (δ ₁)) a₁ a₁'
+fill-utr→ A δ a₀ a₁ a₁' a₂ a₂' = comp↑ A (DEGSQ-LR δ) (refl a₀) a₂ a₂'
+
+fill-ulift→ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₀ : A (δ ₀))
+    (a₁ a₁' : A (δ ₁)) (a₂ : Id′ A δ a₀ a₁) (a₂' : Id′ A δ a₀ a₁') →
+    Id′ {ε ▸ (λ _ → A (δ ₁))} (λ w → Id′ A δ a₀ (top w)) ([] ∷ a₁ ∷ a₁' ∷ fill-utr→ A δ a₀ a₁ a₁' a₂ a₂') a₂ a₂'
+fill-ulift→ {Δ} A δ a₀ a₁ a₁' a₂ a₂' =
+   coe→ (Id′-AP {ε ▸ (λ _ → A (δ ₁))} {ID Δ ▸ (λ x → A (x ₀)) ▸ (λ x → A (pop x ₁))}
+           (λ x → δ ∷ a₀ ∷ top x) ([] ∷ a₁ ∷ a₁' ∷ fill-utr→ A δ a₀ a₁ a₁' a₂ a₂')
+           (λ x → Id′ A (pop (pop x)) (top (pop x)) (top x)) a₂ a₂')
+        (fill↑ A (DEGSQ-LR δ) (refl a₀) a₂ a₂')
+    
+fill-utr← : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₁ : A (δ ₁))
+    (a₀ a₀' : A (δ ₀)) (a₂ : Id′ A δ a₀ a₁) (a₂' : Id′ A δ a₀' a₁) → Id (A (δ ₀)) a₀ a₀'
+fill-utr← A δ a₁ a₀ a₀' a₂ a₂' = comp↓ A (DEGSQ-LR δ) (refl a₁) a₂ a₂'
+
+fill-ulift← : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₁ : A (δ ₁))
+    (a₀ a₀' : A (δ ₀)) (a₂ : Id′ A δ a₀ a₁) (a₂' : Id′ A δ a₀' a₁) →
+    Id′ {ε ▸ (λ _ → A (δ ₀))} (λ w → Id′ A δ (top w) a₁) ([] ∷ a₀ ∷ a₀' ∷ fill-utr← A δ a₁ a₀ a₀' a₂ a₂') a₂ a₂'
+fill-ulift← {Δ} A δ a₁ a₀ a₀' a₂ a₂' =
+   coe→ (Id′-AP {ε ▸ (λ _ → A (δ ₀))} {ID Δ ▸ (λ x → A (x ₀)) ▸ (λ x → A (pop x ₁))}
+           (λ x → δ ∷ top x ∷ a₁) ([] ∷ a₀ ∷ a₀' ∷ fill-utr← A δ a₁ a₀ a₀' a₂ a₂')
+           (λ x → Id′ A (pop (pop x)) (top (pop x)) (top x)) a₂ a₂')
+        (fill↓ A (DEGSQ-LR δ) (refl a₁) a₂ a₂')

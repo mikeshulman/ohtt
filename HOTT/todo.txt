@@ -1,2 +1,0 @@
-Can defining utr and ulift explicitly for concrete types be avoided, by proving them uniformly from square fillers and invoking those proofs on concrete types (while retaining the ability to specify them explicitly with ↑)?
-

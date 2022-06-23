@@ -48,31 +48,32 @@ postulate
 
 {-# REWRITE lift→⇒ lift←⇒ #-}
 
+-- Again, we deduce utr and ulift from square-filling.
+
 postulate
   utr→⇒ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
-    (f₀ : (A (δ ₀)) ⇒ (B (δ ₀))) (f₁ f₁' : (A (δ ₁)) ⇒ (B (δ ₁))) (f₂ : Id′ (λ w → A w ⇒ B w) δ f₀ f₁) (f₂' : Id′ (λ w → A w ⇒ B w) δ f₀ f₁') →
-    utr→ (λ w → (A w) ⇒ (B w)) δ f₀ f₁ f₁' f₂ f₂' ≡
-    Λ a₁ ⇛ Λ a₁' ⇛ Λ a₂ ⇒
-     comp→ B (DEGSQ-TB δ)
-            (f₂ ⊙ (tr← A δ a₁) ⊙ a₁ ∙ (lift← A δ a₁))
-            (f₂' ⊙ (tr← A δ a₁') ⊙ a₁' ∙ (lift← A δ a₁'))
-            (ap {ε ▸ (λ _ → A (δ ₁))} (λ x → f₀ ∙ tr← A δ (top x)) ([] ∷ a₁ ∷ a₁' ∷ a₂))
+    (u₀ : (A (δ ₀)) ⇒ (B (δ ₀))) (u₁ u₁' : (A (δ ₁)) ⇒ (B (δ ₁)))
+    (u₂ : Id′ (λ w → (A w) ⇒ (B w)) δ u₀ u₁) (u₂' : Id′ (λ w → (A w) ⇒ (B w)) δ u₀ u₁') →
+    utr→      (λ w → (A w) ⇒ (B w)) δ u₀ u₁ u₁' u₂ u₂' ≡
+    fill-utr→ (λ w → (A w) ⇒ (B w)) δ u₀ u₁ u₁' u₂ u₂'
   utr←⇒ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
-    (f₁ : (A (δ ₁)) ⇒ (B (δ ₁))) (f₀ f₀' : (A (δ ₀)) ⇒ (B (δ ₀))) (f₂ : Id′ (λ w → A w ⇒ B w) δ f₀ f₁) (f₂' : Id′ (λ w → A w ⇒ B w) δ f₀' f₁) →
-    utr← (λ w → (A w) ⇒ (B w)) δ f₁ f₀ f₀' f₂ f₂' ≡
-    Λ a₀ ⇛ Λ a₀' ⇛ Λ a₂ ⇒
-     comp← B (DEGSQ-TB δ)
-            (f₂ ⊙ a₀ ⊙ (tr→ A δ a₀) ∙ (lift→ A δ a₀))
-            (f₂' ⊙ a₀' ⊙ (tr→ A δ a₀') ∙ (lift→ A δ a₀'))
-            (ap {ε ▸ (λ _ → A (δ ₀))} (λ x → f₁ ∙ tr→ A δ (top x)) ([] ∷ a₀ ∷ a₀' ∷ a₂))
+    (u₁ : (A (δ ₁)) ⇒ (B (δ ₁))) (u₀ u₀' : (A (δ ₀)) ⇒ (B (δ ₀)))
+    (u₂ : Id′ (λ w → (A w) ⇒ (B w)) δ u₀ u₁) (u₂' : Id′ (λ w → (A w) ⇒ (B w)) δ u₀' u₁) →
+    utr←      (λ w → (A w) ⇒ (B w)) δ u₁ u₀ u₀' u₂ u₂' ≡
+    fill-utr← (λ w → (A w) ⇒ (B w)) δ u₁ u₀ u₀' u₂ u₂'
 
 {-# REWRITE utr→⇒ utr←⇒ #-}
 
-{-
 postulate
   ulift→⇒ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
-    (f₀ : (A (δ ₀)) ⇒ (B (δ ₀))) (f₁ f₁' : (A (δ ₁)) ⇒ (B (δ ₁))) (f₂ : Id′ (λ w → A w ⇒ B w) δ f₀ f₁) (f₂' : Id′ (λ w → A w ⇒ B w) δ f₀ f₁') →
-    ulift→ (λ w → (A w) ⇒ (B w)) δ f₀ f₁ f₁' f₂ f₂' ≡
-    Λ a₀₀ ⇛ Λ a₁₀ ⇛ Λ a₂₀ ⇛ Λ a₀₁ ⇛ Λ a₁₁ ⇛ Λ a₂₁ ⇛ Λ a₀₂ ⇛ Λ a₁₂ ⇛ Λ a₂₂ ⇒
-      {!!} -- This looks like it might start to get into 3-cube territory.
--}
+    (u₀ : (A (δ ₀)) ⇒ (B (δ ₀))) (u₁ u₁' : (A (δ ₁)) ⇒ (B (δ ₁)))
+    (u₂ : Id′ (λ w → (A w) ⇒ (B w)) δ u₀ u₁) (u₂' : Id′ (λ w → (A w) ⇒ (B w)) δ u₀ u₁') →
+    ulift→      (λ w → (A w) ⇒ (B w)) δ u₀ u₁ u₁' u₂ u₂' ≡
+    fill-ulift→ (λ w → (A w) ⇒ (B w)) δ u₀ u₁ u₁' u₂ u₂'
+  ulift←⇒ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
+    (u₁ : (A (δ ₁)) ⇒ (B (δ ₁))) (u₀ u₀' : (A (δ ₀)) ⇒ (B (δ ₀)))
+    (u₂ : Id′ (λ w → (A w) ⇒ (B w)) δ u₀ u₁) (u₂' : Id′ (λ w → (A w) ⇒ (B w)) δ u₀' u₁) →
+    ulift←      (λ w → (A w) ⇒ (B w)) δ u₁ u₀ u₀' u₂ u₂' ≡
+    fill-ulift← (λ w → (A w) ⇒ (B w)) δ u₁ u₀ u₀' u₂ u₂'
+
+{-# REWRITE ulift→⇒ ulift←⇒ #-}
