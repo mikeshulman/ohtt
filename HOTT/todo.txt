@@ -1,4 +1,3 @@
-- lift for Pi-types
 - compute sym on all types
 - Universe stuff
 - ap-naturality for sym (two kinds?)
