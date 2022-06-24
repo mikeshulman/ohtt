@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --cumulativity --without-K #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K #-}
 
 module HOTT.Square.Degenerate where
 
@@ -19,17 +19,17 @@ DEGSQ-LR δ = REFL δ
 
 -- Its boundaries are correct definitionally.
 
-DEGSQ-LR₀₂ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-LR δ ₀₂ ≡ REFL (δ ₀)
-DEGSQ-LR₀₂ δ = reflᵉ
+DEGSQ-LR₀₂ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-LR δ ₀₂ ≡ᵉ REFL (δ ₀)
+DEGSQ-LR₀₂ δ = reflᵉᵉ
 
-DEGSQ-LR₁₂ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-LR δ ₁₂ ≡ REFL (δ ₁)
-DEGSQ-LR₁₂ δ = reflᵉ
+DEGSQ-LR₁₂ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-LR δ ₁₂ ≡ᵉ REFL (δ ₁)
+DEGSQ-LR₁₂ δ = reflᵉᵉ
 
-DEGSQ-LR₂₀ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-LR δ ₂₀ ≡ δ
-DEGSQ-LR₂₀ δ = reflᵉ
+DEGSQ-LR₂₀ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-LR δ ₂₀ ≡ᵉ δ
+DEGSQ-LR₂₀ δ = reflᵉᵉ
 
-DEGSQ-LR₂₁ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-LR δ ₂₁ ≡ δ
-DEGSQ-LR₂₁ δ = reflᵉ
+DEGSQ-LR₂₁ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-LR δ ₂₁ ≡ᵉ δ
+DEGSQ-LR₂₁ δ = reflᵉᵉ
 
 ----------------------------------------
 -- Top-bottom degenerate squares
@@ -42,14 +42,14 @@ DEGSQ-TB δ = AP REFL δ
 
 -- Its boundaries are also correct definitionally.
 
-DEGSQ-TB₀₂ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-TB δ ₀₂ ≡ δ
+DEGSQ-TB₀₂ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-TB δ ₀₂ ≡ᵉ δ
 DEGSQ-TB₀₂ δ = AP-AP REFL _₀ δ
 
-DEGSQ-TB₁₂ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-TB δ ₁₂ ≡ δ
+DEGSQ-TB₁₂ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-TB δ ₁₂ ≡ᵉ δ
 DEGSQ-TB₁₂ δ = AP-AP REFL _₁ δ
 
-DEGSQ-TB₂₀ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-TB δ ₂₀ ≡ REFL (δ ₀)
-DEGSQ-TB₂₀ δ = reflᵉ
+DEGSQ-TB₂₀ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-TB δ ₂₀ ≡ᵉ REFL (δ ₀)
+DEGSQ-TB₂₀ δ = reflᵉᵉ
 
-DEGSQ-TB₂₁ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-TB δ ₂₁ ≡ REFL (δ ₁)
-DEGSQ-TB₂₁ δ = reflᵉ
+DEGSQ-TB₂₁ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-TB δ ₂₁ ≡ᵉ REFL (δ ₁)
+DEGSQ-TB₂₁ δ = reflᵉᵉ

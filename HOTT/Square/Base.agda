@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --cumulativity --without-K #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K #-}
 
 module HOTT.Square.Base where
 
@@ -63,17 +63,17 @@ _₁₂ : {Δ : Tel} → el (SQ Δ) → el (ID Δ)
 
 -- Our existing rewrite rules give us the cubical identities definitionally.
 
-₀₂-₀ : {Δ : Tel} (δ : el (SQ Δ)) → δ ₀₂ ₀ ≡ δ ₀₀
-₀₂-₀ δ = reflᵉ
+₀₂-₀ : {Δ : Tel} (δ : el (SQ Δ)) → δ ₀₂ ₀ ≡ᵉ δ ₀₀
+₀₂-₀ δ = reflᵉᵉ
 
-₀₂-₁ : {Δ : Tel} (δ : el (SQ Δ)) → δ ₀₂ ₁ ≡ δ ₀₁
-₀₂-₁ δ = reflᵉ
+₀₂-₁ : {Δ : Tel} (δ : el (SQ Δ)) → δ ₀₂ ₁ ≡ᵉ δ ₀₁
+₀₂-₁ δ = reflᵉᵉ
 
-₁₂-₀ : {Δ : Tel} (δ : el (SQ Δ)) → δ ₁₂ ₀ ≡ δ ₁₀
-₁₂-₀ δ = reflᵉ
+₁₂-₀ : {Δ : Tel} (δ : el (SQ Δ)) → δ ₁₂ ₀ ≡ᵉ δ ₁₀
+₁₂-₀ δ = reflᵉᵉ
 
-₁₂-₁ : {Δ : Tel} (δ : el (SQ Δ)) → δ ₁₂ ₁ ≡ δ ₁₁
-₁₂-₁ δ = reflᵉ
+₁₂-₁ : {Δ : Tel} (δ : el (SQ Δ)) → δ ₁₂ ₁ ≡ᵉ δ ₁₁
+₁₂-₁ δ = reflᵉᵉ
 
 ------------------------------
 -- Squares in a type
@@ -185,13 +185,13 @@ postulate
     {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id₁₂ A δ a₀₂ a₁₀ a₁₁)
     (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id A (δ ₂₁) a₀₁ a₁₁)
     (a₂₂ : Sq A δ a₀₂ a₁₂ a₂₀ a₂₁) →
-    AP _₀ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) ≡ δ ₀₂ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂
+    AP _₀ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) ≡ᵉ δ ₀₂ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂
   sq∷₁₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
     {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id₀₂ A δ a₀₀ a₀₁)
     {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id₁₂ A δ a₀₂ a₁₀ a₁₁)
     (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id A (δ ₂₁) a₀₁ a₁₁)
     (a₂₂ : Sq A δ a₀₂ a₁₂ a₂₀ a₂₁) →
-    AP _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) ≡
+    AP _₁ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) ≡ᵉ
       δ ₁₂ ∷ a₁₀ ∷ a₁₁ ∷ Id-pop← (λ x → A (x ₁)) (λ x → A (x ₀)) δ a₀₂ a₁₂
 
 {-# REWRITE sq∷₀₂ sq∷₁₂ #-}

@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --cumulativity --without-K #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K #-}
 
 module HOTT.Rewrite where
 
@@ -8,45 +8,53 @@ open import Agda.Primitive renaming (Set to Type; SSet to Typeᵉ) public
 -- Strict equality
 ------------------------------
 
-data _≡_ {A : Typeᵉ} (a : A) : A → Typeᵉ where
+data _≡_ {A : Type} (a : A) : A → Typeᵉ where
   reflᵉ : a ≡ a
 
-infix 5 _≡_
+data _≡ᵉ_ {A : Typeᵉ} (a : A) : A → Typeᵉ where
+  reflᵉᵉ : a ≡ᵉ a
+
+infix 5 _≡_ _≡ᵉ_
 
 infixr 30 _•_ _•ʰ_
 
 {-# BUILTIN REWRITE _≡_ #-}
+{-# BUILTIN REWRITE _≡ᵉ_ #-}
 
-_•_ : {A : Typeᵉ} {a b c : A} (p : a ≡ b) (q : b ≡ c) → a ≡ c
+_•_ : {A : Type} {a b c : A} (p : a ≡ b) (q : b ≡ c) → a ≡ c
 reflᵉ • reflᵉ = reflᵉ
 
-rev : {A : Typeᵉ} {a b : A} (p : a ≡ b) → b ≡ a
+_•ᵉ_ : {A : Typeᵉ} {a b c : A} (p : a ≡ᵉ b) (q : b ≡ᵉ c) → a ≡ᵉ c
+reflᵉᵉ •ᵉ reflᵉᵉ = reflᵉᵉ
+
+rev : {A : Type} {a b : A} (p : a ≡ b) → b ≡ a
 rev reflᵉ = reflᵉ
 
-cong : {A B : Typeᵉ} (f : A → B) {x y : A} (p : x ≡ y) → f x ≡ f y
-cong f reflᵉ = reflᵉ
+cong : {A : Typeᵉ} {B : Type} (f : A → B) {x y : A} (p : x ≡ᵉ y) → f x ≡ f y
+cong f reflᵉᵉ = reflᵉ
 
-cong2 : {A B C : Typeᵉ} (f : A → B → C) {x y : A} (p : x ≡ y) {u v : B} (q : u ≡ v) → f x u ≡ f y v
+congᵉ : {A B : Typeᵉ} (f : A → B) {x y : A} (p : x ≡ᵉ y) → f x ≡ᵉ f y
+congᵉ f reflᵉᵉ = reflᵉᵉ
+
+cong2 : {A B C : Type} (f : A → B → C) {x y : A} (p : x ≡ y) {u v : B} (q : u ≡ v) → f x u ≡ f y v
 cong2 f reflᵉ reflᵉ = reflᵉ
 
-cong3 : {A B C D : Typeᵉ} (f : A → B → C → D) {x y : A} (p : x ≡ y) {u v : B} (q : u ≡ v) {c d : C} (r : c ≡ d) → f x u c ≡ f y v d
+cong3 : {A B C D : Type} (f : A → B → C → D) {x y : A} (p : x ≡ y) {u v : B} (q : u ≡ v) {c d : C} (r : c ≡ d) → f x u c ≡ f y v d
 cong3 f reflᵉ reflᵉ reflᵉ = reflᵉ
 
-≡Type→≡ᵉ : {A B : Type} (e : A ≡ B) → _≡_ {Typeᵉ} A B
-≡Type→≡ᵉ reflᵉ = reflᵉ
+-- ≡Type→≡ᵉ : {A B : Type} (e : A ≡ B) → _≡ᵉ_ {Typeᵉ} A B
+-- ≡Type→≡ᵉ reflᵉ = reflᵉ
 
--- {A : Type} (B : A → Type) {x y : A} (p : x ≡ y) (u : B x) → B y
 coe→ : {A B : Type} → (A ≡ B) → A → B
 coe→ reflᵉ u = u
 
--- {A : Type} (B : A → Type) {x y : A} (p : x ≡ y) (v : B y) → B x
 coe← : {A B : Type} → (A ≡ B) → B → A
 coe← reflᵉ v = v
 
-axiomK : {A : Typeᵉ} {a : A} {p : a ≡ a} → p ≡ reflᵉ
-axiomK {p = reflᵉ} = reflᵉ
+axiomK : {A : Type} {a : A} {p : a ≡ a} → p ≡ᵉ reflᵉ
+axiomK {p = reflᵉ} = reflᵉᵉ
 
-uip : {A : Typeᵉ} {a b : A} {p q : a ≡ b} → p ≡ q
+uip : {A : Type} {a b : A} {p q : a ≡ b} → p ≡ᵉ q
 uip {q = reflᵉ} = axiomK
 
 ------------------------------
@@ -104,8 +112,8 @@ cong2dʰ reflᵉ reflʰ reflʰ reflʰ reflʰ reflʰ = reflʰ
 ≡ʰ→≡ : {A : Type} {a₀ a₁ : A} → (a₀ ≡ʰ a₁) → (a₀ ≡ a₁)
 ≡ʰ→≡ reflʰ = reflᵉ
 
-axiomKʰ : {A : Type} {a : A} {p : a ≡ʰ a} → p ≡ reflʰ
-axiomKʰ {p = reflʰ} = reflᵉ
+axiomKʰ : {A : Type} {a : A} {p : a ≡ʰ a} → p ≡ᵉ reflʰ
+axiomKʰ {p = reflʰ} = reflᵉᵉ
 
 postulate
   funextʰ : {A : Type} {B : A → Type} {A' : Type} {B' : A' → Type}
@@ -113,7 +121,7 @@ postulate
     f ≡ʰ f'
   funextʰ-reflʰ : {A : Type} {B : A → Type} (f : (x : A) → B x)
     (p : (x x' : A) → (x ≡ʰ x') → f x ≡ʰ f x') →
-    funextʰ p ≡ reflʰ
+    funextʰ p ≡ᵉ reflʰ
 
 {-# REWRITE funextʰ-reflʰ #-}
 

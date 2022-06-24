@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --cumulativity --without-K #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K #-}
 
 module HOTT.Telescope where
 
@@ -74,6 +74,6 @@ infixl 30 _▸_ _∷_
 uncurry : {T : Type} {Δ : Tel} {A : el Δ → Type} (B : (w : el Δ) → A w → T) → el (Δ ▸ A) → T
 uncurry B w = B (pop w) (top w)
 
-∷≡ : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (e : δ₀ ≡ δ₁) {a₀ : A δ₀} {a₁ : A δ₁} (f : a₀ ≡ʰ a₁) →
-  (δ₀ ∷ a₀) ≡ (δ₁ ∷ a₁)
-∷≡ A reflᵉ reflʰ = reflᵉ
+∷≡ : {Δ : Tel} (A : el Δ → Type) {δ₀ δ₁ : el Δ} (e : δ₀ ≡ᵉ δ₁) {a₀ : A δ₀} {a₁ : A δ₁} (f : a₀ ≡ʰ a₁) →
+  (δ₀ ∷ a₀) ≡ᵉ (δ₁ ∷ a₁)
+∷≡ A reflᵉᵉ reflʰ = reflᵉᵉ

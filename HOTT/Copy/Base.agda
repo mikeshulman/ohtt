@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --cumulativity --without-K #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K #-}
 
 module HOTT.Copy.Base where
 
@@ -66,8 +66,8 @@ postulate
   -- we apply the dimension-increasing operator, to make sure the
   -- results are definitionally unique.
   ap⇑ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ))
-    {T : el Δ → Type} {t : (w : el Δ) → T w} (a : (w : el Δ) → A w) →
+    {T : el Δ → Typeᵉ} {t : (w : el Δ) → T w} (a : (w : el Δ) → A w) →
     ap (λ w → _⇑ {T w} {t w} (a w)) δ ≡ _⇑ {↿ ((w : el Δ) → T w)} {↾ t} (ap a δ)
-  refl⇑ : {T : Type} {t : T} {A : Type} (a : A) → refl (_⇑ {T} {t} a) ≡ _⇑ {↿ T} {↾ t} (refl a)
+  refl⇑ : {T : Typeᵉ} {t : T} {A : Type} (a : A) → refl (_⇑ {T} {t} a) ≡ _⇑ {↿ T} {↾ t} (refl a)
 
 {-# REWRITE ap↓ refl↓ ap↑ ap⇑ refl↑ refl⇑ #-}

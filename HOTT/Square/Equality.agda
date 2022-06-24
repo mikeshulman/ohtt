@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --cumulativity --without-K #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K #-}
 
 module HOTT.Square.Equality where
 
@@ -12,7 +12,7 @@ open import HOTT.Square.Base
 --------------------------------------------------
 
 Sq≡ : {Δ : Tel} (A : el Δ → Type)
-     {δ δ' : el (SQ Δ)} (e : δ ≡ δ')
+     {δ δ' : el (SQ Δ)} (e : δ ≡ᵉ δ')
      {a₀₀ : A (δ ₀₀)} {a₀₀' : A (δ' ₀₀)} (e₀₀ : a₀₀ ≡ʰ a₀₀')
      {a₀₁ : A (δ ₀₁)} {a₀₁' : A (δ' ₀₁)} (e₀₁ : a₀₁ ≡ʰ a₀₁')
      {a₀₂ : Id₀₂ A δ a₀₀ a₀₁} {a₀₂' : Id₀₂ A δ' a₀₀' a₀₁'} (e₀₂ : a₀₂ ≡ʰ a₀₂')
@@ -22,7 +22,7 @@ Sq≡ : {Δ : Tel} (A : el Δ → Type)
      {a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀} {a₂₀' : Id A (δ' ₂₀) a₀₀' a₁₀'} (e₂₀ : a₂₀ ≡ʰ a₂₀')
      {a₂₁ : Id A (δ ₂₁) a₀₁ a₁₁} {a₂₁' : Id A (δ' ₂₁) a₀₁' a₁₁'} (e₂₁ : a₂₁ ≡ʰ a₂₁') →
   Sq A δ a₀₂ a₁₂ a₂₀ a₂₁ ≡ Sq A δ' a₀₂' a₁₂' a₂₀' a₂₁'
-Sq≡ A reflᵉ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ = reflᵉ
+Sq≡ A reflᵉᵉ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ reflʰ = reflᵉ
 
 {-
 

@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --cumulativity --without-K #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K #-}
 
 module HOTT.Sym.Degenerate where
 
@@ -15,7 +15,7 @@ open import HOTT.Sym.Base
 
 postulate
   AP-REFL′ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) →
-    AP (λ x → REFL (f x)) γ ≡ SYM Δ (REFL (AP f γ))
+    AP (λ x → REFL (f x)) γ ≡ᵉ SYM Δ (REFL (AP f γ))
 
 {-# REWRITE AP-REFL′ #-}
 
