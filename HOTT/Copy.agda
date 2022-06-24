@@ -3,4 +3,4 @@
 module HOTT.Copy where
 
 open import HOTT.Copy.Base public
---open import HOTT.Copy.Transport public
+open import HOTT.Copy.Transport public

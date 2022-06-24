@@ -23,15 +23,22 @@ postulate
 {-# REWRITE ↑↓ #-}
 
 postulate
-  Id-Copy : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₀ : Copy (A (δ ₀))) (a₁ : Copy (A (δ ₁))) →
+  Id′-Copy : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₀ : Copy (A (δ ₀))) (a₁ : Copy (A (δ ₁))) →
     Id′ (λ w → Copy (A w)) δ a₀ a₁ ≡ Copy (Id′ A δ (a₀ ↓) (a₁ ↓))
+  Id-Copy : (A : Type) (a₀ a₁ : Copy A) →
+    Id (Copy A) a₀ a₁ ≡ Copy (Id A (a₀ ↓) (a₁ ↓))
 
-{-# REWRITE Id-Copy #-}
+{-# REWRITE Id′-Copy Id-Copy #-}
 
 postulate
-  ap↑ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a : (w : el Δ) → A w) →
-    ap (λ w → (a w) ↑) δ ≡ (ap a δ) ↑
   ap↓ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a : (w : el Δ) → Copy (A w)) →
     ap (λ w → (a w) ↓) δ ≡ (ap a δ) ↓
+  refl↓ : {A : Type} (a : Copy A) → refl (a ↓) ≡ refl a ↓
+  -- These aren't really correct: ap↑ and refl↑ should only compute
+  -- after a further ↓ has been applied.  But the same applies to
+  -- ap-ap-↑ and so on.  Can we encode all of those at once in Agda?
+  ap↑ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a : (w : el Δ) → A w) →
+    ap (λ w → (a w) ↑) δ ≡ (ap a δ) ↑
+  refl↑ : {A : Type} (a : A) → refl (a ↑) ≡ refl a ↑
 
-{-# REWRITE ap↑ ap↓ #-}
+{-# REWRITE ap↓ refl↓ ap↑ refl↑ #-}
