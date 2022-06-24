@@ -55,12 +55,12 @@ postulate
 postulate
   utr→⇒ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
     (u₀ : (A (δ ₀)) ⇒ (B (δ ₀))) (u₁ u₁' : (A (δ ₁)) ⇒ (B (δ ₁)))
-    (u₂ : Id′ (λ w → (A w) ⇒ (B w)) δ u₀ u₁) (u₂' : Id′ (λ w → (A w) ⇒ (B w)) δ u₀ u₁') →
+    (u₂ : Id (λ w → (A w) ⇒ (B w)) δ u₀ u₁) (u₂' : Id (λ w → (A w) ⇒ (B w)) δ u₀ u₁') →
     utr→      (λ w → (A w) ⇒ (B w)) δ u₀ u₁ u₁' u₂ u₂' ≡
     fill-utr→ (λ w → (A w) ⇒ (B w)) δ u₀ u₁ u₁' u₂ u₂'
   utr←⇒ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
     (u₁ : (A (δ ₁)) ⇒ (B (δ ₁))) (u₀ u₀' : (A (δ ₀)) ⇒ (B (δ ₀)))
-    (u₂ : Id′ (λ w → (A w) ⇒ (B w)) δ u₀ u₁) (u₂' : Id′ (λ w → (A w) ⇒ (B w)) δ u₀' u₁) →
+    (u₂ : Id (λ w → (A w) ⇒ (B w)) δ u₀ u₁) (u₂' : Id (λ w → (A w) ⇒ (B w)) δ u₀' u₁) →
     utr←      (λ w → (A w) ⇒ (B w)) δ u₁ u₀ u₀' u₂ u₂' ≡
     fill-utr← (λ w → (A w) ⇒ (B w)) δ u₁ u₀ u₀' u₂ u₂'
 
@@ -69,12 +69,12 @@ postulate
 postulate
   ulift→⇒ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
     (u₀ : (A (δ ₀)) ⇒ (B (δ ₀))) (u₁ u₁' : (A (δ ₁)) ⇒ (B (δ ₁)))
-    (u₂ : Id′ (λ w → (A w) ⇒ (B w)) δ u₀ u₁) (u₂' : Id′ (λ w → (A w) ⇒ (B w)) δ u₀ u₁') →
+    (u₂ : Id (λ w → (A w) ⇒ (B w)) δ u₀ u₁) (u₂' : Id (λ w → (A w) ⇒ (B w)) δ u₀ u₁') →
     ulift→      (λ w → (A w) ⇒ (B w)) δ u₀ u₁ u₁' u₂ u₂' ≡
     fill-ulift→ (λ w → (A w) ⇒ (B w)) δ u₀ u₁ u₁' u₂ u₂'
   ulift←⇒ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
     (u₁ : (A (δ ₁)) ⇒ (B (δ ₁))) (u₀ u₀' : (A (δ ₀)) ⇒ (B (δ ₀)))
-    (u₂ : Id′ (λ w → (A w) ⇒ (B w)) δ u₀ u₁) (u₂' : Id′ (λ w → (A w) ⇒ (B w)) δ u₀' u₁) →
+    (u₂ : Id (λ w → (A w) ⇒ (B w)) δ u₀ u₁) (u₂' : Id (λ w → (A w) ⇒ (B w)) δ u₀' u₁) →
     ulift←      (λ w → (A w) ⇒ (B w)) δ u₁ u₀ u₀' u₂ u₂' ≡
     fill-ulift← (λ w → (A w) ⇒ (B w)) δ u₁ u₀ u₀' u₂ u₂'
 

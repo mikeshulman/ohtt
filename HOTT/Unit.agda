@@ -15,7 +15,7 @@ open import HOTT.Transport
 record ⊤ : Type where
   constructor ★
 
--- The rule for Id′ follows from this one together with Id′-const.
+-- The rule for Id follows from this one together with Id-const.
 postulate
   ＝⊤ : (u v : ⊤) → (u ＝ v) ≡ ⊤
 
@@ -39,16 +39,16 @@ postulate
   -- The unit type is so trivial that we can easily define utr and
   -- ulift directly, rather than by way of filling.
   utr→⊤ : {Δ : Tel} (δ : el (ID Δ)) (a₀ : ⊤)
-    (a₁ a₁' : ⊤) (a₂ : Id′ {Δ} (λ _ → ⊤) δ a₀ a₁) (a₂' : Id′ {Δ} (λ _ → ⊤) δ a₀ a₁') →
+    (a₁ a₁' : ⊤) (a₂ : Id {Δ} (λ _ → ⊤) δ a₀ a₁) (a₂' : Id {Δ} (λ _ → ⊤) δ a₀ a₁') →
     utr→ {Δ} (λ _ → ⊤) δ a₀ a₁ a₁' a₂ a₂' ≡ ★
   ulift→⊤ : {Δ : Tel} (δ : el (ID Δ)) (a₀ : ⊤)
-    (a₁ a₁' : ⊤) (a₂ : Id′ {Δ} (λ _ → ⊤) δ a₀ a₁) (a₂' : Id′ {Δ} (λ _ → ⊤) δ a₀ a₁') →
+    (a₁ a₁' : ⊤) (a₂ : Id {Δ} (λ _ → ⊤) δ a₀ a₁) (a₂' : Id {Δ} (λ _ → ⊤) δ a₀ a₁') →
     ulift→ {Δ} (λ _ → ⊤) δ a₀ a₁ a₁' a₂ a₂' ≡ ★
   utr←⊤ : {Δ : Tel} (δ : el (ID Δ)) (a₁ : ⊤)
-    (a₀ a₀' : ⊤) (a₂ : Id′ {Δ} (λ _ → ⊤) δ a₀ a₁) (a₂' : Id′ {Δ} (λ _ → ⊤) δ a₀' a₁) →
+    (a₀ a₀' : ⊤) (a₂ : Id {Δ} (λ _ → ⊤) δ a₀ a₁) (a₂' : Id {Δ} (λ _ → ⊤) δ a₀' a₁) →
     utr← {Δ} (λ _ → ⊤) δ a₁ a₀ a₀' a₂ a₂' ≡ ★
   ulift←⊤ : {Δ : Tel} (δ : el (ID Δ)) (a₁ : ⊤)
-    (a₀ a₀' : ⊤) (a₂ : Id′ {Δ} (λ _ → ⊤) δ a₀ a₁) (a₂' : Id′ {Δ} (λ _ → ⊤) δ a₀' a₁) →
+    (a₀ a₀' : ⊤) (a₂ : Id {Δ} (λ _ → ⊤) δ a₀ a₁) (a₂' : Id {Δ} (λ _ → ⊤) δ a₀' a₁) →
     ulift← {Δ} (λ _ → ⊤) δ a₁ a₀ a₀' a₂ a₂' ≡ ★
 
 {-# REWRITE tr→⊤ lift→⊤ tr←⊤ lift←⊤ utr→⊤ ulift→⊤ utr←⊤ ulift←⊤ #-}

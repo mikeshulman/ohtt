@@ -23,13 +23,13 @@ postulate
            {a₀} {tr← A δ a₁}
            (utr← A δ a₁ a₀ (tr← A δ a₁) a₂ (lift← A δ a₁))
            {a₁} {a₁}
-           (Id′-pop→ (λ x → A (x ₁)) (λ x → A (x ₀)) (DEGSQ-LR δ)
+           (Id-pop→ (λ x → A (x ₁)) (λ x → A (x ₀)) (DEGSQ-LR δ)
              (utr← A δ a₁ a₀ (tr← A δ a₁) a₂ (lift← A δ a₁)) (refl a₁))
            a₂
            (lift← A δ a₁)
            (ulift←sq A δ a₁ a₀ (tr← A δ a₁) a₂ (lift← A δ a₁)))
       {f₀ ⊙ a₀} {f₀ ⊙ tr← A δ a₁}
-      (coe← (Id′-AP (λ x → δ ₀ ∷ top x)
+      (coe← (Id-AP (λ x → δ ₀ ∷ top x)
                     ([] ∷ a₀ ∷ tr← A δ a₁ ∷ utr← A δ a₁ a₀ (tr← A δ a₁) a₂ (lift← A δ a₁))
                     (uncurry B) (f₀ ⊙ a₀) (f₀ ⊙ tr← A δ a₁))
             (refl f₀ ⊙ a₀ ⊙ (tr← A δ a₁) ⊙ (utr← A δ a₁ a₀ (tr← A δ a₁) a₂ (lift← A δ a₁))))
@@ -53,7 +53,7 @@ postulate
       {tr← (uncurry B) (δ ∷ a₀ ∷ tr→ A δ a₀ ∷ lift→ A δ a₀) (f₁ ⊙ tr→ A δ a₀)}
       (refl (tr← (uncurry B) (δ ∷ a₀ ∷ tr→ A δ a₀ ∷ lift→ A δ a₀) (f₁ ⊙ tr→ A δ a₀)))
       {f₁ ⊙ a₁} {f₁ ⊙ tr→ A δ a₀}
-      (coe← (Id′-AP (λ x → δ ₁ ∷ top x)
+      (coe← (Id-AP (λ x → δ ₁ ∷ top x)
                     ([] ∷ a₁ ∷ tr→ A δ a₀ ∷ utr→ A δ a₀ a₁ (tr→ A δ a₀) a₂ (lift→ A δ a₀))
                     (uncurry B) (f₁ ⊙ a₁) (f₁ ⊙ tr→ A δ a₀))
             (refl f₁ ⊙ a₁ ⊙ (tr→ A δ a₀) ⊙ (utr→ A δ a₀ a₁ (tr→ A δ a₀) a₂ (lift→ A δ a₀))))

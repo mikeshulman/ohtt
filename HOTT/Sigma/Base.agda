@@ -33,15 +33,15 @@ postulate
 {-# REWRITE βπ₂ η﹐ #-}
 
 postulate
-  Id′Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
+  IdΣ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
     (δ : el (ID Δ)) (u₀ : Σ (A (δ ₀)) (λ a → B (δ ₀) a)) (u₁ : Σ (A (δ ₁)) (λ a → B (δ ₁) a)) →
-    Id′ {Δ} (λ w → Σ (A w) (B w)) δ u₀ u₁ ≡
-    Σ[ e ﹕ Id′ A δ (π₁ u₀) (π₁ u₁) ] Id′ {Δ ▸ A} (uncurry B) (δ ∷ π₁ u₀ ∷ π₁ u₁ ∷ e) (π₂ u₀) (π₂ u₁)
-  IdΣ : (A : Type) (B : A → Type) (u₀ u₁ : Σ A B) →
+    Id {Δ} (λ w → Σ (A w) (B w)) δ u₀ u₁ ≡
+    Σ[ e ﹕ Id A δ (π₁ u₀) (π₁ u₁) ] Id {Δ ▸ A} (uncurry B) (δ ∷ π₁ u₀ ∷ π₁ u₁ ∷ e) (π₂ u₀) (π₂ u₁)
+  ＝Σ : (A : Type) (B : A → Type) (u₀ u₁ : Σ A B) →
     (u₀ ＝ u₁) ≡
-    Σ[ e ﹕ (π₁ u₀ ＝ π₁ u₁) ] Id′ {ε ▸ (λ _ → A)} (λ a → B (top a)) ([] ∷ π₁ u₀ ∷ π₁ u₁ ∷ e) (π₂ u₀) (π₂ u₁)
+    Σ[ e ﹕ (π₁ u₀ ＝ π₁ u₁) ] Id {ε ▸ (λ _ → A)} (λ a → B (top a)) ([] ∷ π₁ u₀ ∷ π₁ u₁ ∷ e) (π₂ u₀) (π₂ u₁)
 
-{-# REWRITE Id′Σ IdΣ #-}
+{-# REWRITE IdΣ ＝Σ #-}
 
 postulate
   ap﹐ : {Δ : Tel} {A : el Δ → Type} {B : (w : el Δ) → A w → Type} (f : (δ : el Δ) → A δ) (g : (δ : el Δ) → B δ (f δ))
@@ -61,12 +61,12 @@ postulate
   apπ₂ : {Δ : Tel} {A : el Δ → Type} {B : (w : el Δ) → A w → Type} (δ : el (ID Δ))
     (u : (x : el Δ) → Σ (A x) (B x)) →
     ap (λ x → π₂ (u x)) δ ≡
-    coe→ (Id′-AP▸ A (λ x → x) (λ x → π₁ (u x)) δ
+    coe→ (Id-AP▸ A (λ x → x) (λ x → π₁ (u x)) δ
                    (λ w → B (pop w) (top w)) (π₂ (u (δ ₀))) (π₂ (u (δ ₁))))
          (π₂ (ap u δ))
   reflπ₂ : {A : Type} {B : A → Type} (u : Σ A B) →
     refl (π₂ u) ≡
-    coe→ (Id′-REFL[]▸ (λ _ → A) (λ x → B (top x)) (π₁ u) (π₂ u) (π₂ u))
+    coe→ (Id-REFL[]▸ (λ _ → A) (λ x → B (top x)) (π₁ u) (π₂ u) (π₂ u))
           (π₂ (refl u))
 
 {-# REWRITE apπ₂ reflπ₂ #-}

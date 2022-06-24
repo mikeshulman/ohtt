@@ -36,26 +36,26 @@ postulate
 
 postulate
   utr→Copy : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₀ : Copy (A (δ ₀))) →
-    (a₁ a₁' : Copy (A (δ ₁))) (a₂ : Id′ (λ x → Copy (A x)) δ a₀ a₁) (a₂' : Id′ (λ x → Copy (A x)) δ a₀ a₁') →
+    (a₁ a₁' : Copy (A (δ ₁))) (a₂ : Id (λ x → Copy (A x)) δ a₀ a₁) (a₂' : Id (λ x → Copy (A x)) δ a₀ a₁') →
     utr→ (λ x → Copy (A x)) δ a₀ a₁ a₁' a₂ a₂' ↓ ≡ utr→ A δ (a₀ ↓) (a₁ ↓) (a₁' ↓) (a₂ ↓) (a₂' ↓)
   utr←Copy : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₁ : Copy (A (δ ₁))) →
-    (a₀ a₀' : Copy (A (δ ₀))) (a₂ : Id′ (λ x → Copy (A x)) δ a₀ a₁) (a₂' : Id′ (λ x → Copy (A x)) δ a₀' a₁) →
+    (a₀ a₀' : Copy (A (δ ₀))) (a₂ : Id (λ x → Copy (A x)) δ a₀ a₁) (a₂' : Id (λ x → Copy (A x)) δ a₀' a₁) →
     utr← (λ x → Copy (A x)) δ a₁ a₀ a₀' a₂ a₂' ↓ ≡ utr← A δ (a₁ ↓) (a₀ ↓) (a₀' ↓) (a₂ ↓) (a₂' ↓)
 
 {-# REWRITE utr→Copy utr←Copy #-}
 
 postulate
   ulift→Copy : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₀ : Copy (A (δ ₀))) →
-    (a₁ a₁' : Copy (A (δ ₁))) (a₂ : Id′ (λ x → Copy (A x)) δ a₀ a₁) (a₂' : Id′ (λ x → Copy (A x)) δ a₀ a₁') →
+    (a₁ a₁' : Copy (A (δ ₁))) (a₂ : Id (λ x → Copy (A x)) δ a₀ a₁) (a₂' : Id (λ x → Copy (A x)) δ a₀ a₁') →
     ulift→ (λ x → Copy (A x)) δ a₀ a₁ a₁' a₂ a₂' ↓ ≡
-      coe→ (Id′-AP (λ x → pop x ∷ (top x ↓)) ([] ∷ a₁ ∷ a₁' ∷ utr→ (λ x → Copy (A x)) δ a₀ a₁ a₁' a₂ a₂')
-                    (λ x → Id′ A δ (a₀ ↓) (top x)) (a₂ ↓) (a₂' ↓))
+      coe→ (Id-AP (λ x → pop x ∷ (top x ↓)) ([] ∷ a₁ ∷ a₁' ∷ utr→ (λ x → Copy (A x)) δ a₀ a₁ a₁' a₂ a₂')
+                    (λ x → Id A δ (a₀ ↓) (top x)) (a₂ ↓) (a₂' ↓))
             (ulift→ A δ (a₀ ↓) (a₁ ↓) (a₁' ↓) (a₂ ↓) (a₂' ↓))
   ulift←Copy : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₁ : Copy (A (δ ₁))) →
-    (a₀ a₀' : Copy (A (δ ₀))) (a₂ : Id′ (λ x → Copy (A x)) δ a₀ a₁) (a₂' : Id′ (λ x → Copy (A x)) δ a₀' a₁) →
+    (a₀ a₀' : Copy (A (δ ₀))) (a₂ : Id (λ x → Copy (A x)) δ a₀ a₁) (a₂' : Id (λ x → Copy (A x)) δ a₀' a₁) →
     ulift← (λ x → Copy (A x)) δ a₁ a₀ a₀' a₂ a₂' ↓ ≡
-      coe→ (Id′-AP (λ x → pop x ∷ (top x ↓)) ([] ∷ a₀ ∷ a₀' ∷ utr← (λ x → Copy (A x)) δ a₁ a₀ a₀' a₂ a₂')
-                    (λ x → Id′ A δ (top x) (a₁ ↓)) (a₂ ↓) (a₂' ↓))
+      coe→ (Id-AP (λ x → pop x ∷ (top x ↓)) ([] ∷ a₀ ∷ a₀' ∷ utr← (λ x → Copy (A x)) δ a₁ a₀ a₀' a₂ a₂')
+                    (λ x → Id A δ (top x) (a₁ ↓)) (a₂ ↓) (a₂' ↓))
             (ulift← A δ (a₁ ↓) (a₀ ↓) (a₀' ↓) (a₂ ↓) (a₂' ↓))
 
 {-# REWRITE ulift→Copy ulift←Copy #-}
