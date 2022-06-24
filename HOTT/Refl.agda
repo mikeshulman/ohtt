@@ -13,26 +13,26 @@ open import HOTT.Id
 -- Homogeneous identity types are heterogeneous over the empty
 -- telescope.  However, if we *defined* them to be that:
 {-
-Id : (A : Type) → A → A → Type
-Id A a₀ a₁ = Id′ {Δ = ε} (λ _ → A) [] a₀ a₁
+_＝_ : (A : Type) → A → A → Type
+(a₀ ＝ a₁) = Id′ {Δ = ε} (λ _ → A) [] a₀ a₁
 -}
 -- then we couldn't rewrite Id′ of an arbitrary *constant* type family
--- to Id without producing infinite loops, since the above is also a
--- particular constant type family.  So instead we postulate Id
+-- to _＝_ without producing infinite loops, since the above is also a
+-- particular constant type family.  So instead we postulate _＝_
 -- separately, along with the reduction for constant type families,
 -- which has as a particular consequence that the above definitional
 -- equality also holds.
 
 postulate
-  Id : (A : Type) → A → A → Type
+  _＝_ : {A : Type} → A → A → Type
   Id-const : {Δ : Tel} (A : Type) (δ : el (ID Δ)) (a₀ a₁ : A) →
-    Id′ {Δ} (λ _ → A) δ a₀ a₁ ≡ Id A a₀ a₁
+    Id′ {Δ} (λ _ → A) δ a₀ a₁ ≡ (a₀ ＝ a₁)
 
 {-# REWRITE Id-const #-}
 
 -- Similarly, reflexivity is nullary ap, with the same caveat.
 postulate
-  refl : {A : Type} (a : A) → Id A a a
+  refl : {A : Type} (a : A) → (a ＝ a)
   ap-const : {Δ : Tel} (A : Type) (δ : el (ID Δ)) (a : A) →
     ap {Δ} (λ _ → a) δ ≡ refl a
 
@@ -58,8 +58,8 @@ postulate
 -- Moreover, to define REFL we'll also need to know its analogue of
 -- Id′-AP, and that REFL is the image of AP on constant terms.
 postulate
-  Id′-REFL : {Δ : Tel} (A : el Δ → Type) (δ : el Δ) (a₀ : A ((REFL δ)₀)) (a₁ : A ((REFL δ)₁)) →
-    Id′ A (REFL δ) a₀ a₁ ≡ Id (A δ) a₀ a₁
+  Id′-REFL : {Δ : Tel} (A : el Δ → Type) (δ : el Δ) (a₀ : A δ) (a₁ : A δ) →
+    Id′ A (REFL δ) a₀ a₁ ≡ (a₀ ＝ a₁)
   AP-const : {Δ : Tel} (Θ : Tel) (δ : el (ID Δ)) (t : el Θ) → AP {Δ} (λ _ → t) δ ≡ REFL t
 
 {-# REWRITE Id′-REFL AP-const #-}
@@ -69,7 +69,7 @@ REFL {Δ ▸ A} (δ ∷ a) = REFL δ ∷ a ∷ a ∷ refl a
 
 postulate
   Id′-[] : (A : el ε → Type) (a₀ : A []) (a₁ : A []) →
-    Id′ A [] a₀ a₁ ≡ Id (A []) a₀ a₁
+    Id′ A [] a₀ a₁ ≡ (a₀ ＝ a₁)
 
 {-# REWRITE Id′-[] #-}
 
@@ -82,10 +82,10 @@ postulate
 postulate
   Id′-REFL▸ : {Δ : Tel} (B : el Δ → Type) (A : el (Δ ▸ B) → Type) (δ : el Δ) (b : B δ)
     (a₀ : A ((REFL (_∷_ {Δ} {B} δ b))₀)) (a₁ : A ((REFL (_∷_ {Δ} {B} δ b))₁)) →
-    Id′ A (REFL δ ∷ b ∷ b ∷ refl b) a₀ a₁ ≡ Id (A (δ ∷ b)) a₀ a₁
+    Id′ A (REFL δ ∷ b ∷ b ∷ refl b) a₀ a₁ ≡ (a₀ ＝ a₁)
   Id′-REFL[]▸ : (B : el ε → Type) (A : el (ε ▸ B) → Type) (b : B [])
     (a₀ : A (_∷_ {ε} {B} [] b)) (a₁ : A (_∷_ {ε} {B} [] b)) →
-    Id′ A ([] ∷ b ∷ b ∷ refl b) a₀ a₁ ≡ Id (A ([] ∷ b)) a₀ a₁
+    Id′ A ([] ∷ b ∷ b ∷ refl b) a₀ a₁ ≡ (a₀ ＝ a₁)
 
 {-# REWRITE Id′-REFL▸ Id′-REFL[]▸ #-}
 
@@ -94,7 +94,7 @@ postulate
     (A : el (Δ ▸ B ▸ C) → Type) (δ : el Δ) (b : B δ) (c : C (δ ∷ b))
     (a₀ : A (REFL (_∷_ {Δ ▸ B} {C} (_∷_ {Δ} {B} δ b) c)₀))
     (a₁ : A (REFL (_∷_ {Δ ▸ B} {C} (_∷_ {Δ} {B} δ b) c)₁)) →
-    Id′ A (REFL δ ∷ b ∷ b ∷ refl b ∷ c ∷ c ∷ refl c) a₀ a₁ ≡ Id (A (δ ∷ b ∷ c)) a₀ a₁
+    Id′ A (REFL δ ∷ b ∷ b ∷ refl b ∷ c ∷ c ∷ refl c) a₀ a₁ ≡ (a₀ ＝ a₁)
 
 {-# REWRITE Id′-REFL▸▸ #-}
 
@@ -145,7 +145,7 @@ postulate
 postulate
   Id′-AP-pop³-REFL : {Δ : Tel} (A B : el Δ → Type) (f : el (Δ ▸ B))
     (a₀ : A (pop f)) (a₁ : A (pop f)) →
-    Id′ A (pop (pop (pop (REFL f)))) a₀ a₁ ≡ Id (A (pop f)) a₀ a₁
+    Id′ A (pop (pop (pop (REFL f)))) a₀ a₁ ≡ (a₀ ＝ a₁)
 
 {-# REWRITE Id′-AP-pop³-REFL #-}
 

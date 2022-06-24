@@ -17,9 +17,9 @@ record ⊤ : Type where
 
 -- The rule for Id′ follows from this one together with Id′-const.
 postulate
-  Id⊤ : (u v : ⊤) → Id ⊤ u v ≡ ⊤
+  ＝⊤ : (u v : ⊤) → (u ＝ v) ≡ ⊤
 
-{-# REWRITE Id⊤ #-}
+{-# REWRITE ＝⊤ #-}
 
 -- Similarly, the rule for general ap follows from this one together with ap-const.
 postulate

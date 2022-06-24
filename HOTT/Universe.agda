@@ -18,7 +18,7 @@ open import HOTT.Copy
 --------------------------------------------------
 
 isProp : (A : Type) → Type
-isProp A = Π A (λ a₀ → Π A (λ a₁ → Id A a₀ a₁))
+isProp A = Π A (λ a₀ → Π A (λ a₁ → (a₀ ＝ a₁)))
 
 isContr : (A : Type) → Type
 isContr A = A × isProp A
@@ -34,9 +34,9 @@ is11 {A} {B} R = Π A (λ a → isContr (Σ B (λ b → R ∙ a ∙ b))) × Π B
 ------------------------------
 
 postulate
-  IdU : (A B : Type) → Id Type A B ≡ Copy (11Corr A B)
+  ＝U : (A B : Type) → (A ＝ B) ≡ Copy (11Corr A B)
 
-{-# REWRITE IdU #-}
+{-# REWRITE ＝U #-}
 
 postulate
   apU : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) →

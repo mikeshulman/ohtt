@@ -134,7 +134,7 @@ ulift←sq {Δ} A δ a₁ a₀ a₀' a₂ a₂' =
 -- almost always easier to derive them in this way.
 
 fill-utr→ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₀ : A (δ ₀))
-    (a₁ a₁' : A (δ ₁)) (a₂ : Id′ A δ a₀ a₁) (a₂' : Id′ A δ a₀ a₁') → Id (A (δ ₁)) a₁ a₁'
+    (a₁ a₁' : A (δ ₁)) (a₂ : Id′ A δ a₀ a₁) (a₂' : Id′ A δ a₀ a₁') → (a₁ ＝ a₁')
 fill-utr→ A δ a₀ a₁ a₁' a₂ a₂' = comp↑ A (DEGSQ-LR δ) (refl a₀) a₂ a₂'
 
 fill-ulift→ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₀ : A (δ ₀))
@@ -147,7 +147,7 @@ fill-ulift→ {Δ} A δ a₀ a₁ a₁' a₂ a₂' =
         (fill↑ A (DEGSQ-LR δ) (refl a₀) a₂ a₂')
     
 fill-utr← : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₁ : A (δ ₁))
-    (a₀ a₀' : A (δ ₀)) (a₂ : Id′ A δ a₀ a₁) (a₂' : Id′ A δ a₀' a₁) → Id (A (δ ₀)) a₀ a₀'
+    (a₀ a₀' : A (δ ₀)) (a₂ : Id′ A δ a₀ a₁) (a₂' : Id′ A δ a₀' a₁) → (a₀ ＝ a₀')
 fill-utr← A δ a₁ a₀ a₀' a₂ a₂' = comp↓ A (DEGSQ-LR δ) (refl a₁) a₂ a₂'
 
 fill-ulift← : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₁ : A (δ ₁))

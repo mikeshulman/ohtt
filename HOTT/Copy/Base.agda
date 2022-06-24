@@ -29,10 +29,10 @@ postulate
 postulate
   Id′-Copy : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₀ : Copy (A (δ ₀))) (a₁ : Copy (A (δ ₁))) →
     Id′ (λ w → Copy (A w)) δ a₀ a₁ ≡ Copy (Id′ A δ (a₀ ↓) (a₁ ↓))
-  Id-Copy : (A : Type) (a₀ a₁ : Copy A) →
-    Id (Copy A) a₀ a₁ ≡ Copy (Id A (a₀ ↓) (a₁ ↓))
+  ＝-Copy : (A : Type) (a₀ a₁ : Copy A) →
+    (a₀ ＝ a₁) ≡ Copy ((a₀ ↓ ＝ a₁ ↓))
 
-{-# REWRITE Id′-Copy Id-Copy #-}
+{-# REWRITE Id′-Copy ＝-Copy #-}
 
 -- Since (Copy A) has no η-rule, it's not reasonable to compute ap and
 -- refl directly on its constructor _↑.  Instead they should compute

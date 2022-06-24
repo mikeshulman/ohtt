@@ -38,8 +38,8 @@ postulate
     Id′ {Δ} (λ w → Σ (A w) (B w)) δ u₀ u₁ ≡
     Σ[ e ﹕ Id′ A δ (π₁ u₀) (π₁ u₁) ] Id′ {Δ ▸ A} (uncurry B) (δ ∷ π₁ u₀ ∷ π₁ u₁ ∷ e) (π₂ u₀) (π₂ u₁)
   IdΣ : (A : Type) (B : A → Type) (u₀ u₁ : Σ A B) →
-    Id (Σ A B) u₀ u₁ ≡
-    Σ[ e ﹕ Id A (π₁ u₀) (π₁ u₁) ] Id′ {ε ▸ (λ _ → A)} (λ a → B (top a)) ([] ∷ π₁ u₀ ∷ π₁ u₁ ∷ e) (π₂ u₀) (π₂ u₁)
+    (u₀ ＝ u₁) ≡
+    Σ[ e ﹕ (π₁ u₀ ＝ π₁ u₁) ] Id′ {ε ▸ (λ _ → A)} (λ a → B (top a)) ([] ∷ π₁ u₀ ∷ π₁ u₁ ∷ e) (π₂ u₀) (π₂ u₁)
 
 {-# REWRITE Id′Σ IdΣ #-}
 

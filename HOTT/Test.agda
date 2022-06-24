@@ -14,7 +14,7 @@ open import HOTT.Refl
 postulate
   A : Type
   a₀ a₁ : A
-  a₂ : Id A a₀ a₁
+  a₂ : a₀ ＝ a₁
 
 A′ : el ε → Type
 A′ _ = A

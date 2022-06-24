@@ -35,14 +35,14 @@ postulate
       Π (A (δ ₁)) (λ a₁ →
       Π (Id′ A δ a₀ a₁) (λ a₂ →
         Id′ {Δ ▸ A} (uncurry B) (δ ∷ a₀ ∷ a₁ ∷ a₂) (f₀ ⊙ a₀) (f₁ ⊙ a₁))))
-  IdΠ : (A : Type) (B : A → Type) (f₀ f₁ : Π A B) →
-    Id (Π A B) f₀ f₁ ≡
+  ＝Π : (A : Type) (B : A → Type) (f₀ f₁ : Π A B) →
+    (f₀ ＝ f₁) ≡
       Π A (λ a₀ →
       Π A (λ a₁ →
-      Π (Id A a₀ a₁) (λ a₂ →
+      Π (a₀ ＝ a₁) (λ a₂ →
         Id′ {ε ▸ (λ _ → A)} (λ a → B (top a)) ([] ∷ a₀ ∷ a₁ ∷ a₂) (f₀ ⊙ a₀) (f₁ ⊙ a₁))))
 
-{-# REWRITE Id′Π IdΠ #-}
+{-# REWRITE Id′Π ＝Π #-}
 
 postulate
   apΛ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type) (δ : el (ID Δ))

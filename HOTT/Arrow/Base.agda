@@ -46,14 +46,14 @@ postulate
       Π (A (δ ₁)) (λ a₁ →
       (Id′ A δ a₀ a₁) ⇒
         Id′ B δ (f₀ ∙ a₀) (f₁ ∙ a₁)))
-  Id⇒ : (A B : Type) (f₀ f₁ : A ⇒ B) →
-    Id (A ⇒ B) f₀ f₁ ≡
+  ＝⇒ : (A B : Type) (f₀ f₁ : A ⇒ B) →
+    (f₀ ＝ f₁) ≡
       Π A (λ a₀ →
       Π A (λ a₁ →
-      (Id A a₀ a₁) ⇒
-        Id B (f₀ ∙ a₀) (f₁ ∙ a₁)))
+      (a₀ ＝ a₁) ⇒
+        (f₀ ∙ a₀ ＝ f₁ ∙ a₁)))
 
-{-# REWRITE Id′⇒ Id⇒ #-}
+{-# REWRITE Id′⇒ ＝⇒ #-}
 
 -- Note that apΛ⇒ requires a coercion compared to apΛ.
 postulate
