@@ -226,37 +226,6 @@ Id′-AP▸▸-reflᵉ B C f g h γ A a₀ a₁ = axiomK
 
 {-# REWRITE Id′-AP▸-reflᵉ Id′-AP-idmap▸-reflᵉ Id′-AP▸▸-reflᵉ #-}
 
--- We also need some more helper rules for rewriting AP, specifically
--- AP on _₀ and _₁ (so we are talking technically about squares
--- already, although that isn't evident here.  We need these because
--- _₀ and _₁ were defined by pattern-matching on their telescope
--- argument, rather than as a λ-abstraction whose head is ∷.  For some
--- reason, it's very slow if we try to define _₀ and _₁ as
--- λ-abstractions.  But we still want (AP _₀ δ) to reduce *as if* _₀
--- and _₁ had been defined that way, so we postulate it.
-postulate
-  AP-₀ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (ID (Δ ▸ A))) (γ : el (ID Γ)) →
-    AP (λ x → f x ₀) γ ≡
-    AP (λ x → pop (pop (pop (f x))) ₀) γ
-    ∷ top (pop (pop (f (γ ₀))))
-    ∷ top (pop (pop (f (γ ₁))))
-    ∷ ap (λ x → top (pop (pop (f x)))) γ
-  AP-₁ : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (ID (Δ ▸ A))) (γ : el (ID Γ)) →
-    AP (λ x → f x ₁) γ ≡
-    AP (λ x → pop (pop (pop (f x))) ₀) γ
-    ∷ top (pop (pop (f (γ ₀))))
-    ∷ top (pop (pop (f (γ ₁))))
-    ∷ ap (λ x → top (pop (pop (f x)))) γ
-
-{-# REWRITE AP-₀ AP-₁ #-}
-
--- Note that we compute (AP (λ x → f x ₀) γ) only if the codomain of f
--- is a ▸, and in that case the first component of the output is
--- another term of the same form but where the codomain of f is
--- smaller.  So by repeated application, we reduce to the case when
--- the codomain of f is either abstract (when the computation pauses)
--- or ε (in which case _₀ computes immediately to []).
-
 ------------------------------
 -- Functoriality of ap and AP
 ------------------------------
