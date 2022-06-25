@@ -14,8 +14,6 @@ In addition to `--rewriting` and `--two-level`, we of course have to use the fla
 
 We depend on several bug-fixes and enhancements to Agda that have not made it into a released version yet (they are slated for 2.6.3), so you will need to compile the development version of Agda.  Indeed, as of 6/24/2022 we depend on Agda pull request [5973](https://github.com/agda/agda/pull/5973) which has not even been merged to the master branch yet, so you should pull the `multiple-rewrite` branch instead.
 
-In addition, there is currently some strange behavior whereby certain files in the library hang or produce spurious errors when they are compiled as a dependency of another file, but complete fairly speedily when compiled on their own (after which point their interface can be loaded by another file without a problem).  Thus, although `HOTT.Everything` imports the entire library, it's not currently possible to just open that file and `C-c C-l` to load everything.  For command-line compilation there is a `Makefile` that compiles the problematic files individually and then proceeds to `Everything`.  As far as I know there is no similar solution for interactive use in Emacs, you have to manually load all the problematic files (see the list of such files in the Makefile) and `C-c C-l` them directly before proceeding to `Everything`.
-
 ## Use
 
 Once the library is complete, working in the HOTT fragment should hopefully be like ordinary (homotopical) Agda but with the added computing HOTT identity type.  The main difference is that we must restrict ourselves to the type and term formers whose HOTT behavior (computation laws for identity types and `ap`) has been defined in the library.
