@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K  #-}
 
 module HOTT.Copy.Base where
 
@@ -18,13 +18,12 @@ infixl 30 _↓
 -- in A.  Thus, it also has a constructor _↑ with inputs from A, with
 -- a β-rule but no η-rule.
 
-postulate
-  Copy : Type → Type
-  _↑ : {A : Type} → A → Copy A
-  _↓ : {A : Type} → Copy A → A
-  ↑↓ : {A : Type} (a : A) → a ↑ ↓ ≡ a
-
-{-# REWRITE ↑↓ #-}
+data Copy (A : Type) : Type where
+  _↑ : A → Copy A
+  
+-- Apparently this isn't projection-like, so we don't need --no-projection-like
+_↓ : {A : Type} → Copy A → A
+a ↑ ↓ = a
 
 postulate
   Id-Copy : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₀ : Copy (A (δ ₀))) (a₁ : Copy (A (δ ₁))) →

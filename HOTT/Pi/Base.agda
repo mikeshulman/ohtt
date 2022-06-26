@@ -11,21 +11,21 @@ open import HOTT.Refl
 -- Π-types
 --------------------
 
-postulate
-  Π : (A : Type) (B : A → Type) → Type
-  lamΠ : {A : Type} {B : A → Type} (f : (x : A) → B x) → Π A B
-  _⊙_ : {A : Type} {B : A → Type} (f : Π A B) (a : A) → B a
+data Π (A : Type) (B : A → Type) : Type where
+  lamΠ : (f : (x : A) → B x) → Π A B
 
 infixr 27 lamΠ
 syntax lamΠ (λ x → f) = Λ x ⇛ f
 
+_⊙_ : {A : Type} {B : A → Type} (f : Π A B) (a : A) → B a
+lamΠ f ⊙ a = f a
+
 infixl 30 _⊙_
 
 postulate
-  β⊙ : {A : Type} {B : A → Type} (f : (x : A) → B x) (a : A) → ((Λ x ⇛ f x) ⊙ a) ≡ f a
   ηΠ : {A : Type} {B : A → Type} (f : Π A B) → (Λ x ⇛ f ⊙ x) ≡ f
 
-{-# REWRITE β⊙ ηΠ #-}
+{-# REWRITE ηΠ #-}
 
 postulate
   IdΠ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)

@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --no-projection-like #-}
 
 module HOTT.Sigma.Base where
 
@@ -17,17 +17,11 @@ open Σ
 
 infix 30 _﹐_
 
-postulate
-  π₁ : {A : Type} {B : A → Type} → Σ A B → A
-  π₂ : {A : Type} {B : A → Type} (u : Σ A B) → B (π₁ u)
-  π₁β : {A : Type} {B : A → Type} (a : A) (b : B a) → π₁ {A} {B} (a ﹐ b) ≡ a
+π₁ : {A : Type} {B : A → Type} → Σ A B → A
+π₁ (a ﹐ b) = a
 
-{-# REWRITE π₁β #-}
-
-postulate
-  π₂β : {A : Type} {B : A → Type} (a : A) (b : B a) → π₂ {A} {B} (a ﹐ b) ≡ b
-
-{-# REWRITE π₂β #-}
+π₂ : {A : Type} {B : A → Type} (u : Σ A B) → B (π₁ u)
+π₂ (a ﹐ b) = b
 
 syntax Σ A (λ x → B) = Σ[ x ﹕ A ] B
 

@@ -17,23 +17,23 @@ open import HOTT.Pi.Base
 -- things are simpler in the non-dependent case, so it's worth having
 -- them defined separately.
 
-postulate
-  _⇒_ : Type → Type → Type
-  lam⇒ : {A B : Type} (f : A → B) → (A ⇒ B)
-  _∙_ : {A B : Type} (f : A ⇒ B) → A → B
+data _⇒_ (A B : Type) : Type where
+  lam⇒ : (f : A → B) → (A ⇒ B)
 
 infixr 30 _⇒_
 
 infixr 27 lam⇒
 syntax lam⇒ (λ x → f) = Λ x ⇒ f
 
+_∙_ : {A B : Type} (f : A ⇒ B) → A → B
+lam⇒ f ∙ a = f a
+
 infixl 30 _∙_
 
 postulate
-  β∙ : {A B : Type} (f : A → B) (a : A) → ((Λ x ⇒ f x) ∙ a) ≡ f a
   η⇒ : {A B : Type} (f : A ⇒ B) → (Λ x ⇒ f ∙ x) ≡ f
 
-{-# REWRITE β∙ η⇒ #-}
+{-# REWRITE η⇒ #-}
 
 -- Note, though, that the identity types of non-dependent function
 -- types require *dependent* function-types!  So unlike Prod, which is

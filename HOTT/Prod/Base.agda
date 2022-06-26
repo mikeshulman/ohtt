@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --no-projection-like #-}
 
 module HOTT.Prod.Base where
 
@@ -20,18 +20,20 @@ data _×_ (A B : Type) : Type where
 
 infix 30 _×_
 
+fst : {A : Type} {B : Type} → A × B → A
+fst (a , b) = a
+
+snd : {A : Type} {B : Type} → A × B → B
+snd (a , b) = b
+
 postulate
-  fst : {A : Type} {B : Type} → A × B → A
-  snd : {A : Type} {B : Type} → A × B → B
-  βfst : (A : Type) (B : Type) (a : A) (b : B) → fst (a , b) ≡ a
-  βsnd : (A : Type) (B : Type) (a : A) (b : B) → snd (a , b) ≡ b
   η, : (A : Type) (B : Type) (u : A × B) → (fst u , snd u) ≡ u
   ＝× : (A B : Type) (u v : A × B) →
     (u ＝ v) ≡ (fst u ＝ fst v) × (snd u ＝ snd v)
   Id× : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ)) (u : A (δ ₀) × B (δ ₀)) (v : A (δ ₁) × B (δ ₁)) →
     Id (λ w → A w × B w) δ u v ≡ Id A δ (fst u) (fst v) × Id B δ (snd u) (snd v)
 
-{-# REWRITE βfst βsnd η, ＝× Id× #-}
+{-# REWRITE η, ＝× Id× #-}
 
 postulate
   ap, : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ)) (f : (x : el Δ) → A x) (g : (x : el Δ) → B x) →
