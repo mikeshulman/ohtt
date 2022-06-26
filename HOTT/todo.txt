@@ -2,3 +2,5 @@
 - Universe stuff
 - ap-naturality for sym (two kinds?)
 - braid equation
+- why does Pi.Transport.Lift make Pi.Transport.Ulift slow?
+- why does Pi.Transport make Arrow.Transport slow?
