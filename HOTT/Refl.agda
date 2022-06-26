@@ -28,6 +28,8 @@ postulate
   Id-const : {Δ : Tel} (A : Type) (δ : el (ID Δ)) (a₀ a₁ : A) →
     Id {Δ} (λ _ → A) δ a₀ a₁ ≡ (a₀ ＝ a₁)
 
+infix 40 _＝_
+
 {-# REWRITE Id-const #-}
 
 -- Similarly, reflexivity is nullary ap, with the same caveat.

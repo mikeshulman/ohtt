@@ -15,7 +15,7 @@ data Σ (A : Type) (B : A → Type) : Type where
   _﹐_ : (a : A) → B a → Σ A B
 open Σ
 
-infix 30 _﹐_
+infixr 30 _﹐_ Σ
 
 π₁ : {A : Type} {B : A → Type} → Σ A B → A
 π₁ (a ﹐ b) = a
