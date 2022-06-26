@@ -11,26 +11,30 @@ open import HOTT.Refl
 -- Σ-types
 --------------------
 
-postulate
-  Σ : (A : Type) → (B : A → Type) → Type
-  _﹐_ : {A : Type} {B : A → Type} (a : A) → B a → Σ A B
-  π₁ : {A : Type} {B : A → Type} → Σ A B → A
-  π₂ : {A : Type} {B : A → Type} (u : Σ A B) → B (π₁ u)
+data Σ (A : Type) (B : A → Type) : Type where
+  _﹐_ : (a : A) → B a → Σ A B
+open Σ
 
 infix 30 _﹐_
+
+postulate
+  π₁ : {A : Type} {B : A → Type} → Σ A B → A
+  π₂ : {A : Type} {B : A → Type} (u : Σ A B) → B (π₁ u)
+  π₁β : {A : Type} {B : A → Type} (a : A) (b : B a) → π₁ {A} {B} (a ﹐ b) ≡ a
+
+{-# REWRITE π₁β #-}
+
+postulate
+  π₂β : {A : Type} {B : A → Type} (a : A) (b : B a) → π₂ {A} {B} (a ﹐ b) ≡ b
+
+{-# REWRITE π₂β #-}
 
 syntax Σ A (λ x → B) = Σ[ x ﹕ A ] B
 
 postulate
-  βπ₁ : (A : Type) (B : A → Type) (a : A) (b : B a) → π₁ {B = B} (a ﹐ b) ≡ a
-
-{-# REWRITE βπ₁ #-}
-
-postulate
-  βπ₂ : (A : Type) (B : A → Type) (a : A) (b : B a) → π₂ {B = B} (a ﹐ b) ≡ b
   η﹐ : (A : Type) (B : A → Type) (u : Σ A B) → (π₁ u ﹐ π₂ u) ≡ u
 
-{-# REWRITE βπ₂ η﹐ #-}
+{-# REWRITE η﹐ #-}
 
 postulate
   IdΣ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
@@ -50,10 +54,10 @@ postulate
     (ap f δ ﹐ ap g δ)
   refl﹐ : {A : Type} {B : A → Type} (a : A) (b : B a) →
     refl {Σ A B} (a ﹐ b) ≡ (refl a ﹐  refl b)
-  apπ₁ : {Δ : Tel} {A : el Δ → Type} {B : (w : el Δ) → A w → Type} (δ : el (ID Δ))
-    (u : (x : el Δ) → Σ (A x) (B x)) → ap (λ x → π₁ (u x)) δ ≡ π₁ (ap u δ)
+  apπ₁ : {Δ : Tel} {A : el Δ → Type} {B : (w : el Δ) → A w → Type} (δ : el (ID Δ)) (u : (x : el Δ) → Σ (A x) (B x)) →
+    ap (λ x → π₁ {A x} {λ y → B x y} (u x)) δ ≡ π₁ (ap u δ)
   reflπ₁ : {A : Type} {B : A → Type} (u : Σ A B) →
-    refl (π₁ u) ≡ π₁ (refl u)
+    refl (π₁ {A} {B} u) ≡ π₁ (refl u)
 
 {-# REWRITE ap﹐ refl﹐ apπ₁ reflπ₁ #-}
 

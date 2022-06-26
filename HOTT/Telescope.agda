@@ -46,7 +46,7 @@ el : Tel → Typeᵉ
 -- projections, since then Agda doesn't consider their argument to be
 -- bound by such a LHS pattern.
 
--- For similar reasons, we will later use postulates and rewrite rules
+-- For similar reasons, we will later use datatypes and rewrite rules
 -- for our actual type formers Σ, Π, etc.
 data Σᵉ (Δ : Tel) (B : el Δ → Type) : Typeᵉ where
 -- We name the constructor ∷ because we think of the

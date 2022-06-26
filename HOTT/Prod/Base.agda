@@ -15,15 +15,14 @@ open import HOTT.Refl
 -- things simplify in the non-dependent case, so I think it's worth
 -- defining them separately.
 
-postulate
-  _×_ : Type → Type → Type
-  _,_ : {A : Type} {B : Type} → A → B → A × B
-  fst : {A : Type} {B : Type} → A × B → A
-  snd : {A : Type} {B : Type} → A × B → B
+data _×_ (A B : Type) : Type where
+  _,_ : A → B → A × B
 
 infix 30 _×_
 
 postulate
+  fst : {A : Type} {B : Type} → A × B → A
+  snd : {A : Type} {B : Type} → A × B → B
   βfst : (A : Type) (B : Type) (a : A) (b : B) → fst (a , b) ≡ a
   βsnd : (A : Type) (B : Type) (a : A) (b : B) → snd (a , b) ≡ b
   η, : (A : Type) (B : Type) (u : A × B) → (fst u , snd u) ≡ u
