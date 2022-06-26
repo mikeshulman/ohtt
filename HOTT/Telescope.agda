@@ -29,9 +29,9 @@ el : Tel → Typeᵉ
 -- for this is explained in the comments to ap-top.  Thus, this sort
 -- of Σ-exotype also has to be defined mutually with Tel and el.
 
--- We make Σᵉ a postulate rather than a datatype because our
--- applications of rewrite rules don't work otherwise.  There are at
--- least two reasons for this:
+-- We make Σᵉ a datatype rather than a record because our applications
+-- of rewrite rules don't work otherwise.  There are at least two
+-- reasons for this:
 
 -- 1. Rewriting in Agda happens modulo eta-expansion for records.
 -- Thus, if Σᵉ were a record with constructor ∷, then every element of
