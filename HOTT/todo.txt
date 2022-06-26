@@ -1,5 +1,7 @@
 - compute sym on all types
 - Universe stuff
+- sum types
+- natural numbers
 - ap-naturality for sym (two kinds?)
 - braid equation
 - why does Pi.Transport.Lift make Pi.Transport.Ulift slow?

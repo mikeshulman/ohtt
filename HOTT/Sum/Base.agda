@@ -50,3 +50,48 @@ postulate
          (ω (δ ₀) ﹐ ω (δ ₁) ﹐ ap ω δ ﹐ u₀ ﹐ u₁)
 
 {-# REWRITE ＝sum Id-sum #-}
+
+postulate
+  refl-inl : (Ω : Type) {A B : Type} (α : A → Ω) (β : B → Ω) (a : A) →
+    refl (inl {Ω} {A} {B} {α} {β} a) ≡
+    inl {Ω = Σ[ x₀ ﹕ Ω ] Σ[ x₁ ﹕ Ω ] Σ[ x₂ ﹕ x₀ ＝ x₁ ] Σ[ s₀ ﹕ sum Ω α β x₀ ] sum Ω α β x₁}
+        {Σ[ a₀ ﹕ A ] Σ[ a₁ ﹕ A ] (a₀ ＝ a₁)} {Σ[ b₀ ﹕ B ] Σ[ b₁ ﹕ B ] (b₀ ＝ b₁)}
+        {α = λ a₁ → α (π₁ a₁) ﹐ α (π₁ (π₂ a₁)) ﹐
+                    ap (λ x → α (top x)) ([] ∷ π₁ a₁ ∷ π₁ (π₂ a₁) ∷ π₂ (π₂ a₁)) ﹐
+                    inl (π₁ a₁) ﹐ inl (π₁ (π₂ a₁))}
+        {β = λ b → β (π₁ b) ﹐ β (π₁ (π₂ b)) ﹐
+                   ap (λ x → β (top x)) ([] ∷ π₁ b ∷ π₁ (π₂ b) ∷ π₂ (π₂ b)) ﹐
+                   inr (π₁ b) ﹐ inr (π₁ (π₂ b))}
+        (a ﹐ a ﹐ refl a)
+  refl-inr : (Ω : Type) {A B : Type} (α : A → Ω) (β : B → Ω) (b : B) →
+    refl (inr {Ω} {A} {B} {α} {β} b) ≡
+    inr {Ω = Σ[ x₀ ﹕ Ω ] Σ[ x₁ ﹕ Ω ] Σ[ x₂ ﹕ x₀ ＝ x₁ ] Σ[ s₀ ﹕ sum Ω α β x₀ ] sum Ω α β x₁}
+        {Σ[ a₀ ﹕ A ] Σ[ a₁ ﹕ A ] (a₀ ＝ a₁)} {Σ[ b₀ ﹕ B ] Σ[ b₁ ﹕ B ] (b₀ ＝ b₁)}
+        {α = λ a₁ → α (π₁ a₁) ﹐ α (π₁ (π₂ a₁)) ﹐
+                    ap (λ x → α (top x)) ([] ∷ π₁ a₁ ∷ π₁ (π₂ a₁) ∷ π₂ (π₂ a₁)) ﹐
+                    inl (π₁ a₁) ﹐ inl (π₁ (π₂ a₁))}
+        {β = λ y → β (π₁ y) ﹐ β (π₁ (π₂ y)) ﹐
+                   ap (λ x → β (top x)) ([] ∷ π₁ y ∷ π₁ (π₂ y) ∷ π₂ (π₂ y)) ﹐
+                   inr (π₁ y) ﹐ inr (π₁ (π₂ y))}
+        (b ﹐ b ﹐ refl b)
+  refl-case : {Ω : Type} {A B : Type} {α : A → Ω} {β : B → Ω}
+    (ω : Ω) (s : sum Ω α β ω)
+    (C : (x : Ω) → sum Ω α β x → Type)
+    (f : (a : A) → C (α a) (inl a)) (g : (b : B) → C (β b) (inr b)) →
+    refl (case ω s C f g) ≡
+    case {Ω = Σ[ x₀ ﹕ Ω ] Σ[ x₁ ﹕ Ω ] Σ[ x₂ ﹕ x₀ ＝ x₁ ] Σ[ s₀ ﹕ sum Ω α β x₀ ] sum Ω α β x₁}
+        {Σ[ a₀ ﹕ A ] Σ[ a₁ ﹕ A ] (a₀ ＝ a₁)} {Σ[ b₀ ﹕ B ] Σ[ b₁ ﹕ B ] (b₀ ＝ b₁)}
+        {α = λ a₁ → α (π₁ a₁) ﹐ α (π₁ (π₂ a₁)) ﹐
+                    ap (λ x → α (top x)) ([] ∷ π₁ a₁ ∷ π₁ (π₂ a₁) ∷ π₂ (π₂ a₁)) ﹐
+                    inl (π₁ a₁) ﹐ inl (π₁ (π₂ a₁))}
+        {β = λ b → β (π₁ b) ﹐ β (π₁ (π₂ b)) ﹐
+                   ap (λ x → β (top x)) ([] ∷ π₁ b ∷ π₁ (π₂ b) ∷ π₂ (π₂ b)) ﹐
+                   inr (π₁ b) ﹐ inr (π₁ (π₂ b))}
+        (ω ﹐ ω ﹐ refl ω ﹐ s ﹐ s)
+        (refl s)
+        (λ x t → Id {ε ▸ (λ _ → Ω) ▸ (λ x → sum Ω α β (top x))} (λ y → C (top (pop y)) (top y))
+                    ([] ∷ π₁ x ∷ π₁ (π₂ x) ∷ π₁ (π₂ (π₂ x)) ∷ π₁ (π₂ (π₂ (π₂ x))) ∷ π₂ (π₂ (π₂ (π₂ x))) ∷ {!t!})
+                    (case (π₁ x) (π₁ (π₂ (π₂ (π₂ x)))) C f g) (case (π₁ (π₂ x)) (π₂ (π₂ (π₂ (π₂ x)))) C f g))
+        {!!} {!!}
+
+{-# REWRITE refl-inl refl-inr #-}
