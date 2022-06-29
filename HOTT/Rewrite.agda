@@ -30,6 +30,9 @@ reflᵉᵉ •ᵉ reflᵉᵉ = reflᵉᵉ
 rev : {A : Type} {a b : A} (p : a ≡ b) → b ≡ a
 rev reflᵉ = reflᵉ
 
+congᶠ : {A : Type} {B : Type} (f : A → B) {x y : A} (p : x ≡ y) → f x ≡ f y
+congᶠ f reflᵉ = reflᵉ
+
 cong : {A : Typeᵉ} {B : Type} (f : A → B) {x y : A} (p : x ≡ᵉ y) → f x ≡ f y
 cong f reflᵉᵉ = reflᵉ
 
