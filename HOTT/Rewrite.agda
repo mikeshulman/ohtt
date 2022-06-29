@@ -30,6 +30,9 @@ reflᵉᵉ •ᵉ reflᵉᵉ = reflᵉᵉ
 rev : {A : Type} {a b : A} (p : a ≡ b) → b ≡ a
 rev reflᵉ = reflᵉ
 
+congᶠ : {A : Type} {B : Type} (f : A → B) {x y : A} (p : x ≡ y) → f x ≡ f y
+congᶠ f reflᵉ = reflᵉ
+
 cong : {A : Typeᵉ} {B : Type} (f : A → B) {x y : A} (p : x ≡ᵉ y) → f x ≡ f y
 cong f reflᵉᵉ = reflᵉ
 
@@ -56,6 +59,14 @@ axiomK {p = reflᵉ} = reflᵉᵉ
 
 uip : {A : Type} {a b : A} {p q : a ≡ b} → p ≡ᵉ q
 uip {q = reflᵉ} = axiomK
+
+postulate
+  funext : {A : Type} {B : A → Type} {f g : (x : A) → B x} (p : (x : A) → f x ≡ g x) → f ≡ g
+  funext-refl : {A : Type} {B : A → Type} (f : (x : A) → B x) (p : (x : A) → f x ≡ f x) → funext p ≡ᵉ reflᵉ
+  funext-refl′ : {A : Type} {B : A → Type} (f : (x : A) → B x) →
+    funext {f = f} {g = f} (λ x → reflᵉ) ≡ᵉ reflᵉ
+
+{-# REWRITE funext-refl funext-refl′ #-}
 
 ------------------------------
 -- Heterogeneous equality
@@ -84,6 +95,11 @@ revʰ reflʰ = reflʰ
 
 scongʰ : {A : Type} {B : A → Type} (f : (x : A) → B x) {a a' : A} (e : a ≡ a') → f a ≡ʰ f a'
 scongʰ f reflᵉ = reflʰ
+
+scongʰ′ : {A : Type} {B C : A → Type} (f : (x : A) → B x → C x)
+  {a₀ a₁ : A} (a₂ : a₀ ≡ a₁) {b₀ : B a₀} {b₁ : B a₁} (b₂ : b₀ ≡ʰ b₁) →
+  f a₀ b₀ ≡ʰ f a₁ b₁
+scongʰ′ f reflᵉ reflʰ = reflʰ
 
 scong2ʰ : {A B : Type} {C : A → B → Type} (f : (x : A) (y : B) → C x y)
   {a a' : A} (u : a ≡ a') {b b' : B} (v : b ≡ b') → f a b ≡ʰ f a' b'

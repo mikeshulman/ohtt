@@ -28,7 +28,7 @@ syntax lam⇒ (λ x → f) = Λ x ⇒ f
 _∙_ : {A B : Type} (f : A ⇒ B) → A → B
 lam⇒ f ∙ a = f a
 
-infixl 30 _∙_
+infixl 50 _∙_
 
 postulate
   η⇒ : {A B : Type} (f : A ⇒ B) → (Λ x ⇒ f ∙ x) ≡ f

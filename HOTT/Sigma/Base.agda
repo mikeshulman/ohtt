@@ -68,3 +68,17 @@ postulate
           (π₂ (refl u))
 
 {-# REWRITE apπ₂ reflπ₂ #-}
+
+-- Some heterogeneous congruences
+
+π₁≡ʰ : {A₀ A₁ : Type} (A₂ : A₀ ≡ A₁)
+  {B₀ : A₀ → Type} {B₁ : A₁ → Type} (B₂ : B₀ ≡ʰ B₁)
+  {u₀ : Σ A₀ B₀} {u₁ : Σ A₁ B₁} (u₂ : u₀ ≡ʰ u₁) →
+  π₁ u₀ ≡ʰ π₁ u₁
+π₁≡ʰ reflᵉ reflʰ reflʰ = reflʰ
+
+π₂≡ʰ : {A₀ A₁ : Type} (A₂ : A₀ ≡ A₁)
+  {B₀ : A₀ → Type} {B₁ : A₁ → Type} (B₂ : B₀ ≡ʰ B₁)
+  {u₀ : Σ A₀ B₀} {u₁ : Σ A₁ B₁} (u₂ : u₀ ≡ʰ u₁) →
+  π₂ u₀ ≡ʰ π₂ u₁
+π₂≡ʰ reflᵉ reflʰ reflʰ = reflʰ

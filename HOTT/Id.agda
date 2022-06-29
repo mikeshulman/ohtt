@@ -98,8 +98,38 @@ postulate
   AP-idmap : {Δ : Tel} (δ : el (ID Δ)) → AP {Δ} {Δ} (λ w → w) δ ≡ᵉ δ
   AP-pop : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
     AP (λ x → pop (f x)) γ ≡ᵉ pop (pop (pop (AP f γ)))
-  Id-AP : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (A : el Δ → Type) (a₀ : A (f (γ ₀))) (a₁ : A (f (γ ₁))) →
-    Id A (AP f γ) a₀ a₁ ≡ Id (λ w → A (f w)) γ a₀ a₁
+  Id-AP′ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (A : el Δ → Type) →
+    Id A (AP f γ) ≡ Id (λ w → A (f w)) γ
+
+Id-AP : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (A : el Δ → Type)
+  (a₀ : A (f (γ ₀))) (a₁ : A (f (γ ₁))) →
+  Id A (AP f γ) a₀ a₁ ≡ Id (λ w → A (f w)) γ a₀ a₁
+Id-AP f γ A a₀ a₁ = congᶠ (λ X → X a₀ a₁) (Id-AP′ f γ A)
+
+{-# REWRITE AP-idmap AP-pop Id-AP #-}
+
+-- TODO: Moved these up here
+postulate
+  pop-pop-pop₀ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID (Δ ▸ A))) →
+    (pop (pop (pop δ)))₀ ≡ᵉ pop (δ ₀)
+  pop-pop-pop₁ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID (Δ ▸ A))) →
+    (pop (pop (pop δ)))₁ ≡ᵉ pop (δ ₁)
+
+{-# REWRITE pop-pop-pop₀ pop-pop-pop₁ #-}
+
+postulate
+  top-pop-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
+    top (pop (pop (AP f γ))) ≡ top (f (γ ₀))
+  top-pop-AP : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
+    top (pop (AP f γ)) ≡ top (f (γ ₁))
+
+{-# REWRITE top-pop-pop-AP top-pop-AP #-}
+
+postulate
+  ap-top : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
+    ap (λ x → top (f x)) γ ≡
+    coe→ (Id-AP (λ z → pop (f z)) γ A (top (f (γ ₀))) (top (f (γ ₁))))
+         (top (AP f γ))
 
 -- Of these, AP-pop and AP-idmap are "real" computation rules, which
 -- are 2/3 of how we specify the behavior of AP on our De Bruijn
@@ -125,8 +155,6 @@ postulate
 -- too, since AP is volatile and might be reduced to something that
 -- Agda can't un-rewrite in order to match; thus we have to either
 -- coerce explicitly or use additional rewrite lemmas.
-
-{-# REWRITE AP-idmap AP-pop Id-AP #-}
 
 -- Having Id-AP as a rewrite is at least sufficient for us to be able
 -- to "define" AP without any coercions.
@@ -175,9 +203,9 @@ Id-pop←≡ {Δ} A B δ {b₀} {b₁} b₂ {a₀} {a₁} a₂ = coe←≡ʰ (Id
 -- normalized.  This is consistent because on concrete types, Id-AP
 -- should hold definitionally.
 
-Id-AP-reflᵉ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (A : el Δ → Type) (a₀ : A (f (γ ₀))) (a₁ : A (f (γ ₁))) →
-  Id-AP f γ A a₀ a₁ ≡ᵉ reflᵉ
-Id-AP-reflᵉ f γ A a₀ a₁ = axiomK
+Id-AP-reflᵉ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (A : el Δ → Type) →
+  Id-AP′ f γ A ≡ᵉ reflᵉ
+Id-AP-reflᵉ f γ A = axiomK
 
 {-# REWRITE Id-AP-reflᵉ #-}
 
@@ -273,6 +301,7 @@ postulate
 -- concrete terms, and are enforced to hold also for neutral terms by
 -- rewrites.
 
+{-
 postulate
   pop-pop-pop₀ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID (Δ ▸ A))) →
     (pop (pop (pop δ)))₀ ≡ᵉ pop (δ ₀)
@@ -289,6 +318,7 @@ postulate
     top (pop (AP f γ)) ≡ top (f (γ ₁))
 
 {-# REWRITE top-pop-pop-AP top-pop-AP #-}
+-}
 
 -- We also need a specialized version of Id on pop.
 postulate
@@ -298,12 +328,14 @@ postulate
 
 {-# REWRITE Id-AP-pop³-AP #-}
 
+{-
 -- Finally, we can postulate ap-top.
 postulate
   ap-top : {Γ Δ : Tel} (A : el Δ → Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
     ap (λ x → top (f x)) γ ≡ top (AP f γ) 
 
 {-# REWRITE ap-top #-}
+-}
 
 -- Now we can explain why the first argument of Σᵉ is a Tel rather
 -- than a Typeᵉ: it enables ap-top to fire as a rewrite rule.  Look at
@@ -331,3 +363,4 @@ postulate
 
 -- Note that we don't have rules for computing ap-top on "dependent
 -- telescopes".  Hopefully this won't ever occur.
+

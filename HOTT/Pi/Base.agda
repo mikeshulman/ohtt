@@ -20,7 +20,7 @@ syntax lamΠ (λ x → f) = Λ x ⇛ f
 _⊙_ : {A : Type} {B : A → Type} (f : Π A B) (a : A) → B a
 lamΠ f ⊙ a = f a
 
-infixl 30 _⊙_
+infixl 50 _⊙_
 
 postulate
   ηΠ : {A : Type} {B : A → Type} (f : Π A B) → (Λ x ⇛ f ⊙ x) ≡ f
