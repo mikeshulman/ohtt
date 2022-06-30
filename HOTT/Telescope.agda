@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --no-projection-like #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --cumulativity #-}
 
 module HOTT.Telescope where
 
@@ -49,21 +49,24 @@ el : Tel → Typeᵉ
 -- For similar reasons, we will later use datatypes and rewrite rules
 -- for our actual type formers Σ, Π, etc.
 
-data _→Type (Δ : Tel) : Typeᵉ where
-  lam-Tel : (el Δ → Type) → (Δ →Type)
+data _⇨_ (Δ : Tel) (T : Typeᵉ) : Typeᵉ where
+  lam-Tel : (el Δ → T) → (Δ ⇨ T)
 
 infix 30 lam-Tel
-infix 40 _⊘_
+infix 40 _⊚_ _⊘_
 
-syntax lam-Tel (λ x → B) = Λ x ⇒ B
+syntax lam-Tel (λ x → B) = Λ x ⇨ B
 
-_⊘_ : {Δ : Tel} (B : Δ →Type) (x : el Δ) → Type
+_⊘_ : {Δ : Tel} {T : Typeᵉ} (B : Δ ⇨ T) (x : el Δ) → T
 (lam-Tel B) ⊘ x = B x
 
 postulate
+  _⊚_ : {Γ Δ : Tel} {T : Typeᵉ} (g : Δ ⇨ T) (f : Γ ⇨ el Δ) : (Γ ⇨ T)
+  ⊚⊘ : {Γ Δ : Tel} {T : Typeᵉ} (g : Δ ⇨ T) (f : Γ ⇨ el Δ) (x : el Γ) →
+    (g ⊚ f) ⊘ x ≡ g ⊘ (f ⊘ x)
   lam-Tel-η : {Δ : Tel} (A : Δ →Type) → (Λ x ⇒ A ⊘ x) ≡ᵉ A
 
-{-# REWRITE lam-Tel-η #-}
+{-# REWRITE lam-Tel-η ⊚⊘ #-}
 
 data _▹_ (Δ : Tel) (B : Δ →Type) : Typeᵉ where
 -- We name the constructor ∷ because we think of the
