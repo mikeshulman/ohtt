@@ -32,21 +32,23 @@ postulate
   SYM₀₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁ ₀ ≡ᵉ δ ₁₀
   SYM₁₀ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₀ ₁ ≡ᵉ δ ₀₁
   SYM₁₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁ ₁ ≡ᵉ δ ₁₁
-  SYM₀₂ : {Δ : Tel} (δ : el (SQ Δ)) → AP _₀ (SYM Δ δ) ≡ᵉ δ ₂₀
-  SYM₁₂ : {Δ : Tel} (δ : el (SQ Δ)) → AP _₁ (SYM Δ δ) ≡ᵉ δ ₂₁
+  SYM₀₂ : {Δ : Tel} (δ : el (SQ Δ)) → AP Λ₀ (SYM Δ δ) ≡ᵉ δ ₂₀
+  SYM₁₂ : {Δ : Tel} (δ : el (SQ Δ)) → AP Λ₁ (SYM Δ δ) ≡ᵉ δ ₂₁
   SYM₂₀ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₀ ≡ᵉ δ ₀₂
   SYM₂₁ : {Δ : Tel} (δ : el (SQ Δ)) → (SYM Δ δ) ₁ ≡ᵉ δ ₁₂
 
 {-# REWRITE SYM₀₀ SYM₀₁ SYM₁₀ SYM₁₁ SYM₀₂ SYM₂₀ SYM₁₂ SYM₂₁ #-}
 
+{-
 -- Some more useful variants of Id-AP.
 postulate
-  Id-AP-₂₀-SYM : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ)) {a₀₀ : A (δ ₀₀)} {a₁₀ : A (δ ₁₀)} →
-    Id A (δ ₂₀) a₀₀ a₁₀ ≡ Id (λ x → A (x ₀)) (SYM Δ δ) a₀₀ a₁₀
-  Id-AP-₂₁-SYM : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ)) {a₀₁ : A (δ ₀₁)} {a₁₁ : A (δ ₁₁)} →
-    Id A (δ ₂₁) a₀₁ a₁₁ ≡ Id (λ x → A (x ₁)) (SYM Δ δ) a₀₁ a₁₁
+  Id-AP-₂₀-SYM : {Δ : Tel} (A : Δ →Type) (δ : el (SQ Δ)) {a₀₀ : A ⊘ (δ ₀₀)} {a₁₀ : A ⊘ (δ ₁₀)} →
+    Id A (δ ₂₀) a₀₀ a₁₀ ≡ Id (A ⊚ Λ₀) (SYM Δ δ) a₀₀ a₁₀
+  Id-AP-₂₁-SYM : {Δ : Tel} (A : Δ →Type) (δ : el (SQ Δ)) {a₀₁ : A ⊘ (δ ₀₁)} {a₁₁ : A ⊘ (δ ₁₁)} →
+    Id A (δ ₂₁) a₀₁ a₁₁ ≡ Id (A ⊚ Λ₁) (SYM Δ δ) a₀₁ a₁₁
 
 {-# REWRITE Id-AP-₂₀-SYM Id-AP-₂₁-SYM #-}
+-}
 
 ----------------------------------------
 -- Symmetry for types
@@ -60,68 +62,52 @@ postulate
 -- output a square over δ'.  With this in mind, we wrap up some
 -- necessary coercions for the boundaries into lemmas.
 
-sym₀₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ)) {δ' : el (SQ Δ)} (ϕ : δ' ≡ᵉ SYM Δ δ)
-  {a₀₀ : A (δ ₀₀)} {a₁₀ : A (δ ₁₀)} (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀) →
-  Id₀₂ A δ' (coe← (cong (λ x → A (x ₀₀)) ϕ) a₀₀) (coe← (cong (λ x → A (x ₀₁)) ϕ) a₁₀)
-sym₀₂ A δ ϕ {a₀₀} {a₁₀} a₂₀ =
-  coe← (Id≡ (λ x → A (x ₀)) ϕ (coe←≡ʰ (cong (λ x → A (x ₀₀)) ϕ) a₀₀) (coe←≡ʰ (cong (λ x → A (x ₀₁)) ϕ) a₁₀)) a₂₀
+sym₀₂ : {Δ : Tel} (A : Δ →Type) (δ : el (SQ Δ)) {δ' : el (SQ Δ)} (ϕ : δ' ≡ᵉ SYM Δ δ)
+  {a₀₀ : A ⊘ (δ ₀₀)} {a₁₀ : A ⊘ (δ ₁₀)} (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀) →
+  Id A (δ' ₀₂) (coe← (cong (λ x → A ⊘ (x ₀₀)) ϕ) a₀₀) (coe← (cong (λ x → A ⊘ (x ₀₁)) ϕ) a₁₀)
+sym₀₂ A δ reflᵉᵉ {a₀₀} {a₁₀} a₂₀ = a₂₀
 
-sym₁₂ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ)) {δ' : el (SQ Δ)} (ϕ : δ' ≡ᵉ SYM Δ δ)
-  {a₀₀ : A (δ ₀₀)} {a₁₀ : A (δ ₁₀)} (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀)
-  {a₀₁ : A (δ ₀₁)} {a₁₁ : A (δ ₁₁)} (a₂₁ : Id A (δ ₂₁) a₀₁ a₁₁) →
-  Id₁₂ A δ' (sym₀₂ A δ ϕ a₂₀) (coe← (cong (λ x → A (x ₁₀)) ϕ) a₀₁) (coe← (cong (λ x → A (x ₁₁)) ϕ) a₁₁)
-sym₁₂ {Δ} A δ {δ'} ϕ {a₀₀} {a₁₀} a₂₀ {a₀₁} {a₁₁} a₂₁ =
-  coe← (rev (Id-AP {ID Δ ▸ (λ x → A (x ₀))} (λ x → pop x)
-                    (δ' ∷ coe← (cong (λ x → A (x ₀₀)) ϕ) a₀₀ ∷ coe← (cong (λ x → A (x ₀₁)) ϕ) a₁₀ ∷
-                      coe← (Id≡ (λ x → A (x ₀)) ϕ (coe←≡ʰ (cong (λ x → A (x ₀₀)) ϕ) a₀₀) (coe←≡ʰ (cong (λ x → A (x ₀₁)) ϕ) a₁₀)) a₂₀)
-                    (λ x → A (x ₁))
-                    (coe← (cong (λ x → A (x ₁₀)) ϕ) a₀₁)
-                    (coe← (cong (λ x → A (x ₁₁)) ϕ) a₁₁))
-            • Id≡ (λ x → A (x ₁)) ϕ (coe←≡ʰ (cong (λ x → A (x ₁₀)) ϕ) a₀₁) (coe←≡ʰ (cong (λ x → A (x ₁₁)) ϕ) a₁₁))
-        a₂₁
+sym₁₂ : {Δ : Tel} (A : Δ →Type) (δ : el (SQ Δ)) {δ' : el (SQ Δ)} (ϕ : δ' ≡ᵉ SYM Δ δ)
+  {a₀₁ : A ⊘ (δ ₀₁)} {a₁₁ : A ⊘ (δ ₁₁)} (a₂₁ : Id A (δ ₂₁) a₀₁ a₁₁) →
+  Id A (δ' ₁₂) (coe← (cong (λ x → A ⊘ (x ₁₀)) ϕ) a₀₁) (coe← (cong (λ x → A ⊘ (x ₁₁)) ϕ) a₁₁)
+sym₁₂ {Δ} A δ reflᵉᵉ {a₀₁} {a₁₁} a₂₁ = a₂₁
 
-sym₂₀ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ)) {δ' : el (SQ Δ)} (ϕ : δ' ≡ᵉ SYM Δ δ)
-  {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id₀₂ A δ a₀₀ a₀₁) →
-  Id (λ x → A (x ₀)) (SYM Δ δ') (coe← (cong (λ x → A (x ₀₀)) ϕ) a₀₀) (coe← (cong (λ x → A (x ₁₀)) ϕ) a₀₁)
-sym₂₀ {Δ} A δ ϕ {a₀₀} {a₀₁} a₀₂ = coe← (Id≡ (λ x → A (x ₀)) (congᵉ (SYM Δ) ϕ) (coe←≡ʰ (cong (λ x → A (x ₀₀)) ϕ) a₀₀) (coe←≡ʰ (cong (λ x → A (x ₁₀)) ϕ) a₀₁)) a₀₂
+sym₂₀ : {Δ : Tel} (A : Δ →Type) (δ : el (SQ Δ)) {δ' : el (SQ Δ)} (ϕ : δ' ≡ᵉ SYM Δ δ)
+  {a₀₀ : A ⊘ (δ ₀₀)} {a₀₁ : A ⊘ (δ ₀₁)} (a₀₂ : Id A (δ ₀₂) a₀₀ a₀₁) →
+  Id A (δ' ₂₀) (coe← (cong (λ x → A ⊘ (x ₀₀)) ϕ) a₀₀) (coe← (cong (λ x → A ⊘ (x ₁₀)) ϕ) a₀₁)
+sym₂₀ {Δ} A δ reflᵉᵉ {a₀₀} {a₀₁} a₀₂ = a₀₂
 
-sym₂₁ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ)) {δ' : el (SQ Δ)} (ϕ : δ' ≡ᵉ SYM Δ δ)
-  {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id₀₂ A δ a₀₀ a₀₁)
-  {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id₁₂ A δ a₀₂ a₁₀ a₁₁) →
-  Id (λ x → A (x ₁)) (SYM Δ δ') (coe← (cong (λ x → A (x ₀₁)) ϕ) a₁₀) (coe← (cong (λ x → A (x ₁₁)) ϕ) a₁₁)
-sym₂₁ {Δ} A δ ϕ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ =
-  coe← (Id≡ (λ x → A (x ₁)) (congᵉ (SYM Δ) ϕ) (coe←≡ʰ (cong (λ x → A (x ₀₁)) ϕ) a₁₀) (coe←≡ʰ (cong (λ x → A (x ₁₁)) ϕ) a₁₁) •
-       Id-AP (pop {ID Δ} {λ x → A (x ₀)}) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) (λ x → A (x ₁)) a₁₀ a₁₁) a₁₂
+sym₂₁ : {Δ : Tel} (A : Δ →Type) (δ : el (SQ Δ)) {δ' : el (SQ Δ)} (ϕ : δ' ≡ᵉ SYM Δ δ)
+  {a₁₀ : A ⊘ (δ ₁₀)} {a₁₁ : A ⊘ (δ ₁₁)} (a₁₂ : Id A (δ ₁₂) a₁₀ a₁₁) →
+  Id A (δ' ₂₁) (coe← (cong (λ x → A ⊘ (x ₀₁)) ϕ) a₁₀) (coe← (cong (λ x → A ⊘ (x ₁₁)) ϕ) a₁₁)
+sym₂₁ {Δ} A δ reflᵉᵉ {a₁₀} {a₁₁} a₁₂ = a₁₂
 
 -- Now we can postulate this generalized version of symmetry, which we
 -- call sym′.
 postulate
-  sym′ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
-    {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id₀₂ A δ a₀₀ a₀₁)
-    {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id₁₂ A δ a₀₂ a₁₀ a₁₁)
+  sym′ : {Δ : Tel} (A : Δ →Type) (δ : el (SQ Δ))
+    {a₀₀ : A ⊘ (δ ₀₀)} {a₀₁ : A ⊘ (δ ₀₁)} (a₀₂ : Id A (δ ₀₂) a₀₀ a₀₁)
+    {a₁₀ : A ⊘ (δ ₁₀)} {a₁₁ : A ⊘ (δ ₁₁)} (a₁₂ : Id A (δ ₁₂) a₁₀ a₁₁)
     (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id A (δ ₂₁) a₀₁ a₁₁) →
     {δ' : el (SQ Δ)} (ϕ : δ' ≡ᵉ SYM Δ δ)
     (a₂₂ : Sq A δ a₀₂ a₁₂ a₂₀ a₂₁) →
     Sq A δ'
-      {coe← (cong (λ x → A (x ₀₀)) ϕ) a₀₀}
-      {coe← (cong (λ x → A (x ₀₁)) ϕ) a₁₀}
+      {coe← (cong (λ x → A ⊘ (x ₀₀)) ϕ) a₀₀}
+      {coe← (cong (λ x → A ⊘ (x ₀₁)) ϕ) a₁₀}
       (sym₀₂ A δ ϕ a₂₀)
-      {coe← (cong (λ x → A (x ₁₀)) ϕ) a₀₁}
-      {coe← (cong (λ x → A (x ₁₁)) ϕ) a₁₁}
-      (sym₁₂ A δ ϕ a₂₀ a₂₁)
+      {coe← (cong (λ x → A ⊘ (x ₁₀)) ϕ) a₀₁}
+      {coe← (cong (λ x → A ⊘ (x ₁₁)) ϕ) a₁₁}
+      (sym₁₂ A δ ϕ a₂₁)
       (sym₂₀ A δ ϕ a₀₂)
-      (sym₂₁ A δ ϕ a₀₂ a₁₂)
+      (sym₂₁ A δ ϕ a₁₂)
 
 -- The simpler version of symmetry is defined from this.
-sym : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
-  {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id₀₂ A δ a₀₀ a₀₁)
-  {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id₁₂ A δ a₀₂ a₁₀ a₁₁)
+sym : {Δ : Tel} (A : Δ →Type) (δ : el (SQ Δ))
+  {a₀₀ : A ⊘ (δ ₀₀)} {a₀₁ : A ⊘ (δ ₀₁)} (a₀₂ : Id A (δ ₀₂) a₀₀ a₀₁)
+  {a₁₀ : A ⊘ (δ ₁₀)} {a₁₁ : A ⊘ (δ ₁₁)} (a₁₂ : Id A (δ ₁₂) a₁₀ a₁₁)
   (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id A (δ ₂₁) a₀₁ a₁₁)
   (a₂₂ : Sq A δ a₀₂ a₁₂ a₂₀ a₂₁) →
-  Sq A (SYM Δ δ)
-    {a₀₀} {a₁₀} a₂₀
-    {a₀₁} {a₁₁} (Id-pop→ (λ x → A (x ₁)) (λ w → A (w ₀)) (SYM Δ δ) a₂₀ a₂₁)
-    a₀₂ (Id-pop← (λ x → A (x ₁)) (λ w → A (w ₀)) δ a₀₂ a₁₂)
+  Sq A (SYM Δ δ) {a₀₀} {a₁₀} a₂₀ {a₀₁} {a₁₁} a₂₁ a₀₂ a₁₂
 sym {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ a₂₂ =
   sym′ A δ a₀₂ a₁₂ a₂₀ a₂₁ reflᵉᵉ a₂₂
 
@@ -129,16 +115,13 @@ sym {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a�
 -- SQ, transposing and applying symmetry, and recomposing again.
 postulate
   SYMε : (δ : el (SQ ε)) → SYM ε δ ≡ᵉ []
-  SYM▸ : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
-    {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id₀₂ A δ a₀₀ a₀₁)
-    {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id₁₂ A δ a₀₂ a₁₀ a₁₁)
+  SYM▸ : {Δ : Tel} (A : Δ →Type) (δ : el (SQ Δ))
+    {a₀₀ : A ⊘ (δ ₀₀)} {a₀₁ : A ⊘ (δ ₀₁)} (a₀₂ : Id A (δ ₀₂) a₀₀ a₀₁)
+    {a₁₀ : A ⊘ (δ ₁₀)} {a₁₁ : A ⊘ (δ ₁₁)} (a₁₂ : Id A (δ ₁₂) a₁₀ a₁₁)
     (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id A (δ ₂₁) a₀₁ a₁₁) →
     (a₂₂ : Sq A δ a₀₂ a₁₂ a₂₀ a₂₁) →
       SYM (Δ ▸ A) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) ≡ᵉ
-        SYM Δ δ
-        ∷ a₀₀ ∷ a₁₀ ∷ a₂₀
-        ∷ a₀₁ ∷ a₁₁ ∷ (Id-pop→ (λ x → A (x ₁)) (λ w → A (w ₀)) (SYM Δ δ) a₂₀ a₂₁)
-        ∷ a₀₂ ∷ (Id-pop← (λ x → A (x ₁)) (λ w → A (w ₀)) δ a₀₂ a₁₂)
+      SYM Δ δ ∷ a₀₀ ∷ a₁₀ ∷ a₂₀ ∷ a₀₁ ∷ a₁₁ ∷ a₂₁ ∷ a₀₂ ∷ a₁₂
         ∷ sym A δ a₀₂ a₁₂ a₂₀ a₂₁ a₂₂
 
 {-# REWRITE SYMε SYM▸ #-}
@@ -163,52 +146,32 @@ postulate
 -- rewrite will fire.  In practice, I expect that ϕ will always be
 -- refl, so that all the nasty coercions will reduce away.
 
+sym₂₂ : {Δ : Tel} (A : Δ →Type) (δ : el (SQ Δ))
+  {a₀₀ : A ⊘ (δ ₀₀)} {a₀₁ : A ⊘ (δ ₀₁)} (a₀₂ : Id A (δ ₀₂) a₀₀ a₀₁)
+  {a₁₀ : A ⊘ (δ ₁₀)} {a₁₁ : A ⊘ (δ ₁₁)} (a₁₂ : Id A (δ ₁₂) a₁₀ a₁₁)
+  (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id A (δ ₂₁) a₀₁ a₁₁)
+  {δ' : el (SQ Δ)} (ϕ : δ' ≡ᵉ SYM Δ δ)
+  {δ'' : el (SQ Δ)} (ϕ' : δ'' ≡ᵉ SYM Δ δ')
+  (a₂₂ : Sq A δ a₀₂ a₁₂ a₂₀ a₂₁) →
+  Sq A δ''
+    {coe← (cong (λ x → A ⊘ (x ₀₀)) ϕ') (coe← (cong (λ x → A ⊘ (x ₀₀)) ϕ) a₀₀)}
+    {coe← (cong (λ x → A ⊘ (x ₀₁)) ϕ') (coe← (cong (λ x → A ⊘ (x ₁₀)) ϕ) a₀₁)}
+    (sym₀₂ A δ' ϕ' (sym₂₀ A δ ϕ a₀₂))
+    {coe← (cong (λ x → A ⊘ (x ₁₀)) ϕ') (coe← (cong (λ x → A ⊘ (x ₀₁)) ϕ) a₁₀)}
+    {coe← (cong (λ x → A ⊘ (x ₁₁)) ϕ') (coe← (cong (λ x → A ⊘ (x ₁₁)) ϕ) a₁₁)}
+    (sym₁₂ A δ' ϕ' (sym₂₁ A δ ϕ a₁₂))
+    (sym₂₀ A δ' ϕ' (sym₀₂ A δ ϕ a₂₀))
+    (sym₂₁ A δ' ϕ' (sym₁₂ A δ ϕ a₂₁))
+sym₂₂ A δ a₀₂ a₁₂ a₂₀ a₂₁ reflᵉᵉ reflᵉᵉ a₂₂ = a₂₂
+
 postulate
-  sym-sym : {Δ : Tel} (A : el Δ → Type) (δ : el (SQ Δ))
-    {a₀₀ : A (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id₀₂ A δ a₀₀ a₀₁)
-    {a₁₀ : A (δ ₁₀)} {a₁₁ : A (δ ₁₁)} (a₁₂ : Id₁₂ A δ a₀₂ a₁₀ a₁₁)
+  sym-sym : {Δ : Tel} (A : Δ →Type) (δ : el (SQ Δ))
+    {a₀₀ : A ⊘ (δ ₀₀)} {a₀₁ : A ⊘ (δ ₀₁)} (a₀₂ : Id A (δ ₀₂) a₀₀ a₀₁)
+    {a₁₀ : A ⊘ (δ ₁₀)} {a₁₁ : A ⊘ (δ ₁₁)} (a₁₂ : Id A (δ ₁₂) a₁₀ a₁₁)
     (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id A (δ ₂₁) a₀₁ a₁₁)
     {δ' : el (SQ Δ)} (ϕ : δ' ≡ᵉ SYM Δ δ)
     {δ'' : el (SQ Δ)} (ϕ' : δ'' ≡ᵉ SYM Δ δ')
     (a₂₂ : Sq A δ a₀₂ a₁₂ a₂₀ a₂₁) →
-    sym′ A δ' (sym₀₂ A δ ϕ a₂₀) (sym₁₂ A δ ϕ a₂₀ a₂₁) (sym₂₀ A δ ϕ a₀₂) (sym₂₁ A δ ϕ a₀₂ a₁₂) ϕ' (sym′ A δ a₀₂ a₁₂ a₂₀ a₂₁ ϕ a₂₂) ≡
-       coe← (Sq≡ A (ϕ' •ᵉ (congᵉ (SYM Δ) ϕ))
-             -- Do I seriously have to write out all these arguments?
-             -- Can't Agda notice these things are double coercions?
-             (coe←←≡ʰ (cong (λ x → A (x ₀₀)) ϕ') (cong (λ x → A (x ₀₀)) ϕ) a₀₀)
-             (coe←←≡ʰ (cong (λ x → A (x ₀₁)) ϕ') (cong (λ x → A (x ₁₀)) ϕ) a₀₁)
-             {a₀₂' = a₀₂}
-             (coe←←≡ʰ (Id≡ (λ x → A (x ₀)) ϕ' (coe←≡ʰ (cong (λ x → A (x ₀₀)) ϕ') _) (coe←≡ʰ (cong (λ x → A (x ₀₁)) ϕ') _))
-                      (Id≡ (λ x → A (x ₀)) (congᵉ (SYM Δ) ϕ) (coe←≡ʰ (cong (λ x → A (x ₀₀)) ϕ) a₀₀) (coe←≡ʰ (cong (λ x → A (x ₁₀)) ϕ) a₀₁))
-                      a₀₂)
-             (coe←←≡ʰ (cong (λ x → A (x ₁₀)) ϕ') (cong (λ x → A (x ₀₁)) ϕ) a₁₀)
-             (coe←←≡ʰ (cong (λ x → A (x ₁₁)) ϕ') (cong (λ x → A (x ₁₁)) ϕ) a₁₁)
-             {a₁₂' = a₁₂}
-             (coe←←≡ʰ (rev (Id-AP {ID Δ ▸ (λ x → A (x ₀))} (λ x → pop x)
-                    (δ'' ∷ coe← (cong (λ x → A (x ₀₀)) ϕ') _ ∷ coe← (cong (λ x → A (x ₀₁)) ϕ') _ ∷
-                      coe← (Id≡ (λ x → A (x ₀)) ϕ' (coe←≡ʰ (cong (λ x → A (x ₀₀)) ϕ') _) (coe←≡ʰ (cong (λ x → A (x ₀₁)) ϕ') _)) _)
-                    (λ x → A (x ₁))
-                    (coe← (cong (λ x → A (x ₁₀)) ϕ') _)
-                    (coe← (cong (λ x → A (x ₁₁)) ϕ') _))
-                      • Id≡ (λ x → A (x ₁)) ϕ' (coe←≡ʰ (cong (λ x → A (x ₁₀)) ϕ') _) (coe←≡ʰ (cong (λ x → A (x ₁₁)) ϕ') _))
-                    (Id≡ (λ x → A (x ₁)) (congᵉ (SYM Δ) ϕ) (coe←≡ʰ (cong (λ x → A (x ₀₁)) ϕ) a₁₀) (coe←≡ʰ (cong (λ x → A (x ₁₁)) ϕ) a₁₁) •
-                    Id-AP (pop {ID Δ} {λ x → A (x ₀)}) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) (λ x → A (x ₁)) a₁₀ a₁₁)
-                    a₁₂)
-             (coe←←≡ʰ (Id≡ (λ x → A (x ₀)) (congᵉ (SYM Δ) ϕ') (coe←≡ʰ (cong (λ x → A (x ₀₀)) ϕ') _) (coe←≡ʰ (cong (λ x → A (x ₁₀)) ϕ') _))
-                      (Id≡ (λ x → A (x ₀)) ϕ (coe←≡ʰ (cong (λ x → A (x ₀₀)) ϕ) a₀₀) (coe←≡ʰ (cong (λ x → A (x ₀₁)) ϕ) a₁₀))
-                      a₂₀)
-             {a₂₁' = a₂₁}
-             (coe←←≡ʰ (Id≡ (λ x → A (x ₁)) (congᵉ (SYM Δ) ϕ') (coe←≡ʰ (cong (λ x → A (x ₀₁)) ϕ') _) (coe←≡ʰ (cong (λ x → A (x ₁₁)) ϕ') _) •
-                    Id-AP (pop {ID Δ} {λ x → A (x ₀)}) (δ' ∷ coe← (cong (λ x → A (x ₀₀)) ϕ) a₀₀ ∷ coe← (cong (λ x → A (x ₀₁)) ϕ) a₁₀ ∷ sym₀₂ A δ ϕ a₂₀)
-                           (λ x → A (x ₁)) (coe← (cong (λ x → A (x ₁₀)) ϕ) a₀₁) (coe← (cong (λ x → A (x ₁₁)) ϕ) a₁₁))
-                    (rev (Id-AP {ID Δ ▸ (λ x → A (x ₀))} (λ x → pop x)
-                    (δ' ∷ coe← (cong (λ x → A (x ₀₀)) ϕ) a₀₀ ∷ coe← (cong (λ x → A (x ₀₁)) ϕ) a₁₀ ∷
-                      coe← (Id≡ (λ x → A (x ₀)) ϕ (coe←≡ʰ (cong (λ x → A (x ₀₀)) ϕ) a₀₀) (coe←≡ʰ (cong (λ x → A (x ₀₁)) ϕ) a₁₀)) a₂₀)
-                    (λ x → A (x ₁))
-                    (coe← (cong (λ x → A (x ₁₀)) ϕ) a₀₁)
-                    (coe← (cong (λ x → A (x ₁₁)) ϕ) a₁₁))
-                    • Id≡ (λ x → A (x ₁)) ϕ (coe←≡ʰ (cong (λ x → A (x ₁₀)) ϕ) a₀₁) (coe←≡ʰ (cong (λ x → A (x ₁₁)) ϕ) a₁₁))
-                    a₂₁))
-           a₂₂
+    sym′ A δ' (sym₀₂ A δ ϕ a₂₀) (sym₁₂ A δ ϕ a₂₁) (sym₂₀ A δ ϕ a₀₂) (sym₂₁ A δ ϕ a₁₂) ϕ' (sym′ A δ a₀₂ a₁₂ a₂₀ a₂₁ ϕ a₂₂) ≡ sym₂₂ A δ a₀₂ a₁₂ a₂₀ a₂₁ ϕ ϕ' a₂₂
 
 {-# REWRITE sym-sym #-}
