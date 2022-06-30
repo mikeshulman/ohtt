@@ -4,7 +4,6 @@ module HOTT.Id where
 
 open import HOTT.Rewrite
 open import HOTT.Telescope
-open Σᵉ
 
 --------------------------------------------------
 -- Identity types and identity telescopes
@@ -305,7 +304,7 @@ postulate
 
 {-# REWRITE ap-top #-}
 
--- Now we can explain why the first argument of Σᵉ is a Tel rather
+-- Now we can explain why the first argument of _▹_ is a Tel rather
 -- than a Typeᵉ: it enables ap-top to fire as a rewrite rule.  Look at
 -- the LHS of ap-top, with implicit arguments included:
 
@@ -318,15 +317,15 @@ postulate
 -- appear bare (or, in the case of f, eta-expanded) as an argument of
 -- a postulate in the above LHS.
 
--- However, if the first argument of Σᵉ were a Typeᵉ instead of a Tel,
--- and (el (Δ ▸ A)) reduced to (Σᵉ (el Δ) A) instead of (Σᵉ Δ A), then
+-- However, if the first argument of _▹_ were a Typeᵉ instead of a Tel,
+-- and (el (Δ ▸ A)) reduced to (el Δ ▹ A) instead of (Δ ▹ A), then
 -- the LHS of ap-top would be
 
 --  ap {Γ} {λ x → A (pop {el Δ} {A} (f x))} (λ x → top {el Δ} {A} (f x)) γ ≡
 
 -- Note that Δ now only appears inside of el.  Thus, this fails to
 -- match instances where Δ is a concrete telescope, since then (el Δ)
--- would have been reduced to some iterated Σᵉ-exotype in which Δ
+-- would have been reduced to some iterated Σ-exotype in which Δ
 -- doesn't appear explicitly.
 
 -- Note that we don't have rules for computing ap-top on "dependent

@@ -29,12 +29,12 @@ el : Tel → Typeᵉ
 -- for this is explained in the comments to ap-top.  Thus, this sort
 -- of Σ-exotype also has to be defined mutually with Tel and el.
 
--- We make Σᵉ a datatype rather than a record because our applications
+-- We make _▹_ a datatype rather than a record because our applications
 -- of rewrite rules don't work otherwise.  There are at least two
 -- reasons for this:
 
 -- 1. Rewriting in Agda happens modulo eta-expansion for records.
--- Thus, if Σᵉ were a record with constructor ∷, then every element of
+-- Thus, if _▹_ were a record with constructor ∷, then every element of
 -- an extended telescope would be considered to have the form ∷ for
 -- rewriting purposes.  This would break our approach to AP on
 -- variables, where we want AP to reduce on ∷ to make the telescope
@@ -48,18 +48,18 @@ el : Tel → Typeᵉ
 
 -- For similar reasons, we will later use datatypes and rewrite rules
 -- for our actual type formers Σ, Π, etc.
-data Σᵉ (Δ : Tel) (B : el Δ → Type) : Typeᵉ where
+data _▹_ (Δ : Tel) (B : el Δ → Type) : Typeᵉ where
 -- We name the constructor ∷ because we think of the
 -- elements of a telescope as a snoc-list, and we name its projections
 -- 'top' and 'pop' because we think of them as De Bruijn indices
 -- accessing elements of such a list.
-  _∷_ : (x : el Δ) → B x → Σᵉ Δ B
-open Σᵉ
+  _∷_ : (x : el Δ) → B x → Δ ▹ B
+open _▹_
 
-pop : {Δ : Tel} {B : el Δ → Type} → Σᵉ Δ B → el Δ
+pop : {Δ : Tel} {B : el Δ → Type} → Δ ▹ B → el Δ
 pop (δ ∷ _) = δ
 
-top : {Δ : Tel} {B : el Δ → Type} (δ : Σᵉ Δ B) → B (pop δ)
+top : {Δ : Tel} {B : el Δ → Type} (δ : Δ ▹ B) → B (pop δ)
 top (_ ∷ b) = b
 
 data Tel where
@@ -67,7 +67,7 @@ data Tel where
   _▸_ : (Δ : Tel) (A : el Δ → Type) → Tel
 
 el ε = ⊤ᵉ
-el (Δ ▸ A) = Σᵉ Δ A
+el (Δ ▸ A) = Δ ▹ A
 
 infixl 30 _▸_ _∷_
 
