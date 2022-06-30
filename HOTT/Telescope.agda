@@ -61,7 +61,7 @@ _⊘_ : {Δ : Tel} {T : Typeᵉ} (B : Δ ⇨ T) (x : el Δ) → T
 (lam-Tel B) ⊘ x = B x
 
 postulate
-  _⊚_ : {Γ Δ : Tel} {T : Typeᵉ} (g : Δ ⇨ T) (f : Γ ⇨ el Δ) : (Γ ⇨ T)
+  _⊚_ : {Γ Δ : Tel} {T : Typeᵉ} (g : Δ ⇨ T) (f : Γ ⇨ el Δ) → (Γ ⇨ T)
   ⊚⊘ : {Γ Δ : Tel} {T : Typeᵉ} (g : Δ ⇨ T) (f : Γ ⇨ el Δ) (x : el Γ) →
     (g ⊚ f) ⊘ x ≡ g ⊘ (f ⊘ x)
   lam-Tel-η : {Δ : Tel} (A : Δ →Type) → (Λ x ⇒ A ⊘ x) ≡ᵉ A
@@ -76,18 +76,18 @@ data _▹_ (Δ : Tel) (B : Δ →Type) : Typeᵉ where
   _∷_ : (x : el Δ) → B ⊘ x → Δ ▹ B
 open _▹_
 
-pop : {Δ : Tel} {B : Δ →Type} → Δ ▹ B → el Δ
-pop (δ ∷ _) = δ
-
-top : {Δ : Tel} {B : Δ →Type} (δ : Δ ▹ B) → B ⊘ pop δ
-top (_ ∷ b) = b
-
 data Tel where
   ε : Tel
   _▸_ : (Δ : Tel) (A : Δ →Type) → Tel
 
 el ε = ⊤ᵉ
 el (Δ ▸ A) = Δ ▹ A
+
+pop : {Δ : Tel} {B : el Δ → Type} → Δ ▹ B → el Δ
+pop (δ ∷ _) = δ
+
+top : {Δ : Tel} {B : el Δ → Type} (δ : Δ ▹ B) → B (pop δ)
+top (_ ∷ b) = b
 
 infixl 30 _▸_ _∷_
 
