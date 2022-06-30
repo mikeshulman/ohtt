@@ -17,10 +17,16 @@ data Π (A : Type) (B : A → Type) : Type where
 infixr 27 lamΠ
 syntax lamΠ (λ x → f) = Λ x ⇒ f
 
+syntax Π A (λ x → B) = Π[ x ﹕ A ] B
+
 _∙_ : {A : Type} {B : A → Type} (f : Π A B) (a : A) → B a
 lamΠ f ∙ a = f a
 
 infixl 50 _∙_
+
+infixr 30 _⇒_
+_⇒_ : Type → Type → Type
+A ⇒ B = Π[ x ﹕ A ] B
 
 postulate
   ηΠ : {A : Type} {B : A → Type} (f : Π A B) → (Λ x ⇒ f ∙ x) ≡ f

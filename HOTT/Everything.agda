@@ -25,6 +25,7 @@ import HOTT.Sigma
 -- here we import Arrow before Pi, and allow Pi.Base to be compiled
 -- automatically as needed by Arrow.
 import HOTT.Arrow
+-- In practice, we don't use Arrow at all anyway.
 
 import HOTT.Pi
 import HOTT.Copy
