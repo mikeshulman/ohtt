@@ -56,18 +56,18 @@ data _▹_ (Δ : Tel) (B : el Δ → Type) : Typeᵉ where
   _∷_ : (x : el Δ) → B x → Δ ▹ B
 open _▹_
 
-pop : {Δ : Tel} {B : el Δ → Type} → Δ ▹ B → el Δ
-pop (δ ∷ _) = δ
-
-top : {Δ : Tel} {B : el Δ → Type} (δ : Δ ▹ B) → B (pop δ)
-top (_ ∷ b) = b
-
 data Tel where
   ε : Tel
   _▸_ : (Δ : Tel) (A : el Δ → Type) → Tel
 
 el ε = ⊤ᵉ
 el (Δ ▸ A) = Δ ▹ A
+
+pop : {Δ : Tel} {B : el Δ → Type} → Δ ▹ B → el Δ
+pop (δ ∷ _) = δ
+
+top : {Δ : Tel} {B : el Δ → Type} (δ : Δ ▹ B) → B (pop δ)
+top (_ ∷ b) = b
 
 infixl 30 _▸_ _∷_
 
