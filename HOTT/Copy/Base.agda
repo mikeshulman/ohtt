@@ -11,8 +11,8 @@ open import HOTT.Refl
 -- Copy-types
 ------------------------------
 
-infixl 30 _↑
-infixl 30 _↓
+infixl 50 _↑
+infixl 50 _↓
 
 -- (Copy A) is like a coinductive type with one destructor _↓ valued
 -- in A.  Thus, it also has a constructor _↑ with inputs from A, with
