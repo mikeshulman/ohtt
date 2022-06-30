@@ -20,11 +20,11 @@ postulate
   tr→Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
     (δ : el (ID Δ)) (u₀ : Σ (A (δ ₀)) (B (δ ₀))) →
     tr→ (λ w → Σ (A w) (B w)) δ u₀ ≡
-    (tr→ A δ (π₁ u₀) ﹐  tr→ {Δ ▸ A} (uncurry B) (δ ∷ π₁ u₀ ∷ tr→ A δ (π₁ u₀) ∷ lift→ A δ (π₁ u₀)) (π₂ u₀))
+    (tr→ A δ (fst u₀) ,  tr→ {Δ ▸ A} (uncurry B) (δ ∷ fst u₀ ∷ tr→ A δ (fst u₀) ∷ lift→ A δ (fst u₀)) (snd u₀))
   tr←Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
     (δ : el (ID Δ)) (u₁ : Σ (A (δ ₁)) (B (δ ₁))) →
     tr← (λ w → Σ (A w) (B w)) δ u₁ ≡
-    (tr← A δ (π₁ u₁) ﹐ tr← {Δ ▸ A} (uncurry B) (δ ∷ tr← A δ (π₁ u₁) ∷ π₁ u₁ ∷ lift← A δ (π₁ u₁)) (π₂ u₁))
+    (tr← A δ (fst u₁) , tr← {Δ ▸ A} (uncurry B) (δ ∷ tr← A δ (fst u₁) ∷ fst u₁ ∷ lift← A δ (fst u₁)) (snd u₁))
 
 {-# REWRITE tr→Σ tr←Σ #-}
 
@@ -32,11 +32,11 @@ postulate
   lift→Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
     (δ : el (ID Δ)) (u₀ : Σ (A (δ ₀)) (B (δ ₀))) →
     lift→ (λ w → Σ (A w) (B w)) δ u₀ ≡
-    (lift→ A δ (π₁ u₀) ﹐  lift→ {Δ ▸ A} (uncurry B) (δ ∷ π₁ u₀ ∷ tr→ A δ (π₁ u₀) ∷ lift→ A δ (π₁ u₀)) (π₂ u₀))
+    (lift→ A δ (fst u₀) ,  lift→ {Δ ▸ A} (uncurry B) (δ ∷ fst u₀ ∷ tr→ A δ (fst u₀) ∷ lift→ A δ (fst u₀)) (snd u₀))
   lift←Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
     (δ : el (ID Δ)) (u₁ : Σ (A (δ ₁)) (B (δ ₁))) →
     lift← (λ w → Σ (A w) (B w)) δ u₁ ≡
-    (lift← A δ (π₁ u₁) ﹐  lift← {Δ ▸ A} (uncurry B) (δ ∷ tr← A δ (π₁ u₁) ∷ π₁ u₁ ∷ lift← A δ (π₁ u₁)) (π₂ u₁))
+    (lift← A δ (fst u₁) ,  lift← {Δ ▸ A} (uncurry B) (δ ∷ tr← A δ (fst u₁) ∷ fst u₁ ∷ lift← A δ (fst u₁)) (snd u₁))
 
 {-# REWRITE lift→Σ lift←Σ #-}
 

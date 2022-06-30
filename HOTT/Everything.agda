@@ -13,7 +13,7 @@ import HOTT.Transport
 import HOTT.Fill
 
 import HOTT.Unit
-import HOTT.Prod
+import HOTT.Prod                -- Not used in practice
 import HOTT.Sigma
 
 -- Since the identity types of non-dependent function types involve
