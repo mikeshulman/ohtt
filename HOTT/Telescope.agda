@@ -92,6 +92,9 @@ top (_ ∷ b) = b
 infixl 30 _▸_
 infixl 50 _∷_
 
+ε▸ : (A : Type) → Tel
+ε▸ A = ε ▸ (Λ _ ⇨ A)
+
 POP : {Δ : Tel} {B : Δ ⇨ Type} → ((Δ ▸ B) ⇨ᵉ el Δ)
 POP = (Λ x ⇨ᵉ pop x)
 

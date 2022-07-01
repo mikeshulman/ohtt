@@ -22,13 +22,13 @@ postulate
     (a₁ a₁' : A ⊘ (δ ₁)) (a₂ : Id A δ a₀ a₁) (a₂' : Id A δ a₀ a₁') → (a₁ ＝ a₁')
   ulift→ : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₀ : A ⊘ (δ ₀))
     (a₁ a₁' : A ⊘ (δ ₁)) (a₂ : Id A δ a₀ a₁) (a₂' : Id A δ a₀ a₁') →
-    Id {ε ▸ (Λ _ ⇨ A ⊘ (δ ₁))} (Λ w ⇨ Id A δ a₀ (top w))
+    Id {ε▸ (A ⊘ (δ ₁))} (Λ w ⇨ Id A δ a₀ (top w))
       ([] ∷ a₁ ∷ a₁' ∷ utr→ A δ a₀ a₁ a₁' a₂ a₂') a₂ a₂'
   utr← : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₁ : A ⊘ (δ ₁))
     (a₀ a₀' : A ⊘ (δ ₀)) (a₂ : Id A δ a₀ a₁) (a₂' : Id A δ a₀' a₁) → (a₀ ＝ a₀')
   ulift← : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₁ : A ⊘ (δ ₁))
     (a₀ a₀' : A ⊘ (δ ₀)) (a₂ : Id A δ a₀ a₁) (a₂' : Id A δ a₀' a₁) →
-    Id {ε ▸ (Λ _ ⇨ A ⊘ (δ ₀))} (Λ w ⇨ Id A δ (top w) a₁)
+    Id {ε▸ (A ⊘ (δ ₀))} (Λ w ⇨ Id A δ (top w) a₁)
       ([] ∷ a₀ ∷ a₀' ∷ utr← A δ a₁ a₀ a₀' a₂ a₂') a₂ a₂'
 
 -- Do we need to assert that these are preserved by the functoriality

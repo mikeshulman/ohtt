@@ -52,7 +52,7 @@ postulate
     (u₀ : A (δ ₀) × B (δ ₀)) (u₁ u₁' : A (δ ₁) × B (δ ₁))
     (u₂ : Id (Λ w ⇨ A w × B w) δ u₀ u₁) (u₂' : Id (Λ w ⇨ A w × B w) δ u₀ u₁') →
     ulift→ (Λ w ⇨ A w × B w) δ u₀ u₁ u₁' u₂ u₂' ≡
-    (coe← (Id-AP {ε ▸ (Λ _ ⇨ A (δ ₁) × B (δ ₁))} {ε ▸ (Λ _ ⇨ A (δ ₁))}
+    (coe← (Id-AP {ε▸ (A (δ ₁) × B (δ ₁))} {ε▸ (A (δ ₁))}
               (λ x → [] ∷ fst (top x))
               ([] ∷ u₁ ∷ u₁' ∷
                (utr→ (Λ⇨ A) δ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂') ,
@@ -60,7 +60,7 @@ postulate
               (Λ w ⇨ Id (Λ⇨ A) δ (fst u₀) (top w))
               (fst u₂) (fst u₂'))
            (ulift→ (Λ⇨ A) δ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂')) ,
-     coe← (Id-AP {ε ▸ (Λ _ ⇨ A (δ ₁) × B (δ ₁))} {ε ▸ (Λ _ ⇨ B (δ ₁))}
+     coe← (Id-AP {ε▸ (A (δ ₁) × B (δ ₁))} {ε▸ (B (δ ₁))}
               (λ x → [] ∷ snd (top x))
               ([] ∷ u₁ ∷ u₁' ∷
                (utr→ (Λ⇨ A) δ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂') ,
@@ -72,7 +72,7 @@ postulate
     (u₁ : A (δ ₁) × B (δ ₁)) (u₀ u₀' : A (δ ₀) × B (δ ₀))
     (u₂ : Id (Λ w ⇨ A w × B w) δ u₀ u₁) (u₂' : Id (Λ w ⇨ A w × B w) δ u₀' u₁) →
     ulift← (Λ w ⇨ A w × B w) δ u₁ u₀ u₀' u₂ u₂' ≡
-    (coe← (Id-AP {ε ▸ (Λ _ ⇨ A (δ ₀) × B (δ ₀))} {ε ▸ (Λ _ ⇨ A (δ ₀))}
+    (coe← (Id-AP {ε▸ (A (δ ₀) × B (δ ₀))} {ε▸ (A (δ ₀))}
               (λ x → [] ∷ fst (top x))
               ([] ∷ u₀ ∷ u₀' ∷
                (utr← (Λ⇨ A) δ (fst u₁) (fst u₀) (fst u₀') (fst u₂) (fst u₂') ,
@@ -80,7 +80,7 @@ postulate
               (Λ w ⇨ Id (Λ⇨ A) δ (top w) (fst u₁))
               (fst u₂) (fst u₂'))
            (ulift← (Λ⇨ A) δ (fst u₁) (fst u₀) (fst u₀') (fst u₂) (fst u₂')),
-     coe← (Id-AP {ε ▸ (Λ _ ⇨ A (δ ₀) × B (δ ₀))} {ε ▸ (Λ _ ⇨ B (δ ₀))}
+     coe← (Id-AP {ε▸ (A (δ ₀) × B (δ ₀))} {ε▸ (B (δ ₀))}
               (λ x → [] ∷ snd (top x))
               ([] ∷ u₀ ∷ u₀' ∷
                (utr← (Λ⇨ A) δ (fst u₁) (fst u₀) (fst u₀') (fst u₂) (fst u₂') ,

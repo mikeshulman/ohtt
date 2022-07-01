@@ -44,7 +44,8 @@ postulate
          (δ ∷ fst u₀ ∷ fst u₁ ∷ e) (snd u₀) (snd u₁)
   ＝Σ : (A : Type) (B : A → Type) (u₀ u₁ : Σ A B) →
     (u₀ ＝ u₁) ≡
-    Σ[ e ﹕ (fst u₀ ＝ fst u₁) ] Id {ε ▸ (Λ _ ⇨ A)} (Λ a ⇨ B (top a)) ([] ∷ fst u₀ ∷ fst u₁ ∷ e) (snd u₀) (snd u₁)
+    Σ[ e ﹕ (fst u₀ ＝ fst u₁) ]
+    Id {ε▸ A} (Λ a ⇨ B (top a)) ([] ∷ fst u₀ ∷ fst u₁ ∷ e) (snd u₀) (snd u₁)
 
 {-# REWRITE IdΣ ＝Σ #-}
 
