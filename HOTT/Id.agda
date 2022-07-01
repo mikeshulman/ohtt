@@ -31,11 +31,14 @@ postulate
   -- consists of two points of Δ and an identification between them.
   Id : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₀ : A ⊘ (δ ₀)) (a₁ : A ⊘ (δ ₁)) → Type
 
-Id/ : {Δ : Tel} (A : Δ ⇨ Type) → (ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ᵉ POP)) ⇨ Type
+ID▸▸ : {Δ : Tel} (A : Δ ⇨ Type) → Tel
+ID▸▸ {Δ} A = ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ᵉ POP)
+
+Id/ : {Δ : Tel} (A : Δ ⇨ Type) → ID▸▸ A ⇨ Type
 Id/ A = (Λ x ⇨ Id A (pop (pop x)) (top (pop x)) (top x))
 
 ID ε = ε
-ID (Δ ▸ A) = ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ᵉ POP) ▸ Id/ A
+ID (Δ ▸ A) = ID▸▸ A ▸ Id/ A
 
 _₀ {ε} _ = []
 _₀ {Δ ▸ A} (δ ∷ a₀ ∷ a₁ ∷ a₂) = δ ₀ ∷ a₀
