@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --cumulativity #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K #-}
 
 module HOTT.Sym.Base where
 

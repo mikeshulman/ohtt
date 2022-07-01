@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --cumulativity --no-projection-like #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --no-projection-like #-}
 
 module HOTT.Telescope where
 
@@ -49,38 +49,24 @@ el : Tel → Typeᵉ
 -- For similar reasons, we will later use datatypes and rewrite rules
 -- for our actual type formers Σ, Π, etc.
 
-data _⇨_ (Δ : Tel) (T : Typeᵉ) : Typeᵉ where
+data _⇨_ (Δ : Tel) (T : Type) : Typeᵉ where
   Λ⇨ : (el Δ → T) → (Δ ⇨ T)
 
-infix 30 Λ⇨
-infix 40 _⊘_
-infixr 40 _⊚_ 
+data _⇨ᵉ_ (Δ : Tel) (T : Typeᵉ) : Typeᵉ where
+  Λ⇨ᵉ : (el Δ → T) → (Δ ⇨ᵉ T)
+
+infix 30 Λ⇨ Λ⇨ᵉ
 
 syntax Λ⇨ (λ x → B) = Λ x ⇨ B
+syntax Λ⇨ᵉ (λ x → B) = Λ x ⇨ᵉ B
 
-_⊘_ : {Δ : Tel} {T : Typeᵉ} (B : Δ ⇨ T) (x : el Δ) → T
+infix 40 _⊘_ _⊘ᵉ_
+
+_⊘_ : {Δ : Tel} {T : Type} (B : Δ ⇨ T) (x : el Δ) → T
 (Λ⇨ B) ⊘ x = B x
 
-postulate
-  lam-Tel-η : {Δ : Tel} {T : Typeᵉ} (A : Δ ⇨ T) → (Λ x ⇨ A ⊘ x) ≡ᵉ A
-
-{-# REWRITE lam-Tel-η #-}
-
-IDMAP : {Γ : Tel} → (Γ ⇨ el Γ)
-IDMAP = Λ x ⇨ x
-
-postulate
-  _⊚_ : {Γ Δ : Tel} {T : Typeᵉ} (g : Δ ⇨ T) (f : Γ ⇨ el Δ) → (Γ ⇨ T)
-  ⊚⊘ : {Γ Δ : Tel} {T : Typeᵉ} (g : Δ ⇨ T) (f : Γ ⇨ el Δ) (x : el Γ) →
-    (g ⊚ f) ⊘ x ≡ᵉ g ⊘ (f ⊘ x)
-  ⊚const : {Γ Δ : Tel} {T : Typeᵉ} (A : Δ ⇨ T) (δ : el Δ) →
-    _⊚_ {Γ} A (Λ _ ⇨ δ) ≡ᵉ (Λ x ⇨ A ⊘ δ)
-  ⊚IDMAP : {Δ : Tel} {T : Typeᵉ} (A : Δ ⇨ T) → A ⊚ IDMAP ≡ᵉ A
-  IDMAP⊚ : {Γ Δ : Tel} (f : Γ ⇨ el Δ) → _⊚_ {Γ} {Δ} {el Δ} IDMAP f ≡ᵉ f
-  ⊚⊚⊚ : {Γ Δ Θ : Tel} {T : Typeᵉ} (h : Θ ⇨ T) (g : Δ ⇨ el Θ) (f : Γ ⇨ el Δ) →
-    (h ⊚ g) ⊚ f ≡ᵉ h ⊚ (g ⊚ f)
-
-{-# REWRITE ⊚⊘ ⊚const ⊚IDMAP IDMAP⊚ ⊚⊚⊚ #-}
+_⊘ᵉ_ : {Δ : Tel} {T : Typeᵉ} (B : Δ ⇨ᵉ T) (x : el Δ) → T
+(Λ⇨ᵉ B) ⊘ᵉ x = B x
 
 data _▹_ (Δ : Tel) (B : Δ ⇨ Type) : Typeᵉ where
 -- We name the constructor ∷ because we think of the
@@ -106,8 +92,8 @@ top (_ ∷ b) = b
 infixl 30 _▸_
 infixl 50 _∷_
 
-POP : {Δ : Tel} {B : Δ ⇨ Type} → ((Δ ▸ B) ⇨ el Δ)
-POP = (Λ x ⇨ pop x)
+POP : {Δ : Tel} {B : Δ ⇨ Type} → ((Δ ▸ B) ⇨ᵉ el Δ)
+POP = (Λ x ⇨ᵉ pop x)
 
 uncurry : {T : Type} {Δ : Tel} {A : Δ ⇨ Type} (B : (w : el Δ) → A ⊘ w → T) → el (Δ ▸ A) → T
 uncurry B w = B (pop w) (top w)
@@ -115,3 +101,35 @@ uncurry B w = B (pop w) (top w)
 ∷≡ : {Δ : Tel} (A : Δ ⇨ Type) {δ₀ δ₁ : el Δ} (e : δ₀ ≡ᵉ δ₁) {a₀ : A ⊘ δ₀} {a₁ : A ⊘ δ₁} (f : a₀ ≡ʰ a₁) →
   _≡ᵉ_ {el (Δ ▸ A)} (δ₀ ∷ a₀) (δ₁ ∷ a₁)
 ∷≡ A reflᵉᵉ reflʰ = reflᵉᵉ
+
+infixr 40 _⊚_ _⊚ᵉ_
+
+postulate
+  Λ⇨η : {Δ : Tel} {T : Type} (A : Δ ⇨ T) → (Λ x ⇨ A ⊘ x) ≡ᵉ A
+  Λ⇨ᵉη : {Δ : Tel} {T : Typeᵉ} (A : Δ ⇨ᵉ T) → (Λ x ⇨ᵉ A ⊘ᵉ x) ≡ᵉ A
+
+{-# REWRITE Λ⇨η Λ⇨ᵉη #-}
+
+IDMAP : {Γ : Tel} → (Γ ⇨ᵉ el Γ)
+IDMAP = Λ x ⇨ᵉ x
+
+postulate
+  _⊚_ : {Γ Δ : Tel} {T : Type} (g : Δ ⇨ T) (f : Γ ⇨ᵉ el Δ) → (Γ ⇨ T)
+  _⊚ᵉ_ : {Γ Δ : Tel} {T : Typeᵉ} (g : Δ ⇨ᵉ T) (f : Γ ⇨ᵉ el Δ) → (Γ ⇨ᵉ T)
+  ⊚⊘ : {Γ Δ : Tel} {T : Type} (g : Δ ⇨ T) (f : Γ ⇨ᵉ el Δ) (x : el Γ) →
+    (g ⊚ f) ⊘ x ≡ g ⊘ (f ⊘ᵉ x)
+  ⊚ᵉ⊘ : {Γ Δ : Tel} {T : Typeᵉ} (g : Δ ⇨ᵉ T) (f : Γ ⇨ᵉ el Δ) (x : el Γ) →
+    (g ⊚ᵉ f) ⊘ᵉ x ≡ᵉ g ⊘ᵉ (f ⊘ᵉ x)
+  ⊚const : {Γ Δ : Tel} {T : Type} (A : Δ ⇨ T) (δ : el Δ) →
+    _⊚_ {Γ} A (Λ _ ⇨ᵉ δ) ≡ᵉ (Λ x ⇨ A ⊘ δ)
+  ⊚ᵉconst : {Γ Δ : Tel} {T : Typeᵉ} (A : Δ ⇨ᵉ T) (δ : el Δ) →
+    _⊚ᵉ_ {Γ} A (Λ _ ⇨ᵉ δ) ≡ᵉ (Λ x ⇨ᵉ A ⊘ᵉ δ)
+  ⊚IDMAP : {Δ : Tel} {T : Type} (A : Δ ⇨ T) → A ⊚ IDMAP ≡ᵉ A
+  ⊚ᵉIDMAP : {Δ : Tel} {T : Typeᵉ} (A : Δ ⇨ᵉ T) → A ⊚ᵉ IDMAP ≡ᵉ A
+  IDMAP⊚ᵉ : {Γ Δ : Tel} (f : Γ ⇨ᵉ el Δ) → _⊚ᵉ_ {Γ} {Δ} {el Δ} IDMAP f ≡ᵉ f
+  ⊚⊚ᵉ⊚ᵉ : {Γ Δ Θ : Tel} {T : Type} (h : Θ ⇨ T) (g : Δ ⇨ᵉ el Θ) (f : Γ ⇨ᵉ el Δ) →
+    (h ⊚ g) ⊚ f ≡ᵉ h ⊚ (g ⊚ᵉ f)
+  ⊚ᵉ⊚ᵉ⊚ᵉ : {Γ Δ Θ : Tel} {T : Typeᵉ} (h : Θ ⇨ᵉ T) (g : Δ ⇨ᵉ el Θ) (f : Γ ⇨ᵉ el Δ) →
+    (h ⊚ᵉ g) ⊚ᵉ f ≡ᵉ h ⊚ᵉ (g ⊚ᵉ f)
+
+{-# REWRITE ⊚⊘ ⊚ᵉ⊘ ⊚const ⊚ᵉconst ⊚IDMAP ⊚ᵉIDMAP IDMAP⊚ᵉ ⊚⊚ᵉ⊚ᵉ ⊚ᵉ⊚ᵉ⊚ᵉ #-}

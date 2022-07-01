@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --no-projection-like --cumulativity #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --no-projection-like #-}
 
 module HOTT.Prod.Base where
 

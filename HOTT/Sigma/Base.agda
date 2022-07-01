@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --no-projection-like --cumulativity #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --no-projection-like #-}
 
 module HOTT.Sigma.Base where
 
@@ -53,10 +53,10 @@ postulate
     (f : (δ : el Δ) → A δ) (g : (δ : el Δ) → B δ (f δ)) (δ : el (ID Δ)) →
     ap (Λ w ⇨ Σ (A w) (λ x → B w x)) (λ w → f w , g w) δ ≡
     (ap (Λ⇨ A) f δ ,
-     ap ((Λ x ⇨ B (pop x) (top {Δ} {Λ x ⇨ A x} x)) ⊚ (Λ x ⇨ x ∷ f x)) g δ)
+     ap ((Λ x ⇨ B (pop x) (top {Δ} {Λ x ⇨ A x} x)) ⊚ (Λ x ⇨ᵉ x ∷ f x)) g δ)
   refl, : {A : Type} {B : A → Type} (a : A) (b : B a) →
     refl {Σ A B} (a , b) ≡
-    (refl a , coe→ (Id-AP (λ _ → [] ∷ a) [] (Λ x ⇨ B (top x)) b b) (refl b))
+    (refl a , coe→ (Id-AP (λ _ → [] ∷ a) [] (Λ x ⇨ B (top {ε} {Λ _ ⇨ A} x)) b b) (refl b))
   ap-fst : {Δ : Tel} {A : el Δ → Type} {B : (w : el Δ) → A w → Type}
     (δ : el (ID Δ)) (u : (x : el Δ) → Σ (A x) (B x)) →
     ap (Λ⇨ A) (λ x → fst {A x} {λ y → B x y} (u x)) δ ≡
@@ -76,7 +76,7 @@ postulate
          (snd (ap (Λ x ⇨ Σ (A x) (B x)) u δ))
   refl-snd : {A : Type} {B : A → Type} (u : Σ A B) →
     refl (snd u) ≡
-    coe← (Id-AP (λ _ → [] ∷ fst u) [] (Λ x ⇨ B (top x)) (snd u) (snd u))
+    coe← (Id-AP (λ _ → [] ∷ fst u) [] (Λ x ⇨ B (top {ε} {Λ _ ⇨ A} x)) (snd u) (snd u))
           (snd (refl u))
 
 {-# REWRITE ap-snd refl-snd #-}

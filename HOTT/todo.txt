@@ -10,3 +10,5 @@
 - Is it possible to predeclare all notations with their fixities and precedences in a central location, as with Coq's "Reserved Notation"?  That would make it easier to get all the relative precedences right.  I don't think so, but let's make it easier for ourselves by putting all fixity declarations in each file at the very top, and taking a moment to uniformize them.
 
 - Try having a wrapped type _→Type of "type families" dependent on el of a telescope, with explicit application.  Then Id can compute on such an explicit application to hopefully implement Id-AP on everything, without coercions or breaking subject reduction.
+
+Id/ in Fill, and its base ID▸▸ everywhere

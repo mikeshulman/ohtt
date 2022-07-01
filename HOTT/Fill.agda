@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --cumulativity #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K #-}
 
 module HOTT.Fill where
 
@@ -22,7 +22,7 @@ comp→ : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (SQ Δ))
   {a₁₀ : A ⊘ (δ ₁₀)} {a₁₁ : A ⊘ (δ ₁₁)} (a₁₂ : Id A (δ ₁₂) a₁₀ a₁₁) (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀) →
   Id A (δ ₂₁) a₀₁ a₁₁
 comp→ {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ =
-  tr→ {ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ POP)}
+  tr→ {ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ᵉ POP)}
       (Λ w ⇨ Id {Δ} A (pop (pop w)) (top (pop w)) (top w))
       (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂)
       a₂₀
@@ -32,7 +32,7 @@ fill→ : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (SQ Δ))
   {a₁₀ : A ⊘ (δ ₁₀)} {a₁₁ : A ⊘ (δ ₁₁)} (a₁₂ : Id A (δ ₁₂) a₁₀ a₁₁) (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀) →
   Sq A δ a₀₂ a₁₂ a₂₀ (comp→ A δ a₀₂ a₁₂ a₂₀)
 fill→ {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ =
-  lift→ {ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ POP)}
+  lift→ {ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ᵉ POP)}
       (Λ w ⇨ Id {Δ} A (pop (pop w)) (top (pop w)) (top w))
       (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂)
       a₂₀
@@ -42,7 +42,7 @@ comp← : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (SQ Δ))
   {a₁₀ : A ⊘ (δ ₁₀)} {a₁₁ : A ⊘ (δ ₁₁)} (a₁₂ : Id A (δ ₁₂) a₁₀ a₁₁) (a₂₁ : Id A (δ ₂₁) a₀₁ a₁₁) →
   Id A (δ ₂₀) a₀₀ a₁₀
 comp← {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₁ =
-  tr← {ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ POP)}
+  tr← {ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ᵉ POP)}
       (Λ w ⇨ Id {Δ} A (pop (pop w)) (top (pop w)) (top w))
       (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂)
       a₂₁
@@ -52,7 +52,7 @@ fill← : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (SQ Δ))
   {a₁₀ : A ⊘ (δ ₁₀)} {a₁₁ : A ⊘ (δ ₁₁)} (a₁₂ : Id A (δ ₁₂) a₁₀ a₁₁) (a₂₁ : Id A (δ ₂₁) a₀₁ a₁₁) →
   Sq A δ a₀₂ a₁₂ (comp← A δ a₀₂ a₁₂ a₂₁) a₂₁
 fill← {Δ} A δ {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₁ =
-  lift← {ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ POP)}
+  lift← {ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ᵉ POP)}
       (Λ w ⇨ Id {Δ} A (pop (pop w)) (top (pop w)) (top w))
       (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂)
       a₂₁

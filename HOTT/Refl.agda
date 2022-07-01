@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --cumulativity #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K #-}
 
 module HOTT.Refl where
 
@@ -49,8 +49,8 @@ postulate
 -- definition instead of rewrite rules.
 REFL : {Δ : Tel} (δ : el Δ) → el (ID Δ)
 
-ΛREFL : {Δ : Tel} → (Δ ⇨ el (ID Δ))
-ΛREFL = Λ x ⇨ REFL x
+ΛREFL : {Δ : Tel} → (Δ ⇨ᵉ el (ID Δ))
+ΛREFL = Λ x ⇨ᵉ REFL x
 
 -- Like AP, we need to simultaneously postulate how REFL behaves on _₀
 -- and _₁.
@@ -66,7 +66,7 @@ postulate
   Id-REFL : {Δ : Tel} (A : Δ ⇨ Type) (δ : el Δ) (a₀ : A ⊘ δ) (a₁ : A ⊘ δ) →
     Id A (REFL δ) a₀ a₁ ≡ (a₀ ＝ a₁)
   AP-const : {Δ : Tel} (Θ : Tel) (δ : el (ID Δ)) (t : el Θ) →
-    AP {Δ} (Λ _ ⇨ t) δ ≡ᵉ REFL t
+    AP {Δ} (Λ _ ⇨ᵉ t) δ ≡ᵉ REFL t
 
 {-# REWRITE Id-REFL AP-const #-}
 
@@ -129,11 +129,11 @@ Id-REFL▸▸-reflᵉ B C A δ b c a₀ a₁ = axiomK
 
 ap-REFL : {Δ : Tel} (A : Δ ⇨ Type) (f : (δ : el Δ) → A ⊘ δ) (δ : el Δ) →
   ap A f (REFL δ) ≡ refl (f δ)
-ap-REFL {Δ} A f δ = ap-AP {ε} {Δ} {A} (Λ _ ⇨ δ) f []
+ap-REFL {Δ} A f δ = ap-AP {ε} {Δ} {A} (Λ _ ⇨ᵉ δ) f []
 
 postulate
-  AP-REFL : {Δ Θ : Tel} (f : Δ ⇨ el Θ) (δ : el Δ) →
-    AP f (REFL δ) ≡ᵉ REFL (f ⊘ δ)
+  AP-REFL : {Δ Θ : Tel} (f : Δ ⇨ᵉ el Θ) (δ : el Δ) →
+    AP f (REFL δ) ≡ᵉ REFL (f ⊘ᵉ δ)
 
 {-# REWRITE ap-REFL AP-REFL #-}
 

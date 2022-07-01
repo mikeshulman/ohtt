@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --cumulativity #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K #-}
 
 module HOTT.Id where
 
@@ -18,11 +18,11 @@ _₀ : {Δ : Tel} → el (ID Δ) → el Δ
 _₁ : {Δ : Tel} → el (ID Δ) → el Δ
 infix 60 _₀ _₁
 
-Λ₀ : {Δ : Tel} → (ID Δ) ⇨ el Δ
-Λ₀ = (Λ x ⇨ x ₀)
+Λ₀ : {Δ : Tel} → (ID Δ) ⇨ᵉ el Δ
+Λ₀ = (Λ x ⇨ᵉ x ₀)
 
-Λ₁ : {Δ : Tel} → (ID Δ) ⇨ el Δ
-Λ₁ = (Λ x ⇨ x ₁)
+Λ₁ : {Δ : Tel} → (ID Δ) ⇨ᵉ el Δ
+Λ₁ = (Λ x ⇨ᵉ x ₁)
 
 -- They are also mutual with the (postulated) dependent identity
 -- *types* that they are composed of.
@@ -31,11 +31,11 @@ postulate
   -- consists of two points of Δ and an identification between them.
   Id : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₀ : A ⊘ (δ ₀)) (a₁ : A ⊘ (δ ₁)) → Type
 
-Id/ : {Δ : Tel} (A : Δ ⇨ Type) → (ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ POP)) ⇨ Type
+Id/ : {Δ : Tel} (A : Δ ⇨ Type) → (ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ᵉ POP)) ⇨ Type
 Id/ A = (Λ x ⇨ Id A (pop (pop x)) (top (pop x)) (top x))
 
 ID ε = ε
-ID (Δ ▸ A) = ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ POP) ▸ Id/ A
+ID (Δ ▸ A) = ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ᵉ POP) ▸ Id/ A
 
 _₀ {ε} _ = []
 _₀ {Δ ▸ A} (δ ∷ a₀ ∷ a₁ ∷ a₂) = δ ₀ ∷ a₀
@@ -86,7 +86,7 @@ AP {Δ = Δ ▸ A} f γ = AP (λ x → pop (f x)) γ ∷ top (f (γ ₀)) ∷ to
 -- satisfies an eta-rule (which is a rewrite contraction, not a record
 -- expansion), the two definitions have the same semantics.
 postulate
-  AP : {Γ Δ : Tel} (f : Γ ⇨ el Δ) (γ : el (ID Γ)) → el (ID Δ)
+  AP : {Γ Δ : Tel} (f : Γ ⇨ᵉ el Δ) (γ : el (ID Γ)) → el (ID Δ)
 
 -- We "define" AP mutually with the assertions that its projections
 -- are the action of the original f on the projections.  We could
@@ -95,8 +95,8 @@ postulate
 -- carrying around terms for them causes things to blow up and slow
 -- down.  So we just postulate them as rewrites.
 postulate
-  AP₀ : {Γ Δ : Tel} (f : Γ ⇨ el Δ) (γ : el (ID Γ)) → (AP f γ)₀ ≡ᵉ f ⊘ (γ ₀)
-  AP₁ : {Γ Δ : Tel} (f : Γ ⇨ el Δ) (γ : el (ID Γ)) → (AP f γ)₁ ≡ᵉ f ⊘ (γ ₁)
+  AP₀ : {Γ Δ : Tel} (f : Γ ⇨ᵉ el Δ) (γ : el (ID Γ)) → (AP f γ)₀ ≡ᵉ f ⊘ᵉ (γ ₀)
+  AP₁ : {Γ Δ : Tel} (f : Γ ⇨ᵉ el Δ) (γ : el (ID Γ)) → (AP f γ)₁ ≡ᵉ f ⊘ᵉ (γ ₁)
 
 {-# REWRITE AP₀ AP₁ #-}
 
@@ -105,13 +105,13 @@ postulate
 postulate
   AP-idmap : {Δ : Tel} (δ : el (ID Δ)) → AP {Δ} {Δ} IDMAP δ ≡ᵉ δ
   AP-pop : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
-    AP (Λ x ⇨ pop (f x)) γ ≡ᵉ pop (pop (pop (AP (Λ⇨ f) γ)))
+    AP (Λ x ⇨ᵉ pop (f x)) γ ≡ᵉ pop (pop (pop (AP (Λ⇨ᵉ f) γ)))
   -- This is intentionally not (f : Γ ⇨ Δ), to match more generally.
   Id-AP : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (A : Δ ⇨ Type)
           (a₀ : A ⊘ (f (γ ₀))) (a₁ : A ⊘ (f (γ ₁))) →
-    Id (Λ x ⇨ A ⊘ f x) γ a₀ a₁ ≡ Id A (AP (Λ⇨ f) γ) a₀ a₁
-  Id-AP⊚ : {Γ Δ : Tel} (f : Γ ⇨ el Δ) (γ : el (ID Γ)) (A : Δ ⇨ Type)
-          (a₀ : A ⊘ (f ⊘ (γ ₀))) (a₁ : A ⊘ (f ⊘ (γ ₁))) →
+    Id (Λ x ⇨ A ⊘ f x) γ a₀ a₁ ≡ Id A (AP (Λ⇨ᵉ f) γ) a₀ a₁
+  Id-AP⊚ : {Γ Δ : Tel} (f : Γ ⇨ᵉ el Δ) (γ : el (ID Γ)) (A : Δ ⇨ Type)
+          (a₀ : A ⊘ (f ⊘ᵉ (γ ₀))) (a₁ : A ⊘ (f ⊘ᵉ (γ ₁))) →
     Id (A ⊚ f) γ a₀ a₁ ≡ Id A (AP f γ) a₀ a₁
 
 -- Of these, AP-pop and AP-idmap are "real" computation rules, which
@@ -144,11 +144,11 @@ postulate
 -- Having Id-AP as a rewrite is at least sufficient for us to be able
 -- to "define" AP without any coercions.
 postulate
-  APε : {Γ : Tel} (f : Γ ⇨ el ε) (γ : el (ID Γ)) → AP {Δ = ε} f γ ≡ᵉ []
+  APε : {Γ : Tel} (f : Γ ⇨ᵉ el ε) (γ : el (ID Γ)) → AP {Δ = ε} f γ ≡ᵉ []
   -- This is intentionally not a ⇨, to match more generally.
   AP∷ : {Γ Δ : Tel} (γ : el (ID Γ)) (f : el Γ → el Δ) (A : Δ ⇨ Type) (g : (x : el Γ) → A ⊘ (f x)) →
-    AP {Δ = Δ ▸ A} (Λ x ⇨ f x ∷ g x) γ ≡ᵉ
-    AP (Λ⇨ f) γ ∷ g (γ ₀) ∷ g (γ ₁) ∷ ap (A ⊚ (Λ⇨ f)) g γ 
+    AP {Δ = Δ ▸ A} (Λ x ⇨ᵉ f x ∷ g x) γ ≡ᵉ
+    AP (Λ⇨ᵉ f) γ ∷ g (γ ₀) ∷ g (γ ₁) ∷ ap (A ⊚ (Λ⇨ᵉ f)) g γ 
 
 {-# REWRITE APε AP∷ #-}
 
@@ -253,21 +253,21 @@ Id-AP▸▸-reflᵉ B C f g h γ A a₀ a₁ = axiomK
 ------------------------------
 
 postulate
-  ap-AP : {Γ Δ : Tel} {A : Δ ⇨ Type} (f : Γ ⇨ el Δ) (g : (x : el Δ) → A ⊘ x) (γ : el (ID Γ)) →
+  ap-AP : {Γ Δ : Tel} {A : Δ ⇨ Type} (f : Γ ⇨ᵉ el Δ) (g : (x : el Δ) → A ⊘ x) (γ : el (ID Γ)) →
     -- This is backwards, but we can't rewrite it the other way since
     -- we don't have a dependent ⊚ to be the "composite" of g and f.
-    ap A g (AP f γ) ≡ ap (A ⊚ f) (λ w → g (f ⊘ w)) γ
-  AP-AP : {Γ Δ Θ : Tel} (f : Γ ⇨ el Δ) (g : Δ ⇨ el Θ) (γ : el (ID Γ)) →
-    AP (g ⊚ f) γ ≡ᵉ AP g (AP f γ)
-  AP-AP′ : {Γ Δ Θ : Tel} (f : Γ ⇨ el Δ) (g : Δ ⇨ el Θ) (γ : el (ID Γ)) →
-    AP (Λ x ⇨ g ⊘ (f ⊘ x)) γ ≡ᵉ AP g (AP f γ)
+    ap A g (AP f γ) ≡ ap (A ⊚ f) (λ w → g (f ⊘ᵉ w)) γ
+  AP-AP : {Γ Δ Θ : Tel} (f : Γ ⇨ᵉ el Δ) (g : Δ ⇨ᵉ el Θ) (γ : el (ID Γ)) →
+    AP (g ⊚ᵉ f) γ ≡ᵉ AP g (AP f γ)
+  AP-AP′ : {Γ Δ Θ : Tel} (f : Γ ⇨ᵉ el Δ) (g : Δ ⇨ᵉ el Θ) (γ : el (ID Γ)) →
+    AP (Λ x ⇨ᵉ g ⊘ᵉ (f ⊘ᵉ x)) γ ≡ᵉ AP g (AP f γ)
   -- TODO: Describe
-  ap⊚ : {Γ Δ : Tel} {A : Δ ⇨ Type} (f : Γ ⇨ el Δ) (g : (x : el Γ) → A ⊘ (f ⊘ x)) (γ : el (ID Γ)) →
-    ap (A ⊚ f) g γ ≡ ap (Λ x ⇨ A ⊘ (f ⊘ x)) g γ
+  ap⊚ : {Γ Δ : Tel} {A : Δ ⇨ Type} (f : Γ ⇨ᵉ el Δ) (g : (x : el Γ) → A ⊘ (f ⊘ᵉ x)) (γ : el (ID Γ)) →
+    ap (A ⊚ f) g γ ≡ ap (Λ x ⇨ A ⊘ (f ⊘ᵉ x)) g γ
 
 {-# REWRITE AP-AP ap-AP AP-AP′ ap⊚ #-}
 
-AP-AP′-reflᵉ : {Γ Δ Θ : Tel} (f : Γ ⇨ el Δ) (g : Δ ⇨ el Θ) (γ : el (ID Γ)) →
+AP-AP′-reflᵉ : {Γ Δ Θ : Tel} (f : Γ ⇨ᵉ el Δ) (g : Δ ⇨ᵉ el Θ) (γ : el (ID Γ)) →
   AP-AP′ f g γ ≡ᵉ reflᵉᵉ
 AP-AP′-reflᵉ f g γ = axiomKᵉ
 
@@ -318,10 +318,10 @@ postulate
 
 -- Here are the other two pieces of the ▸-only definition of AP.
 postulate
-  top-pop-pop-AP : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : Γ ⇨ el (Δ ▸ A)) (γ : el (ID Γ)) →
-    top (pop (pop (AP f γ))) ≡ top (f ⊘ (γ ₀))
-  top-pop-AP : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : Γ ⇨ el (Δ ▸ A)) (γ : el (ID Γ)) →
-    top (pop (AP f γ)) ≡ top (f ⊘ (γ ₁))
+  top-pop-pop-AP : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : Γ ⇨ᵉ el (Δ ▸ A)) (γ : el (ID Γ)) →
+    top (pop (pop (AP f γ))) ≡ top (f ⊘ᵉ (γ ₀))
+  top-pop-AP : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : Γ ⇨ᵉ el (Δ ▸ A)) (γ : el (ID Γ)) →
+    top (pop (AP f γ)) ≡ top (f ⊘ᵉ (γ ₁))
 
 {-# REWRITE top-pop-pop-AP top-pop-AP #-}
 
@@ -338,12 +338,12 @@ postulate
 -- Finally, we can postulate ap-top.
 postulate
   ap-top : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
-    ap (Λ x ⇨ A ⊘ pop (f x)) (λ x → top (f x)) γ ≡ top (AP (Λ⇨ f) γ)
+    ap (Λ x ⇨ A ⊘ pop (f x)) (λ x → top (f x)) γ ≡ top (AP (Λ⇨ᵉ f) γ)
   ap-top′ : {Γ Δ : Tel} (A : el Δ → Type)
     (f : el Γ → el (Δ ▸ (Λ⇨ A))) (γ : el (ID Γ)) →
     ap (Λ x ⇨ A (pop (f x))) (λ x → top (f x)) γ ≡
     coe← (Id-AP (λ x → pop (f x)) γ (Λ⇨ A) (top (f (γ ₀))) (top (f (γ ₁))))
-          (top (AP (Λ⇨ f) γ))
+          (top (AP (Λ⇨ᵉ f) γ))
 {-
   ap-top : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
     ap (Λ x ⇨ A ⊘ pop (f x)) (λ x → top (f x)) γ ≡ top (AP (Λ⇨ f) γ)
