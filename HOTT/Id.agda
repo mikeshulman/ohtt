@@ -105,11 +105,11 @@ postulate
 postulate
   AP-idmap : {Δ : Tel} (δ : el (ID Δ)) → AP {Δ} {Δ} IDMAP δ ≡ᵉ δ
   AP-pop : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
-    AP (Λ x ⇨ pop (f x)) γ ≡ᵉ pop (pop (pop (AP (Λ x ⇨ f x) γ)))
+    AP (Λ x ⇨ pop (f x)) γ ≡ᵉ pop (pop (pop (AP (Λ⇨ f) γ)))
   -- This is intentionally not (f : Γ ⇨ Δ), to match more generally.
   Id-AP : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (A : Δ ⇨ Type)
           (a₀ : A ⊘ (f (γ ₀))) (a₁ : A ⊘ (f (γ ₁))) →
-    Id (Λ x ⇨ A ⊘ f x) γ a₀ a₁ ≡ Id A (AP (Λ x ⇨ f x) γ) a₀ a₁
+    Id (Λ x ⇨ A ⊘ f x) γ a₀ a₁ ≡ Id A (AP (Λ⇨ f) γ) a₀ a₁
   Id-AP⊚ : {Γ Δ : Tel} (f : Γ ⇨ el Δ) (γ : el (ID Γ)) (A : Δ ⇨ Type)
           (a₀ : A ⊘ (f ⊘ (γ ₀))) (a₁ : A ⊘ (f ⊘ (γ ₁))) →
     Id (A ⊚ f) γ a₀ a₁ ≡ Id A (AP f γ) a₀ a₁
@@ -148,7 +148,7 @@ postulate
   -- This is intentionally not a ⇨, to match more generally.
   AP∷ : {Γ Δ : Tel} (γ : el (ID Γ)) (f : el Γ → el Δ) (A : Δ ⇨ Type) (g : (x : el Γ) → A ⊘ (f x)) →
     AP {Δ = Δ ▸ A} (Λ x ⇨ f x ∷ g x) γ ≡ᵉ
-    AP (Λ x ⇨ f x) γ ∷ g (γ ₀) ∷ g (γ ₁) ∷ ap (A ⊚ (Λ x ⇨ f x)) g γ 
+    AP (Λ⇨ f) γ ∷ g (γ ₀) ∷ g (γ ₁) ∷ ap (A ⊚ (Λ⇨ f)) g γ 
 
 {-# REWRITE APε AP∷ #-}
 
@@ -338,15 +338,15 @@ postulate
 -- Finally, we can postulate ap-top.
 postulate
   ap-top : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
-    ap (Λ x ⇨ A ⊘ pop (f x)) (λ x → top (f x)) γ ≡ top (AP (Λ x ⇨ f x) γ)
+    ap (Λ x ⇨ A ⊘ pop (f x)) (λ x → top (f x)) γ ≡ top (AP (Λ⇨ f) γ)
   ap-top′ : {Γ Δ : Tel} (A : el Δ → Type)
-    (f : el Γ → el (Δ ▸ (Λ x ⇨ A x))) (γ : el (ID Γ)) →
+    (f : el Γ → el (Δ ▸ (Λ⇨ A))) (γ : el (ID Γ)) →
     ap (Λ x ⇨ A (pop (f x))) (λ x → top (f x)) γ ≡
-    coe← (Id-AP (λ x → pop (f x)) γ (Λ x ⇨ A x) (top (f (γ ₀))) (top (f (γ ₁))))
-          (top (AP (Λ x ⇨ f x) γ))
+    coe← (Id-AP (λ x → pop (f x)) γ (Λ⇨ A) (top (f (γ ₀))) (top (f (γ ₁))))
+          (top (AP (Λ⇨ f) γ))
 {-
   ap-top : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
-    ap (Λ x ⇨ A ⊘ pop (f x)) (λ x → top (f x)) γ ≡ top (AP (Λ x ⇨ f x) γ)
+    ap (Λ x ⇨ A ⊘ pop (f x)) (λ x → top (f x)) γ ≡ top (AP (Λ⇨ f) γ)
 -}
 
 {-# REWRITE ap-top ap-top′ #-}

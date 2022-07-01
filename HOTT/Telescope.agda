@@ -50,16 +50,16 @@ el : Tel → Typeᵉ
 -- for our actual type formers Σ, Π, etc.
 
 data _⇨_ (Δ : Tel) (T : Typeᵉ) : Typeᵉ where
-  lam-Tel : (el Δ → T) → (Δ ⇨ T)
+  Λ⇨ : (el Δ → T) → (Δ ⇨ T)
 
-infix 30 lam-Tel
+infix 30 Λ⇨
 infix 40 _⊘_
 infixr 40 _⊚_ 
 
-syntax lam-Tel (λ x → B) = Λ x ⇨ B
+syntax Λ⇨ (λ x → B) = Λ x ⇨ B
 
 _⊘_ : {Δ : Tel} {T : Typeᵉ} (B : Δ ⇨ T) (x : el Δ) → T
-(lam-Tel B) ⊘ x = B x
+(Λ⇨ B) ⊘ x = B x
 
 postulate
   lam-Tel-η : {Δ : Tel} {T : Typeᵉ} (A : Δ ⇨ T) → (Λ x ⇨ A ⊘ x) ≡ᵉ A
@@ -67,7 +67,7 @@ postulate
 {-# REWRITE lam-Tel-η #-}
 
 IDMAP : {Γ : Tel} → (Γ ⇨ el Γ)
-IDMAP = lam-Tel (λ x → x)
+IDMAP = Λ x ⇨ x
 
 postulate
   _⊚_ : {Γ Δ : Tel} {T : Typeᵉ} (g : Δ ⇨ T) (f : Γ ⇨ el Δ) → (Γ ⇨ T)

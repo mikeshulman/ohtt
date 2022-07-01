@@ -39,8 +39,8 @@ postulate
     (δ : el (ID Δ)) (u₀ : Σ (A (δ ₀)) (λ a → B (δ ₀) a))
                     (u₁ : Σ (A (δ ₁)) (λ a → B (δ ₁) a)) →
     Id {Δ} (Λ w ⇨ Σ (A w) (B w)) δ u₀ u₁ ≡
-    Σ[ e ﹕ Id (Λ x ⇨ A x) δ (fst u₀) (fst u₁) ]
-      Id {Δ ▸ (Λ x ⇨ A x)} (Λ x ⇨ B (pop x) (top x))
+    Σ[ e ﹕ Id (Λ⇨ A) δ (fst u₀) (fst u₁) ]
+      Id {Δ ▸ (Λ⇨ A)} (Λ x ⇨ B (pop x) (top x))
          (δ ∷ fst u₀ ∷ fst u₁ ∷ e) (snd u₀) (snd u₁)
   ＝Σ : (A : Type) (B : A → Type) (u₀ u₁ : Σ A B) →
     (u₀ ＝ u₁) ≡
@@ -52,14 +52,14 @@ postulate
   ap, : {Δ : Tel} {A : el Δ → Type} {B : (w : el Δ) → A w → Type}
     (f : (δ : el Δ) → A δ) (g : (δ : el Δ) → B δ (f δ)) (δ : el (ID Δ)) →
     ap (Λ w ⇨ Σ (A w) (λ x → B w x)) (λ w → f w , g w) δ ≡
-    (ap (Λ x ⇨ A x) f δ ,
+    (ap (Λ⇨ A) f δ ,
      ap ((Λ x ⇨ B (pop x) (top {Δ} {Λ x ⇨ A x} x)) ⊚ (Λ x ⇨ x ∷ f x)) g δ)
   refl, : {A : Type} {B : A → Type} (a : A) (b : B a) →
     refl {Σ A B} (a , b) ≡
     (refl a , coe→ (Id-AP (λ _ → [] ∷ a) [] (Λ x ⇨ B (top x)) b b) (refl b))
   ap-fst : {Δ : Tel} {A : el Δ → Type} {B : (w : el Δ) → A w → Type}
     (δ : el (ID Δ)) (u : (x : el Δ) → Σ (A x) (B x)) →
-    ap (Λ x ⇨ A x) (λ x → fst {A x} {λ y → B x y} (u x)) δ ≡
+    ap (Λ⇨ A) (λ x → fst {A x} {λ y → B x y} (u x)) δ ≡
     fst (ap (Λ w ⇨ Σ (A w) (λ x → B w x)) u δ)
   refl-fst : {A : Type} {B : A → Type} (u : Σ A B) →
     refl (fst {A} {B} u) ≡ fst (refl u)
