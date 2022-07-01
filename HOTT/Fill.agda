@@ -113,10 +113,9 @@ ulift→sq : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₀ : A ⊘ (δ �
       (refl a₀) (utr→ A δ a₀ a₁ a₁' a₂ a₂')
       a₂ a₂'
 ulift→sq {Δ} A δ a₀ a₁ a₁' a₂ a₂' =
-  {! (Id-AP {ε ▸ (Λ _ ⇨ A ⊘ (δ ₁))} {ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ POP)}
-              (Λ x ⇨ δ ∷ a₀ ∷ top x) ([] ∷ a₁ ∷ a₁' ∷ utr→ A δ a₀ a₁ a₁' a₂ a₂')
-              (Λ y ⇨ Id A (pop (pop y)) (top (pop y)) (top y)) a₂ a₂')
---       (ulift→ A δ a₀ a₁ a₁' a₂ a₂')!}
+  coe→ (Id-AP {ε ▸ (Λ _ ⇨ A ⊘ (δ ₁))} (λ x → δ ∷ a₀ ∷ top x)
+               ([] ∷ a₁ ∷ a₁' ∷ utr→ A δ a₀ a₁ a₁' a₂ a₂') (Id/ A) a₂ a₂')
+       (ulift→ A δ a₀ a₁ a₁' a₂ a₂')
 
 ulift←sq : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₁ : A ⊘ (δ ₁))
     (a₀ a₀' : A ⊘ (δ ₀)) (a₂ : Id A δ a₀ a₁) (a₂' : Id A δ a₀' a₁) →
@@ -124,10 +123,9 @@ ulift←sq : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₁ : A ⊘ (δ �
       (utr← A δ a₁ a₀ a₀' a₂ a₂') (refl a₁)
       a₂ a₂'
 ulift←sq {Δ} A δ a₁ a₀ a₀' a₂ a₂' =
-  {!coe→ (Id-AP {ε ▸ (Λ _ ⇨ A (δ ₀))} {ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ POP)}
-              (Λ x ⇨ δ ∷ top x ∷ a₁) ([] ∷ a₀ ∷ a₀' ∷ utr← A δ a₁ a₀ a₀' a₂ a₂')
-              (Λ y ⇨ Id A (pop (pop y)) (top (pop y)) (top y)) a₂ a₂')
-        (ulift← A δ a₁ a₀ a₀' a₂ a₂')!}
+  coe→ (Id-AP {ε ▸ (Λ _ ⇨ A ⊘ (δ ₀))} (λ x → δ ∷ top x ∷ a₁)
+               ([] ∷ a₀ ∷ a₀' ∷ utr← A δ a₁ a₀ a₀' a₂ a₂') (Id/ A) a₂ a₂')
+       (ulift← A δ a₁ a₀ a₀' a₂ a₂')
 
 -- Conversely, we can construct operations having the type of utr and
 -- ulift from filling.  We include utr and ulift explicitly so that ↓
@@ -143,10 +141,9 @@ fill-ulift→ : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₀ : A ⊘ (δ
     (a₁ a₁' : A ⊘ (δ ₁)) (a₂ : Id A δ a₀ a₁) (a₂' : Id A δ a₀ a₁') →
     Id {ε ▸ (Λ _ ⇨ A ⊘ (δ ₁))} (Λ w ⇨ Id A δ a₀ (top w)) ([] ∷ a₁ ∷ a₁' ∷ fill-utr→ A δ a₀ a₁ a₁' a₂ a₂') a₂ a₂'
 fill-ulift→ {Δ} A δ a₀ a₁ a₁' a₂ a₂' =
-   {!coe← (Id-AP {ε ▸ (Λ _ ⇨ A ⊘ (δ ₁))} {ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ POP)}
-           (Λ x ⇨ δ ∷ a₀ ∷ top x) ([] ∷ a₁ ∷ a₁' ∷ fill-utr→ A δ a₀ a₁ a₁' a₂ a₂')
-           (Λ x ⇨ Id A (pop (pop x)) (top (pop x)) (top x)) a₂ a₂')
-        (fill↑ A (DEGSQ-LR δ) (refl a₀) a₂ a₂')!}
+   coe← (Id-AP {ε ▸ (Λ _ ⇨ A ⊘ (δ ₁))} (λ x → δ ∷ a₀ ∷ top x)
+                ([] ∷ a₁ ∷ a₁' ∷ fill-utr→ A δ a₀ a₁ a₁' a₂ a₂') (Id/ A) a₂ a₂')
+        (fill↑ A (DEGSQ-LR δ) (refl a₀) a₂ a₂')
     
 fill-utr← : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₁ : A ⊘ (δ ₁))
     (a₀ a₀' : A ⊘ (δ ₀)) (a₂ : Id A δ a₀ a₁) (a₂' : Id A δ a₀' a₁) → (a₀ ＝ a₀')
@@ -156,7 +153,6 @@ fill-ulift← : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₁ : A ⊘ (δ
     (a₀ a₀' : A ⊘ (δ ₀)) (a₂ : Id A δ a₀ a₁) (a₂' : Id A δ a₀' a₁) →
     Id {ε ▸ (Λ _ ⇨ A ⊘ (δ ₀))} (Λ w ⇨ Id A δ (top w) a₁) ([] ∷ a₀ ∷ a₀' ∷ fill-utr← A δ a₁ a₀ a₀' a₂ a₂') a₂ a₂'
 fill-ulift← {Δ} A δ a₁ a₀ a₀' a₂ a₂' =
-   {!coe← (Id-AP {ε ▸ (Λ _ ⇨ A ⊘ (δ ₀))} {ID Δ ▸ (A ⊚ Λ₀) ▸ (A ⊚ Λ₁ ⊚ POP)}
-           (Λ x ⇨ δ ∷ top x ∷ a₁) ([] ∷ a₀ ∷ a₀' ∷ fill-utr← A δ a₁ a₀ a₀' a₂ a₂')
-           (Λ x ⇨ Id A (pop (pop x)) (top (pop x)) (top x)) a₂ a₂')
-        (fill↓ A (DEGSQ-LR δ) (refl a₁) a₂ a₂')!}
+  coe← (Id-AP {ε ▸ (Λ _ ⇨ A ⊘ (δ ₀))} (λ x → δ ∷ top x ∷ a₁)
+                ([] ∷ a₀ ∷ a₀' ∷ fill-utr← A δ a₁ a₀ a₀' a₂ a₂') (Id/ A) a₂ a₂')
+        (fill↓ A (DEGSQ-LR δ) (refl a₁) a₂ a₂')
