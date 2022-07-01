@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --cumulativity #-}
 
 module HOTT.Square.Equality where
 
@@ -11,7 +11,7 @@ open import HOTT.Square.Base
 -- Congruence for squares and their elements
 --------------------------------------------------
 
-Sq≡ : {Δ : Tel} (A : Δ →Type)
+Sq≡ : {Δ : Tel} (A : Δ ⇨ Type)
      {δ δ' : el (SQ Δ)} (e : δ ≡ᵉ δ')
      {a₀₀ : A ⊘ (δ ₀₀)} {a₀₀' : A ⊘ (δ' ₀₀)} (e₀₀ : a₀₀ ≡ʰ a₀₀')
      {a₀₁ : A ⊘ (δ ₀₁)} {a₀₁' : A ⊘ (δ' ₀₁)} (e₀₁ : a₀₁ ≡ʰ a₀₁')

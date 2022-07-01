@@ -60,6 +60,9 @@ coe← reflᵉ v = v
 axiomK : {A : Type} {a : A} {p : a ≡ a} → p ≡ᵉ reflᵉ
 axiomK {p = reflᵉ} = reflᵉᵉ
 
+axiomKᵉ : {A : Typeᵉ} {a : A} {p : a ≡ᵉ a} → p ≡ᵉ reflᵉᵉ
+axiomKᵉ {p = reflᵉᵉ} = reflᵉᵉ
+
 uip : {A : Type} {a b : A} {p q : a ≡ b} → p ≡ᵉ q
 uip {q = reflᵉ} = axiomK
 

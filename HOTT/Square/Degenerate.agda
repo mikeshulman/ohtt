@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --cumulativity #-}
 
 module HOTT.Square.Degenerate where
 
@@ -40,16 +40,20 @@ DEGSQ-LR₂₁ δ = reflᵉᵉ
 DEGSQ-TB : {Δ : Tel} (δ : el (ID Δ)) → el (SQ Δ)
 DEGSQ-TB δ = AP ΛREFL δ
 
--- Its boundaries are also correct definitionally.
-
-DEGSQ-TB₀₂ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-TB δ ₀₂ ≡ᵉ δ
-DEGSQ-TB₀₂ δ = revᵉ (AP-AP ΛREFL Λ₀ δ)
-
-DEGSQ-TB₁₂ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-TB δ ₁₂ ≡ᵉ δ
-DEGSQ-TB₁₂ δ = revᵉ (AP-AP ΛREFL Λ₁ δ)
+-- Two of its boundaries are also correct definitionally.
 
 DEGSQ-TB₂₀ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-TB δ ₂₀ ≡ᵉ REFL (δ ₀)
 DEGSQ-TB₂₀ δ = reflᵉᵉ
 
 DEGSQ-TB₂₁ : {Δ : Tel} (δ : el (ID Δ)) → DEGSQ-TB δ ₂₁ ≡ᵉ REFL (δ ₁)
 DEGSQ-TB₂₁ δ = reflᵉᵉ
+
+-- The others *should* be correct definitionally, but Agda can't check that without help because AP-AP rewrites in the other direction.  We need perhaps an "AP⊚"?
+
+DEGSQ-TB₀₂ : {Δ : Tel} (δ : el (ID Δ)) → AP Λ₀ (DEGSQ-TB δ) ≡ᵉ δ
+DEGSQ-TB₀₂ δ = revᵉ (AP-AP′ ΛREFL Λ₀ δ) 
+
+DEGSQ-TB₁₂ : {Δ : Tel} (δ : el (ID Δ)) → AP Λ₁ (DEGSQ-TB δ) ≡ᵉ δ
+DEGSQ-TB₁₂ δ = revᵉ (AP-AP′ ΛREFL Λ₁ δ)
+
+{-# REWRITE DEGSQ-TB₀₂ DEGSQ-TB₁₂ #-}
