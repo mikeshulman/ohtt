@@ -137,13 +137,12 @@ postulate
 
 {-# REWRITE ap-REFL AP-REFL #-}
 
-{-
-ap-REFL[]▸ : (B : ε ⇨ Type) (A : (ε ▸ B) ⇨ Type) (f : (x : el (ε ▸ B)) → A ⊘ x) (b : B ⊘ []) →
+ap-REFL[]▸ : (B : ε ⇨ Type) (A : (ε ▸ B) ⇨ Type)
+             (f : (x : el (ε ▸ B)) → A ⊘ x) (b : B ⊘ []) →
   ap A f ([] ∷ b ∷ b ∷ refl b) ≡ refl (f ([] ∷ b))
 ap-REFL[]▸ B A f b = ap-REFL A f ([] ∷ b)
 
 {-# REWRITE ap-REFL[]▸ #-}
--}
 
 -- The choice not to *define* Id, refl, and REFL as instances of Id,
 -- ap, and AP does mean that some of the rewrites we postulate for the

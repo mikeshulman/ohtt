@@ -27,7 +27,7 @@ a ↑ ↓ = a
 
 postulate
   Id-Copy : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a₀ : Copy (A (δ ₀))) (a₁ : Copy (A (δ ₁))) →
-    Id (λ w → Copy (A w)) δ a₀ a₁ ≡ Copy (Id A δ (a₀ ↓) (a₁ ↓))
+    Id (Λ w ⇨ Copy (A w)) δ a₀ a₁ ≡ Copy (Id (Λ⇨ A) δ (a₀ ↓) (a₁ ↓))
   ＝-Copy : (A : Type) (a₀ a₁ : Copy A) →
     (a₀ ＝ a₁) ≡ Copy ((a₀ ↓ ＝ a₁ ↓))
 
@@ -55,18 +55,18 @@ infixl 30 _⇑
 postulate
   -- Computing ap and refl on _↓ is straightforward.
   ap↓ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a : (w : el Δ) → Copy (A w)) →
-    ap (λ w → (a w) ↓) δ ≡ (ap a δ) ↓
+    ap (Λ⇨ A) (λ w → (a w) ↓) δ ≡ (ap (Λ w ⇨ Copy (A w))a δ) ↓
   refl↓ : {A : Type} (a : Copy A) → refl (a ↓) ≡ refl a ↓
   -- Computing them on _↑ is similar, but we parametrize the result.
   ap↑ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) (a : (w : el Δ) → A w) →
-    ap (λ w → (a w) ↑) δ ≡ _⇑ {(w : el Δ) → A w} {a} (ap a δ)
+    ap (Λ w ⇨ Copy (A w)) (λ w → (a w) ↑) δ ≡ _⇑ {(w : el Δ) → A w} {a} (ap (Λ⇨ A) a δ)
   refl↑ : {A : Type} (a : A) → refl (a ↑) ≡ _⇑ {⊤ᵉ → A} {λ _ → a} (refl a)
   -- And of course we also have to compute them on _⇑.  In this case
   -- we apply the dimension-increasing operator, to make sure the
   -- results are definitionally unique.
   ap⇑ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ))
     {T : el Δ → Typeᵉ} {t : (w : el Δ) → T w} (a : (w : el Δ) → A w) →
-    ap (λ w → _⇑ {T w} {t w} (a w)) δ ≡ _⇑ {↿ ((w : el Δ) → T w)} {↾ t} (ap a δ)
+    ap (Λ w ⇨ Copy (A w)) (λ w → _⇑ {T w} {t w} (a w)) δ ≡ _⇑ {↿ ((w : el Δ) → T w)} {↾ t} (ap (Λ⇨ A) a δ)
   refl⇑ : {T : Typeᵉ} {t : T} {A : Type} (a : A) → refl (_⇑ {T} {t} a) ≡ _⇑ {↿ T} {↾ t} (refl a)
 
 {-# REWRITE ap↓ refl↓ ap↑ ap⇑ refl↑ refl⇑ #-}

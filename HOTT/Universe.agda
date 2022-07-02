@@ -38,14 +38,14 @@ postulate
 
 postulate
   apU : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) →
-    (ap A δ) ↓ ≡
-    ((Λ a₀ ⇒ Λ a₁ ⇒ Id A δ a₀ a₁) ,
-    ((Λ a₀ ⇒ (tr→ A δ a₀ , lift→ A δ a₀) ,
-              (Λ x ⇒ Λ x' ⇒ (utr→ A δ a₀ (fst x) (fst x') (snd x) (snd x') ,
-                             ulift→ A δ a₀ (fst x) (fst x') (snd x) (snd x')))) ,
-     (Λ a₁ ⇒ (tr← A δ a₁ , lift← A δ a₁) ,
-              (Λ x ⇒ Λ x' ⇒ (utr← A δ a₁ (fst x) (fst x') (snd x) (snd x') ,
-                             ulift← A δ a₁ (fst x) (fst x') (snd x) (snd x'))))))
+    (ap (Λ _ ⇨ Type) A δ) ↓ ≡
+    ((ƛ a₀ ⇒ ƛ a₁ ⇒ Id (Λ⇨ A) δ a₀ a₁) ,
+    ((ƛ a₀ ⇒ (tr→ (Λ⇨ A) δ a₀ , lift→ (Λ⇨ A) δ a₀) ,
+              (ƛ x ⇒ ƛ x' ⇒ (utr→ (Λ⇨ A) δ a₀ (fst x) (fst x') (snd x) (snd x') ,
+                             ulift→ (Λ⇨ A) δ a₀ (fst x) (fst x') (snd x) (snd x')))) ,
+     (ƛ a₁ ⇒ (tr← (Λ⇨ A) δ a₁ , lift← (Λ⇨ A) δ a₁) ,
+              (ƛ x ⇒ ƛ x' ⇒ (utr← (Λ⇨ A) δ a₁ (fst x) (fst x') (snd x) (snd x') ,
+                             ulift← (Λ⇨ A) δ a₁ (fst x) (fst x') (snd x) (snd x'))))))
 
 {-# REWRITE apU #-}
 
