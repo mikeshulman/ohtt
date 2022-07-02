@@ -65,19 +65,23 @@ postulate
 postulate
   Id-REFL : {Δ : Tel} (A : Δ ⇨ Type) (δ : el Δ) (a₀ : A ⊘ δ) (a₁ : A ⊘ δ) →
     Id A (REFL δ) a₀ a₁ ≡ (a₀ ＝ a₁)
+  Id-REFL′ : {Δ : Tel} (A : el Δ → Type) (δ : el Δ) (a₀ : A δ) (a₁ : A δ) →
+    Id (Λ⇨ A) (REFL δ) a₀ a₁ ≡ (a₀ ＝ a₁)
   AP-const : {Δ : Tel} (Θ : Tel) (δ : el (ID Δ)) (t : el Θ) →
     AP {Δ} (Λ _ ⇨ᵉ t) δ ≡ᵉ REFL t
 
-{-# REWRITE Id-REFL AP-const #-}
+{-# REWRITE Id-REFL Id-REFL′ AP-const #-}
 
 REFL {ε} δ = []
 REFL {Δ ▸ A} (δ ∷ a) = REFL δ ∷ a ∷ a ∷ refl a
 
 postulate
-  Id-[] : (A : ε ⇨ Type) (a₀ : A ⊘ []) (a₁ : A ⊘ []) →
+  Id-[] : (A : el ε → Type) (a₀ : A []) (a₁ : A []) →
+    Id (Λ⇨ A) [] a₀ a₁ ≡ (a₀ ＝ a₁)
+  Id-[]′ : (A : ε ⇨ Type) (a₀ : A ⊘ []) (a₁ : A ⊘ []) →
     Id A [] a₀ a₁ ≡ (a₀ ＝ a₁)
 
-{-# REWRITE Id-[] #-}
+{-# REWRITE Id-[] Id-[]′ #-}
 
 -- As with Id-AP, if δ has internal structure, REFL will compute on
 -- it, and can't be "un-rewritten" back to a REFL in order for
@@ -89,11 +93,18 @@ postulate
   Id-REFL▸ : {Δ : Tel} (B : Δ ⇨ Type) (A : (Δ ▸ B) ⇨ Type) (δ : el Δ) (b : B ⊘ δ)
     (a₀ : A ⊘ ((REFL (_∷_ {Δ} {B} δ b))₀)) (a₁ : A ⊘ ((REFL (_∷_ {Δ} {B} δ b))₁)) →
     Id A (REFL δ ∷ b ∷ b ∷ refl b) a₀ a₁ ≡ (a₀ ＝ a₁)
+  Id-REFL▸′ : {Δ : Tel} (B : el Δ → Type) (A : el (Δ ▸ Λ⇨ B) → Type)
+    (δ : el Δ) (b : B δ) (a₀ : A ((REFL (_∷_ {Δ} {Λ⇨ B} δ b))₀))
+    (a₁ : A ((REFL (_∷_ {Δ} {Λ⇨ B} δ b))₁)) →
+    Id (Λ⇨ A) (REFL δ ∷ b ∷ b ∷ refl b) a₀ a₁ ≡ (a₀ ＝ a₁)
   Id-REFL[]▸ : (B : ε ⇨ Type) (A : (ε ▸ B) ⇨ Type) (b : B ⊘ [])
     (a₀ : A ⊘ (_∷_ {ε} {B} [] b)) (a₁ : A ⊘ (_∷_ {ε} {B} [] b)) →
     Id A ([] ∷ b ∷ b ∷ refl b) a₀ a₁ ≡ (a₀ ＝ a₁)
+  Id-REFL[]▸′ : (B : el ε → Type) (A : el (ε ▸ Λ⇨ B) → Type) (b : B [])
+    (a₀ : A (_∷_ {ε} {Λ⇨ B} [] b)) (a₁ : A (_∷_ {ε} {Λ⇨ B} [] b)) →
+    Id (Λ⇨ A) ([] ∷ b ∷ b ∷ refl b) a₀ a₁ ≡ (a₀ ＝ a₁)
 
-{-# REWRITE Id-REFL▸ Id-REFL[]▸ #-}
+{-# REWRITE Id-REFL▸ Id-REFL▸′ Id-REFL[]▸ Id-REFL[]▸′ #-}
 
 postulate
   Id-REFL▸▸ : {Δ : Tel} (B : Δ ⇨ Type) (C : (Δ ▸ B) ⇨ Type)
@@ -101,18 +112,23 @@ postulate
     (a₀ : A ⊘ (REFL (_∷_ {Δ ▸ B} {C} (_∷_ {Δ} {B} δ b) c)₀))
     (a₁ : A ⊘ (REFL (_∷_ {Δ ▸ B} {C} (_∷_ {Δ} {B} δ b) c)₁)) →
     Id A (REFL δ ∷ b ∷ b ∷ refl b ∷ c ∷ c ∷ refl c) a₀ a₁ ≡ (a₀ ＝ a₁)
+  Id-REFL▸▸′ : {Δ : Tel} (B : el Δ → Type) (C : el (Δ ▸ Λ⇨ B) → Type)
+    (A : el (Δ ▸ Λ⇨ B ▸ Λ⇨ C) → Type) (δ : el Δ) (b : B δ) (c : C (δ ∷ b))
+    (a₀ : A (REFL (_∷_ {Δ ▸ Λ⇨ B} {Λ⇨ C} (_∷_ {Δ} {Λ⇨ B} δ b) c)₀))
+    (a₁ : A (REFL (_∷_ {Δ ▸ Λ⇨ B} {Λ⇨ C} (_∷_ {Δ} {Λ⇨ B} δ b) c)₁)) →
+    Id (Λ⇨ A) (REFL δ ∷ b ∷ b ∷ refl b ∷ c ∷ c ∷ refl c) a₀ a₁ ≡ (a₀ ＝ a₁)
 
-{-# REWRITE Id-REFL▸▸ #-}
+{-# REWRITE Id-REFL▸▸ Id-REFL▸▸′ #-}
 
 Id-REFL▸-reflᵉ : {Δ : Tel} (B : Δ ⇨ Type) (A : (Δ ▸ B) ⇨ Type) (δ : el Δ) (b : B ⊘ δ)
   (a₀ : A ⊘ ((REFL (_∷_ {Δ} {B} δ b))₀)) (a₁ : A ⊘ ((REFL (_∷_ {Δ} {B} δ b))₁)) →
   Id-REFL▸ B A δ b a₀ a₁ ≡ᵉ reflᵉ
 Id-REFL▸-reflᵉ B A δ b a₀ a₁ = axiomK
 
-Id-REFL[]▸-reflᵉ : (B : ε ⇨ Type) (A : (ε ▸ B) ⇨ Type) (b : B ⊘ [])
-  (a₀ : A ⊘ (_∷_ {ε} {B} [] b)) (a₁ : A ⊘ (_∷_ {ε} {B} [] b)) →
-  Id-REFL[]▸ B A b a₀ a₁ ≡ᵉ reflᵉ
-Id-REFL[]▸-reflᵉ B A b a₀ a₁ = axiomK
+Id-REFL[]▸′-reflᵉ : (B : el ε → Type) (A : el (ε ▸ Λ⇨ B) → Type) (b : B [])
+  (a₀ : A (_∷_ {ε} {Λ⇨ B} [] b)) (a₁ : A (_∷_ {ε} {Λ⇨ B} [] b)) →
+  Id-REFL[]▸′ B A b a₀ a₁ ≡ᵉ reflᵉ
+Id-REFL[]▸′-reflᵉ B A b a₀ a₁ = axiomK
 
 Id-REFL▸▸-reflᵉ : {Δ : Tel} (B : Δ ⇨ Type) (C : (Δ ▸ B) ⇨ Type)
   (A : (Δ ▸ B ▸ C) ⇨ Type) (δ : el Δ) (b : B ⊘ δ) (c : C ⊘ (δ ∷ b))
@@ -121,7 +137,7 @@ Id-REFL▸▸-reflᵉ : {Δ : Tel} (B : Δ ⇨ Type) (C : (Δ ▸ B) ⇨ Type)
   Id-REFL▸▸ B C A δ b c a₀ a₁ ≡ᵉ reflᵉ
 Id-REFL▸▸-reflᵉ B C A δ b c a₀ a₁ = axiomK
 
-{-# REWRITE Id-REFL▸-reflᵉ Id-REFL[]▸-reflᵉ Id-REFL▸▸-reflᵉ #-}
+{-# REWRITE Id-REFL▸-reflᵉ Id-REFL[]▸′-reflᵉ Id-REFL▸▸-reflᵉ #-}
 
 ------------------------------
 -- ap and reflexivity
@@ -131,18 +147,27 @@ ap-REFL : {Δ : Tel} (A : Δ ⇨ Type) (f : (δ : el Δ) → A ⊘ δ) (δ : el 
   ap A f (REFL δ) ≡ refl (f δ)
 ap-REFL {Δ} A f δ = ap-AP {ε} {Δ} {A} (Λ _ ⇨ᵉ δ) f []
 
+ap-REFL′ : {Δ : Tel} (A : el Δ → Type) (f : (δ : el Δ) → A δ) (δ : el Δ) →
+  ap (Λ⇨ A) f (REFL δ) ≡ refl (f δ)
+ap-REFL′ {Δ} A f δ = ap-AP {ε} {Δ} {Λ⇨ A} (Λ _ ⇨ᵉ δ) f []
+
 postulate
   AP-REFL : {Δ Θ : Tel} (f : Δ ⇨ᵉ el Θ) (δ : el Δ) →
     AP f (REFL δ) ≡ᵉ REFL (f ⊘ᵉ δ)
 
-{-# REWRITE ap-REFL AP-REFL #-}
+{-# REWRITE ap-REFL ap-REFL′ AP-REFL #-}
 
 ap-REFL[]▸ : (B : ε ⇨ Type) (A : (ε ▸ B) ⇨ Type)
              (f : (x : el (ε ▸ B)) → A ⊘ x) (b : B ⊘ []) →
   ap A f ([] ∷ b ∷ b ∷ refl b) ≡ refl (f ([] ∷ b))
 ap-REFL[]▸ B A f b = ap-REFL A f ([] ∷ b)
 
-{-# REWRITE ap-REFL[]▸ #-}
+ap-REFL[]▸′ : (B : el ε → Type) (A : el (ε ▸ Λ⇨ B) → Type)
+             (f : (x : el (ε ▸ Λ⇨ B)) → A x) (b : B []) →
+  ap (Λ⇨ A) f ([] ∷ b ∷ b ∷ refl b) ≡ refl (f ([] ∷ b))
+ap-REFL[]▸′ B A f b = ap-REFL (Λ⇨ A) f ([] ∷ b)
+
+{-# REWRITE ap-REFL[]▸ ap-REFL[]▸′ #-}
 
 -- The choice not to *define* Id, refl, and REFL as instances of Id,
 -- ap, and AP does mean that some of the rewrites we postulate for the

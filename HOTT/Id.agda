@@ -256,10 +256,14 @@ Id-AP▸▸-reflᵉ B C f g h γ A a₀ a₁ = axiomK
 ------------------------------
 
 postulate
-  ap-AP : {Γ Δ : Tel} {A : Δ ⇨ Type} (f : Γ ⇨ᵉ el Δ) (g : (x : el Δ) → A ⊘ x) (γ : el (ID Γ)) →
+  ap-AP : {Γ Δ : Tel} {A : Δ ⇨ Type} (f : Γ ⇨ᵉ el Δ) (g : (x : el Δ) → A ⊘ x)
+          (γ : el (ID Γ)) →
     -- This is backwards, but we can't rewrite it the other way since
     -- we don't have a dependent ⊚ to be the "composite" of g and f.
     ap A g (AP f γ) ≡ ap (A ⊚ f) (λ w → g (f ⊘ᵉ w)) γ
+  ap-AP′ : {Γ Δ : Tel} {A : el Δ → Type} (f : el Γ → el Δ) (g : (x : el Δ) → A x)
+          (γ : el (ID Γ)) →
+    ap (Λ⇨ A) g (AP (Λ⇨ᵉ f) γ) ≡ ap (Λ⇨ A ⊚ Λ⇨ᵉ f) (λ w → g (f w)) γ
   AP-AP : {Γ Δ Θ : Tel} (f : Γ ⇨ᵉ el Δ) (g : Δ ⇨ᵉ el Θ) (γ : el (ID Γ)) →
     AP (g ⊚ᵉ f) γ ≡ᵉ AP g (AP f γ)
   AP-AP′ : {Γ Δ Θ : Tel} (f : Γ ⇨ᵉ el Δ) (g : Δ ⇨ᵉ el Θ) (γ : el (ID Γ)) →
@@ -268,7 +272,7 @@ postulate
   ap⊚ : {Γ Δ : Tel} {A : Δ ⇨ Type} (f : Γ ⇨ᵉ el Δ) (g : (x : el Γ) → A ⊘ (f ⊘ᵉ x)) (γ : el (ID Γ)) →
     ap (A ⊚ f) g γ ≡ ap (Λ x ⇨ A ⊘ (f ⊘ᵉ x)) g γ
 
-{-# REWRITE AP-AP ap-AP AP-AP′ ap⊚ #-}
+{-# REWRITE ap-AP ap-AP′ AP-AP AP-AP′ ap⊚ #-}
 
 AP-AP′-reflᵉ : {Γ Δ Θ : Tel} (f : Γ ⇨ᵉ el Δ) (g : Δ ⇨ᵉ el Θ) (γ : el (ID Γ)) →
   AP-AP′ f g γ ≡ᵉ reflᵉᵉ

@@ -71,9 +71,9 @@ postulate
   ap-snd : {Δ : Tel} {A : el Δ → Type} {B : (w : el Δ) → A w → Type}
     (δ : el (ID Δ)) (u : (x : el Δ) → Σ (A x) (B x)) →
     ap (Λ x ⇨ B x (fst (u x))) (λ x → snd (u x)) δ ≡
-    coe← (Id-AP (λ x → x ∷ fst (u x)) δ
-                  (Λ w ⇨ B (pop w) (top w))
-                  (snd (u (δ ₀))) (snd (u (δ ₁))))
+    coe← (Id-AP {Δ} {Δ ▸ Λ⇨ A} (λ x → x ∷ fst (u x)) δ
+                (Λ w ⇨ B (pop w) (top w))
+                (snd (u (δ ₀))) (snd (u (δ ₁))))
          (snd (ap (Λ x ⇨ Σ (A x) (B x)) u δ))
   refl-snd : {A : Type} {B : A → Type} (u : Σ A B) →
     refl (snd u) ≡

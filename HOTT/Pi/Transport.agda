@@ -11,4 +11,5 @@ open import HOTT.Pi.Transport.Utr public
 open import HOTT.Pi.Transport.Ulift public
 
 open import HOTT.Pi.Transport.Tr public
-open import HOTT.Pi.Transport.Lift public
+open import HOTT.Pi.Transport.LiftR public
+open import HOTT.Pi.Transport.LiftL public
