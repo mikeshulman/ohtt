@@ -145,11 +145,11 @@ Id-REFL▸▸-reflᵉ B C A δ b c a₀ a₁ = axiomK
 
 ap-REFL : {Δ : Tel} (A : Δ ⇨ Type) (f : (δ : el Δ) → A ⊘ δ) (δ : el Δ) →
   ap A f (REFL δ) ≡ refl (f δ)
-ap-REFL {Δ} A f δ = ap-AP {ε} {Δ} {A} (Λ _ ⇨ᵉ δ) f []
+ap-REFL {Δ} A f δ = ap-AP {ε} {Δ} A (Λ _ ⇨ᵉ δ) f []
 
 ap-REFL′ : {Δ : Tel} (A : el Δ → Type) (f : (δ : el Δ) → A δ) (δ : el Δ) →
   ap (Λ⇨ A) f (REFL δ) ≡ refl (f δ)
-ap-REFL′ {Δ} A f δ = ap-AP {ε} {Δ} {Λ⇨ A} (Λ _ ⇨ᵉ δ) f []
+ap-REFL′ {Δ} A f δ = ap-AP {ε} {Δ} (Λ⇨ A) (Λ _ ⇨ᵉ δ) f []
 
 postulate
   AP-REFL : {Δ Θ : Tel} (f : Δ ⇨ᵉ el Θ) (δ : el Δ) →

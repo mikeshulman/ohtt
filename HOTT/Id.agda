@@ -256,7 +256,7 @@ Id-AP▸▸-reflᵉ B C f g h γ A a₀ a₁ = axiomK
 ------------------------------
 
 postulate
-  ap-AP : {Γ Δ : Tel} {A : Δ ⇨ Type} (f : Γ ⇨ᵉ el Δ) (g : (x : el Δ) → A ⊘ x)
+  ap-AP : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : Γ ⇨ᵉ el Δ) (g : (x : el Δ) → A ⊘ x)
           (γ : el (ID Γ)) →
     -- This is backwards, but we can't rewrite it the other way since
     -- we don't have a dependent ⊚ to be the "composite" of g and f.
