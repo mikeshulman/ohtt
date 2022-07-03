@@ -274,6 +274,22 @@ postulate
 
 {-# REWRITE ap-AP ap-AP′ AP-AP AP-AP′ ap⊚ #-}
 
+ap-AP∷ : {Γ Δ : Tel} (B : Δ ⇨ Type) (A : (Δ ▸ B) ⇨ Type)
+  (f : el Γ → el Δ) (h : (x : el Γ) → B ⊘ (f x))
+  (g : (x : el (Δ ▸ B)) → A ⊘ x) (γ : el (ID Γ)) →
+  ap A g (AP (Λ⇨ᵉ f) γ ∷ h (γ ₀) ∷ h (γ ₁) ∷ ap (B ⊚ Λ⇨ᵉ f) h γ) ≡
+  ap (A ⊚ (Λ x ⇨ᵉ f x ∷ h x)) (λ w → g (f w ∷ h w)) γ
+ap-AP∷ B A f h g γ = ap-AP A (Λ x ⇨ᵉ f x ∷ h x) g γ
+
+ap-AP-idmap∷ : {Δ : Tel} (B : Δ ⇨ Type) (A : (Δ ▸ B) ⇨ Type)
+  (h : (x : el Δ) → B ⊘ x)
+  (g : (x : el (Δ ▸ B)) → A ⊘ x) (γ : el (ID Δ)) →
+  ap A g (γ ∷ h (γ ₀) ∷ h (γ ₁) ∷ ap (B) h γ) ≡
+  ap (A ⊚ (Λ x ⇨ᵉ x ∷ h x)) (λ w → g (w ∷ h w)) γ
+ap-AP-idmap∷ B A h g γ = ap-AP A (Λ x ⇨ᵉ x ∷ h x) g γ
+
+{-# REWRITE ap-AP∷ ap-AP-idmap∷ #-}
+
 AP-AP′-reflᵉ : {Γ Δ Θ : Tel} (f : Γ ⇨ᵉ el Δ) (g : Δ ⇨ᵉ el Θ) (γ : el (ID Γ)) →
   AP-AP′ f g γ ≡ᵉ reflᵉᵉ
 AP-AP′-reflᵉ f g γ = axiomKᵉ
