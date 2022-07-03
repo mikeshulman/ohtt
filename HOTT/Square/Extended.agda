@@ -16,27 +16,27 @@ module Sq∷ {Δ : Tel} (A : Δ ⇨ Type) (δ : el (SQ Δ))
   (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id A (δ ₂₁) a₀₁ a₁₁)
   (a₂₂ : Sq A δ a₀₂ a₁₂ a₂₀ a₂₁) where
 
-  abstract
-    sq∷ : el (SQ (Δ ▸ A))
-    sq∷ = δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂
+  -- abstract
+  sq∷ : el (SQ (Δ ▸ A))
+  sq∷ = δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂
 
-    sq∷₀₀ : _₀ {Δ ▸ A} (_₀ {ID (Δ ▸ A)} sq∷) ≡ᵉ δ ₀₀ ∷ a₀₀
-    sq∷₀₀ = reflᵉᵉ
+  sq∷₀₀ : _₀ {Δ ▸ A} (_₀ {ID (Δ ▸ A)} sq∷) ≡ᵉ δ ₀₀ ∷ a₀₀
+  sq∷₀₀ = reflᵉᵉ
 
-    sq∷₀₁ : _₀ {Δ ▸ A} (_₁ {ID (Δ ▸ A)} sq∷) ≡ᵉ δ ₀₁ ∷ a₀₁
-    sq∷₀₁ = reflᵉᵉ
+  sq∷₀₁ : _₀ {Δ ▸ A} (_₁ {ID (Δ ▸ A)} sq∷) ≡ᵉ δ ₀₁ ∷ a₀₁
+  sq∷₀₁ = reflᵉᵉ
 
-    sq∷₁₀ : _₁ {Δ ▸ A} (_₀ {ID (Δ ▸ A)} sq∷) ≡ᵉ δ ₁₀ ∷ a₁₀
-    sq∷₁₀ = reflᵉᵉ
+  sq∷₁₀ : _₁ {Δ ▸ A} (_₀ {ID (Δ ▸ A)} sq∷) ≡ᵉ δ ₁₀ ∷ a₁₀
+  sq∷₁₀ = reflᵉᵉ
 
-    sq∷₁₁ : _₁ {Δ ▸ A} (_₁ {ID (Δ ▸ A)} sq∷) ≡ᵉ δ ₁₁ ∷ a₁₁
-    sq∷₁₁ = reflᵉᵉ
+  sq∷₁₁ : _₁ {Δ ▸ A} (_₁ {ID (Δ ▸ A)} sq∷) ≡ᵉ δ ₁₁ ∷ a₁₁
+  sq∷₁₁ = reflᵉᵉ
 
-    sq∷₂₀ : _₀ {ID (Δ ▸ A)} sq∷ ≡ᵉ δ ₂₀ ∷ a₀₀ ∷ a₁₀ ∷ a₂₀
-    sq∷₂₀ = reflᵉᵉ
+  sq∷₂₀ : _₀ {ID (Δ ▸ A)} sq∷ ≡ᵉ δ ₂₀ ∷ a₀₀ ∷ a₁₀ ∷ a₂₀
+  sq∷₂₀ = reflᵉᵉ
 
-    sq∷₂₁ : _₁ {ID (Δ ▸ A)} sq∷ ≡ᵉ δ ₂₁ ∷ a₀₁ ∷ a₁₁ ∷ a₂₁
-    sq∷₂₁ = reflᵉᵉ
+  sq∷₂₁ : _₁ {ID (Δ ▸ A)} sq∷ ≡ᵉ δ ₂₁ ∷ a₀₁ ∷ a₁₁ ∷ a₂₁
+  sq∷₂₁ = reflᵉᵉ
 
 -- Since _₂₀ and _₂₁ are defined in terms of _₀ and _₁, they compute
 -- without a problem.  However, _₀₂ and _₁₂ don't compute as defined,
@@ -50,11 +50,9 @@ module Sq∷ {Δ : Tel} (A : Δ ⇨ Type) (δ : el (SQ Δ))
     sq∷₀₂ : AP (Λ₀ {Δ ▸ A}) sq∷ ≡ᵉ δ ₀₂ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂
     sq∷₁₂ : AP (Λ₁ {Δ ▸ A}) sq∷ ≡ᵉ δ ₁₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂
 
--- TODO: Should we also prove topₘₙ relations?
+open Sq∷ public
 
---open Sq∷ public
-
---{-# REWRITE sq∷₀₀ sq∷₀₁ sq∷₀₂ sq∷₁₀ sq∷₁₁ sq∷₁₂ sq∷₂₀ sq∷₂₁ #-}
+{-# REWRITE sq∷₀₂ sq∷₁₂ #-}
 
 -- We might hope to define the behavior of (AP (λ x → f x ₀)) more
 -- generally for any function f.  The definitions would be something

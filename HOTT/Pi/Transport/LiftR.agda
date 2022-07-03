@@ -18,12 +18,6 @@ module Lift→Π {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Ty
   (δ : el (ID Δ)) (f₀ : Π (A (δ ₀)) (B (δ ₀)))
   (a₀ : A (δ ₀)) (a₁ : A (δ ₁)) (a₂ : Id (Λ⇨ A) δ a₀ a₁) where
 
-  module the = Sq∷ (Λ⇨ A) (DEGSQ-LR δ)
-    {a₀} {tr← (Λ⇨ A) δ a₁}
-    (utr← (Λ⇨ A) δ a₁ a₀ (tr← (Λ⇨ A) δ a₁) a₂ (lift← (Λ⇨ A) δ a₁))
-    {a₁} {a₁} (refl a₁) a₂ (lift← (Λ⇨ A) δ a₁)
-    (ulift←sq (Λ⇨ A) δ a₁ a₀ (tr← (Λ⇨ A) δ a₁) a₂ (lift← (Λ⇨ A) δ a₁))
-
   the-Δ : Tel
   the-Δ = Δ ▸ Λ⇨ A
 
@@ -31,9 +25,11 @@ module Lift→Π {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Ty
   the-A = Λ⇨ (uncurry {A = Λ⇨ A} B)
 
   the-δ : el (ID▸▸ (Id/ (Λ⇨ A)) ▸ Id/ (Id/ (Λ⇨ A)))
-  the-δ = the.sq∷
-
-  {-# REWRITE the.sq∷₀₀ the.sq∷₀₁ the.sq∷₀₂ the.sq∷₁₀ the.sq∷₁₁ the.sq∷₁₂ the.sq∷₂₀ the.sq∷₂₁ #-}
+  the-δ = sq∷ (Λ⇨ A) (DEGSQ-LR δ)
+    {a₀} {tr← (Λ⇨ A) δ a₁}
+    (utr← (Λ⇨ A) δ a₁ a₀ (tr← (Λ⇨ A) δ a₁) a₂ (lift← (Λ⇨ A) δ a₁))
+    {a₁} {a₁} (refl a₁) a₂ (lift← (Λ⇨ A) δ a₁)
+    (ulift←sq (Λ⇨ A) δ a₁ a₀ (tr← (Λ⇨ A) δ a₁) a₂ (lift← (Λ⇨ A) δ a₁))
 
   the-a₀₀ : uncurry B (the-δ ₀₀)
   the-a₀₀ = f₀ ∙ a₀
