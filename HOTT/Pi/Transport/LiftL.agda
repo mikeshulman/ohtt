@@ -9,7 +9,6 @@ open import HOTT.Refl
 open import HOTT.Transport
 open import HOTT.Square.Base
 open import HOTT.Square.Degenerate
-open import HOTT.Square.Extended
 open import HOTT.Fill
 open import HOTT.Pi.Base
 open import HOTT.Pi.Transport.Tr

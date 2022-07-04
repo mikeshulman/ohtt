@@ -80,36 +80,35 @@ _₁₂ : {Δ : Tel} → el (SQ Δ) → el (ID Δ)
 ------------------------------
 
 -- We can now extract a definition of squares in a type by having Agda
--- normalize (SQ (Δ ▸ A)) for us.  Once done and cleaned up, we obtain:
+-- normalize (SQ (Δ ▸ A)) for us.
+{-
+eg : (Δ : Tel) (A : Δ ⇨ Type) → Type
+eg Δ A = {! SQ (Δ ▸ A) !}
+-}
+-- Once done and cleaned up, we obtain:
 {-
 ID (ID Δ)
-▸ (λ x → A (x ₀₀)
-▸ (λ x → A (pop x ₀₁)
-▸ (λ x → Id (λ y → A (y ₀)) (pop (pop x)) (top (pop x)) (top x))
-▸ (λ x → A (pop (x ₀) ₁))
-▸ (λ x → A (pop (pop x ₁) ₁))
-▸ (λ x → Id (λ y → A (pop y ₁)) (pop (pop x)) (top (pop x)) (top x))
-▸ (λ x → Id A (pop (pop (x ₀))) (top (pop (x ₀))) (top (x ₀)))
-▸ (λ x → Id A (pop (pop (pop x ₁))) (top (pop (pop x ₁))) (top (pop x ₁)))
-▸ (λ x → Id (λ y → Id A (pop (pop y)) (top (pop y)) (top y)) (pop (pop x)) (top (pop x)) (top x))
+▸ A ⊚ Λ₀ ⊚ᵉ Λ₀
+▸ A ⊚ Λ₀ ⊚ᵉ Λ₁ ⊚ᵉ Λ⇨ᵉ pop
+▸ (Λ x ⇨ Id A (AP Λ₀ (pop (pop x))) (top (pop x)) (top x))
+▸ A ⊚ Λ₁ ⊚ᵉ POP ⊚ᵉ Λ₀
+▸ A ⊚ Λ₁ ⊚ᵉ POP ⊚ᵉ Λ₁ ⊚ᵉ POP
+▸ (Λ x ⇨ Id A (AP Λ₁ (pop (pop (pop (pop (pop x)))))) (top (pop x)) (top x))
+▸ (Λ x ⇨ Id A (pop (pop x)) (top (pop x)) (top x)) ⊚ Λ₀
+▸ (Λ x ⇨ Id A (pop (pop x)) (top (pop x)) (top x)) ⊚ Λ₁ ⊚ᵉ POP
+▸ (Λ x ⇨ Id (Λ y ⇨ Id A (pop (pop y)) (top (pop y)) (top y))) (pop (pop x)) (top (pop x)) (top x))
 -}
--- Here the last term is clearly the type of squares in A.  Rewriting
--- this in terms of its explicit dependencies, we obtain a definition
--- of squares in a type.
+-- The first, second, fourth, and fifth terms are the corners of the
+-- square in A, while the third, sixth, seventh, and eighth are its
+-- edges.  Note that the edges are all identifications in, literally,
+-- A.  This is due to our postulated ⊚ and our rewrite Id-AP⊚;
+-- otherwise at least two of them would be identifications in (λ x → A
+-- (x ₀)) and (λ x → A (pop x ₁)), which are only related to
+-- identifications in A by a coercions along Id-AP.
 
--- However, note that the ₀₂ and ₁₂ boundaries are slightly
--- frobnified, living in an identity type that differs from the
--- obvious one by an Id-AP.  For convenience, we introduce names for
--- these variant identity types.
-
-{-
-Id₀₂ : {Δ : Tel} (A : Δ →Type) (δ : el (SQ Δ)) (a₀₀ : A ⊘ (δ ₀₀)) (a₀₁ : A ⊘ (δ ₀₁)) → Type
-Id₀₂ A δ a₀₀ a₀₁ = Id (Λ x ⇨ A ⊘ (x ₀)) δ a₀₀ a₀₁
-
-Id₁₂ : {Δ : Tel} (A : Δ →Type) (δ : el (SQ Δ))
-  {a₀₀ : A ⊘ (δ ₀₀)} {a₀₁ : A (δ ₀₁)} (a₀₂ : Id₀₂ A δ a₀₀ a₀₁) (a₁₀ : A (δ ₁₀)) (a₁₁ : A (δ ₁₁)) → Type
-Id₁₂ {Δ} A δ {a₀₀} {a₀₁} a₀₂ a₁₀ a₁₁ = Id {ID Δ ▸ λ x → A (x ₀)} (λ w → A (pop w ₁)) (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂) a₁₀ a₁₁
--}
+-- The final term above is clearly the type of squares in A.
+-- Rewriting this in terms of its explicit dependencies, we obtain a
+-- definition of squares in a type.
 
 Sq : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (SQ Δ))
      {a₀₀ : A ⊘ (δ ₀₀)} {a₀₁ : A ⊘ (δ ₀₁)} (a₀₂ : Id A (δ ₀₂) a₀₀ a₀₁)
@@ -156,3 +155,77 @@ top₂₂ : {Δ : Tel} {A : Δ ⇨ Type} (δ : el (SQ (Δ ▸ A))) →
   Sq A (popsq {Δ} {A} δ) {top₀₀ {Δ} {A} δ} {top₀₁ {Δ} {A} δ} (top₀₂ {Δ} {A} δ)
        {top₁₀ {Δ} {A} δ} {top₁₁ {Δ} {A} δ} (top₁₂ {Δ} {A} δ) (top₂₀ {Δ} {A} δ) (top₂₁ {Δ} {A} δ)
 top₂₂ (δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂) = a₂₂
+
+-- We can extend a square telescope by a square in a type together
+-- with its boundary.
+module Sq∷ {Δ : Tel} (A : Δ ⇨ Type) (δ : el (SQ Δ))
+  {a₀₀ : A ⊘ (δ ₀₀)} {a₀₁ : A ⊘ (δ ₀₁)} (a₀₂ : Id A (δ ₀₂) a₀₀ a₀₁)
+  {a₁₀ : A ⊘ (δ ₁₀)} {a₁₁ : A ⊘ (δ ₁₁)} (a₁₂ : Id A (δ ₁₂) a₁₀ a₁₁)
+  (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id A (δ ₂₁) a₀₁ a₁₁)
+  (a₂₂ : Sq A δ a₀₂ a₁₂ a₂₀ a₂₁) where
+
+  sq∷ : el (SQ (Δ ▸ A))
+  sq∷ = δ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂ ∷ a₂₀ ∷ a₂₁ ∷ a₂₂
+
+  sq∷₀₀ : _₀ {Δ ▸ A} (_₀ {ID (Δ ▸ A)} sq∷) ≡ᵉ δ ₀₀ ∷ a₀₀
+  sq∷₀₀ = reflᵉᵉ
+
+  sq∷₀₁ : _₀ {Δ ▸ A} (_₁ {ID (Δ ▸ A)} sq∷) ≡ᵉ δ ₀₁ ∷ a₀₁
+  sq∷₀₁ = reflᵉᵉ
+
+  sq∷₁₀ : _₁ {Δ ▸ A} (_₀ {ID (Δ ▸ A)} sq∷) ≡ᵉ δ ₁₀ ∷ a₁₀
+  sq∷₁₀ = reflᵉᵉ
+
+  sq∷₁₁ : _₁ {Δ ▸ A} (_₁ {ID (Δ ▸ A)} sq∷) ≡ᵉ δ ₁₁ ∷ a₁₁
+  sq∷₁₁ = reflᵉᵉ
+
+  sq∷₂₀ : _₀ {ID (Δ ▸ A)} sq∷ ≡ᵉ δ ₂₀ ∷ a₀₀ ∷ a₁₀ ∷ a₂₀
+  sq∷₂₀ = reflᵉᵉ
+
+  sq∷₂₁ : _₁ {ID (Δ ▸ A)} sq∷ ≡ᵉ δ ₂₁ ∷ a₀₁ ∷ a₁₁ ∷ a₂₁
+  sq∷₂₁ = reflᵉᵉ
+
+-- Since _₂₀ and _₂₁ are defined in terms of _₀ and _₁, they compute
+-- without a problem.  However, _₀₂ and _₁₂ don't compute as defined,
+-- because AP computes only when its bound term has a head of ∷, while
+-- _₀ and _₁ are defined by pattern-matching.  Thus, we assert the
+-- correct computation rules for _₀₂ and _₁₂ on squares in an extended
+-- telescope as postulated rewrites.  (It isn't necessary to do this
+-- for the empty telescope, since AP-const applies in that case.)
+
+  postulate
+    sq∷₀₂ : AP (Λ₀ {Δ ▸ A}) sq∷ ≡ᵉ δ ₀₂ ∷ a₀₀ ∷ a₀₁ ∷ a₀₂
+    sq∷₁₂ : AP (Λ₁ {Δ ▸ A}) sq∷ ≡ᵉ δ ₁₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂
+
+open Sq∷ public
+
+{-# REWRITE sq∷₀₂ sq∷₁₂ #-}
+
+-- We might hope to define the behavior of (AP (λ x → f x ₀)) more
+-- generally for any function f.  The definitions would be something
+-- like this:
+
+{-
+postulate
+  AP-₀ : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : el Γ → el (ID (Δ ▸ A))) (γ : el (ID Γ)) →
+    AP (λ x → f x ₀) γ ≡
+    AP (λ x → pop (pop (pop (f x))) ₀) γ
+    ∷ top (pop (pop (f (γ ₀))))
+    ∷ top (pop (pop (f (γ ₁))))
+    ∷ ap (λ x → top (pop (pop (f x)))) γ
+  AP-₁ : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : el Γ → el (ID (Δ ▸ A))) (γ : el (ID Γ)) →
+    AP (λ x → f x ₁) γ ≡
+    AP (λ x → pop (pop (pop (f x))) ₀) γ
+    ∷ top (pop (pop (f (γ ₀))))
+    ∷ top (pop (pop (f (γ ₁))))
+    ∷ ap (λ x → top (pop (pop (f x)))) γ
+
+{-# REWRITE AP-₀ AP-₁ #-}
+-}
+
+-- Unfortunately, if we try to use these to replace sq∷₀₂ and sq∷₁₂,
+-- the result is unfeasibly slow.  I think that iterated pop/tops are
+-- just much slower than pattern-matches against ∷.  I don't know
+-- whether these more general rules are needed for anything; if they
+-- are, we could try to rewrite them by first appling (AP f) and then
+-- a postulated version of (AP _₀).

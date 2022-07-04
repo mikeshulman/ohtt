@@ -39,17 +39,6 @@ postulate
 
 {-# REWRITE SYM₀₀ SYM₀₁ SYM₁₀ SYM₁₁ SYM₀₂ SYM₂₀ SYM₁₂ SYM₂₁ #-}
 
-{-
--- Some more useful variants of Id-AP.
-postulate
-  Id-AP-₂₀-SYM : {Δ : Tel} (A : Δ →Type) (δ : el (SQ Δ)) {a₀₀ : A ⊘ (δ ₀₀)} {a₁₀ : A ⊘ (δ ₁₀)} →
-    Id A (δ ₂₀) a₀₀ a₁₀ ≡ Id (A ⊚ Λ₀) (SYM Δ δ) a₀₀ a₁₀
-  Id-AP-₂₁-SYM : {Δ : Tel} (A : Δ →Type) (δ : el (SQ Δ)) {a₀₁ : A ⊘ (δ ₀₁)} {a₁₁ : A ⊘ (δ ₁₁)} →
-    Id A (δ ₂₁) a₀₁ a₁₁ ≡ Id (A ⊚ Λ₁) (SYM Δ δ) a₀₁ a₁₁
-
-{-# REWRITE Id-AP-₂₀-SYM Id-AP-₂₁-SYM #-}
--}
-
 ----------------------------------------
 -- Symmetry for types
 ----------------------------------------
@@ -60,7 +49,9 @@ postulate
 -- below, instead of outputting a square over (SYM Δ δ), it's more
 -- convenient to take an exo-equality ϕ : δ' ≡ SYM Δ δ as input, and
 -- output a square over δ'.  With this in mind, we wrap up some
--- necessary coercions for the boundaries into lemmas.
+-- necessary coercions for the boundaries into lemmas.  Rather than
+-- trying to build them manually out of coe←, it's easiest to just
+-- match on the equality ϕ.
 
 sym₀₂ : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (SQ Δ)) {δ' : el (SQ Δ)} (ϕ : δ' ≡ᵉ SYM Δ δ)
   {a₀₀ : A ⊘ (δ ₀₀)} {a₁₀ : A ⊘ (δ ₁₀)} (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀) →
@@ -146,6 +137,10 @@ postulate
 -- rewrite will fire.  In practice, I expect that ϕ will always be
 -- refl, so that all the nasty coercions will reduce away.
 
+-- Like the boundary of the output of sym, the result of our enhanced
+-- sym-sym rewrite can't be exactly the input square, because of the
+-- coercion across the equalities ϕ and ϕ'.  And as before, it's
+-- easiest to define it by matching on those equalities.
 sym₂₂ : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (SQ Δ))
   {a₀₀ : A ⊘ (δ ₀₀)} {a₀₁ : A ⊘ (δ ₀₁)} (a₀₂ : Id A (δ ₀₂) a₀₀ a₀₁)
   {a₁₀ : A ⊘ (δ ₁₀)} {a₁₁ : A ⊘ (δ ₁₁)} (a₁₂ : Id A (δ ₁₂) a₁₀ a₁₁)
@@ -172,6 +167,8 @@ postulate
     {δ' : el (SQ Δ)} (ϕ : δ' ≡ᵉ SYM Δ δ)
     {δ'' : el (SQ Δ)} (ϕ' : δ'' ≡ᵉ SYM Δ δ')
     (a₂₂ : Sq A δ a₀₂ a₁₂ a₂₀ a₂₁) →
-    sym′ A δ' (sym₀₂ A δ ϕ a₂₀) (sym₁₂ A δ ϕ a₂₁) (sym₂₀ A δ ϕ a₀₂) (sym₂₁ A δ ϕ a₁₂) ϕ' (sym′ A δ a₀₂ a₁₂ a₂₀ a₂₁ ϕ a₂₂) ≡ sym₂₂ A δ a₀₂ a₁₂ a₂₀ a₂₁ ϕ ϕ' a₂₂
+    sym′ A δ' (sym₀₂ A δ ϕ a₂₀) (sym₁₂ A δ ϕ a₂₁) (sym₂₀ A δ ϕ a₀₂) (sym₂₁ A δ ϕ a₁₂) ϕ'
+      (sym′ A δ a₀₂ a₁₂ a₂₀ a₂₁ ϕ a₂₂)
+    ≡ sym₂₂ A δ a₀₂ a₁₂ a₂₀ a₂₁ ϕ ϕ' a₂₂
 
 {-# REWRITE sym-sym #-}
