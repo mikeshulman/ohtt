@@ -162,95 +162,6 @@ Id-AP-reflᵉ f γ A a₀ a₁ = axiomK
 
 {-# REWRITE Id-AP-reflᵉ #-}
 
-{-
-----------------------------------------
--- Auxiliary forms of Id-naturality
-----------------------------------------
-
--- We give special names to coercion along Id-AP for pop, since it
--- happens a lot.
-
-Id-pop→ : {Δ : Tel} (A B : Δ ⇨ Type) (δ : el (ID Δ))
-  {b₀ : B (δ ₀)} {b₁ : B (δ ₁)} (b₂ : Id B δ b₀ b₁)
-  {a₀ : A (δ ₀)} {a₁ : A (δ ₁)} →
-  Id A δ a₀ a₁ → Id (λ x → A (pop x)) (δ ∷ b₀ ∷ b₁ ∷ b₂) a₀ a₁
-Id-pop→ {Δ} A B δ {b₀} {b₁} b₂ {a₀} {a₁} a₂ = coe→ (Id-AP {Δ ▸ B} (λ x → pop x) (δ ∷ b₀ ∷ b₁ ∷ b₂) A a₀ a₁) a₂
-
-Id-pop← : {Δ : Tel} (A B : Δ ⇨ Type) (δ : el (ID Δ))
-  {b₀ : B (δ ₀)} {b₁ : B (δ ₁)} (b₂ : Id B δ b₀ b₁)
-  {a₀ : A (δ ₀)} {a₁ : A (δ ₁)} →
-  Id (λ x → A (pop x)) (δ ∷ b₀ ∷ b₁ ∷ b₂) a₀ a₁ → Id A δ a₀ a₁
-Id-pop← {Δ} A B δ {b₀} {b₁} b₂ {a₀} {a₁} a₂ = coe← (Id-AP {Δ ▸ B} (λ x → pop x) (δ ∷ b₀ ∷ b₁ ∷ b₂) A a₀ a₁) a₂
-
-Id-pop→≡ : {Δ : Tel} (A B : Δ ⇨ Type) (δ : el (ID Δ))
-  {b₀ : B (δ ₀)} {b₁ : B (δ ₁)} (b₂ : Id B δ b₀ b₁)
-  {a₀ : A (δ ₀)} {a₁ : A (δ ₁)} (a₂ : Id A δ a₀ a₁) →
-  Id-pop→ {Δ} A B δ {b₀} {b₁} b₂ {a₀} {a₁} a₂ ≡ʰ a₂
-Id-pop→≡  {Δ} A B δ {b₀} {b₁} b₂ {a₀} {a₁} a₂ = coe→≡ʰ (Id-AP {Δ ▸ B} (λ x → pop x) (δ ∷ b₀ ∷ b₁ ∷ b₂) A a₀ a₁) a₂
-
-Id-pop←≡ : {Δ : Tel} (A B : Δ ⇨ Type) (δ : el (ID Δ))
-  {b₀ : B (δ ₀)} {b₁ : B (δ ₁)} (b₂ : Id B δ b₀ b₁)
-  {a₀ : A (δ ₀)} {a₁ : A (δ ₁)} (a₂ : Id (λ x → A (pop x)) (δ ∷ b₀ ∷ b₁ ∷ b₂) a₀ a₁) →
-  Id-pop← {Δ} A B δ {b₀} {b₁} b₂ {a₀} {a₁} a₂ ≡ʰ a₂
-Id-pop←≡ {Δ} A B δ {b₀} {b₁} b₂ {a₀} {a₁} a₂ = coe←≡ʰ (Id-AP {Δ ▸ B} (λ x → pop x) (δ ∷ b₀ ∷ b₁ ∷ b₂) A a₀ a₁) a₂
-
--- We also declare that not only is Id-AP a rewrite, it itself
--- rewrites to reflᵉ.  Thus, the coercions we are sometimes forced to
--- insert to make things typecheck will vanish when the term is
--- normalized.  This is consistent because on concrete types, Id-AP
--- should hold definitionally.
-
-Id-AP-reflᵉ : {Γ Δ : Tel} (f : Γ ⇨ Δ) (γ : el (ID Γ)) (A : Δ ⇨ Type) (a₀ : A (f (γ ₀))) (a₁ : A (f (γ ₁))) →
-  Id-AP f γ A a₀ a₁ ≡ᵉ reflᵉ
-Id-AP-reflᵉ f γ A a₀ a₁ = axiomK
-
-{-# REWRITE Id-AP-reflᵉ #-}
-
--- As noted above, the AP on the LHS of Id-AP is volatile and could
--- appear in a reduced form.  To assist with this, we assert more
--- rewrites applying directly to this case with a reduced AP.
-postulate
-  Id-AP▸ : {Γ Δ : Tel} (B : Δ ⇨ Type) (f : Γ ⇨ Δ) (g : (x : el Γ) → B (f x)) (γ : el (ID Γ))
-    (A : el (Δ ▸ B) → Type) (a₀ : A (f (γ ₀) ∷ g (γ ₀))) (a₁ : A (f (γ ₁) ∷ g (γ ₁))) →
-    Id A (AP f γ ∷ g (γ ₀) ∷ g (γ ₁) ∷ ap g γ) a₀ a₁ ≡ Id (λ w → A (f w ∷ g w)) γ a₀ a₁
-  Id-AP-idmap▸ : {Δ : Tel} (B : Δ ⇨ Type) (g : (x : el Δ) → B x) (γ : el (ID Δ))
-    (A : el (Δ ▸ B) → Type) (a₀ : A (γ ₀ ∷ g (γ ₀))) (a₁ : A (γ ₁ ∷ g (γ ₁))) →
-    Id A (γ ∷ g (γ ₀) ∷ g (γ ₁) ∷ ap g γ) a₀ a₁ ≡ Id (λ w → A (w ∷ g w)) γ a₀ a₁
-
-{-# REWRITE Id-AP▸ Id-AP-idmap▸ #-}
-
--- We could also have AP reduced more than once.  Obviously there is a
--- potentially infinite family of rewrites here, but we don't need all
--- of them; we just need enough that we can write down and typecheck
--- the rest of the theory.  For concrete usage *in* the theory, as
--- noted before, Id-AP should hold definitionally anyway.
-postulate
-  Id-AP▸▸ : {Γ Δ : Tel} (B : Δ ⇨ Type) (C : el (Δ ▸ B) → Type)
-    (f : Γ ⇨ Δ) (g : (x : el Γ) → B (f x)) (h : (x : el Γ) → C (f x ∷ g x)) (γ : el (ID Γ))
-    (A : el (Δ ▸ B ▸ C) → Type) (a₀ : A (f (γ ₀) ∷ g (γ ₀) ∷ h (γ ₀))) (a₁ : A (f (γ ₁) ∷ g (γ ₁) ∷ h (γ ₁))) →
-    Id A (AP f γ ∷ g (γ ₀) ∷ g (γ ₁) ∷ ap g γ ∷ h (γ ₀) ∷ h (γ ₁) ∷ ap h γ) a₀ a₁ ≡ Id (λ w → A (f w ∷ g w ∷ h w)) γ a₀ a₁
-
-{-# REWRITE Id-AP▸▸ #-}
-
-Id-AP▸-reflᵉ : {Γ Δ : Tel} (B : Δ ⇨ Type)
-  (f : Γ ⇨ Δ) (g : (x : el Γ) → B (f x)) (γ : el (ID Γ))
-  (A : el (Δ ▸ B) → Type) (a₀ : A (f (γ ₀) ∷ g (γ ₀))) (a₁ : A (f (γ ₁) ∷ g (γ ₁))) →
-  Id-AP▸ B f g γ A a₀ a₁ ≡ᵉ reflᵉ
-Id-AP▸-reflᵉ  B f g γ A a₀ a₁ = axiomK
-
-Id-AP-idmap▸-reflᵉ : {Δ : Tel} (B : Δ ⇨ Type) (g : (x : el Δ) → B x) (γ : el (ID Δ))
-  (A : el (Δ ▸ B) → Type) (a₀ : A (γ ₀ ∷ g (γ ₀))) (a₁ : A (γ ₁ ∷ g (γ ₁))) →
-  Id-AP-idmap▸ B g γ A a₀ a₁ ≡ᵉ reflᵉ
-Id-AP-idmap▸-reflᵉ B g γ A a₀ a₁ = axiomK
-
-Id-AP▸▸-reflᵉ : {Γ Δ : Tel} (B : Δ ⇨ Type) (C : el (Δ ▸ B) → Type)
-  (f : Γ ⇨ Δ) (g : (x : el Γ) → B (f x)) (h : (x : el Γ) → C (f x ∷ g x)) (γ : el (ID Γ))
-  (A : el (Δ ▸ B ▸ C) → Type) (a₀ : A (f (γ ₀) ∷ g (γ ₀) ∷ h (γ ₀))) (a₁ : A (f (γ ₁) ∷ g (γ ₁) ∷ h (γ ₁))) →
-  Id-AP▸▸ B C f g h γ A a₀ a₁ ≡ᵉ reflᵉ
-Id-AP▸▸-reflᵉ B C f g h γ A a₀ a₁ = axiomK
-
-{-# REWRITE Id-AP▸-reflᵉ Id-AP-idmap▸-reflᵉ Id-AP▸▸-reflᵉ #-}
--}
 ------------------------------
 -- Functoriality of ap and AP
 ------------------------------
@@ -348,16 +259,6 @@ postulate
 
 {-# REWRITE top-pop-pop-AP top-pop-AP #-}
 
-{-
--- We also need a specialized version of Id on pop.
-postulate
-  Id-AP-pop³-AP : {Γ Δ : Tel} (A B : Δ ⇨ Type) (f : el Γ → el (Δ ▸ B)) (γ : el (ID Γ))
-    (a₀ : A (pop (f (γ ₀)))) (a₁ : A (pop (f (γ ₁)))) →
-    Id A (pop (pop (pop (AP f γ)))) a₀ a₁ ≡ Id (λ w → A (pop (f w))) γ a₀ a₁
-
-{-# REWRITE Id-AP-pop³-AP #-}
--}
-
 -- Finally, we can postulate ap-top.
 postulate
   ap-top : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
@@ -367,10 +268,6 @@ postulate
     ap (Λ x ⇨ A (pop (f x))) (λ x → top (f x)) γ ≡
     coe← (Id-AP (λ x → pop (f x)) γ (Λ⇨ A) (top (f (γ ₀))) (top (f (γ ₁))))
           (top (AP (Λ⇨ᵉ f) γ))
-{-
-  ap-top : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
-    ap (Λ x ⇨ A ⊘ pop (f x)) (λ x → top (f x)) γ ≡ top (AP (Λ⇨ f) γ)
--}
 
 {-# REWRITE ap-top ap-top′ #-}
 
