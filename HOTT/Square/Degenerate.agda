@@ -51,9 +51,9 @@ DEGSQ-TB₂₁ δ = reflᵉᵉ
 -- The others *should* be correct definitionally, but Agda can't check that without help because AP-AP rewrites in the other direction.  We need perhaps an "AP⊚"?
 
 DEGSQ-TB₀₂ : {Δ : Tel} (δ : el (ID Δ)) → AP Λ₀ (DEGSQ-TB δ) ≡ᵉ δ
-DEGSQ-TB₀₂ δ = revᵉ (AP-AP′ ΛREFL Λ₀ δ) 
+DEGSQ-TB₀₂ δ = revᵉ (AP-AP ΛREFL Λ₀ δ) 
 
 DEGSQ-TB₁₂ : {Δ : Tel} (δ : el (ID Δ)) → AP Λ₁ (DEGSQ-TB δ) ≡ᵉ δ
-DEGSQ-TB₁₂ δ = revᵉ (AP-AP′ ΛREFL Λ₁ δ)
+DEGSQ-TB₁₂ δ = revᵉ (AP-AP ΛREFL Λ₁ δ)
 
 {-# REWRITE DEGSQ-TB₀₂ DEGSQ-TB₁₂ #-}

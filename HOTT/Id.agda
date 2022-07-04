@@ -265,14 +265,14 @@ postulate
           (γ : el (ID Γ)) →
     ap (Λ⇨ A) g (AP (Λ⇨ᵉ f) γ) ≡ ap (Λ⇨ A ⊚ Λ⇨ᵉ f) (λ w → g (f w)) γ
   AP-AP : {Γ Δ Θ : Tel} (f : Γ ⇨ᵉ el Δ) (g : Δ ⇨ᵉ el Θ) (γ : el (ID Γ)) →
-    AP (g ⊚ᵉ f) γ ≡ᵉ AP g (AP f γ)
-  AP-AP′ : {Γ Δ Θ : Tel} (f : Γ ⇨ᵉ el Δ) (g : Δ ⇨ᵉ el Θ) (γ : el (ID Γ)) →
     AP (Λ x ⇨ᵉ g ⊘ᵉ (f ⊘ᵉ x)) γ ≡ᵉ AP g (AP f γ)
+  AP-AP⊚ : {Γ Δ Θ : Tel} (f : Γ ⇨ᵉ el Δ) (g : Δ ⇨ᵉ el Θ) (γ : el (ID Γ)) →
+    AP (g ⊚ᵉ f) γ ≡ᵉ AP g (AP f γ)
   -- TODO: Describe
   ap⊚ : {Γ Δ : Tel} {A : Δ ⇨ Type} (f : Γ ⇨ᵉ el Δ) (g : (x : el Γ) → A ⊘ (f ⊘ᵉ x)) (γ : el (ID Γ)) →
     ap (A ⊚ f) g γ ≡ ap (Λ x ⇨ A ⊘ (f ⊘ᵉ x)) g γ
 
-{-# REWRITE ap-AP ap-AP′ AP-AP AP-AP′ ap⊚ #-}
+{-# REWRITE ap-AP ap-AP′ AP-AP AP-AP⊚ ap⊚ #-}
 
 ap-AP∷ : {Γ Δ : Tel} (B : Δ ⇨ Type) (A : (Δ ▸ B) ⇨ Type)
   (f : el Γ → el Δ) (h : (x : el Γ) → B ⊘ (f x))
@@ -290,11 +290,11 @@ ap-AP-idmap∷ B A h g γ = ap-AP A (Λ x ⇨ᵉ x ∷ h x) g γ
 
 {-# REWRITE ap-AP∷ ap-AP-idmap∷ #-}
 
-AP-AP′-reflᵉ : {Γ Δ Θ : Tel} (f : Γ ⇨ᵉ el Δ) (g : Δ ⇨ᵉ el Θ) (γ : el (ID Γ)) →
-  AP-AP′ f g γ ≡ᵉ reflᵉᵉ
-AP-AP′-reflᵉ f g γ = axiomKᵉ
+AP-AP-reflᵉ : {Γ Δ Θ : Tel} (f : Γ ⇨ᵉ el Δ) (g : Δ ⇨ᵉ el Θ) (γ : el (ID Γ)) →
+  AP-AP f g γ ≡ᵉ reflᵉᵉ
+AP-AP-reflᵉ f g γ = axiomKᵉ
 
-{-# REWRITE AP-AP′-reflᵉ #-}
+{-# REWRITE AP-AP-reflᵉ #-}
 
 ------------------------------
 -- ap on variables
