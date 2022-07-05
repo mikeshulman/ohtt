@@ -8,6 +8,7 @@ open import HOTT.Id
 open import HOTT.Refl
 open import HOTT.Unit
 open import HOTT.Sigma.Base
+open import HOTT.Indices
 
 ----------------------------------------
 -- Sum types
@@ -41,50 +42,20 @@ A ⊎ B = sum ⊤ {A} {B} (λ _ → ★) (λ _ → ★) ★
 ----------------------------------------
 
 ＝Ω : (Ω : Type) {A B : Type} (α : A → Ω) (β : B → Ω) → Type
-＝Ω Ω α β = Σ[ x₀ ﹕ Ω ] Σ[ x₁ ﹕ Ω ] Σ[ x₂ ﹕ x₀ ＝ x₁ ] Σ[ s₀ ﹕ sum Ω α β x₀ ] sum Ω α β x₁
+＝Ω Ω α β = ＝Idx Ω (sum Ω α β)
 
-＝IDty : (A : Type) → Type
-＝IDty A = Σ[ a₀ ﹕ A ] Σ[ a₁ ﹕ A ] (a₀ ＝ a₁)
+＝α : (Ω : Type) {A B : Type} (α : A → Ω) (β : B → Ω) → IDty A → ＝Ω Ω α β
+＝α Ω {A} {B} α β z = ＝toIdx Ω (sum Ω α β) α inl z
 
-＝α : (Ω : Type) {A B : Type} (α : A → Ω) (β : B → Ω) → ＝IDty A → ＝Ω Ω α β
-＝α Ω {A} {B} α β z =
-  (α (fst z) , α (fst (snd z)) ,
-   ap {ε▸ A} ((Λ _ ⇨ Ω) ⊚ POP) (λ x → α (top x)) ([] ∷ fst z ∷ fst (snd z) ∷ snd (snd z)) ,
-   inl (fst z) , inl (fst (snd z)))
-
-＝β : (Ω : Type) {A B : Type} (α : A → Ω) (β : B → Ω) → ＝IDty B → ＝Ω Ω α β
-＝β Ω {A} {B} α β z =
-  (β (fst z) , β (fst (snd z)) ,
-   ap {ε▸ B} ((Λ _ ⇨ Ω) ⊚ POP) (λ x → β (top x)) ([] ∷ fst z ∷ fst (snd z) ∷ snd (snd z)) ,
-   inr (fst z) , inr (fst (snd z)))
+＝β : (Ω : Type) {A B : Type} (α : A → Ω) (β : B → Ω) → IDty B → ＝Ω Ω α β
+＝β Ω {A} {B} α β z = ＝toIdx Ω (sum Ω α β) β inr z
 
 Id-Ω : {Δ : Tel} (Ω : el Δ → Type) {A B : el Δ → Type}
   (α : (x : el Δ) → A x → Ω x) (β : (x : el Δ) → B x → Ω x) →
   (δ : el (ID Δ)) → Type
-Id-Ω {Δ} Ω {A} {B} α β δ =
-  Σ[ x₀ ﹕ Ω (δ ₀) ] Σ[ x₁ ﹕ Ω (δ ₁) ] Σ[ x₂ ﹕ Id (Λ⇨ Ω) δ x₀ x₁ ]
-  Σ[ s₀ ﹕ sum (Ω (δ ₀)) (λ z → α (δ ₀) z) (λ z → β (δ ₀) z) x₀ ]
-           sum (Ω (δ ₁)) (λ z → α (δ ₁) z) (λ z → β (δ ₁) z) x₁
+Id-Ω {Δ} Ω {A} {B} α β δ = Id-Idx δ Ω (λ x y → sum (Ω x) (α x) (β x) y)
 
-ΣΣ≡Σ : (A₀ A₁ : Type) {A₂ A₂' : A₀ → A₁ → Type} (p : A₂ ≡ A₂') (B : A₀ → A₁ → Type) →
-  (Σ[ x₀ ﹕ A₀ ] Σ[ x₁ ﹕ A₁ ] Σ[ x₂ ﹕ A₂ x₀ x₁ ] B x₀ x₁)
-  ≡ Σ[ x₀ ﹕ A₀ ] Σ[ x₁ ﹕ A₁ ] Σ[ x₂ ﹕ A₂' x₀ x₁ ] B x₀ x₁
-ΣΣ≡Σ A₀ A₁ reflᵉ B = reflᵉ
-
-,,≡ʰ, : {A₀ A₁ : Type} {A₂ A₂' : A₀ → A₁ → Type} (p : A₂ ≡ A₂') {B : A₀ → A₁ → Type}
-  (a₀ : A₀) (a₁ : A₁) {a₂ : A₂ a₀ a₁} {a₂' : A₂' a₀ a₁} (q : a₂ ≡ʰ a₂') (b : B a₀ a₁) →
-  _≡ʰ_
-  {Σ[ x₀ ﹕ A₀ ] Σ[ x₁ ﹕ A₁ ] Σ[ x₂ ﹕ A₂ x₀ x₁ ] B x₀ x₁}
-  (a₀ , a₁ , a₂ , b)
-  {Σ[ x₀ ﹕ A₀ ] Σ[ x₁ ﹕ A₁ ] Σ[ x₂ ﹕ A₂' x₀ x₁ ] B x₀ x₁}
-  (a₀ , a₁ , a₂' , b)
-,,≡ʰ, reflᵉ a₀ a₁ reflʰ b = reflʰ
-
-ΣΣ≡ : (A₀ A₁ : Type) {A₂ A₂' : A₀ → A₁ → Type} (p : A₂ ≡ A₂') →
-  (Σ[ x₀ ﹕ A₀ ] Σ[ x₁ ﹕ A₁ ] A₂ x₀ x₁)
-  ≡ Σ[ x₀ ﹕ A₀ ] Σ[ x₁ ﹕ A₁ ] A₂' x₀ x₁
-ΣΣ≡ A₀ A₁ reflᵉ = reflᵉ
-
+-- TODO: Move this to HOTT.Indices
 Id-Ω-pop : {Δ : Tel} (C : Δ ⇨ Type) (Ω : el Δ → Type) {A B : el Δ → Type}
   (α : (x : el Δ) → A x → Ω x) (β : (x : el Δ) → B x → Ω x)
   (δ : el (ID Δ)) (c₀ : C ⊘ (δ ₀)) (c₁ : C ⊘ (δ ₁)) (c₂ : Id C δ c₀ c₁) →
@@ -98,40 +69,23 @@ Id-Ω-pop {Δ} C Ω {A} {B} α β δ c₀ c₁ c₂ =
     (λ x₀ x₁ → Σ[ s₀ ﹕ sum (Ω (δ ₀)) (α (δ ₀)) (β (δ ₀)) x₀ ]
                         sum (Ω (δ ₁)) (α (δ ₁)) (β (δ ₁)) x₁)
 
-Id-IDty : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) → Type
-Id-IDty {Δ} A δ = Σ[ a₀ ﹕ A (δ ₀) ] Σ[ a₁ ﹕ A (δ ₁) ] Id (Λ⇨ A) δ a₀ a₁
-
-Id-IDty-pop : {Δ : Tel} (C : Δ ⇨ Type) (A : el Δ → Type) (δ : el (ID Δ))
-  (c₀ : C ⊘ (δ ₀)) (c₁ : C ⊘ (δ ₁)) (c₂ : Id C δ c₀ c₁) →
-  Id-IDty A δ ≡ Id-IDty (λ z → A (pop {B = C} z)) (δ ∷ c₀ ∷ c₁ ∷ c₂)
-Id-IDty-pop {Δ} C A δ c₀ c₁ c₂ =
-  ΣΣ≡ (A (δ ₀)) (A (δ ₁))
-     (funextᵉ (λ x₀ → funextᵉ λ x₁ → rev (Id-AP (λ x → pop {B = C} x) (δ ∷ c₀ ∷ c₁ ∷ c₂) (Λ⇨ A) x₀ x₁)))
-
 Id-α : {Δ : Tel} (Ω : el Δ → Type) {A B : el Δ → Type}
   (α : (x : el Δ) → A x → Ω x) (β : (x : el Δ) → B x → Ω x)
-  (δ : el (ID Δ)) (a : Id-IDty A δ) → Id-Ω Ω {A} {B} α β δ
+  (δ : el (ID Δ)) (a : IDty′ A δ) → Id-Ω Ω {A} {B} α β δ
 Id-α {Δ} Ω {A} {B} α β δ a =
-  (α (δ ₀) (fst a) , α (δ ₁) (fst (snd a)) ,
-   ap {Δ ▸ Λ⇨ A} ((Λ⇨ Ω) ⊚ POP) (λ x → α (pop x) (top x))
-      (δ ∷ fst a ∷ fst (snd a) ∷ snd (snd a)) ,
-   inl (fst a) , inl (fst (snd a)))
+  Id-toIdx δ Ω (λ x y → sum (Ω x) (α x) (β x) y) α (λ x y → inl y) a
 
 Id-β : {Δ : Tel} (Ω : el Δ → Type) {A B : el Δ → Type}
   (α : (x : el Δ) → A x → Ω x) (β : (x : el Δ) → B x → Ω x)
-  (δ : el (ID Δ)) (b : Id-IDty B δ) → Id-Ω Ω {A} {B} α β δ
+  (δ : el (ID Δ)) (b : IDty′ B δ) → Id-Ω Ω {A} {B} α β δ
 Id-β {Δ} Ω {A} {B} α β δ b =
-  (β (δ ₀) (fst b) ,
-   β (δ ₁) (fst (snd b)) ,
-   ap {Δ ▸ Λ⇨ B} ((Λ⇨ Ω) ⊚ POP) (λ x → β (pop x) (top x))
-      (δ ∷ fst b ∷ fst (snd b) ∷ snd (snd b)) ,
-   inr (fst b) , inr (fst (snd b)))
+  Id-toIdx δ Ω (λ x y → sum (Ω x) (α x) (β x) y) β (λ x y → inr y) b
 
 postulate
   ＝sum : (Ω : Type) {A B : Type} (α : A → Ω) (β : B → Ω)
     (ω : Ω) (u v : sum Ω α β ω) →
     (u ＝ v) ≡
-    sum (＝Ω Ω α β) {＝IDty A} {＝IDty B} (＝α Ω α β) (＝β Ω α β)
+    sum (＝Ω Ω α β) {IDty A} {IDty B} (＝α Ω α β) (＝β Ω α β)
         (ω , ω , refl ω , u , v)
   Id-sum : {Δ : Tel} (Ω : el Δ → Type) {A B : el Δ → Type}
     (α : (x : el Δ) → A x → Ω x) (β : (x : el Δ) → B x → Ω x)
@@ -139,7 +93,7 @@ postulate
     (u₀ : sum (Ω (δ ₀)) (α (δ ₀)) (β (δ ₀)) (ω (δ ₀)))
     (u₁ : sum (Ω (δ ₁)) (α (δ ₁)) (β (δ ₁)) (ω (δ ₁))) →
     Id (Λ x ⇨ sum (Ω x) (α x) (β x) (ω x)) δ u₀ u₁ ≡
-    sum (Id-Ω Ω α β δ) {Id-IDty A δ} {Id-IDty B δ}
+    sum (Id-Ω Ω α β δ) {IDty′ A δ} {IDty′ B δ}
         (Id-α Ω α β δ) (Id-β Ω α β δ)
         (ω (δ ₀) , ω (δ ₁) , ap (Λ⇨ Ω) ω δ , u₀ , u₁)
 
@@ -163,10 +117,10 @@ sum-pop {Δ} δ Ω A B α β ω s C f g y z =
           (λ z₁ z₂ → β (pop z₁) z₂)
           (δ ∷ fst y ∷ fst (snd y) ∷ fst (snd (snd y)))}
         (Id-Ω-pop (Λ⇨ Ω) Ω α β δ (fst y) (fst (snd y)) (fst (snd (snd y))))
-        {Id-IDty A δ}
-        (Id-IDty-pop (Λ⇨ Ω) A δ (fst y) (fst (snd y)) (fst (snd (snd y))))
-        {Id-IDty B δ}
-        (Id-IDty-pop (Λ⇨ Ω) B δ (fst y) (fst (snd y)) (fst (snd (snd y))))
+        {IDty′ A δ}
+        (IDty′-pop (Λ⇨ Ω) A δ (fst y) (fst (snd y)) (fst (snd (snd y))))
+        {IDty′ B δ}
+        (IDty′-pop (Λ⇨ Ω) B δ (fst y) (fst (snd y)) (fst (snd (snd y))))
         {Id-α Ω α β δ}
         {Id-α (λ z₁ → Ω (pop {Δ} {Λ⇨ Ω} z₁)) (λ z₁ z₂ → α (pop z₁) z₂)
           (λ z₁ z₂ → β (pop z₁) z₂)
@@ -209,16 +163,16 @@ Id-C {Δ} δ Ω A B α β ω s C f g y z =
 postulate
   refl-inl : (Ω : Type) {A B : Type} (α : A → Ω) (β : B → Ω) (a : A) →
     refl (inl {Ω} {A} {B} {α} {β} a) ≡
-    inl {＝Ω Ω α β} {＝IDty A} {＝IDty B} {＝α Ω α β} {＝β Ω α β} (a , a , refl a)
+    inl {＝Ω Ω α β} {IDty A} {IDty B} {＝α Ω α β} {＝β Ω α β} (a , a , refl a)
   refl-inr : (Ω : Type) {A B : Type} (α : A → Ω) (β : B → Ω) (b : B) →
     refl (inr {Ω} {A} {B} {α} {β} b) ≡
-    inr {＝Ω Ω α β} {＝IDty A} {＝IDty B} {＝α Ω α β} {＝β Ω α β} (b , b , refl b)
+    inr {＝Ω Ω α β} {IDty A} {IDty B} {＝α Ω α β} {＝β Ω α β} (b , b , refl b)
   ap-inl : {Δ : Tel} (δ : el (ID Δ)) (Ω A B : el Δ → Type)
     (α : (x : el Δ) → A x → Ω x) (β : (x : el Δ) → B x → Ω x)
     (a : (x : el Δ) → A x) →
     ap (Λ x ⇨ sum (Ω x) (α x) (β x) (α x (a x)))
        (λ x → inl {Ω x} {A x} {B x} {α x} {β x} (a x)) δ ≡
-    (inl {Id-Ω Ω α β δ} {Id-IDty A δ} {Id-IDty B δ}
+    (inl {Id-Ω Ω α β δ} {IDty′ A δ} {IDty′ B δ}
          {Id-α Ω α β δ} {Id-β Ω α β δ}
          (a (δ ₀) , a (δ ₁) , ap (Λ⇨ A) a δ))
   ap-inr : {Δ : Tel} (δ : el (ID Δ)) (Ω A B : el Δ → Type)
@@ -226,7 +180,7 @@ postulate
     (b : (x : el Δ) → B x) →
     ap (Λ x ⇨ sum (Ω x) (α x) (β x) (β x (b x)))
        (λ x → inr {Ω x} {A x} {B x} {α x} {β x} (b x)) δ ≡
-      (inr {Id-Ω Ω α β δ} {Id-IDty A δ} {Id-IDty B δ}
+      (inr {Id-Ω Ω α β δ} {IDty′ A δ} {IDty′ B δ}
            {Id-α Ω α β δ} {Id-β Ω α β δ}
            (b (δ ₀) , b (δ ₁) , ap (Λ⇨ B) b δ))
   ap-case : {Δ : Tel} (δ : el (ID Δ)) (Ω A B : el Δ → Type)
@@ -243,7 +197,7 @@ postulate
                 (case {ω = ω (δ ₀)} (s (δ ₀)) (C (δ ₀)) (f (δ ₀)) (g (δ ₀)))
                 (case {ω = ω (δ ₁)} (s (δ ₁)) (C (δ ₁)) (f (δ ₁)) (g (δ ₁)))
          •ᶠ {!!})
-      (case {Id-Ω Ω α β δ} {Id-IDty A δ} {Id-IDty B δ} {Id-α Ω α β δ} {Id-β Ω α β δ}
+      (case {Id-Ω Ω α β δ} {IDty′ A δ} {IDty′ B δ} {Id-α Ω α β δ} {Id-β Ω α β δ}
         {ω (δ ₀) , ω (δ ₁) , ap (Λ⇨ Ω) ω δ , s (δ ₀) , s (δ ₁)}
         (ap (Λ x ⇨ sum (Ω x) (α x) (β x) (ω x)) s δ)
         (Id-C δ Ω A B α β ω s C f g)
@@ -256,7 +210,7 @@ postulate
     (f : (a : A) → C (α a) (inl a)) (g : (b : B) → C (β b) (inr b)) →
     refl (case {ω = ω} s C f g) ≡
     -- This may need a naturality coercion.  Let's do the ap version first.
-    {!case {＝Ω Ω α β} {＝IDty A} {＝IDty B} {＝α Ω α β} {＝β Ω α β} {ω , ω , refl ω , s , s} (refl s)
+    {!case {＝Ω Ω α β} {IDty A} {IDty B} {＝α Ω α β} {＝β Ω α β} {ω , ω , refl ω , s , s} (refl s)
         (λ x t → Id {ε ▸ (λ _ → Ω) ▸ (λ x → sum Ω α β (top x))} (λ y → C (top (pop y)) (top y))
                     ([] ∷ fst x ∷ fst (snd x) ∷ fst (snd (snd x)) ∷ fst (snd (snd (snd x))) ∷ snd (snd (snd (snd x))) ∷
                       coe→ (cong2 (λ p q → sum (＝Ω Ω α β) p q x)
