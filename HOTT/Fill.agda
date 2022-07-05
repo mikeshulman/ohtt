@@ -9,6 +9,7 @@ open import HOTT.Refl
 open import HOTT.Transport
 open import HOTT.Square.Base
 open import HOTT.Square.Degenerate
+open import HOTT.Square.Equality
 open import HOTT.Sym.Base
 
 ----------------------------------------
@@ -91,17 +92,28 @@ ulift→sq : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₀ : A ⊘ (δ �
     (a₁ a₁' : A ⊘ (δ ₁)) (a₂ : Id A δ a₀ a₁) (a₂' : Id A δ a₀ a₁') →
     Sq A (DEGSQ-LR δ) (refl a₀) (utr→ A δ a₀ a₁ a₁' a₂ a₂') a₂ a₂'
 ulift→sq {Δ} A δ a₀ a₁ a₁' a₂ a₂' =
-  coe→ (Id-AP {ε▸ (A ⊘ (δ ₁))} (λ x → δ ∷ a₀ ∷ top x)
+  coe→ (Id≡ (Id/ A)
+            (sq₁₂≡ A {REFL δ} reflᵉᵉ {a₀} reflʰ {a₀} reflʰ {refl a₀} reflʰ {a₁} reflʰ {a₁'} reflʰ
+              (coe←≡ʰ (Id-AP (λ x → pop x) ([] ∷ a₁ ∷ a₁' ∷ utr→ A δ a₀ a₁ a₁' a₂ a₂') (Λ _ ⇨ A ⊘ δ ₁) a₁ a₁')
+                      (utr→ A δ a₀ a₁ a₁' a₂ a₂')))
+            reflʰ reflʰ )
+    (coe→ (Id-AP {ε▸ (A ⊘ (δ ₁))} (λ x → δ ∷ a₀ ∷ top x)
               ([] ∷ a₁ ∷ a₁' ∷ utr→ A δ a₀ a₁ a₁' a₂ a₂') (Id/ A) a₂ a₂')
-       (ulift→ A δ a₀ a₁ a₁' a₂ a₂')
+       (ulift→ A δ a₀ a₁ a₁' a₂ a₂'))
 
 ulift←sq : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₁ : A ⊘ (δ ₁))
     (a₀ a₀' : A ⊘ (δ ₀)) (a₂ : Id A δ a₀ a₁) (a₂' : Id A δ a₀' a₁) →
     Sq A (DEGSQ-LR δ) (utr← A δ a₁ a₀ a₀' a₂ a₂') (refl a₁) a₂ a₂'
 ulift←sq {Δ} A δ a₁ a₀ a₀' a₂ a₂' =
-  coe→ (Id-AP {ε▸ (A ⊘ (δ ₀))} (λ x → δ ∷ top x ∷ a₁)
+  coe→ (Id≡ (Id/ A)
+            (sq₁₂≡ A {REFL δ} reflᵉᵉ {a₀} reflʰ {a₀'} reflʰ
+              (coe←≡ʰ (Id-AP (λ x → pop x) ([] ∷ a₀ ∷ a₀' ∷ utr← A δ a₁ a₀ a₀' a₂ a₂') (Λ _ ⇨ A ⊘ δ ₀) a₀ a₀')
+                      (utr← A δ a₁ a₀ a₀' a₂ a₂'))
+              {a₁} reflʰ {a₁} reflʰ {refl a₁} reflʰ)
+            reflʰ reflʰ )
+    (coe→ (Id-AP {ε▸ (A ⊘ (δ ₀))} (λ x → δ ∷ top x ∷ a₁)
               ([] ∷ a₀ ∷ a₀' ∷ utr← A δ a₁ a₀ a₀' a₂ a₂') (Id/ A) a₂ a₂')
-       (ulift← A δ a₁ a₀ a₀' a₂ a₂')
+       (ulift← A δ a₁ a₀ a₀' a₂ a₂'))
 
 -- Conversely, we can construct operations having the type of utr and
 -- ulift from filling.  We included utr and ulift explicitly in the
@@ -121,7 +133,14 @@ fill-ulift→ : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₀ : A ⊘ (δ
 fill-ulift→ {Δ} A δ a₀ a₁ a₁' a₂ a₂' =
    coe← (Id-AP {ε▸ (A ⊘ (δ ₁))} (λ x → δ ∷ a₀ ∷ top x)
                ([] ∷ a₁ ∷ a₁' ∷ fill-utr→ A δ a₀ a₁ a₁' a₂ a₂') (Id/ A) a₂ a₂')
-        (fill↑ A (DEGSQ-LR δ) (refl a₀) a₂ a₂')
+        (coe← (Id≡ (Id/ A)
+               (sq₁₂≡ A {REFL δ} reflᵉᵉ {a₀} reflʰ {a₀} reflʰ {refl a₀} reflʰ {a₁} reflʰ {a₁'} reflʰ
+                 (coe←≡ʰ (Id-AP (λ x → pop x)
+                                ([] ∷ a₁ ∷ a₁' ∷ tr→ (Id/ A) (SYM Δ (REFL δ) ∷ a₀ ∷ a₁ ∷ a₂ ∷ a₀ ∷ a₁' ∷ a₂') (refl a₀))
+                                (Λ _ ⇨ A ⊘ δ ₁) a₁ a₁')
+                         (tr→ (Id/ A) (SYM Δ (REFL δ) ∷ a₀ ∷ a₁ ∷ a₂ ∷ a₀ ∷ a₁' ∷ a₂') (refl a₀))))
+               reflʰ reflʰ)
+          (fill↑ A (DEGSQ-LR δ) (refl a₀) a₂ a₂'))
     
 fill-utr← : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₁ : A ⊘ (δ ₁))
     (a₀ a₀' : A ⊘ (δ ₀)) (a₂ : Id A δ a₀ a₁) (a₂' : Id A δ a₀' a₁) → (a₀ ＝ a₀')
@@ -134,4 +153,12 @@ fill-ulift← : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₁ : A ⊘ (δ
 fill-ulift← {Δ} A δ a₁ a₀ a₀' a₂ a₂' =
   coe← (Id-AP {ε▸ (A ⊘ (δ ₀))} (λ x → δ ∷ top x ∷ a₁)
               ([] ∷ a₀ ∷ a₀' ∷ fill-utr← A δ a₁ a₀ a₀' a₂ a₂') (Id/ A) a₂ a₂')
-        (fill↓ A (DEGSQ-LR δ) (refl a₁) a₂ a₂')
+        (coe← (Id≡ (Id/ A)
+               (sq₁₂≡ A {REFL δ} reflᵉᵉ {a₀} reflʰ {a₀'} reflʰ 
+                 (coe←≡ʰ (Id-AP (λ x → pop x)
+                                ([] ∷ a₀ ∷ a₀' ∷ tr← (Id/ A) (SYM Δ (REFL δ) ∷ a₀ ∷ a₁ ∷ a₂ ∷ a₀' ∷ a₁ ∷ a₂') (refl a₁))
+                                (Λ _ ⇨ A ⊘ δ ₀) a₀ a₀')
+                         (tr← (Id/ A) (SYM Δ (REFL δ) ∷ a₀ ∷ a₁ ∷ a₂ ∷ a₀' ∷ a₁ ∷ a₂') (refl a₁)))
+                 {a₁} reflʰ {a₁} reflʰ {refl a₁} reflʰ)
+               reflʰ reflʰ)
+          (fill↓ A (DEGSQ-LR δ) (refl a₁) a₂ a₂'))

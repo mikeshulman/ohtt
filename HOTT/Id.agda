@@ -179,19 +179,6 @@ postulate
 
 {-# REWRITE APε AP∷ #-}
 
--- Since Id-AP⊚ always fires as a rewrite, we don't need to coerce
--- along it by hand.  But sometimes we do need to coerce along Id-AP
--- by hand, since the LHS ⊘ can be reduced and unmatchable.  However,
--- if we declare it to reduce to reflᵉ, then such coercions will
--- disappear, as we expect them to do in concrete cases where Id-AP
--- should hold by definition anyway.
-Id-AP-reflᵉ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (A : Δ ⇨ Type)
-  (a₀ : A ⊘ (f (γ ₀))) (a₁ : A ⊘ (f (γ ₁))) →
-  Id-AP f γ A a₀ a₁ ≡ᵉ reflᵉ
-Id-AP-reflᵉ f γ A a₀ a₁ = axiomK
-
-{-# REWRITE Id-AP-reflᵉ #-}
-
 ------------------------------
 -- Functoriality of ap and AP
 ------------------------------
@@ -239,14 +226,6 @@ ap-AP-idmap∷ : {Δ : Tel} (B : Δ ⇨ Type) (A : (Δ ▸ B) ⇨ Type)
 ap-AP-idmap∷ B A h g γ = ap-AP A (Λ x ⇨ᵉ x ∷ h x) g γ
 
 {-# REWRITE ap-AP∷ ap-AP-idmap∷ #-}
-
--- As with Id-AP, we declare AP-AP to reduce to reflᵉᵉ so that it
--- disappears on concrete terms like it should.
-AP-AP-reflᵉ : {Γ Δ Θ : Tel} (f : Γ ⇨ᵉ el Δ) (g : Δ ⇨ᵉ el Θ) (γ : el (ID Γ)) →
-  AP-AP f g γ ≡ᵉ reflᵉᵉ
-AP-AP-reflᵉ f g γ = axiomKᵉ
-
-{-# REWRITE AP-AP-reflᵉ #-}
 
 ------------------------------
 -- ap on variables
