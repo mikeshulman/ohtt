@@ -21,30 +21,30 @@ open import HOTT.Arrow.Base
 postulate
   tr→⇛ : {Δ : Tel} (A B : el Δ → Type)
     (δ : el (ID Δ)) (f₀ : (A (δ ₀)) ⇛ (B (δ ₀))) →
-    tr→ (λ w → (A w) ⇛ (B w)) δ f₀ ≡ Λ a₁ ⇛ tr→ B δ (f₀ ⊙ (tr← A δ a₁))
+    tr→ (Λ w ⇨ (A w) ⇛ (B w)) δ f₀ ≡ ƛ a₁ ⇛ tr→ (Λ⇨ B) δ (f₀ ⊙ (tr← (Λ⇨ A) δ a₁))
   tr←⇛ : {Δ : Tel} (A B : el Δ → Type)
     (δ : el (ID Δ)) (f₁ : (A (δ ₁)) ⇛ (B (δ ₁))) →
-    tr← (λ w → (A w) ⇛ (B w)) δ f₁ ≡ Λ a₀ ⇛ tr← B δ (f₁ ⊙ (tr→ A δ a₀))
+    tr← (Λ w ⇨ (A w) ⇛ (B w)) δ f₁ ≡ ƛ a₀ ⇛ tr← (Λ⇨ B) δ (f₁ ⊙ (tr→ (Λ⇨ A) δ a₀))
 
 {-# REWRITE tr→⇛ tr←⇛ #-}
 
 postulate
   lift→⇛ : {Δ : Tel} (A B : el Δ → Type)
     (δ : el (ID Δ)) (f₀ : (A (δ ₀)) ⇛ (B (δ ₀))) →
-    lift→ (λ w → (A w) ⇛ (B w)) δ f₀ ≡
-    Λ a₀ ⇒ Λ a₁ ⇒ Λ a₂ ⇛
-      comp↓ B (DEGSQ-TB δ)
-            (lift→ B δ (f₀ ⊙ tr← A δ a₁))
-            (refl f₀ ∙ a₀ ∙ tr← A δ a₁ ⊙ (utr← A δ a₁ a₀ (tr← A δ a₁) a₂ (lift← A δ a₁)))
-            (refl (tr→ B δ (f₀ ⊙ tr← A δ a₁)))
+    lift→ (Λ w ⇨ (A w) ⇛ (B w)) δ f₀ ≡
+    ƛ a₀ ⇒ ƛ a₁ ⇒ ƛ a₂ ⇛
+      comp↓ (Λ⇨ B) (DEGSQ-TB δ)
+            (lift→ (Λ⇨ B) δ (f₀ ⊙ tr← (Λ⇨ A) δ a₁))
+            (refl f₀ ∙ a₀ ∙ tr← (Λ⇨ A) δ a₁ ⊙ (utr← (Λ⇨ A) δ a₁ a₀ (tr← (Λ⇨ A) δ a₁) a₂ (lift← (Λ⇨ A) δ a₁)))
+            (refl (tr→ (Λ⇨ B) δ (f₀ ⊙ tr← (Λ⇨ A) δ a₁)))
   lift←⇛ : {Δ : Tel} (A B : el Δ → Type)
     (δ : el (ID Δ)) (f₁ : (A (δ ₁)) ⇛ (B (δ ₁))) →
-    lift← (λ w → (A w) ⇛ (B w)) δ f₁ ≡
-    Λ a₀ ⇒ Λ a₁ ⇒ Λ a₂ ⇛
-      comp↓ B (DEGSQ-TB δ)
-            (lift← B δ (f₁ ⊙ tr→ A δ a₀))
-            (refl (tr← B δ (f₁ ⊙ tr→ A δ a₀)))
-            (refl f₁ ∙ a₁ ∙ tr→ A δ a₀ ⊙ (utr→ A δ a₀ a₁ (tr→ A δ a₀) a₂ (lift→ A δ a₀)))
+    lift← (Λ w ⇨ (A w) ⇛ (B w)) δ f₁ ≡
+    ƛ a₀ ⇒ ƛ a₁ ⇒ ƛ a₂ ⇛
+      comp↓ (Λ⇨ B) (DEGSQ-TB δ)
+            (lift← (Λ⇨ B) δ (f₁ ⊙ tr→ (Λ⇨ A) δ a₀))
+            (refl (tr← (Λ⇨ B) δ (f₁ ⊙ tr→ (Λ⇨ A) δ a₀)))
+            (refl f₁ ∙ a₁ ∙ tr→ (Λ⇨ A) δ a₀ ⊙ (utr→ (Λ⇨ A) δ a₀ a₁ (tr→ (Λ⇨ A) δ a₀) a₂ (lift→ (Λ⇨ A) δ a₀)))
 
 {-# REWRITE lift→⇛ lift←⇛ #-}
 
@@ -55,27 +55,27 @@ postulate
 postulate
   utr→⇛ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
     (u₀ : (A (δ ₀)) ⇛ (B (δ ₀))) (u₁ u₁' : (A (δ ₁)) ⇛ (B (δ ₁)))
-    (u₂ : Id (λ w → (A w) ⇛ (B w)) δ u₀ u₁) (u₂' : Id (λ w → (A w) ⇛ (B w)) δ u₀ u₁') →
-    utr→      (λ w → (A w) ⇛ (B w)) δ u₀ u₁ u₁' u₂ u₂' ≡
-    fill-utr→ (λ w → (A w) ⇛ (B w)) δ u₀ u₁ u₁' u₂ u₂'
+    (u₂ : Id (Λ w ⇨ (A w) ⇛ (B w)) δ u₀ u₁) (u₂' : Id (Λ w ⇨ (A w) ⇛ (B w)) δ u₀ u₁') →
+    utr→      (Λ w ⇨ (A w) ⇛ (B w)) δ u₀ u₁ u₁' u₂ u₂' ≡
+    fill-utr→ (Λ w ⇨ (A w) ⇛ (B w)) δ u₀ u₁ u₁' u₂ u₂'
   utr←⇛ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
     (u₁ : (A (δ ₁)) ⇛ (B (δ ₁))) (u₀ u₀' : (A (δ ₀)) ⇛ (B (δ ₀)))
-    (u₂ : Id (λ w → (A w) ⇛ (B w)) δ u₀ u₁) (u₂' : Id (λ w → (A w) ⇛ (B w)) δ u₀' u₁) →
-    utr←      (λ w → (A w) ⇛ (B w)) δ u₁ u₀ u₀' u₂ u₂' ≡
-    fill-utr← (λ w → (A w) ⇛ (B w)) δ u₁ u₀ u₀' u₂ u₂'
+    (u₂ : Id (Λ w ⇨ (A w) ⇛ (B w)) δ u₀ u₁) (u₂' : Id (Λ w ⇨ (A w) ⇛ (B w)) δ u₀' u₁) →
+    utr←      (Λ w ⇨ (A w) ⇛ (B w)) δ u₁ u₀ u₀' u₂ u₂' ≡
+    fill-utr← (Λ w ⇨ (A w) ⇛ (B w)) δ u₁ u₀ u₀' u₂ u₂'
 
 {-# REWRITE utr→⇛ utr←⇛ #-}
 
 postulate
   ulift→⇛ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
     (u₀ : (A (δ ₀)) ⇛ (B (δ ₀))) (u₁ u₁' : (A (δ ₁)) ⇛ (B (δ ₁)))
-    (u₂ : Id (λ w → (A w) ⇛ (B w)) δ u₀ u₁) (u₂' : Id (λ w → (A w) ⇛ (B w)) δ u₀ u₁') →
-    ulift→      (λ w → (A w) ⇛ (B w)) δ u₀ u₁ u₁' u₂ u₂' ≡
-    fill-ulift→ (λ w → (A w) ⇛ (B w)) δ u₀ u₁ u₁' u₂ u₂'
+    (u₂ : Id (Λ w ⇨ (A w) ⇛ (B w)) δ u₀ u₁) (u₂' : Id (Λ w ⇨ (A w) ⇛ (B w)) δ u₀ u₁') →
+    ulift→      (Λ w ⇨ (A w) ⇛ (B w)) δ u₀ u₁ u₁' u₂ u₂' ≡
+    fill-ulift→ (Λ w ⇨ (A w) ⇛ (B w)) δ u₀ u₁ u₁' u₂ u₂'
   ulift←⇛ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
     (u₁ : (A (δ ₁)) ⇛ (B (δ ₁))) (u₀ u₀' : (A (δ ₀)) ⇛ (B (δ ₀)))
-    (u₂ : Id (λ w → (A w) ⇛ (B w)) δ u₀ u₁) (u₂' : Id (λ w → (A w) ⇛ (B w)) δ u₀' u₁) →
-    ulift←      (λ w → (A w) ⇛ (B w)) δ u₁ u₀ u₀' u₂ u₂' ≡
-    fill-ulift← (λ w → (A w) ⇛ (B w)) δ u₁ u₀ u₀' u₂ u₂'
+    (u₂ : Id (Λ w ⇨ (A w) ⇛ (B w)) δ u₀ u₁) (u₂' : Id (Λ w ⇨ (A w) ⇛ (B w)) δ u₀' u₁) →
+    ulift←      (Λ w ⇨ (A w) ⇛ (B w)) δ u₁ u₀ u₀' u₂ u₂' ≡
+    fill-ulift← (Λ w ⇨ (A w) ⇛ (B w)) δ u₁ u₀ u₀' u₂ u₂'
 
 {-# REWRITE ulift→⇛ ulift←⇛ #-}

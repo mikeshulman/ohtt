@@ -15,17 +15,17 @@ open import HOTT.Prod.Base
 
 postulate
   tr→× : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ)) (u₀ : A (δ ₀) × B (δ ₀)) →
-    tr→ (λ w → A w × B w) δ u₀ ≡ (tr→ A δ (fst u₀) , tr→ B δ (snd u₀))
+    tr→ (Λ w ⇨ A w × B w) δ u₀ ≡ (tr→ (Λ⇨ A) δ (fst u₀) , tr→ (Λ⇨ B) δ (snd u₀))
   tr←× : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ)) (u₁ : A (δ ₁) × B (δ ₁)) →
-    tr← (λ w → A w × B w) δ u₁ ≡ (tr← A δ (fst u₁) , tr← B δ (snd u₁))
+    tr← (Λ w ⇨ A w × B w) δ u₁ ≡ (tr← (Λ⇨ A) δ (fst u₁) , tr← (Λ⇨ B) δ (snd u₁))
 
 {-# REWRITE tr→× tr←× #-}
 
 postulate
   lift→× : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ)) (u₀ : A (δ ₀) × B (δ ₀)) →
-    lift→ (λ w → A w × B w) δ u₀ ≡ (lift→ A δ (fst u₀) , lift→ B δ (snd u₀))
+    lift→ (Λ w ⇨ A w × B w) δ u₀ ≡ (lift→ (Λ⇨ A) δ (fst u₀) , lift→ (Λ⇨ B) δ (snd u₀))
   lift←× : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ)) (u₁ : A (δ ₁) × B (δ ₁)) →
-    lift← (λ w → A w × B w) δ u₁ ≡ (lift← A δ (fst u₁) , lift← B δ (snd u₁))
+    lift← (Λ w ⇨ A w × B w) δ u₁ ≡ (lift← (Λ⇨ A) δ (fst u₁) , lift← (Λ⇨ B) δ (snd u₁))
 
 {-# REWRITE lift→× lift←× #-}
 
@@ -36,57 +36,57 @@ postulate
 postulate
   utr→× : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
     (u₀ : A (δ ₀) × B (δ ₀)) (u₁ u₁' : A (δ ₁) × B (δ ₁))
-    (u₂ : Id (λ w → A w × B w) δ u₀ u₁) (u₂' : Id (λ w → A w × B w) δ u₀ u₁') →
-    utr→ (λ w → A w × B w) δ u₀ u₁ u₁' u₂ u₂' ≡
-    (utr→ A δ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂') , utr→ B δ (snd u₀) (snd u₁) (snd u₁') (snd u₂) (snd u₂'))
+    (u₂ : Id (Λ w ⇨ A w × B w) δ u₀ u₁) (u₂' : Id (Λ w ⇨ A w × B w) δ u₀ u₁') →
+    utr→ (Λ w ⇨ A w × B w) δ u₀ u₁ u₁' u₂ u₂' ≡
+    (utr→ (Λ⇨ A) δ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂') , utr→ (Λ⇨ B) δ (snd u₀) (snd u₁) (snd u₁') (snd u₂) (snd u₂'))
   utr←× : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
     (u₁ : A (δ ₁) × B (δ ₁)) (u₀ u₀' : A (δ ₀) × B (δ ₀))
-    (u₂ : Id (λ w → A w × B w) δ u₀ u₁) (u₂' : Id (λ w → A w × B w) δ u₀' u₁) →
-    utr← (λ w → A w × B w) δ u₁ u₀ u₀' u₂ u₂' ≡
-    (utr← A δ (fst u₁) (fst u₀) (fst u₀') (fst u₂) (fst u₂') , utr← B δ (snd u₁) (snd u₀) (snd u₀') (snd u₂) (snd u₂'))
+    (u₂ : Id (Λ w ⇨ A w × B w) δ u₀ u₁) (u₂' : Id (Λ w ⇨ A w × B w) δ u₀' u₁) →
+    utr← (Λ w ⇨ A w × B w) δ u₁ u₀ u₀' u₂ u₂' ≡
+    (utr← (Λ⇨ A) δ (fst u₁) (fst u₀) (fst u₀') (fst u₂) (fst u₂') , utr← (Λ⇨ B) δ (snd u₁) (snd u₀) (snd u₀') (snd u₂) (snd u₂'))
 
 {-# REWRITE utr→× utr←× #-}
 
 postulate
   ulift→× : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
     (u₀ : A (δ ₀) × B (δ ₀)) (u₁ u₁' : A (δ ₁) × B (δ ₁))
-    (u₂ : Id (λ w → A w × B w) δ u₀ u₁) (u₂' : Id (λ w → A w × B w) δ u₀ u₁') →
-    ulift→ (λ w → A w × B w) δ u₀ u₁ u₁' u₂ u₂' ≡
-    (coe→ (Id-AP▸ {ε ▸ (λ _ → A (δ ₁) × B (δ ₁))} {ε} (λ _ → A (δ ₁))
-              (λ _ → []) (λ x → fst (top x))
+    (u₂ : Id (Λ w ⇨ A w × B w) δ u₀ u₁) (u₂' : Id (Λ w ⇨ A w × B w) δ u₀ u₁') →
+    ulift→ (Λ w ⇨ A w × B w) δ u₀ u₁ u₁' u₂ u₂' ≡
+    (coe← (Id-AP {ε▸ (A (δ ₁) × B (δ ₁))} {ε▸ (A (δ ₁))}
+              (λ x → [] ∷ fst (top x))
               ([] ∷ u₁ ∷ u₁' ∷
-               (utr→ (λ z → A z) δ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂') ,
-                utr→ (λ z → B z) δ (snd u₀) (snd u₁) (snd u₁') (snd u₂) (snd u₂')))
-              (λ w → Id A δ (fst u₀) (top w))
+               (utr→ (Λ⇨ A) δ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂') ,
+                utr→ (Λ⇨ B) δ (snd u₀) (snd u₁) (snd u₁') (snd u₂) (snd u₂')))
+              (Λ w ⇨ Id (Λ⇨ A) δ (fst u₀) (top w))
               (fst u₂) (fst u₂'))
-           (ulift→ A δ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂')),
-     coe→ (Id-AP▸ {ε ▸ (λ _ → A (δ ₁) × B (δ ₁))} {ε} (λ _ → B (δ ₁))
-              (λ _ → []) (λ x → snd (top x))
+           (ulift→ (Λ⇨ A) δ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂')) ,
+     coe← (Id-AP {ε▸ (A (δ ₁) × B (δ ₁))} {ε▸ (B (δ ₁))}
+              (λ x → [] ∷ snd (top x))
               ([] ∷ u₁ ∷ u₁' ∷
-               (utr→ (λ z → A z) δ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂') ,
-                utr→ (λ z → B z) δ (snd u₀) (snd u₁) (snd u₁') (snd u₂) (snd u₂')))
-              (λ w → Id B δ (snd u₀) (top w))
+               (utr→ (Λ⇨ A) δ (fst u₀) (fst u₁) (fst u₁') (fst u₂) (fst u₂') ,
+                utr→ (Λ⇨ B) δ (snd u₀) (snd u₁) (snd u₁') (snd u₂) (snd u₂')))
+              (Λ w ⇨ Id (Λ⇨ B) δ (snd u₀) (top w))
               (snd u₂) (snd u₂'))
-           (ulift→ B δ (snd u₀) (snd u₁) (snd u₁') (snd u₂) (snd u₂')))
+           (ulift→ (Λ⇨ B) δ (snd u₀) (snd u₁) (snd u₁') (snd u₂) (snd u₂')))
   ulift←× : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
     (u₁ : A (δ ₁) × B (δ ₁)) (u₀ u₀' : A (δ ₀) × B (δ ₀))
-    (u₂ : Id (λ w → A w × B w) δ u₀ u₁) (u₂' : Id (λ w → A w × B w) δ u₀' u₁) →
-    ulift← (λ w → A w × B w) δ u₁ u₀ u₀' u₂ u₂' ≡
-    (coe→ (Id-AP▸ {ε ▸ (λ _ → A (δ ₀) × B (δ ₀))} {ε} (λ _ → A (δ ₀))
-              (λ _ → []) (λ x → fst (top x))
+    (u₂ : Id (Λ w ⇨ A w × B w) δ u₀ u₁) (u₂' : Id (Λ w ⇨ A w × B w) δ u₀' u₁) →
+    ulift← (Λ w ⇨ A w × B w) δ u₁ u₀ u₀' u₂ u₂' ≡
+    (coe← (Id-AP {ε▸ (A (δ ₀) × B (δ ₀))} {ε▸ (A (δ ₀))}
+              (λ x → [] ∷ fst (top x))
               ([] ∷ u₀ ∷ u₀' ∷
-               (utr← (λ z → A z) δ (fst u₁) (fst u₀) (fst u₀') (fst u₂) (fst u₂') ,
-                utr← (λ z → B z) δ (snd u₁) (snd u₀) (snd u₀') (snd u₂) (snd u₂')))
-              (λ w → Id A δ (top w) (fst u₁))
+               (utr← (Λ⇨ A) δ (fst u₁) (fst u₀) (fst u₀') (fst u₂) (fst u₂') ,
+                utr← (Λ⇨ B) δ (snd u₁) (snd u₀) (snd u₀') (snd u₂) (snd u₂')))
+              (Λ w ⇨ Id (Λ⇨ A) δ (top w) (fst u₁))
               (fst u₂) (fst u₂'))
-           (ulift← A δ (fst u₁) (fst u₀) (fst u₀') (fst u₂) (fst u₂')),
-     coe→ (Id-AP▸ {ε ▸ (λ _ → A (δ ₀) × B (δ ₀))} {ε} (λ _ → B (δ ₀))
-              (λ _ → []) (λ x → snd (top x))
+           (ulift← (Λ⇨ A) δ (fst u₁) (fst u₀) (fst u₀') (fst u₂) (fst u₂')),
+     coe← (Id-AP {ε▸ (A (δ ₀) × B (δ ₀))} {ε▸ (B (δ ₀))}
+              (λ x → [] ∷ snd (top x))
               ([] ∷ u₀ ∷ u₀' ∷
-               (utr← (λ z → A z) δ (fst u₁) (fst u₀) (fst u₀') (fst u₂) (fst u₂') ,
-                utr← (λ z → B z) δ (snd u₁) (snd u₀) (snd u₀') (snd u₂) (snd u₂')))
-              (λ w → Id B δ (top w) (snd u₁))
+               (utr← (Λ⇨ A) δ (fst u₁) (fst u₀) (fst u₀') (fst u₂) (fst u₂') ,
+                utr← (Λ⇨ B) δ (snd u₁) (snd u₀) (snd u₀') (snd u₂) (snd u₂')))
+              (Λ w ⇨ Id (Λ⇨ B) δ (top w) (snd u₁))
               (snd u₂) (snd u₂'))
-           (ulift← B δ (snd u₁) (snd u₀) (snd u₀') (snd u₂) (snd u₂')))
+           (ulift← (Λ⇨ B) δ (snd u₁) (snd u₀) (snd u₀') (snd u₂) (snd u₂')))
 
 {-# REWRITE ulift→× ulift←× #-}

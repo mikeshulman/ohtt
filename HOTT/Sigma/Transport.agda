@@ -19,24 +19,36 @@ open import HOTT.Sigma.Base
 postulate
   tr→Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
     (δ : el (ID Δ)) (u₀ : Σ (A (δ ₀)) (B (δ ₀))) →
-    tr→ (λ w → Σ (A w) (B w)) δ u₀ ≡
-    (tr→ A δ (fst u₀) ,  tr→ {Δ ▸ A} (uncurry B) (δ ∷ fst u₀ ∷ tr→ A δ (fst u₀) ∷ lift→ A δ (fst u₀)) (snd u₀))
+    tr→ (Λ w ⇨ Σ (A w) (B w)) δ u₀ ≡
+    (tr→ (Λ⇨ A) δ (fst u₀) ,
+     tr→ {Δ ▸ (Λ⇨ A)} (Λ⇨ (uncurry {A = Λ⇨ A} B))
+         (δ ∷ fst u₀ ∷ tr→ (Λ⇨ A) δ (fst u₀) ∷ lift→ (Λ⇨ A) δ (fst u₀))
+         (snd u₀))
   tr←Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
     (δ : el (ID Δ)) (u₁ : Σ (A (δ ₁)) (B (δ ₁))) →
-    tr← (λ w → Σ (A w) (B w)) δ u₁ ≡
-    (tr← A δ (fst u₁) , tr← {Δ ▸ A} (uncurry B) (δ ∷ tr← A δ (fst u₁) ∷ fst u₁ ∷ lift← A δ (fst u₁)) (snd u₁))
+    tr← (Λ w ⇨ Σ (A w) (B w)) δ u₁ ≡
+    (tr← (Λ⇨ A) δ (fst u₁) ,
+     tr← {Δ ▸ (Λ⇨ A)} (Λ⇨ (uncurry {A = Λ⇨ A} B))
+         (δ ∷ tr← (Λ⇨ A) δ (fst u₁) ∷ fst u₁ ∷ lift← (Λ⇨ A) δ (fst u₁))
+         (snd u₁))
 
 {-# REWRITE tr→Σ tr←Σ #-}
 
 postulate
   lift→Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
     (δ : el (ID Δ)) (u₀ : Σ (A (δ ₀)) (B (δ ₀))) →
-    lift→ (λ w → Σ (A w) (B w)) δ u₀ ≡
-    (lift→ A δ (fst u₀) ,  lift→ {Δ ▸ A} (uncurry B) (δ ∷ fst u₀ ∷ tr→ A δ (fst u₀) ∷ lift→ A δ (fst u₀)) (snd u₀))
+    lift→ (Λ w ⇨ Σ (A w) (B w)) δ u₀ ≡
+    (lift→ (Λ⇨ A) δ (fst u₀) ,
+     lift→ {Δ ▸ (Λ⇨ A)} (Λ⇨ (uncurry {A = Λ⇨ A} B))
+           (δ ∷ fst u₀ ∷ tr→ (Λ⇨ A) δ (fst u₀) ∷ lift→ (Λ⇨ A) δ (fst u₀))
+           (snd u₀))
   lift←Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
     (δ : el (ID Δ)) (u₁ : Σ (A (δ ₁)) (B (δ ₁))) →
-    lift← (λ w → Σ (A w) (B w)) δ u₁ ≡
-    (lift← A δ (fst u₁) ,  lift← {Δ ▸ A} (uncurry B) (δ ∷ tr← A δ (fst u₁) ∷ fst u₁ ∷ lift← A δ (fst u₁)) (snd u₁))
+    lift← (Λ w ⇨ Σ (A w) (B w)) δ u₁ ≡
+    (lift← (Λ⇨ A) δ (fst u₁) ,
+     lift← {Δ ▸ (Λ⇨ A)} (Λ⇨ (uncurry {A = Λ⇨ A} B))
+           (δ ∷ tr← (Λ⇨ A) δ (fst u₁) ∷ fst u₁ ∷ lift← (Λ⇨ A) δ (fst u₁))
+           (snd u₁))
 
 {-# REWRITE lift→Σ lift←Σ #-}
 
@@ -48,27 +60,27 @@ postulate
 postulate
   utr→Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type) (δ : el (ID Δ))
     (u₀ : Σ (A (δ ₀)) (B (δ ₀))) (u₁ u₁' : Σ (A (δ ₁)) (B (δ ₁)))
-    (u₂ : Id (λ w → Σ (A w) (B w)) δ u₀ u₁) (u₂' : Id (λ w → Σ (A w) (B w)) δ u₀ u₁') →
-    utr→      (λ w → Σ (A w) (B w)) δ u₀ u₁ u₁' u₂ u₂' ≡
-    fill-utr→ (λ w → Σ (A w) (B w)) δ u₀ u₁ u₁' u₂ u₂'
+    (u₂ : Id (Λ w ⇨ Σ (A w) (B w)) δ u₀ u₁) (u₂' : Id (Λ w ⇨ Σ (A w) (B w)) δ u₀ u₁') →
+    utr→      (Λ w ⇨ Σ (A w) (B w)) δ u₀ u₁ u₁' u₂ u₂' ≡
+    fill-utr→ (Λ w ⇨ Σ (A w) (B w)) δ u₀ u₁ u₁' u₂ u₂'
   utr←Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type) (δ : el (ID Δ))
     (u₁ : Σ (A (δ ₁)) (B (δ ₁))) (u₀ u₀' : Σ (A (δ ₀)) (B (δ ₀)))
-    (u₂ : Id (λ w → Σ (A w) (B w)) δ u₀ u₁) (u₂' : Id (λ w → Σ (A w) (B w)) δ u₀' u₁) →
-    utr←      (λ w → Σ (A w) (B w)) δ u₁ u₀ u₀' u₂ u₂' ≡
-    fill-utr← (λ w → Σ (A w) (B w)) δ u₁ u₀ u₀' u₂ u₂'
+    (u₂ : Id (Λ w ⇨ Σ (A w) (B w)) δ u₀ u₁) (u₂' : Id (Λ w ⇨ Σ (A w) (B w)) δ u₀' u₁) →
+    utr←      (Λ w ⇨ Σ (A w) (B w)) δ u₁ u₀ u₀' u₂ u₂' ≡
+    fill-utr← (Λ w ⇨ Σ (A w) (B w)) δ u₁ u₀ u₀' u₂ u₂'
 
 {-# REWRITE utr→Σ utr←Σ #-}
 
 postulate
   ulift→Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type) (δ : el (ID Δ))
     (u₀ : Σ (A (δ ₀)) (B (δ ₀))) (u₁ u₁' : Σ (A (δ ₁)) (B (δ ₁)))
-    (u₂ : Id (λ w → Σ (A w) (B w)) δ u₀ u₁) (u₂' : Id (λ w → Σ (A w) (B w)) δ u₀ u₁') →
-    ulift→      (λ w → Σ (A w) (B w)) δ u₀ u₁ u₁' u₂ u₂' ≡
-    fill-ulift→ (λ w → Σ (A w) (B w)) δ u₀ u₁ u₁' u₂ u₂'
+    (u₂ : Id (Λ w ⇨ Σ (A w) (B w)) δ u₀ u₁) (u₂' : Id (Λ w ⇨ Σ (A w) (B w)) δ u₀ u₁') →
+    ulift→      (Λ w ⇨ Σ (A w) (B w)) δ u₀ u₁ u₁' u₂ u₂' ≡
+    fill-ulift→ (Λ w ⇨ Σ (A w) (B w)) δ u₀ u₁ u₁' u₂ u₂'
   ulift←Σ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type) (δ : el (ID Δ))
     (u₁ : Σ (A (δ ₁)) (B (δ ₁))) (u₀ u₀' : Σ (A (δ ₀)) (B (δ ₀)))
-    (u₂ : Id (λ w → Σ (A w) (B w)) δ u₀ u₁) (u₂' : Id (λ w → Σ (A w) (B w)) δ u₀' u₁) →
-    ulift←      (λ w → Σ (A w) (B w)) δ u₁ u₀ u₀' u₂ u₂' ≡
-    fill-ulift← (λ w → Σ (A w) (B w)) δ u₁ u₀ u₀' u₂ u₂'
+    (u₂ : Id (Λ w ⇨ Σ (A w) (B w)) δ u₀ u₁) (u₂' : Id (Λ w ⇨ Σ (A w) (B w)) δ u₀' u₁) →
+    ulift←      (Λ w ⇨ Σ (A w) (B w)) δ u₁ u₀ u₀' u₂ u₂' ≡
+    fill-ulift← (Λ w ⇨ Σ (A w) (B w)) δ u₁ u₀ u₀' u₂ u₂'
 
 {-# REWRITE ulift→Σ ulift←Σ #-}

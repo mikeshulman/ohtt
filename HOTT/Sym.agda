@@ -3,4 +3,4 @@
 module HOTT.Sym where
 
 open import HOTT.Sym.Base public
-open import HOTT.Sym.Degenerate public
+--open import HOTT.Sym.Degenerate public

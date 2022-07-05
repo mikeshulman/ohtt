@@ -11,11 +11,15 @@ open import HOTT.Pi.Base
 postulate
   tr→Π : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
     (δ : el (ID Δ)) (f₀ : Π (A (δ ₀)) (B (δ ₀))) →
-    tr→ (λ w → Π (A w) (B w)) δ f₀ ≡
-    Λ a₁ ⇒ tr→ (uncurry B) (δ ∷ tr← A δ a₁ ∷ a₁ ∷ lift← A δ a₁) (f₀ ∙ (tr← A δ a₁))
+    tr→ (Λ w ⇨ Π (A w) (B w)) δ f₀ ≡
+    ƛ a₁ ⇒ tr→ (Λ⇨ (uncurry {Type} {Δ} {Λ⇨ A} B))
+               (δ ∷ tr← (Λ⇨ A) δ a₁ ∷ a₁ ∷ lift← (Λ⇨ A) δ a₁)
+               (f₀ ∙ (tr← (Λ⇨ A) δ a₁))
   tr←Π : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
     (δ : el (ID Δ)) (f₁ : Π (A (δ ₁)) (B (δ ₁))) →
-    tr← (λ w → Π (A w) (B w)) δ f₁ ≡
-    Λ a₀ ⇒ tr← (uncurry B) (δ ∷ a₀ ∷ tr→ A δ a₀ ∷ lift→ A δ a₀) (f₁ ∙ (tr→ A δ a₀))
+    tr← (Λ w ⇨ Π (A w) (B w)) δ f₁ ≡
+    ƛ a₀ ⇒ tr← (Λ⇨ (uncurry {Type} {Δ} {Λ⇨ A} B))
+               (δ ∷ a₀ ∷ tr→ (Λ⇨ A) δ a₀ ∷ lift→ (Λ⇨ A) δ a₀)
+               (f₁ ∙ (tr→ (Λ⇨ A) δ a₀))
 
 {-# REWRITE tr→Π tr←Π #-}

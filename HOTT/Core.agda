@@ -1,0 +1,18 @@
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K #-}
+
+module HOTT.Core where
+
+open import HOTT.Telescope public
+open import HOTT.Id public
+open import HOTT.Refl public
+
+open import HOTT.Square public
+open import HOTT.Sym public
+open import HOTT.Transport public
+open import HOTT.Fill public
+
+open import HOTT.Unit public
+open import HOTT.Sigma public
+open import HOTT.Pi public
+open import HOTT.Copy public
+open import HOTT.Universe public

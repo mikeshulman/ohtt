@@ -23,7 +23,7 @@ data _⇛_ (A B : Type) : Type where
 infixr 30 _⇛_
 
 infixr 27 lam⇛
-syntax lam⇛ (λ x → f) = Λ x ⇛ f
+syntax lam⇛ (λ x → f) = ƛ x ⇛ f
 
 _⊙_ : {A B : Type} (f : A ⇛ B) → A → B
 lam⇛ f ⊙ a = f a
@@ -31,7 +31,7 @@ lam⇛ f ⊙ a = f a
 infixl 50 _⊙_
 
 postulate
-  η⇛ : {A B : Type} (f : A ⇛ B) → (Λ x ⇛ f ⊙ x) ≡ f
+  η⇛ : {A B : Type} (f : A ⇛ B) → (ƛ x ⇛ f ⊙ x) ≡ f
 
 {-# REWRITE η⇛ #-}
 
@@ -41,32 +41,28 @@ postulate
 postulate
   Id⇛ : {Δ : Tel} (A B : el Δ → Type)
     (δ : el (ID Δ)) (f₀ : (A (δ ₀)) ⇛ (B (δ ₀))) (f₁ : (A (δ ₁)) ⇛ (B (δ ₁))) →
-    Id (λ w → (A w) ⇛ (B w)) δ f₀ f₁ ≡
-      Π (A (δ ₀)) (λ a₀ →
-      Π (A (δ ₁)) (λ a₁ →
-      (Id A δ a₀ a₁) ⇛
-        Id B δ (f₀ ⊙ a₀) (f₁ ⊙ a₁)))
+    Id (Λ w ⇨ (A w) ⇛ (B w)) δ f₀ f₁ ≡
+      Π[ a₀ ﹕ A (δ ₀) ] Π[ a₁ ﹕ A (δ ₁) ]
+      (Id (Λ⇨ A) δ a₀ a₁) ⇛ Id (Λ⇨ B) δ (f₀ ⊙ a₀) (f₁ ⊙ a₁)
   ＝⇛ : (A B : Type) (f₀ f₁ : A ⇛ B) →
-    (f₀ ＝ f₁) ≡
-      Π A (λ a₀ →
-      Π A (λ a₁ →
-      (a₀ ＝ a₁) ⇛
-        (f₀ ⊙ a₀ ＝ f₁ ⊙ a₁)))
+    (f₀ ＝ f₁) ≡ Π[ a₀ ﹕ A ] Π[ a₁ ﹕ A ] (a₀ ＝ a₁) ⇛ (f₀ ⊙ a₀ ＝ f₁ ⊙ a₁)
 
 {-# REWRITE Id⇛ ＝⇛ #-}
 
--- Note that apΛ⇛ requires a coercion compared to apΛ.
 postulate
-  apΛ⇛ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ)) (f : (x : el Δ) → A x → B x) →
-    ap (λ x → Λ y ⇛ f x y) δ ≡
-    Λ a₀ ⇒ Λ a₁ ⇒ Λ a₂ ⇛
-    Id-pop← B A δ a₂ (ap {Δ ▸ A} (λ w → f (pop w) (top w)) (δ ∷ a₀ ∷ a₁ ∷ a₂))
-  reflΛ⇛ : (A B : Type) (f : A → B) →
-    refl (Λ x ⇛ f x) ≡ Λ a₀ ⇒ Λ a₁ ⇒ Λ a₂ ⇛ ap {ε ▸ (λ _ → A)} (λ x → f (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂)
+  apƛ⇛ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ)) (f : (x : el Δ) → A x → B x) →
+    ap (Λ x ⇨ A x ⇛ B x) (λ x → ƛ y ⇛ f x y) δ ≡
+    ƛ a₀ ⇒ ƛ a₁ ⇒ ƛ a₂ ⇛
+    ap {Δ ▸ Λ⇨ A} (Λ⇨ B ⊚ POP) (λ w → f (pop w) (top w)) (δ ∷ a₀ ∷ a₁ ∷ a₂)
+  reflƛ⇛ : (A B : Type) (f : A → B) →
+    refl (ƛ x ⇛ f x) ≡
+    ƛ a₀ ⇒ ƛ a₁ ⇒ ƛ a₂ ⇛
+    ap {ε▸ A} ((Λ _ ⇨ B) ⊚ POP) (λ x → f (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂)
   ap⊙ : {Δ : Tel} (A B : el Δ → Type) (δ : el (ID Δ))
     (f : (x : el Δ) → (A x) ⇛ (B x)) (a : (x : el Δ) → A x) →
-    ap (λ x → f x ⊙ a x) δ ≡ (ap f δ ∙ (a (δ ₀)) ∙ (a (δ ₁)) ⊙ (ap a δ))
+    ap (Λ⇨ B) (λ x → f x ⊙ a x) δ ≡
+    ap (Λ x ⇨ A x ⇛ B x) f δ ∙ (a (δ ₀)) ∙ (a (δ ₁)) ⊙ (ap (Λ⇨ A) a δ)
   refl⊙ : (A B : Type) (f : A ⇛ B) (a : A) →
     refl (f ⊙ a) ≡ (refl f ∙ a ∙ a ⊙ (refl a))
 
-{-# REWRITE apΛ⇛ reflΛ⇛ ap⊙ refl⊙ #-}
+{-# REWRITE apƛ⇛ reflƛ⇛ ap⊙ refl⊙ #-}
