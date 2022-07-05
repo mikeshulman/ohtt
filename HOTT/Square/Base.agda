@@ -89,7 +89,7 @@ eg Δ A = {! SQ (Δ ▸ A) !}
 {-
 ID (ID Δ)
 ▸ A ⊚ Λ₀ ⊚ᵉ Λ₀
-▸ A ⊚ Λ₀ ⊚ᵉ Λ₁ ⊚ᵉ Λ⇨ᵉ pop
+▸ A ⊚ Λ₀ ⊚ᵉ Λ₁ ⊚ᵉ POP
 ▸ (Λ x ⇨ Id A (AP Λ₀ (pop (pop x))) (top (pop x)) (top x))
 ▸ A ⊚ Λ₁ ⊚ᵉ POP ⊚ᵉ Λ₀
 ▸ A ⊚ Λ₁ ⊚ᵉ POP ⊚ᵉ Λ₁ ⊚ᵉ POP

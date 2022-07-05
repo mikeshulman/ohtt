@@ -6,6 +6,7 @@ import HOTT.Rewrite
 import HOTT.Telescope
 import HOTT.Id
 import HOTT.Refl
+import HOTT.Uncoerce
 
 import HOTT.Square
 import HOTT.Sym

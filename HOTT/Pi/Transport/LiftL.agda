@@ -6,6 +6,7 @@ open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Refl
+open import HOTT.Uncoerce
 open import HOTT.Transport
 open import HOTT.Square.Base
 open import HOTT.Square.Degenerate
