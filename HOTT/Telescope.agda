@@ -4,6 +4,11 @@ module HOTT.Telescope where
 
 open import HOTT.Rewrite
 
+infixl 30 _▸_ _▹_
+infixl 50 _∷_
+infix 40 _⊘_ _⊘ᵉ_
+infixr 40 _⊚_ _⊚ᵉ_
+
 ------------------------------
 -- Telescope exo-types
 ------------------------------
@@ -23,11 +28,36 @@ data Tel : Typeᵉ
 -- induction-recursion with the type Tel.
 el : Tel → Typeᵉ
 
--- The definition of el involves a sort of Σ-exotype.  But rather than
--- make this a generic Σ-exotype, we make its first argument a Tel,
--- with the second argument depending on the first via el.  The reason
--- for this is explained in the comments to ap-top.  Thus, this sort
--- of Σ-exotype also has to be defined mutually with Tel and el.
+-- We introduce special datatypes for functions out of telescopes.
+-- This enables a more useful kind of pattern-matching for rewrites on
+-- Id and AP, to be discussed later.  Because we have no cumulativity,
+-- we need two different versions depending on whether the codomain is
+-- a type or an exotype.  (We don't give a dependently typed version.)
+data _⇨_ (Δ : Tel) (T : Type) : Typeᵉ where
+  Λ⇨ : (el Δ → T) → (Δ ⇨ T)
+
+data _⇨ᵉ_ (Δ : Tel) (T : Typeᵉ) : Typeᵉ where
+  Λ⇨ᵉ : (el Δ → T) → (Δ ⇨ᵉ T)
+
+infix 30 Λ⇨ Λ⇨ᵉ
+
+-- The constructor above is of course an abstraction, so we allow
+-- ourselves to denote it in that way.
+syntax Λ⇨ (λ x → B) = Λ x ⇨ B
+syntax Λ⇨ᵉ (λ x → B) = Λ x ⇨ᵉ B
+
+-- We also have the dual sort of "application".
+_⊘_ : {Δ : Tel} {T : Type} (B : Δ ⇨ T) (x : el Δ) → T
+(Λ⇨ B) ⊘ x = B x
+
+_⊘ᵉ_ : {Δ : Tel} {T : Typeᵉ} (B : Δ ⇨ᵉ T) (x : el Δ) → T
+(Λ⇨ᵉ B) ⊘ᵉ x = B x
+
+-- The definition of "el" involves a sort of Σ-exotype.  But rather
+-- than make this a generic Σ-exotype, we make its first argument a
+-- Tel, with the second argument depending on the first via el.  The
+-- reason for this is explained in the comments to ap-top.  Thus, this
+-- sort of Σ-exotype also has to be defined mutually with Tel and el.
 
 -- We make _▹_ a datatype rather than a record because our applications
 -- of rewrite rules don't work otherwise.  There are at least two
@@ -49,30 +79,11 @@ el : Tel → Typeᵉ
 -- For similar reasons, we will later use datatypes and rewrite rules
 -- for our actual type formers Σ, Π, etc.
 
-data _⇨_ (Δ : Tel) (T : Type) : Typeᵉ where
-  Λ⇨ : (el Δ → T) → (Δ ⇨ T)
-
-data _⇨ᵉ_ (Δ : Tel) (T : Typeᵉ) : Typeᵉ where
-  Λ⇨ᵉ : (el Δ → T) → (Δ ⇨ᵉ T)
-
-infix 30 Λ⇨ Λ⇨ᵉ
-
-syntax Λ⇨ (λ x → B) = Λ x ⇨ B
-syntax Λ⇨ᵉ (λ x → B) = Λ x ⇨ᵉ B
-
-infix 40 _⊘_ _⊘ᵉ_
-
-_⊘_ : {Δ : Tel} {T : Type} (B : Δ ⇨ T) (x : el Δ) → T
-(Λ⇨ B) ⊘ x = B x
-
-_⊘ᵉ_ : {Δ : Tel} {T : Typeᵉ} (B : Δ ⇨ᵉ T) (x : el Δ) → T
-(Λ⇨ᵉ B) ⊘ᵉ x = B x
-
+-- Note that the type we extend by belongs to our datatype
+-- function-space.  This is why we had to define that mutually.
 data _▹_ (Δ : Tel) (B : Δ ⇨ Type) : Typeᵉ where
--- We name the constructor ∷ because we think of the
--- elements of a telescope as a snoc-list, and we name its projections
--- 'top' and 'pop' because we think of them as De Bruijn indices
--- accessing elements of such a list.
+-- We name the constructor ∷ because we think of the elements of a
+-- telescope as a snoc-list.
   _∷_ : (x : el Δ) → B ⊘ x → Δ ▹ B
 open _▹_
 
@@ -83,20 +94,27 @@ data Tel where
 el ε = ⊤ᵉ
 el (Δ ▸ A) = Δ ▹ A
 
+-- This is the end of the above block of mutual inductive-recursive
+-- definitions.
+
+-- We name the projections of the Σ-type ▹ 'top' and 'pop', thinking
+-- of them as De Bruijn indices accessing elements of such a list.
 pop : {Δ : Tel} {B : Δ ⇨ Type} → Δ ▹ B → el Δ
 pop (δ ∷ _) = δ
 
 top : {Δ : Tel} {B : Δ ⇨ Type} (δ : Δ ▹ B) → B ⊘ (pop δ)
 top (_ ∷ b) = b
 
-infixl 30 _▸_
-infixl 50 _∷_
+-- Some useful abbreviations
 
 ε▸ : (A : Type) → Tel
 ε▸ A = ε ▸ (Λ _ ⇨ A)
 
 POP : {Δ : Tel} {B : Δ ⇨ Type} → ((Δ ▸ B) ⇨ᵉ el Δ)
 POP = (Λ x ⇨ᵉ pop x)
+
+IDMAP : {Γ : Tel} → (Γ ⇨ᵉ el Γ)
+IDMAP = Λ x ⇨ᵉ x
 
 uncurry : {T : Type} {Δ : Tel} {A : Δ ⇨ Type} (B : (w : el Δ) → A ⊘ w → T) → el (Δ ▸ A) → T
 uncurry B w = B (pop w) (top w)
@@ -105,7 +123,7 @@ uncurry B w = B (pop w) (top w)
   _≡ᵉ_ {el (Δ ▸ A)} (δ₀ ∷ a₀) (δ₁ ∷ a₁)
 ∷≡ A reflᵉᵉ reflʰ = reflᵉᵉ
 
-infixr 40 _⊚_ _⊚ᵉ_
+-- We postulate η-rules by rewriting for our telescope function-spaces.
 
 postulate
   Λ⇨η : {Δ : Tel} {T : Type} (A : Δ ⇨ T) → (Λ x ⇨ A ⊘ x) ≡ᵉ A
@@ -113,8 +131,9 @@ postulate
 
 {-# REWRITE Λ⇨η Λ⇨ᵉη #-}
 
-IDMAP : {Γ : Tel} → (Γ ⇨ᵉ el Γ)
-IDMAP = Λ x ⇨ᵉ x
+-- We "define" composition ⊚ of our telescope function-spaces.  However,
+-- to preserve better rewrite matching, we don't actually *define* it,
+-- but postulate it, with rewrites specifying its expected behavior.
 
 postulate
   _⊚_ : {Γ Δ : Tel} {T : Type} (g : Δ ⇨ T) (f : Γ ⇨ᵉ el Δ) → (Γ ⇨ T)

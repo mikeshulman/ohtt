@@ -61,7 +61,9 @@ postulate
 {-# REWRITE REFL₀ REFL₁ #-}
 
 -- Moreover, to define REFL we'll also need to know its analogue of
--- Id-AP, and that REFL is the image of AP on constant terms.
+-- Id-AP, and that REFL is the image of AP on constant terms.  We
+-- rewrite these in the opposite direction from Id-AP, since we want
+-- to simplify things to ＝ whenever possible.
 postulate
   Id-REFL : {Δ : Tel} (A : Δ ⇨ Type) (δ : el Δ) (a₀ : A ⊘ δ) (a₁ : A ⊘ δ) →
     Id A (REFL δ) a₀ a₁ ≡ (a₀ ＝ a₁)
@@ -75,6 +77,12 @@ postulate
 REFL {ε} δ = []
 REFL {Δ ▸ A} (δ ∷ a) = REFL δ ∷ a ∷ a ∷ refl a
 
+-- As with Id-AP, if δ has internal structure, REFL will compute on
+-- it, and can't be "un-rewritten" back to a REFL in order for
+-- rewriting along Id-REFL to fire.  So we still sometimes have to
+-- coerce along Id-REFL.  We also need some specialized version of
+-- it, like for Id-AP.
+
 postulate
   Id-[] : (A : el ε → Type) (a₀ : A []) (a₁ : A []) →
     Id (Λ⇨ A) [] a₀ a₁ ≡ (a₀ ＝ a₁)
@@ -82,12 +90,6 @@ postulate
     Id A [] a₀ a₁ ≡ (a₀ ＝ a₁)
 
 {-# REWRITE Id-[] Id-[]′ #-}
-
--- As with Id-AP, if δ has internal structure, REFL will compute on
--- it, and can't be "un-rewritten" back to a REFL in order for
--- rewriting along Id-REFL to fire.  So we still sometimes have to
--- coerce along Id-REFL.  We also need some specialized version of
--- it, like for Id-AP.
 
 postulate
   Id-REFL▸ : {Δ : Tel} (B : Δ ⇨ Type) (A : (Δ ▸ B) ⇨ Type) (δ : el Δ) (b : B ⊘ δ)

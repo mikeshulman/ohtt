@@ -18,6 +18,7 @@ _₀ : {Δ : Tel} → el (ID Δ) → el Δ
 _₁ : {Δ : Tel} → el (ID Δ) → el Δ
 infix 60 _₀ _₁
 
+-- We often want to wrap them up in the telescope function-space.
 Λ₀ : {Δ : Tel} → (ID Δ) ⇨ᵉ el Δ
 Λ₀ = (Λ x ⇨ᵉ x ₀)
 
@@ -68,10 +69,13 @@ ID∷≡ A reflᵉᵉ reflʰ reflʰ reflʰ = reflᵉᵉ
 ----------------------------------------
 
 postulate
-  -- Since Id will be definitionally a special case of Id, we don't
-  -- need separate and non-dependent versions of ap.  Note that like
-  -- Id, it depends on an element of the bundled (ID Δ).
-  ap : {Δ : Tel} (A : Δ ⇨ Type) (f : (x : el Δ) → A ⊘ x) (δ : el (ID Δ)) → Id A δ (f (δ ₀)) (f (δ ₁))
+  -- Since the non-dependent identity types _＝_ will be
+  -- definitionally a special case of Id, we don't need separate and
+  -- non-dependent versions of ap.  Note that like Id, it depends on
+  -- an element of the bundled (ID Δ).  Note also that the telescope
+  -- function-space A is an explicit argument.
+  ap : {Δ : Tel} (A : Δ ⇨ Type) (f : (x : el Δ) → A ⊘ x) (δ : el (ID Δ)) →
+    Id A δ (f (δ ₀)) (f (δ ₁))
 
 -- Telescope AP.  I hope we can get away with only the non-dependent
 -- version.  We'd like to *define* it by recursion on the target:
@@ -104,23 +108,17 @@ postulate
 {-# REWRITE AP₀ AP₁ #-}
 
 -- For AP to be well-defined, we also need to mutually prove/postulate
--- its behavior on identity maps and pops, and its naturality.
+-- its behavior on identity maps and pops, and its naturality.  Of
+-- these, AP-pop and AP-idmap are "real" computation rules, which are
+-- 2/3 of how we specify the behavior of AP on our De Bruijn variables
+-- in telescopes.  The other 1/3 is ap-top, which requires other
+-- things so we postpone it to below.
 postulate
   AP-idmap : {Δ : Tel} (δ : el (ID Δ)) → AP {Δ} {Δ} IDMAP δ ≡ᵉ δ
   AP-pop : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
     AP (Λ x ⇨ᵉ pop (f x)) γ ≡ᵉ pop (pop (pop (AP (Λ⇨ᵉ f) γ)))
-  -- This is intentionally not (f : Γ ⇨ Δ), to match more generally.
-  Id-AP : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (A : Δ ⇨ Type)
-          (a₀ : A ⊘ (f (γ ₀))) (a₁ : A ⊘ (f (γ ₁))) →
-    Id (Λ x ⇨ A ⊘ f x) γ a₀ a₁ ≡ Id A (AP (Λ⇨ᵉ f) γ) a₀ a₁
-  Id-AP⊚ : {Γ Δ : Tel} (f : Γ ⇨ᵉ el Δ) (γ : el (ID Γ)) (A : Δ ⇨ Type)
-          (a₀ : A ⊘ (f ⊘ᵉ (γ ₀))) (a₁ : A ⊘ (f ⊘ᵉ (γ ₁))) →
-    Id (A ⊚ f) γ a₀ a₁ ≡ Id A (AP f γ) a₀ a₁
 
--- Of these, AP-pop and AP-idmap are "real" computation rules, which
--- are 2/3 of how we specify the behavior of AP on our De Bruijn
--- variables in telescopes.  The other 1/3 is ap-top, which requires
--- other things so we postpone it to below.
+{-# REWRITE AP-idmap AP-pop #-}
 
 -- Id-AP, on the other hand, is morally an *admissible* equality,
 -- proven by induction on the type formers constituting A.  The "more
@@ -134,15 +132,40 @@ postulate
 
 -- We can alleviate some of that (though not all) by declaring Id-AP
 -- as a rewrite, so that *sometimes* Agda will be able to apply it
--- automatically so we don't have to coerce.  The direction chosen
--- above, though arguably morally the "less right" direction, is the
--- only possible direction for this, since Agda can't match against
--- the RHS to rewrite.  Sometimes it fails to match against the LHS
--- too, since AP is volatile and might be reduced to something that
--- Agda can't un-rewrite in order to match; thus we have to either
--- coerce explicitly or use additional rewrite lemmas.
+-- automatically.  However, the most natural type of Id-AP:
+--- Id (λ x → A (f x)) γ a₀ a₁ ≡ Id A (AP f γ) a₀ a₁
+-- is not rewritable from left to right, since (A (f x)) doesn't have
+-- A and f in pattern position.
 
-{-# REWRITE AP-idmap AP-pop Id-AP Id-AP⊚ #-}
+-- One approach that I tried is to reverse this equality, since the
+-- right-hand side does have A and f in pattern position.  This does
+-- improve the situation, but it can still often fail to match,
+-- because AP is volatile and might be reduced to something that Agda
+-- can't un-rewrite in order to match.
+
+-- Currently we're taking a different approach: by introducing the
+-- separate telescope function-space datatype, with a postulated
+-- composition operation ⊚, we can force the left-hand side to be
+-- matchable.  Relative to reversing the equality, this removes some
+-- coercions (e.g. all four identifications in the boundary of a
+-- square in type A are actually identifications in A itself, rather
+-- than some substituted version of it), but introduces others
+-- (e.g. in the definitions of ap on pairs and snd).  It's not
+-- entirely obvious to me which is better overall; I do like not
+-- having to coerce the boundary of a square, but this way definitely
+-- has more technical overhead, and seems to require the codomain of
+-- ap to be explicit, which is annoying.
+
+postulate
+  -- This is intentionally not (f : Γ ⇨ Δ), to match more generally.
+  Id-AP : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (A : Δ ⇨ Type)
+          (a₀ : A ⊘ (f (γ ₀))) (a₁ : A ⊘ (f (γ ₁))) →
+    Id (Λ x ⇨ A ⊘ f x) γ a₀ a₁ ≡ Id A (AP (Λ⇨ᵉ f) γ) a₀ a₁
+  Id-AP⊚ : {Γ Δ : Tel} (f : Γ ⇨ᵉ el Δ) (γ : el (ID Γ)) (A : Δ ⇨ Type)
+          (a₀ : A ⊘ (f ⊘ᵉ (γ ₀))) (a₁ : A ⊘ (f ⊘ᵉ (γ ₁))) →
+    Id (A ⊚ f) γ a₀ a₁ ≡ Id A (AP f γ) a₀ a₁
+
+{-# REWRITE Id-AP Id-AP⊚ #-}
 
 -- Having Id-AP as a rewrite is at least sufficient for us to be able
 -- to "define" AP without any coercions.
@@ -155,6 +178,12 @@ postulate
 
 {-# REWRITE APε AP∷ #-}
 
+-- Since Id-AP⊚ always fires as a rewrite, we don't need to coerce
+-- along it by hand.  But sometimes we do need to coerce along Id-AP
+-- by hand, since the LHS ⊘ can be reduced and unmatchable.  However,
+-- if we declare it to reduce to reflᵉ, then such coercions will
+-- disappear, as we expect them to do in concrete cases where Id-AP
+-- should hold by definition anyway.
 Id-AP-reflᵉ : {Γ Δ : Tel} (f : el Γ → el Δ) (γ : el (ID Γ)) (A : Δ ⇨ Type)
   (a₀ : A ⊘ (f (γ ₀))) (a₁ : A ⊘ (f (γ ₁))) →
   Id-AP f γ A a₀ a₁ ≡ᵉ reflᵉ
@@ -167,23 +196,32 @@ Id-AP-reflᵉ f γ A a₀ a₁ = axiomK
 ------------------------------
 
 postulate
-  ap-AP : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : Γ ⇨ᵉ el Δ) (g : (x : el Δ) → A ⊘ x)
-          (γ : el (ID Γ)) →
-    -- This is backwards, but we can't rewrite it the other way since
-    -- we don't have a dependent ⊚ to be the "composite" of g and f.
-    ap A g (AP f γ) ≡ ap (A ⊚ f) (λ w → g (f ⊘ᵉ w)) γ
-  ap-AP′ : {Γ Δ : Tel} {A : el Δ → Type} (f : el Γ → el Δ) (g : (x : el Δ) → A x)
-          (γ : el (ID Γ)) →
-    ap (Λ⇨ A) g (AP (Λ⇨ᵉ f) γ) ≡ ap (Λ⇨ A ⊚ Λ⇨ᵉ f) (λ w → g (f w)) γ
+  -- We treat functoriality of AP the same way we did the naturality
+  -- of Id, as above.
   AP-AP : {Γ Δ Θ : Tel} (f : Γ ⇨ᵉ el Δ) (g : Δ ⇨ᵉ el Θ) (γ : el (ID Γ)) →
     AP (Λ x ⇨ᵉ g ⊘ᵉ (f ⊘ᵉ x)) γ ≡ᵉ AP g (AP f γ)
   AP-AP⊚ : {Γ Δ Θ : Tel} (f : Γ ⇨ᵉ el Δ) (g : Δ ⇨ᵉ el Θ) (γ : el (ID Γ)) →
     AP (g ⊚ᵉ f) γ ≡ᵉ AP g (AP f γ)
-  -- TODO: Describe
-  ap⊚ : {Γ Δ : Tel} {A : Δ ⇨ Type} (f : Γ ⇨ᵉ el Δ) (g : (x : el Γ) → A ⊘ (f ⊘ᵉ x)) (γ : el (ID Γ)) →
+  -- For functoriality of ap, we declare the rewrites to go in the
+  -- other direction, since we don't have a dependent ⊚ to be the
+  -- "composite" of g and f.
+  ap-AP : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : Γ ⇨ᵉ el Δ) (g : (x : el Δ) → A ⊘ x)
+          (γ : el (ID Γ)) →
+    ap A g (AP f γ) ≡ ap (Λ x ⇨ A ⊘ (f ⊘ᵉ x)) (λ w → g (f ⊘ᵉ w)) γ
+  ap-AP′ : {Γ Δ : Tel} {A : el Δ → Type} (f : el Γ → el Δ) (g : (x : el Δ) → A x)
+          (γ : el (ID Γ)) →
+    ap (Λ⇨ A) g (AP (Λ⇨ᵉ f) γ) ≡ ap (Λ⇨ A ⊚ Λ⇨ᵉ f) (λ w → g (f w)) γ
+  -- In case the codomain family is given as a composite, we
+  -- eta-expand it out so that the above rewrites can match.
+  ap⊚ : {Γ Δ : Tel} {A : Δ ⇨ Type} (f : Γ ⇨ᵉ el Δ)
+    (g : (x : el Γ) → A ⊘ (f ⊘ᵉ x)) (γ : el (ID Γ)) →
     ap (A ⊚ f) g γ ≡ ap (Λ x ⇨ A ⊘ (f ⊘ᵉ x)) g γ
 
 {-# REWRITE ap-AP ap-AP′ AP-AP AP-AP⊚ ap⊚ #-}
+
+-- Since ap-AP is rewritten in the backwards direction and AP is
+-- volatile, we declare some special cases as additional rewrites to
+-- deal with the possible appearance of reduced APs.
 
 ap-AP∷ : {Γ Δ : Tel} (B : Δ ⇨ Type) (A : (Δ ▸ B) ⇨ Type)
   (f : el Γ → el Δ) (h : (x : el Γ) → B ⊘ (f x))
@@ -201,6 +239,8 @@ ap-AP-idmap∷ B A h g γ = ap-AP A (Λ x ⇨ᵉ x ∷ h x) g γ
 
 {-# REWRITE ap-AP∷ ap-AP-idmap∷ #-}
 
+-- As with Id-AP, we declare AP-AP to reduce to reflᵉᵉ so that it
+-- disappears on concrete terms like it should.
 AP-AP-reflᵉ : {Γ Δ Θ : Tel} (f : Γ ⇨ᵉ el Δ) (g : Δ ⇨ᵉ el Θ) (γ : el (ID Γ)) →
   AP-AP f g γ ≡ᵉ reflᵉᵉ
 AP-AP-reflᵉ f g γ = axiomKᵉ
