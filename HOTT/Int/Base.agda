@@ -12,6 +12,7 @@ open import HOTT.Refl
 open import HOTT.Unit
 open import HOTT.Sigma.Base
 open import HOTT.Nat
+open import HOTT.Indices
 
 ----------------------------------------
 -- Integers
@@ -54,6 +55,33 @@ fromNeg Agda.Builtin.Nat.zero = zero
 fromNeg (Agda.Builtin.Nat.suc n) = neg (Nat→ℕ n)
 
 {-# BUILTIN FROMNEG fromNeg #-}
+
+------------------------------
+-- Identity types
+------------------------------
+
+postulate
+  ＝int : (Ω : Type) {N : Type} (ν : N → Ω) (ζ : Ω) (ψ : N → Ω)
+    (ω : Ω) (u v : int Ω ν ζ ψ ω) →
+    (u ＝ v) ≡
+    int (＝Idx Ω (int Ω ν ζ ψ)) {IDty N}
+        (＝toIdx Ω (int Ω ν ζ ψ) ν neg)
+        (ζ , ζ , refl ζ , zero , zero)
+        (＝toIdx Ω (int Ω ν ζ ψ) ψ pos)
+        (ω , ω , refl ω , u , v)
+  Id-int : {Δ : Tel} (Ω : el Δ → Type) {N : el Δ → Type}
+    (ν : (x : el Δ) → N x → Ω x) (ζ : (x : el Δ) → Ω x) (ψ : (x : el Δ) → N x → Ω x)
+    (ω : (x : el Δ) → Ω x) (δ : el (ID Δ))
+    (u₀ : int (Ω (δ ₀)) (ν (δ ₀)) (ζ (δ ₀)) (ψ (δ ₀)) (ω (δ ₀)))
+    (u₁ : int (Ω (δ ₁)) (ν (δ ₁)) (ζ (δ ₁)) (ψ (δ ₁)) (ω (δ ₁))) →
+    Id (Λ x ⇨ int (Ω x) (ν x) (ζ x) (ψ x) (ω x)) δ u₀ u₁ ≡
+    int (Id-Idx δ Ω (λ x y → int (Ω x) (ν x) (ζ x) (ψ x) y)) {IDty′ N δ}
+         (Id-toIdx δ Ω (λ x y → int (Ω x) (ν x) (ζ x) (ψ x) y) ν (λ x n → neg n))
+         (ζ (δ ₀) , ζ (δ ₁) , ap (Λ⇨ Ω) ζ δ , zero , zero)
+         (Id-toIdx δ Ω (λ x y → int (Ω x) (ν x) (ζ x) (ψ x) y) ψ (λ x n → pos n))
+         (ω (δ ₀) , ω (δ ₁) , ap (Λ⇨ Ω) ω δ , u₀ , u₁)
+
+{-# REWRITE ＝int Id-int #-}
 
 ------------------------------
 -- Arithmetic

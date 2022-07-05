@@ -11,6 +11,7 @@ open import HOTT.Refl
 open import HOTT.Unit
 open import HOTT.Pi.Base
 open import HOTT.Sigma.Base
+open import HOTT.Indices
 
 infix 35 _+ℕ_ _*ℕ_
 
@@ -58,6 +59,37 @@ show Z = Agda.Builtin.Nat.zero
 show (S n) = Agda.Builtin.Nat.suc (show n)
 
 ------------------------------
+-- Identity types
+------------------------------
+
+postulate
+  Id-nat : {Δ : Tel} (δ : el (ID Δ))
+           (Ω : (x : el Δ) → Type) (ζ : (x : el Δ) → Ω x)
+           (σ : (x : el Δ) → Ω x → Ω x) (ω : (x : el Δ) → Ω x)
+           (n₀ : nat (Ω (δ ₀)) (ζ (δ ₀)) (σ (δ ₀)) (ω (δ ₀)))
+           (n₁ : nat (Ω (δ ₁)) (ζ (δ ₁)) (σ (δ ₁)) (ω (δ ₁))) →
+    Id (Λ x ⇨ nat (Ω x) (ζ x) (σ x) (ω x)) δ n₀ n₁ ≡
+    nat (Id-Idx δ Ω (λ x y → nat (Ω x) (ζ x) (σ x) y))
+         (ζ (δ ₀) , ζ (δ ₁) , ap (Λ⇨ Ω) ζ δ , Z , Z)
+         (λ m →
+            σ (δ ₀) (fst m) , σ (δ ₁) (fst (snd m)) ,
+            ap {Δ ▸ Λ⇨ Ω} (Λ⇨ Ω ⊚ POP) (λ x → σ (pop x) (top x)) (δ ∷ fst m ∷ fst (snd m) ∷ fst (snd (snd m))) ,
+            S (fst (snd (snd (snd m)))) , S (snd (snd (snd (snd m)))))
+         (ω (δ ₀) , ω (δ ₁) , ap (Λ⇨ Ω) ω δ , n₀ , n₁)
+  ＝nat :  (Ω : Type) (ζ : Ω) (σ : Ω → Ω) (ω : Ω)
+           (n₀ n₁ : nat Ω ζ σ ω) →
+    (n₀ ＝ n₁) ≡
+    nat (＝Idx Ω (λ y → nat Ω ζ σ y))
+        (ζ , ζ , refl ζ , Z , Z)
+        (λ m →
+           σ (fst m) , σ (fst (snd m)) ,
+           ap {ε▸ Ω} (Λ _ ⇨ Ω) (λ x → σ (top x)) ([] ∷ fst m ∷ fst (snd m) ∷ fst (snd (snd m))) ,
+           S (fst (snd (snd (snd m)))) , S (snd (snd (snd (snd m)))))
+         (ω , ω , refl ω , n₀ , n₁)
+
+{-# REWRITE Id-nat ＝nat #-}
+
+------------------------------
 -- Arithmetic
 ------------------------------
 
@@ -67,7 +99,13 @@ m +ℕ n = rec m _ n (λ _ m m+n → S (m+n))
 _*ℕ_ : ℕ → ℕ → ℕ
 m *ℕ n = rec m _ Z (λ _ m m*n → n +ℕ m*n)
 
--- TODO: This should also be provable by computing ＝ℕ
+-- We prove (x +ℕ 0 ＝ x) in two ways, by congruence applied to S, and
+-- using the fact that ＝ℕ computes.
+
 +ℕ0 : (x : ℕ) → x +ℕ 0 ＝ x
 +ℕ0 Z = refl Z
 +ℕ0 (S x) = refl (ƛ n ⇒ S n) ∙ (x +ℕ 0) ∙ x ∙ (+ℕ0 x)
+
++ℕ0′ : (x : ℕ) → x +ℕ 0 ＝ x
++ℕ0′ Z = refl Z
++ℕ0′ (S x) = S (+ℕ0′ x)
