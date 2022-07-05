@@ -9,6 +9,19 @@ open import HOTT.Refl
 open import HOTT.Unit
 open import HOTT.Sigma.Base
 
+-- TODO: Move to Rewrite.agda
+postulate
+  funextᵉ : {A : Type} {B : A → Type} {f f' : (x : A) → B x} (p : (x : A) → f x ≡ f' x) →
+    f ≡ f'
+  funextᵉ-reflᵉ : {A : Type} {B : A → Type} (f : (x : A) → B x) (p : (x : A) → f x ≡ f x) →
+    funextᵉ p ≡ᵉ reflᵉ
+
+{-# REWRITE funextᵉ-reflᵉ #-}
+
+----------------------------------------
+-- Sum types
+----------------------------------------
+
 data sum (Ω : Type) {A B : Type} (α : A → Ω) (β : B → Ω) : Ω → Type where
   inl : (a : A) → sum Ω α β (α a)
   inr : (b : B) → sum Ω α β (β b)
@@ -31,6 +44,10 @@ case _ (inr b) C f g = g b
 
 _⊎_ : Type → Type → Type
 A ⊎ B = sum ⊤ {A} {B} (λ _ → ★) (λ _ → ★) ★
+
+----------------------------------------
+-- Auxiliary stuff for Id-sum
+----------------------------------------
 
 ＝Ω : (Ω : Type) {A B : Type} (α : A → Ω) (β : B → Ω) → Type
 ＝Ω Ω α β = Σ[ x₀ ﹕ Ω ] Σ[ x₁ ﹕ Ω ] Σ[ x₂ ﹕ x₀ ＝ x₁ ] Σ[ s₀ ﹕ sum Ω α β x₀ ] sum Ω α β x₁
@@ -58,6 +75,25 @@ Id-Ω {Δ} Ω {A} {B} α β δ =
   Σ[ s₀ ﹕ sum (Ω (δ ₀)) (λ z → α (δ ₀) z) (λ z → β (δ ₀) z) x₀ ]
            sum (Ω (δ ₁)) (λ z → α (δ ₁) z) (λ z → β (δ ₁) z) x₁
 
+ΣΣ≡Σ : (A₀ A₁ : Type) {A₂ A₂' : A₀ → A₁ → Type} (p : A₂ ≡ A₂') (B : A₀ → A₁ → Type) →
+  (Σ[ x₀ ﹕ A₀ ] Σ[ x₁ ﹕ A₁ ] Σ[ x₂ ﹕ A₂ x₀ x₁ ] B x₀ x₁)
+  ≡ Σ[ x₀ ﹕ A₀ ] Σ[ x₁ ﹕ A₁ ] Σ[ x₂ ﹕ A₂' x₀ x₁ ] B x₀ x₁
+ΣΣ≡Σ A₀ A₁ reflᵉ B = reflᵉ
+
+,,≡ʰ, : {A₀ A₁ : Type} {A₂ A₂' : A₀ → A₁ → Type} (p : A₂ ≡ A₂') {B : A₀ → A₁ → Type}
+  (a₀ : A₀) (a₁ : A₁) {a₂ : A₂ a₀ a₁} {a₂' : A₂' a₀ a₁} (q : a₂ ≡ʰ a₂') (b : B a₀ a₁) →
+  _≡ʰ_
+  {Σ[ x₀ ﹕ A₀ ] Σ[ x₁ ﹕ A₁ ] Σ[ x₂ ﹕ A₂ x₀ x₁ ] B x₀ x₁}
+  (a₀ , a₁ , a₂ , b)
+  {Σ[ x₀ ﹕ A₀ ] Σ[ x₁ ﹕ A₁ ] Σ[ x₂ ﹕ A₂' x₀ x₁ ] B x₀ x₁}
+  (a₀ , a₁ , a₂' , b)
+,,≡ʰ, reflᵉ a₀ a₁ reflʰ b = reflʰ
+
+ΣΣ≡ : (A₀ A₁ : Type) {A₂ A₂' : A₀ → A₁ → Type} (p : A₂ ≡ A₂') →
+  (Σ[ x₀ ﹕ A₀ ] Σ[ x₁ ﹕ A₁ ] A₂ x₀ x₁)
+  ≡ Σ[ x₀ ﹕ A₀ ] Σ[ x₁ ﹕ A₁ ] A₂' x₀ x₁
+ΣΣ≡ A₀ A₁ reflᵉ = reflᵉ
+
 Id-Ω-pop : {Δ : Tel} (C : Δ ⇨ Type) (Ω : el Δ → Type) {A B : el Δ → Type}
   (α : (x : el Δ) → A x → Ω x) (β : (x : el Δ) → B x → Ω x)
   (δ : el (ID Δ)) (c₀ : C ⊘ (δ ₀)) (c₁ : C ⊘ (δ ₁)) (c₂ : Id C δ c₀ c₁) →
@@ -65,10 +101,21 @@ Id-Ω-pop : {Δ : Tel} (C : Δ ⇨ Type) (Ω : el Δ → Type) {A B : el Δ → 
   Id-Ω (λ z₁ → Ω (pop {Δ} {C} z₁)) (λ z₁ z₂ → α (pop {Δ} {C} z₁) z₂)
     (λ z₁ z₂ → β (pop {Δ} {C} z₁) z₂)
     (δ ∷ c₀ ∷ c₁ ∷ c₂)
-Id-Ω-pop {Δ} C Ω {A} {B} α β δ c₀ c₁ c₂ = {!!}
+Id-Ω-pop {Δ} C Ω {A} {B} α β δ c₀ c₁ c₂ =
+  ΣΣ≡Σ (Ω (δ ₀)) (Ω (δ ₁))
+    (funextᵉ (λ x₀ → funextᵉ λ x₁ → rev (Id-AP (λ x → pop {B = C} x) (δ ∷ c₀ ∷ c₁ ∷ c₂) (Λ⇨ Ω) x₀ x₁)))
+    (λ x₀ x₁ → Σ[ s₀ ﹕ sum (Ω (δ ₀)) (α (δ ₀)) (β (δ ₀)) x₀ ]
+                        sum (Ω (δ ₁)) (α (δ ₁)) (β (δ ₁)) x₁)
 
 Id-IDty : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) → Type
 Id-IDty {Δ} A δ = Σ[ a₀ ﹕ A (δ ₀) ] Σ[ a₁ ﹕ A (δ ₁) ] Id (Λ⇨ A) δ a₀ a₁
+
+Id-IDty-pop : {Δ : Tel} (C : Δ ⇨ Type) (A : el Δ → Type) (δ : el (ID Δ))
+  (c₀ : C ⊘ (δ ₀)) (c₁ : C ⊘ (δ ₁)) (c₂ : Id C δ c₀ c₁) →
+  Id-IDty A δ ≡ Id-IDty (λ z → A (pop {B = C} z)) (δ ∷ c₀ ∷ c₁ ∷ c₂)
+Id-IDty-pop {Δ} C A δ c₀ c₁ c₂ =
+  ΣΣ≡ (A (δ ₀)) (A (δ ₁))
+     (funextᵉ (λ x₀ → funextᵉ λ x₁ → rev (Id-AP (λ x → pop {B = C} x) (δ ∷ c₀ ∷ c₁ ∷ c₂) (Λ⇨ A) x₀ x₁)))
 
 Id-α : {Δ : Tel} (Ω : el Δ → Type) {A B : el Δ → Type}
   (α : (x : el Δ) → A x → Ω x) (β : (x : el Δ) → B x → Ω x)
@@ -107,7 +154,6 @@ postulate
 
 {-# REWRITE ＝sum Id-sum #-}
 
---postulate
 sum-pop : {Δ : Tel} (δ : el (ID Δ)) (Ω A B : el Δ → Type)
             (α : (x : el Δ) → A x → Ω x) (β : (x : el Δ) → B x → Ω x)
             (ω : (x : el Δ) → Ω x)
@@ -119,23 +165,7 @@ sum-pop : {Δ : Tel} (δ : el (ID Δ)) (Ω A B : el Δ → Type)
           Id/ (Λ⇨ (λ x → sum (Ω (pop {Δ} {Λ⇨ Ω} x)) (α (pop x)) (β (pop x)) (top x))) ⊘
           δ ∷ fst y ∷ fst (snd y) ∷ fst (snd (snd y)) ∷
           fst (snd (snd (snd y))) ∷ snd (snd (snd (snd y)))
--- This should be a coercion along sum≡, but I can't get it to
--- typecheck.  I also can't give it its putative type:
-{-
-    sum
-      (Id-Ω (λ z₁ → Ω (pop {Δ} {Λ⇨ Ω} z₁)) (λ z₁ z₂ → α (pop z₁) z₂)
-       (λ z₁ z₂ → β (pop z₁) z₂)
-       (δ ∷ fst y ∷ fst (snd y) ∷ fst (snd (snd y))))
-      (Id-α (λ z₁ → Ω (pop {Δ} {Λ⇨ Ω} z₁)) (λ z₁ z₂ → α (pop z₁) z₂)
-       (λ z₁ z₂ → β (pop z₁) z₂)
-       (δ ∷ fst y ∷ fst (snd y) ∷ fst (snd (snd y))))
-      (Id-β (λ z₁ → Ω (pop {Δ} {Λ⇨ Ω} z₁)) (λ z₁ z₂ → α (pop z₁) z₂)
-       (λ z₁ z₂ → β (pop z₁) z₂)
-       (δ ∷ fst y ∷ fst (snd y) ∷ fst (snd (snd y))))
-      y
--}
-sum-pop δ Ω A B α β ω s C f g y z = {!!}
-{-
+sum-pop {Δ} δ Ω A B α β ω s C f g y z =
   coe→ (sum≡
         {Id-Ω Ω α β δ}
         {Id-Ω (λ z₁ → Ω (pop {Δ} {Λ⇨ Ω} z₁)) (λ z₁ z₂ → α (pop z₁) z₂)
@@ -143,25 +173,29 @@ sum-pop δ Ω A B α β ω s C f g y z = {!!}
           (δ ∷ fst y ∷ fst (snd y) ∷ fst (snd (snd y)))}
         (Id-Ω-pop (Λ⇨ Ω) Ω α β δ (fst y) (fst (snd y)) (fst (snd (snd y))))
         {Id-IDty A δ}
-        {!!}
+        (Id-IDty-pop (Λ⇨ Ω) A δ (fst y) (fst (snd y)) (fst (snd (snd y))))
         {Id-IDty B δ}
-        {!!}
+        (Id-IDty-pop (Λ⇨ Ω) B δ (fst y) (fst (snd y)) (fst (snd (snd y))))
         {Id-α Ω α β δ}
         {Id-α (λ z₁ → Ω (pop {Δ} {Λ⇨ Ω} z₁)) (λ z₁ z₂ → α (pop z₁) z₂)
           (λ z₁ z₂ → β (pop z₁) z₂)
           (δ ∷ fst y ∷ fst (snd y) ∷ fst (snd (snd y)))}
-        {!!}
+        (funextʰ (λ a₀ a₁ a₂ → {!!}))
         {Id-β Ω α β δ}
         {Id-β (λ z₁ → Ω (pop {Δ} {Λ⇨ Ω} z₁)) (λ z₁ z₂ → α (pop z₁) z₂)
           (λ z₁ z₂ → β (pop z₁) z₂)
           (δ ∷ fst y ∷ fst (snd y) ∷ fst (snd (snd y)))}
-        {!!}
+        (funextʰ (λ b₀ b₁ b₂ → {!!}))
         {y}
-        -- This bit is the weird one: it looks like it has the right
-        -- type, but isn't accepted.  Possibly a non-confluence issue.
-        {coe→ (Id-Ω-pop (Λ⇨ Ω) Ω α β δ (fst y) (fst (snd y)) (fst (snd (snd y)))) y}
-        {!!})
--}
+        {fst y , fst (snd y) ,
+          coe← (Id-AP (λ x → pop {B = Λ⇨ Ω} x) (δ ∷ fst y ∷ fst (snd y) ∷ fst (snd (snd y))) (Λ⇨ Ω) (fst y) (fst (snd y)))
+               (fst (snd (snd y))) , snd (snd (snd y))}
+        (,,≡ʰ, (funextᵉ (λ x₀ → funextᵉ λ x₁ → rev (Id-AP (λ x → pop {B = Λ⇨ Ω} x) (δ ∷ fst y ∷ fst (snd y) ∷ fst (snd (snd y))) (Λ⇨ Ω) x₀ x₁)))
+          (fst y) (fst (snd y)) {fst (snd (snd y))}
+          {coe← (Id-AP (λ x → pop {B = Λ⇨ Ω} x) (δ ∷ fst y ∷ fst (snd y) ∷ fst (snd (snd y))) (Λ⇨ Ω) (fst y) (fst (snd y))) (fst (snd (snd y)))}
+          (revʰ (coe←≡ʰ (Id-AP (λ x → pop {B = Λ⇨ Ω} x) (δ ∷ fst y ∷ fst (snd y) ∷ fst (snd (snd y))) (Λ⇨ Ω) (fst y) (fst (snd y))) (fst (snd (snd y)))))
+          (snd (snd (snd y)))))
+        z
 
 Id-C : {Δ : Tel} (δ : el (ID Δ)) (Ω A B : el Δ → Type)
     (α : (x : el Δ) → A x → Ω x) (β : (x : el Δ) → B x → Ω x)
@@ -212,35 +246,18 @@ postulate
     (g : (x : el Δ) (b : B x) → C x (β x b) (inr b)) → 
     ap (Λ x ⇨ C x (ω x) (s x))
        (λ x → case (ω x) (s x) (C x) (f x) (g x)) δ ≡
-    coe← {!Id-AP {Δ} {Δ ▸ (Λ⇨ Ω) ▸ (Λ x ⇨ sum (Ω (pop x)) (α (pop x)) (β (pop x)) (top x))}
+    -- TODO: Bring back Id-AP≡ ?
+    coe← (Id-AP {Δ} {Δ ▸ (Λ⇨ Ω) ▸ (Λ x ⇨ sum (Ω (pop x)) (α (pop x)) (β (pop x)) (top x))}
                 (λ x → x ∷ ω x ∷ s x) δ (Λ x ⇨ C (pop (pop x)) (top (pop x)) (top x))
                 (case (ω (δ ₀)) (s (δ ₀)) (C (δ ₀)) (f (δ ₀)) (g (δ ₀)))
-                (case (ω (δ ₁)) (s (δ ₁)) (C (δ ₁)) (f (δ ₁)) (g (δ ₁)))!}
+                (case (ω (δ ₁)) (s (δ ₁)) (C (δ ₁)) (f (δ ₁)) (g (δ ₁)))
+         •ᶠ {!!})
       (case {Id-Ω Ω α β δ} {Id-IDty A δ} {Id-IDty B δ} {Id-α Ω α β δ} {Id-β Ω α β δ}
         (ω (δ ₀) , ω (δ ₁) , ap (Λ⇨ Ω) ω δ , s (δ ₀) , s (δ ₁))
         (ap (Λ x ⇨ sum (Ω x) (α x) (β x) (ω x)) s δ)
         (Id-C δ Ω A B α β ω s C f g)
-        (λ a → {!!})
-        (λ b → {!!}))
-{-
-    coe→ (Id-AP {Δ} {Δ ▸ Ω ▸ (λ x → sum (Ω (pop x)) (α (pop x)) (β (pop x)) (top x))}
-             (λ x → x ∷ ω x ∷ s x) δ
-             (λ x → C (pop (pop x)) (top (pop x)) (top x))
-             (case (ω (δ ₀)) (s (δ ₀)) (C (δ ₀)) (f (δ ₀)) (g (δ ₀)))
-             (case (ω (δ ₁)) (s (δ ₁)) (C (δ ₁)) (f (δ ₁)) (g (δ ₁))))
-     (case {Id-Ω Ω α β δ} {Id-IDty A δ} {Id-IDty B δ} {Id-α Ω α β δ} {Id-β Ω α β δ}
-      (ω (δ ₀) , ω (δ ₁) , ap ω δ , s (δ ₀) , s (δ ₁)) (ap s δ)
-      (λ y z → Id {Δ ▸ Ω ▸ λ x → sum (Ω (pop x)) (α (pop x)) (β (pop x)) (top x)}
-                  (λ x → C (pop (pop x)) (top (pop x)) (top x))
-                  (δ ∷ fst y ∷ fst (snd y) ∷ fst (snd (snd y)) ∷
-                   fst (snd (snd (snd y))) ∷ snd (snd (snd (snd y))) ∷
-                   coe→ {!!} z)
-                  (case (fst y) (fst (snd (snd (snd y)))) (C (δ ₀)) (f (δ ₀)) (g (δ ₀)))
-                  (case (fst (snd y)) (snd (snd (snd (snd y)))) (C (δ ₁)) (f (δ ₁)) (g (δ ₁))))
-      (λ a → coe← {!?!}
-        (ap {Δ ▸ A} (λ x → f (pop x) (top x))
-            (δ ∷ fst a ∷ fst (snd a) ∷ snd (snd a))))
-      (λ b → {!!}))-}
+        (λ a → {!ap (Λ x ⇨ C (pop x) (α (pop x) (top x)) (inl (top x))) (λ x → f (pop x) (top x)) (δ ∷ fst a ∷ fst (snd a) ∷ snd (snd a))!})
+        (λ b → {!ap (Λ x ⇨ C (pop x) (β (pop x) (top x)) (inr (top x))) (λ x → g (pop x) (top x)) (δ ∷ fst b ∷ fst (snd b) ∷ snd (snd b))!}))
 {-
   refl-case : {Ω : Type} {A B : Type} {α : A → Ω} {β : B → Ω}
     (ω : Ω) (s : sum Ω α β ω)
@@ -257,5 +274,6 @@ postulate
                     (case (fst x) (fst (snd (snd (snd x)))) C f g) (case (fst (snd x)) (snd (snd (snd (snd x)))) C f g))
         {!!} {!!}!}
 
-{-# REWRITE refl-inl refl-inr ap-inl ap-inr #-}
 -}
+
+{-# REWRITE refl-inl refl-inr ap-inl ap-inr #-}

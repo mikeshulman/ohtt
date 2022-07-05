@@ -5,6 +5,7 @@ module HOTT.Core where
 open import HOTT.Telescope public
 open import HOTT.Id public
 open import HOTT.Refl public
+open import HOTT.Uncoerce public
 
 open import HOTT.Square public
 open import HOTT.Sym public
