@@ -32,4 +32,8 @@ import HOTT.Pi
 import HOTT.Copy
 import HOTT.Universe
 
+--import HOTT.Sum
+import HOTT.Nat
+import HOTT.Int
+
 import HOTT.Test
