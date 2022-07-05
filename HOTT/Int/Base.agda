@@ -15,7 +15,7 @@ open import HOTT.Nat
 open import HOTT.Indices
 
 ----------------------------------------
--- Integers
+-- Generalized integers
 ----------------------------------------
 
 data int (Ω : Type) {N : Type} (ν : N → Ω) (ζ : Ω) (ψ : N → Ω) : Ω → Type where
@@ -23,19 +23,28 @@ data int (Ω : Type) {N : Type} (ν : N → Ω) (ζ : Ω) (ψ : N → Ω) : Ω �
   zero : int Ω ν ζ ψ ζ
   pos : (n : N) → int Ω ν ζ ψ (ψ n)
 
-intcase : {Ω : Type} {N : Type} {ν : N → Ω} {ζ : Ω} {ψ : N → Ω} {ω : Ω}
+int-case : {Ω : Type} {N : Type} {ν : N → Ω} {ζ : Ω} {ψ : N → Ω} {ω : Ω}
   (C : (x : Ω) → int Ω ν ζ ψ x → Type)
   (fneg : (n : N) → C (ν n) (neg n))
   (fzero : C ζ zero)
   (fpos : (n : N) → C (ψ n) (pos n))
   (z : int Ω ν ζ ψ ω)
   → C ω z
-intcase C fneg fzero fpos (neg n) = fneg n
-intcase C fneg fzero fpos zero = fzero
-intcase C fneg fzero fpos (pos n) = fpos n
+int-case C fneg fzero fpos (neg n) = fneg n
+int-case C fneg fzero fpos zero = fzero
+int-case C fneg fzero fpos (pos n) = fpos n
+
+------------------------------
+-- Ordinary integers
+------------------------------
 
 ℤ : Type
 ℤ = int ⊤ {ℕ} (λ _ → ★) ★ (λ _ → ★) ★
+
+ℤcase : (P : ℤ → Type)
+  (fneg : (n : ℕ) → P (neg n)) (fzero : P zero) (fpos : (n : ℕ) → P (pos n))
+  (z : ℤ) → P z
+ℤcase P = int-case {⊤} {ℕ} {λ _ → ★} {★} {λ _ → ★} {★} (λ _ → P)
 
 ι : ℕ → ℤ
 ι Z = zero
@@ -88,4 +97,4 @@ postulate
 ------------------------------
 
 ℤsuc : ℤ → ℤ
-ℤsuc z = intcase _ (λ n → ind _ zero (λ n' _ → (neg n')) n) (pos Z) (λ n → pos (S n)) z
+ℤsuc z = ℤcase _ (λ n → ind _ zero (λ n' _ → (neg n')) n) (pos Z) (λ n → pos (S n)) z
