@@ -26,12 +26,12 @@ sum≡ : {Ω₀ Ω₁ : Type} (Ω₂ : Ω₀ ≡ Ω₁)
 sum≡ reflᵉ reflᵉ reflᵉ reflʰ reflʰ reflʰ = reflᵉ
 
 case : {Ω : Type} {A B : Type} {α : A → Ω} {β : B → Ω}
-  (ω : Ω) (s : sum Ω α β ω)
+  {ω : Ω} (s : sum Ω α β ω)
   (C : (x : Ω) → sum Ω α β x → Type)
   (f : (a : A) → C (α a) (inl a)) (g : (b : B) → C (β b) (inr b))
   → C ω s
-case _ (inl a) C f g = f a
-case _ (inr b) C f g = g b
+case (inl a) C f g = f a
+case (inr b) C f g = g b
 
 _⊎_ : Type → Type → Type
 A ⊎ B = sum ⊤ {A} {B} (λ _ → ★) (λ _ → ★) ★
@@ -203,8 +203,8 @@ Id-C {Δ} δ Ω A B α β ω s C f g y z =
      (δ ∷ fst y ∷ fst (snd y) ∷ fst (snd (snd y)) ∷
       fst (snd (snd (snd y))) ∷ snd (snd (snd (snd y))) ∷
       sum-pop δ Ω A B α β ω s C f g y z)
-     (case (fst y) (fst (snd (snd (snd y)))) (C (δ ₀)) (f (δ ₀)) (g (δ ₀)))
-     (case (fst (snd y)) (snd (snd (snd (snd y)))) (C (δ ₁)) (f (δ ₁)) (g (δ ₁)))
+     (case {ω = fst y} (fst (snd (snd (snd y)))) (C (δ ₀)) (f (δ ₀)) (g (δ ₀)))
+     (case {ω = fst (snd y)} (snd (snd (snd (snd y)))) (C (δ ₁)) (f (δ ₁)) (g (δ ₁)))
 
 postulate
   refl-inl : (Ω : Type) {A B : Type} (α : A → Ω) (β : B → Ω) (a : A) →
@@ -236,15 +236,15 @@ postulate
     (f : (x : el Δ) (a : A x) → C x (α x a) (inl a))
     (g : (x : el Δ) (b : B x) → C x (β x b) (inr b)) → 
     ap (Λ x ⇨ C x (ω x) (s x))
-       (λ x → case (ω x) (s x) (C x) (f x) (g x)) δ ≡
+       (λ x → case {ω = ω x} (s x) (C x) (f x) (g x)) δ ≡
     -- TODO: Bring back Id-AP≡ ?
     coe← (Id-AP {Δ} {Δ ▸ (Λ⇨ Ω) ▸ (Λ x ⇨ sum (Ω (pop x)) (α (pop x)) (β (pop x)) (top x))}
                 (λ x → x ∷ ω x ∷ s x) δ (Λ x ⇨ C (pop (pop x)) (top (pop x)) (top x))
-                (case (ω (δ ₀)) (s (δ ₀)) (C (δ ₀)) (f (δ ₀)) (g (δ ₀)))
-                (case (ω (δ ₁)) (s (δ ₁)) (C (δ ₁)) (f (δ ₁)) (g (δ ₁)))
+                (case {ω = ω (δ ₀)} (s (δ ₀)) (C (δ ₀)) (f (δ ₀)) (g (δ ₀)))
+                (case {ω = ω (δ ₁)} (s (δ ₁)) (C (δ ₁)) (f (δ ₁)) (g (δ ₁)))
          •ᶠ {!!})
       (case {Id-Ω Ω α β δ} {Id-IDty A δ} {Id-IDty B δ} {Id-α Ω α β δ} {Id-β Ω α β δ}
-        (ω (δ ₀) , ω (δ ₁) , ap (Λ⇨ Ω) ω δ , s (δ ₀) , s (δ ₁))
+        {ω (δ ₀) , ω (δ ₁) , ap (Λ⇨ Ω) ω δ , s (δ ₀) , s (δ ₁)}
         (ap (Λ x ⇨ sum (Ω x) (α x) (β x) (ω x)) s δ)
         (Id-C δ Ω A B α β ω s C f g)
         (λ a → {!ap (Λ x ⇨ C (pop x) (α (pop x) (top x)) (inl (top x))) (λ x → f (pop x) (top x)) (δ ∷ fst a ∷ fst (snd a) ∷ snd (snd a))!})
@@ -254,9 +254,9 @@ postulate
     (ω : Ω) (s : sum Ω α β ω)
     (C : (x : Ω) → sum Ω α β x → Type)
     (f : (a : A) → C (α a) (inl a)) (g : (b : B) → C (β b) (inr b)) →
-    refl (case ω s C f g) ≡
+    refl (case {ω = ω} s C f g) ≡
     -- This may need a naturality coercion.  Let's do the ap version first.
-    {!case {＝Ω Ω α β} {＝IDty A} {＝IDty B} {＝α Ω α β} {＝β Ω α β} (ω , ω , refl ω , s , s) (refl s)
+    {!case {＝Ω Ω α β} {＝IDty A} {＝IDty B} {＝α Ω α β} {＝β Ω α β} {ω , ω , refl ω , s , s} (refl s)
         (λ x t → Id {ε ▸ (λ _ → Ω) ▸ (λ x → sum Ω α β (top x))} (λ y → C (top (pop y)) (top y))
                     ([] ∷ fst x ∷ fst (snd x) ∷ fst (snd (snd x)) ∷ fst (snd (snd (snd x))) ∷ snd (snd (snd (snd x))) ∷
                       coe→ (cong2 (λ p q → sum (＝Ω Ω α β) p q x)
