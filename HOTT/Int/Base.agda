@@ -23,16 +23,16 @@ data int (Ω : Type) {N : Type} (ν : N → Ω) (ζ : Ω) (ψ : N → Ω) : Ω �
   zero : int Ω ν ζ ψ ζ
   pos : (n : N) → int Ω ν ζ ψ (ψ n)
 
-intcase : {Ω : Type} {N : Type} {ν : N → Ω} {ζ : Ω} {ψ : N → Ω}
-  {ω : Ω} (z : int Ω ν ζ ψ ω)
+intcase : {Ω : Type} {N : Type} {ν : N → Ω} {ζ : Ω} {ψ : N → Ω} {ω : Ω}
   (C : (x : Ω) → int Ω ν ζ ψ x → Type)
   (fneg : (n : N) → C (ν n) (neg n))
   (fzero : C ζ zero)
   (fpos : (n : N) → C (ψ n) (pos n))
+  (z : int Ω ν ζ ψ ω)
   → C ω z
-intcase (neg n) C fneg fzero fpos = fneg n
-intcase (zero) C fneg fzero fpos = fzero
-intcase (pos n) C fneg fzero fpos = fpos n
+intcase C fneg fzero fpos (neg n) = fneg n
+intcase C fneg fzero fpos zero = fzero
+intcase C fneg fzero fpos (pos n) = fpos n
 
 ℤ : Type
 ℤ = int ⊤ {ℕ} (λ _ → ★) ★ (λ _ → ★) ★
@@ -88,4 +88,4 @@ postulate
 ------------------------------
 
 ℤsuc : ℤ → ℤ
-ℤsuc z = intcase z _ (λ n → rec n _ zero (λ _ n' _ → (neg n'))) (pos Z) (λ n → pos (S n))
+ℤsuc z = intcase _ (λ n → rec _ zero (λ _ n' _ → (neg n')) n) (pos Z) (λ n → pos (S n)) z
