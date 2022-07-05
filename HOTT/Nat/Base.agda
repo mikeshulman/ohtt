@@ -23,17 +23,25 @@ data nat (Ω : Type) (ζ : Ω) (σ : Ω → Ω) : Ω → Type where
   Z : nat Ω ζ σ ζ
   S : {x : Ω} → nat Ω ζ σ x → nat Ω ζ σ (σ x)
 
-rec : {Ω : Type} {ζ : Ω} {σ : Ω → Ω} {ω : Ω}
+nat-ind : {Ω : Type} {ζ : Ω} {σ : Ω → Ω} {ω : Ω}
   (C : (x : Ω) → nat Ω ζ σ x → Type)
   (fzero : C ζ Z)
   (fsuc : (x : Ω) (n : nat Ω ζ σ x) → C x n → C (σ x) (S n))
   (n : nat Ω ζ σ ω) →
   C ω n
-rec C fzero fsuc Z = fzero
-rec C fzero fsuc (S n) = fsuc _ _ (rec C fzero fsuc n)
+nat-ind C fzero fsuc Z = fzero
+nat-ind C fzero fsuc (S n) = fsuc _ _ (nat-ind C fzero fsuc n)
+
+------------------------------
+-- Ordinary natural numbers
+------------------------------
 
 ℕ : Type
 ℕ = nat ⊤ ★ (λ _ → ★) ★
+
+ind : (P : ℕ → Type) (z : P Z) (f : (n : ℕ) → P n → P (S n)) →
+  (n : ℕ) → P n
+ind P z f n = nat-ind {⊤} {★} {λ _ → ★} {★} (λ _ → P) z (λ _ → f) n
 
 ----------------------------------------
 -- Pretty input and output
@@ -94,10 +102,10 @@ postulate
 ------------------------------
 
 _+ℕ_ : ℕ → ℕ → ℕ
-m +ℕ n = rec _ n (λ _ m m+n → S (m+n)) m
+m +ℕ n = ind _ n (λ m m+n → S (m+n)) m
 
 _*ℕ_ : ℕ → ℕ → ℕ
-m *ℕ n = rec _ Z (λ _ m m*n → n +ℕ m*n) m
+m *ℕ n = ind _ Z (λ m m*n → n +ℕ m*n) m
 
 -- We prove (x +ℕ 0 ＝ x) in two ways, by congruence applied to S, and
 -- using the fact that ＝ℕ computes.
