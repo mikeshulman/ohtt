@@ -62,6 +62,14 @@ axiomKᵉ {p = reflᵉᵉ} = reflᵉᵉ
 uip : {A : Type} {a b : A} {p q : a ≡ b} → p ≡ᵉ q
 uip {q = reflᵉ} = axiomK
 
+postulate
+  funextᵉ : {A : Type} {B : A → Type} {f f' : (x : A) → B x} (p : (x : A) → f x ≡ f' x) →
+    f ≡ f'
+  funextᵉ-reflᵉ : {A : Type} {B : A → Type} (f : (x : A) → B x) (p : (x : A) → f x ≡ f x) →
+    funextᵉ p ≡ᵉ reflᵉ
+
+{-# REWRITE funextᵉ-reflᵉ #-}
+
 ------------------------------
 -- Heterogeneous equality
 ------------------------------

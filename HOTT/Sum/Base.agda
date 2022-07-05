@@ -9,15 +9,6 @@ open import HOTT.Refl
 open import HOTT.Unit
 open import HOTT.Sigma.Base
 
--- TODO: Move to Rewrite.agda
-postulate
-  funextᵉ : {A : Type} {B : A → Type} {f f' : (x : A) → B x} (p : (x : A) → f x ≡ f' x) →
-    f ≡ f'
-  funextᵉ-reflᵉ : {A : Type} {B : A → Type} (f : (x : A) → B x) (p : (x : A) → f x ≡ f x) →
-    funextᵉ p ≡ᵉ reflᵉ
-
-{-# REWRITE funextᵉ-reflᵉ #-}
-
 ----------------------------------------
 -- Sum types
 ----------------------------------------
