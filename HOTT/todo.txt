@@ -7,6 +7,7 @@
 - why does Pi.Transport.Lift make Pi.Transport.Ulift slow?
 - why does Pi.Transport make Arrow.Transport slow?
 
-- Is it possible to predeclare all notations with their fixities and precedences in a central location, as with Coq's "Reserved Notation"?  That would make it easier to get all the relative precedences right.  I don't think so, but let's make it easier for ourselves by putting all fixity declarations in each file at the very top, and taking a moment to uniformize them.
-
 - Would removing Id-AP-reflᵉ improve the situation in Sum any?
+
+- Write a script to update Notations.agda automatically.
+

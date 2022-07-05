@@ -5,6 +5,8 @@ module HOTT.Id where
 open import HOTT.Rewrite
 open import HOTT.Telescope
 
+infix 60 _₀ _₁
+
 --------------------------------------------------
 -- Identity types and identity telescopes
 --------------------------------------------------
@@ -16,7 +18,6 @@ ID : Tel → Tel
 -- original telescope.
 _₀ : {Δ : Tel} → el (ID Δ) → el Δ
 _₁ : {Δ : Tel} → el (ID Δ) → el Δ
-infix 60 _₀ _₁
 
 -- We often want to wrap them up in the telescope function-space.
 Λ₀ : {Δ : Tel} → (ID Δ) ⇨ᵉ el Δ

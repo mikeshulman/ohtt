@@ -7,12 +7,11 @@ open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Refl
 
+infixl 50 _↑ _↓ _⇑
+
 ------------------------------
 -- Copy-types
 ------------------------------
-
-infixl 50 _↑
-infixl 50 _↓
 
 -- (Copy A) is like a coinductive type with one destructor _↓ valued
 -- in A.  Thus, it also has a constructor _↑ with inputs from A, with
@@ -47,8 +46,6 @@ postulate
   -- We also include a "dimension-increasing" operator on the parameter types T.
   ↿ : Typeᵉ → Typeᵉ
   ↾ : {T : Typeᵉ} → T → ↿ T
-
-infixl 30 _⇑
 
 {-# REWRITE ⇑↓ #-}
 

@@ -4,10 +4,11 @@ module HOTT.Telescope where
 
 open import HOTT.Rewrite
 
-infixl 30 _▸_ _▹_
 infixl 50 _∷_
 infix 40 _⊘_ _⊘ᵉ_
 infixr 40 _⊚_ _⊚ᵉ_
+infixl 30 _▸_ _▹_
+infix 20 Λ⇨ Λ⇨ᵉ
 
 ------------------------------
 -- Telescope exo-types
@@ -38,8 +39,6 @@ data _⇨_ (Δ : Tel) (T : Type) : Typeᵉ where
 
 data _⇨ᵉ_ (Δ : Tel) (T : Typeᵉ) : Typeᵉ where
   Λ⇨ᵉ : (el Δ → T) → (Δ ⇨ᵉ T)
-
-infix 30 Λ⇨ Λ⇨ᵉ
 
 -- The constructor above is of course an abstraction, so we allow
 -- ourselves to denote it in that way.

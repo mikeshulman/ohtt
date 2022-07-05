@@ -8,6 +8,10 @@ open import HOTT.Id
 open import HOTT.Refl
 open import HOTT.Pi.Base
 
+infixl 40 _⊙_
+infixr 30 _⇛_
+infixr 20 ƛ⇛
+
 --------------------
 -- Function-types
 --------------------
@@ -18,17 +22,12 @@ open import HOTT.Pi.Base
 -- them defined separately.
 
 data _⇛_ (A B : Type) : Type where
-  lam⇛ : (f : A → B) → (A ⇛ B)
+  ƛ⇛ : (f : A → B) → (A ⇛ B)
 
-infixr 30 _⇛_
-
-infixr 27 lam⇛
-syntax lam⇛ (λ x → f) = ƛ x ⇛ f
+syntax ƛ⇛ (λ x → f) = ƛ x ⇛ f
 
 _⊙_ : {A B : Type} (f : A ⇛ B) → A → B
-lam⇛ f ⊙ a = f a
-
-infixl 50 _⊙_
+ƛ⇛ f ⊙ a = f a
 
 postulate
   η⇛ : {A B : Type} (f : A ⇛ B) → (ƛ x ⇛ f ⊙ x) ≡ f

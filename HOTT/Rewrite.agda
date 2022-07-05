@@ -4,6 +4,9 @@ module HOTT.Rewrite where
 
 open import Agda.Primitive renaming (Set to Type; SSet to Typeᵉ) public
 
+infix 10 _≡_ _≡ᵉ_
+infixr 35 _•ᶠ_ _•ʰ_
+
 ------------------------------
 -- Strict equality
 ------------------------------
@@ -13,10 +16,6 @@ data _≡_ {A : Type} (a : A) : A → Typeᵉ where
 
 data _≡ᵉ_ {A : Typeᵉ} (a : A) : A → Typeᵉ where
   reflᵉᵉ : a ≡ᵉ a
-
-infix 5 _≡_ _≡ᵉ_
-
-infixr 30 _•ᶠ_ _•ʰ_
 
 {-# BUILTIN REWRITE _≡_ #-}
 {-# BUILTIN REWRITE _≡ᵉ_ #-}

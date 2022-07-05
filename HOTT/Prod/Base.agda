@@ -7,6 +7,8 @@ open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Refl
 
+infix 30 _×_
+
 --------------------
 -- Product types
 --------------------
@@ -18,7 +20,6 @@ open import HOTT.Refl
 data _×_ (A B : Type) : Type where
   _,_ : A → B → A × B
 
-infix 31 _×_
 
 fst : {A : Type} {B : Type} → A × B → A
 fst (a , b) = a

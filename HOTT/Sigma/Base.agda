@@ -7,6 +7,9 @@ open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Refl
 
+infixr 30 _,_ Σ
+infix 30 _×_
+
 --------------------
 -- Σ-types
 --------------------
@@ -15,10 +18,7 @@ data Σ (A : Type) (B : A → Type) : Type where
   _,_ : (a : A) → B a → Σ A B
 open Σ
 
-infixr 30 _,_ Σ
 syntax Σ A (λ x → B) = Σ[ x ﹕ A ] B
-
-infixr 30 _×_
 
 _×_ : Type → Type → Type
 A × B = Σ[ x ﹕ A ] B

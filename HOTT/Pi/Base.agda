@@ -7,6 +7,10 @@ open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Refl
 
+infixl 40 _∙_
+infixr 30 _⇒_ Π
+infixr 20 ƛ⇒
+
 --------------------
 -- Π-types
 --------------------
@@ -14,7 +18,6 @@ open import HOTT.Refl
 data Π (A : Type) (B : A → Type) : Type where
   ƛ⇒ : (f : (x : A) → B x) → Π A B
 
-infixr 27 ƛ⇒
 syntax ƛ⇒ (λ x → f) = ƛ x ⇒ f
 
 syntax Π A (λ x → B) = Π[ x ﹕ A ] B
@@ -22,9 +25,6 @@ syntax Π A (λ x → B) = Π[ x ﹕ A ] B
 _∙_ : {A : Type} {B : A → Type} (f : Π A B) (a : A) → B a
 ƛ⇒ f ∙ a = f a
 
-infixl 50 _∙_
-
-infixr 30 _⇒_
 _⇒_ : Type → Type → Type
 A ⇒ B = Π[ x ﹕ A ] B
 

@@ -6,6 +6,8 @@ open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
 
+infix 30 _＝_
+
 ------------------------------
 -- Homogeneous Id and refl
 ------------------------------
@@ -27,8 +29,6 @@ postulate
   _＝_ : {A : Type} → A → A → Type
   Id-const : {Δ : Tel} (A : Type) (δ : el (ID Δ)) (a₀ a₁ : A) →
     Id {Δ} (Λ _ ⇨ A) δ a₀ a₁ ≡ (a₀ ＝ a₁)
-
-infix 40 _＝_
 
 {-# REWRITE Id-const #-}
 
