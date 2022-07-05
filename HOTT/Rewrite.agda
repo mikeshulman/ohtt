@@ -16,13 +16,13 @@ data _≡ᵉ_ {A : Typeᵉ} (a : A) : A → Typeᵉ where
 
 infix 5 _≡_ _≡ᵉ_
 
-infixr 30 _•_ _•ʰ_
+infixr 30 _•ᶠ_ _•ʰ_
 
 {-# BUILTIN REWRITE _≡_ #-}
 {-# BUILTIN REWRITE _≡ᵉ_ #-}
 
-_•_ : {A : Type} {a b c : A} (p : a ≡ b) (q : b ≡ c) → a ≡ c
-reflᵉ • reflᵉ = reflᵉ
+_•ᶠ_ : {A : Type} {a b c : A} (p : a ≡ b) (q : b ≡ c) → a ≡ c
+reflᵉ •ᶠ reflᵉ = reflᵉ
 
 _•ᵉ_ : {A : Typeᵉ} {a b c : A} (p : a ≡ᵉ b) (q : b ≡ᵉ c) → a ≡ᵉ c
 reflᵉᵉ •ᵉ reflᵉᵉ = reflᵉᵉ
@@ -47,9 +47,6 @@ cong2 f reflᵉ reflᵉ = reflᵉ
 
 cong3 : {A B C D : Type} (f : A → B → C → D) {x y : A} (p : x ≡ y) {u v : B} (q : u ≡ v) {c d : C} (r : c ≡ d) → f x u c ≡ f y v d
 cong3 f reflᵉ reflᵉ reflᵉ = reflᵉ
-
--- ≡Type→≡ᵉ : {A B : Type} (e : A ≡ B) → _≡ᵉ_ {Typeᵉ} A B
--- ≡Type→≡ᵉ reflᵉ = reflᵉ
 
 coe→ : {A B : Type} → (A ≡ B) → A → B
 coe→ reflᵉ u = u
