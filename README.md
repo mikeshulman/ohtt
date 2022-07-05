@@ -14,6 +14,10 @@ In addition to `--rewriting` and `--two-level`, we of course have to use the fla
 
 We depend on several bug-fixes and enhancements to Agda that have not made it into a released version yet (they are slated for 2.6.3), so you will need to compile the development version of Agda.
 
+There is an `ohtt.agda-lib` file in the repository root, so you should be able to configure it as an Agda library in the usual way.  All files that load the library must use the `--rewriting` and `--two-level` options, of course, and `--without-K` should be given for consistency.
+
+It should be sufficient to import `HOTT.Core` to get everything you need.  The file `HOTT.Everything` includes some extra stuff that's theoretically interesting but unneeded (like non-dependent function types and product types that are primitive rather than defined in terms of the dependent ones).
+
 ## Use
 
 Once the library is complete, working in the HOTT fragment should hopefully be like ordinary (homotopical) Agda but with the added computing HOTT identity type.  The main difference is that we must restrict ourselves to the type and term formers whose HOTT behavior (computation laws for identity types and `ap`) has been defined in the library.
