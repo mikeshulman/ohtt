@@ -88,4 +88,4 @@ postulate
 ------------------------------
 
 ℤsuc : ℤ → ℤ
-ℤsuc z = intcase _ (λ n → rec _ zero (λ _ n' _ → (neg n')) n) (pos Z) (λ n → pos (S n)) z
+ℤsuc z = intcase _ (λ n → ind _ zero (λ n' _ → (neg n')) n) (pos Z) (λ n → pos (S n)) z
