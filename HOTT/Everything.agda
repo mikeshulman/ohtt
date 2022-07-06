@@ -12,6 +12,7 @@ import HOTT.Square
 import HOTT.Sym
 import HOTT.Transport
 import HOTT.Fill
+import HOTT.Groupoids
 
 import HOTT.Unit
 import HOTT.Prod                -- Not used in practice
