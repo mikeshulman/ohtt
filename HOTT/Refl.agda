@@ -209,3 +209,21 @@ postulate
 -- The same is true for the specific type formers considered in other
 -- files; all their rules for Id and ap have also to be given in
 -- separate forms for Id and refl.
+
+----------------------------------------
+-- The constant case of ap rules
+----------------------------------------
+
+-- The presence of the rewrite Id-const means that some of the rules
+-- regarding AP that used to fire correctly now fail on constant type
+-- families, since one of their (usually hidden) type arguments gets
+-- reduced first to a ＝ and then they no longer match.  We fix this
+-- by giving here (after Id-const) special constant-family versions.
+
+postulate
+  top-pop-pop-AP-const : {Γ Δ : Tel} (A : Type) (f : Γ ⇨ᵉ el (Δ ▸ (Λ _ ⇨ A))) (γ : el (ID Γ)) →
+    top (pop (pop (AP f γ))) ≡ top (f ⊘ᵉ (γ ₀))
+  top-pop-AP-const : {Γ Δ : Tel} (A : Type) (f : Γ ⇨ᵉ el (Δ ▸ (Λ _ ⇨ A))) (γ : el (ID Γ)) →
+    top (pop (AP f γ)) ≡ top (f ⊘ᵉ (γ ₁))
+
+{-# REWRITE top-pop-pop-AP-const top-pop-AP-const #-}
