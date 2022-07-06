@@ -185,7 +185,7 @@ postulate
 ------------------------------
 
 _+ℕ_ : ℕ → ℕ → ℕ
-m +ℕ n = ind _ n (λ m m+n → S (m+n)) m
+_+ℕ_ = ind _ (λ n → n) (λ m m+ n → S (m+ n))
 
 _*ℕ_ : ℕ → ℕ → ℕ
 m *ℕ n = ind _ Z (λ m m*n → n +ℕ m*n) m
@@ -195,3 +195,20 @@ m *ℕ n = ind _ Z (λ m m*n → n +ℕ m*n) m
 
 +ℕassoc : (x y z : ℕ) → (x +ℕ y) +ℕ z ＝ x +ℕ (y +ℕ z)
 +ℕassoc = ind _ (λ y z → refl (y +ℕ z)) (λ x xassoc y z → S (xassoc y z))
+
++ℕrid : (x : ℕ) → x +ℕ 0 ＝ x
++ℕrid = ind _ (reflℕ 0) (λ x IH → S IH)
+
++ℕrS : (x y : ℕ) → (x +ℕ S y ＝ S (x +ℕ y))
++ℕrS = ind _ (λ y → reflℕ (S y)) (λ x IH y → S (IH y))
+
++ℕcomm : (x y : ℕ) → (x +ℕ y ＝ y +ℕ x)
++ℕcomm = ind _ (λ y → revℕ (+ℕrid y))
+  (λ x IH y →
+  begin
+    S (x +ℕ y)
+  ＝⟨ S (IH y) ⟩
+    S (y +ℕ x)
+  ＝⟨ revℕ (+ℕrS y x) ⟩
+    (y +ℕ S x)
+  ∎)
