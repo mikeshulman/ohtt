@@ -99,6 +99,33 @@ postulate
 
 {-# REWRITE ＝sum Id-sum #-}
 
+postulate
+  refl-inl : (Ω : Type) {A B : Type} (α : A → Ω) (β : B → Ω) (a : A) →
+    refl (inl {Ω} {A} {B} {α} {β} a) ≡
+    inl {＝Ω Ω α β} {IDty A} {IDty B} {＝α Ω α β} {＝β Ω α β} (a , a , refl a)
+  refl-inr : (Ω : Type) {A B : Type} (α : A → Ω) (β : B → Ω) (b : B) →
+    refl (inr {Ω} {A} {B} {α} {β} b) ≡
+    inr {＝Ω Ω α β} {IDty A} {IDty B} {＝α Ω α β} {＝β Ω α β} (b , b , refl b)
+  ap-inl : {Δ : Tel} (δ : el (ID Δ)) (Ω A B : el Δ → Type)
+    (α : (x : el Δ) → A x → Ω x) (β : (x : el Δ) → B x → Ω x)
+    (a : (x : el Δ) → A x) →
+    ap (Λ x ⇨ sum (Ω x) (α x) (β x) (α x (a x)))
+       (λ x → inl {Ω x} {A x} {B x} {α x} {β x} (a x)) δ ≡
+    (inl {Id-Ω Ω α β δ} {IDty′ A δ} {IDty′ B δ}
+         {Id-α Ω α β δ} {Id-β Ω α β δ}
+         (a (δ ₀) , a (δ ₁) , ap (Λ⇨ A) a δ))
+  ap-inr : {Δ : Tel} (δ : el (ID Δ)) (Ω A B : el Δ → Type)
+    (α : (x : el Δ) → A x → Ω x) (β : (x : el Δ) → B x → Ω x)
+    (b : (x : el Δ) → B x) →
+    ap (Λ x ⇨ sum (Ω x) (α x) (β x) (β x (b x)))
+       (λ x → inr {Ω x} {A x} {B x} {α x} {β x} (b x)) δ ≡
+      (inr {Id-Ω Ω α β δ} {IDty′ A δ} {IDty′ B δ}
+           {Id-α Ω α β δ} {Id-β Ω α β δ}
+           (b (δ ₀) , b (δ ₁) , ap (Λ⇨ B) b δ))
+
+{-# REWRITE refl-inl refl-inr ap-inl ap-inr #-}
+
+{-
 sum-pop : {Δ : Tel} (δ : el (ID Δ)) (Ω A B : el Δ → Type)
             (α : (x : el Δ) → A x → Ω x) (β : (x : el Δ) → B x → Ω x)
             (ω : (x : el Δ) → Ω x)
@@ -161,28 +188,6 @@ Id-C {Δ} δ Ω A B α β ω s C f g y z =
      (case {ω = fst (snd y)} (snd (snd (snd (snd y)))) (C (δ ₁)) (f (δ ₁)) (g (δ ₁)))
 
 postulate
-  refl-inl : (Ω : Type) {A B : Type} (α : A → Ω) (β : B → Ω) (a : A) →
-    refl (inl {Ω} {A} {B} {α} {β} a) ≡
-    inl {＝Ω Ω α β} {IDty A} {IDty B} {＝α Ω α β} {＝β Ω α β} (a , a , refl a)
-  refl-inr : (Ω : Type) {A B : Type} (α : A → Ω) (β : B → Ω) (b : B) →
-    refl (inr {Ω} {A} {B} {α} {β} b) ≡
-    inr {＝Ω Ω α β} {IDty A} {IDty B} {＝α Ω α β} {＝β Ω α β} (b , b , refl b)
-  ap-inl : {Δ : Tel} (δ : el (ID Δ)) (Ω A B : el Δ → Type)
-    (α : (x : el Δ) → A x → Ω x) (β : (x : el Δ) → B x → Ω x)
-    (a : (x : el Δ) → A x) →
-    ap (Λ x ⇨ sum (Ω x) (α x) (β x) (α x (a x)))
-       (λ x → inl {Ω x} {A x} {B x} {α x} {β x} (a x)) δ ≡
-    (inl {Id-Ω Ω α β δ} {IDty′ A δ} {IDty′ B δ}
-         {Id-α Ω α β δ} {Id-β Ω α β δ}
-         (a (δ ₀) , a (δ ₁) , ap (Λ⇨ A) a δ))
-  ap-inr : {Δ : Tel} (δ : el (ID Δ)) (Ω A B : el Δ → Type)
-    (α : (x : el Δ) → A x → Ω x) (β : (x : el Δ) → B x → Ω x)
-    (b : (x : el Δ) → B x) →
-    ap (Λ x ⇨ sum (Ω x) (α x) (β x) (β x (b x)))
-       (λ x → inr {Ω x} {A x} {B x} {α x} {β x} (b x)) δ ≡
-      (inr {Id-Ω Ω α β δ} {IDty′ A δ} {IDty′ B δ}
-           {Id-α Ω α β δ} {Id-β Ω α β δ}
-           (b (δ ₀) , b (δ ₁) , ap (Λ⇨ B) b δ))
   ap-case : {Δ : Tel} (δ : el (ID Δ)) (Ω A B : el Δ → Type)
     (α : (x : el Δ) → A x → Ω x) (β : (x : el Δ) → B x → Ω x)
     (ω : (x : el Δ) → Ω x) (s : (x : el Δ) → sum (Ω x) (α x) (β x) (ω x))
@@ -221,4 +226,6 @@ postulate
 
 -}
 
-{-# REWRITE refl-inl refl-inr ap-inl ap-inr #-}
+-- {-# REWRITE ap-case refl-case #-}
+
+-}

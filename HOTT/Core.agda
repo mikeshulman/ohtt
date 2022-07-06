@@ -19,6 +19,6 @@ open import HOTT.Pi public
 open import HOTT.Copy public
 open import HOTT.Universe public
 
---open import HOTT.Sum public
+open import HOTT.Sum public
 open import HOTT.Nat public
 open import HOTT.Int public

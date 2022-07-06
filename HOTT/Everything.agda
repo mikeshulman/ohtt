@@ -34,7 +34,7 @@ import HOTT.Copy
 import HOTT.Universe
 
 import HOTT.Indices
---import HOTT.Sum
+import HOTT.Sum
 import HOTT.Nat
 import HOTT.Int
 
