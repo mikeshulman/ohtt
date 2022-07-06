@@ -74,6 +74,26 @@ data _＝ℕ_ : ℕ → ℕ → Type where
 -- However, after these two stages we stop doing things by hand: the
 -- identity types of ＝ℕ are an instance of nat.
 
+------------------------------
+-- Special path operations
+------------------------------
+
+-- Unfortunately, with Z and S being constructors of more than one
+-- datatype, Agda can't guess what something like (refl Z) means.  So
+-- we define separate operations just for natural numbers.
+
+reflℕ : (n : ℕ) → (n ＝ n)
+reflℕ n = refl n
+
+revℕ : {m n : ℕ} → (m ＝ n) → (n ＝ m)
+revℕ p = rev {ℕ} p
+
+refl＝ℕ : {m n : ℕ} (p : m ＝ n) → (p ＝ p)
+refl＝ℕ p = refl p
+
+rev＝ℕ : {m n : ℕ} {p q : m ＝ n} → (p ＝ q) → (q ＝ p)
+rev＝ℕ {m} {n} r = rev {m ＝ n} r
+
 ----------------------------------------
 -- Pretty input and output
 ----------------------------------------
