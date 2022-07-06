@@ -7,7 +7,7 @@ open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Refl
 
-infix 30 _×_
+infix 35 _×_
 
 --------------------
 -- Product types

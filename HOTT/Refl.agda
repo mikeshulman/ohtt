@@ -6,7 +6,7 @@ open import HOTT.Rewrite
 open import HOTT.Telescope
 open import HOTT.Id
 
-infix 30 _＝_
+infix 35 _＝_
 
 ------------------------------
 -- Homogeneous Id and refl

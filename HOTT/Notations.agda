@@ -13,15 +13,19 @@ infixl 40 _⊙_ -- Arrow/Base
 infixl 40 _∙_ -- Pi/Base
 infix 40 _⊘_ _⊘ᵉ_ -- Telescope
 infixr 40 _⊚_ _⊚ᵉ_ -- Telescope
+infixl 40 _∘_ -- Groupoids
+
+infix 40 _+ℕ_ _*ℕ_ -- Nat/Base
 
 infixr 35 _•ᶠ_ _•ʰ_ -- Rewrite
 infixr 35 _•_       -- Groupoids
 
-infix 30 _＝_ -- Refl
+infix 35 _＝_ -- Refl
+infixr 35 _×_ -- Prod/Base, Sigma/Base
+
 infixr 30 _⇒_ Π -- Pi/Base
 infixl 30 _▸_ _▹_ -- Telescope
 infixr 30 _,_ Σ -- Sigma/Base
-infixr 30 _×_ -- Prod/Base, Sigma/Base
 infixr 30 _⇛_ -- Arrow/Base
 
 infix 20 Λ⇨ Λ⇨ᵉ -- Telescope

@@ -13,7 +13,7 @@ open import HOTT.Pi.Base
 open import HOTT.Sigma.Base
 open import HOTT.Indices
 
-infix 35 _+ℕ_ _*ℕ_
+infix 40 _+ℕ_ _*ℕ_
 
 ----------------------------------------
 -- Generalized Natural numbers

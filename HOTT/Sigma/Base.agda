@@ -8,7 +8,7 @@ open import HOTT.Id
 open import HOTT.Refl
 
 infixr 30 _,_ Σ
-infix 30 _×_
+infix 35 _×_
 
 --------------------
 -- Σ-types
