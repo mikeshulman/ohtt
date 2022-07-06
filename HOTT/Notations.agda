@@ -21,6 +21,7 @@ infixr 35 _•ᶠ_ _•ʰ_ -- Rewrite
 infixr 35 _•_       -- Groupoids
 
 infix 35 _＝_ -- Refl
+infix 35 _＝ℕ_ -- Nat/Base
 infixr 35 _×_ -- Prod/Base, Sigma/Base
 
 infixr 30 _⇒_ Π -- Pi/Base
