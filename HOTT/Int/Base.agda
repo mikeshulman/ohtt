@@ -97,4 +97,13 @@ postulate
 ------------------------------
 
 ℤsuc : ℤ → ℤ
-ℤsuc z = ℤcase _ (λ n → ind _ zero (λ n' _ → (neg n')) n) (pos Z) (λ n → pos (S n)) z
+ℤsuc = ℤcase _ (ind _ zero (λ n' _ → (neg n'))) (pos Z) (λ n → pos (S n))
+
+ℤpred : ℤ → ℤ
+ℤpred = ℤcase _ (λ n → neg (S n)) (neg Z) (ind _ zero (λ n' _ → (pos n')))
+
+ℤsuc-pred : (z : ℤ) → ℤsuc (ℤpred z) ＝ z
+ℤsuc-pred = ℤcase _ (λ n → refl (neg n)) (refl zero) (ind _ (refl (pos Z)) (λ n' pf → refl (pos (S n'))))
+
+ℤpred-suc : (z : ℤ) → ℤpred (ℤsuc z) ＝ z
+ℤpred-suc = ℤcase _  (ind _ (refl (neg Z)) (λ n' pf → refl (neg (S n')))) (refl zero) (λ n → refl (pos n))
