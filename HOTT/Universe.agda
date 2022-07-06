@@ -10,22 +10,7 @@ open import HOTT.Transport
 open import HOTT.Sigma
 open import HOTT.Pi
 open import HOTT.Copy
-
---------------------------------------------------
--- Contractibility and 1-1 correspondences
---------------------------------------------------
-
-isProp : (A : Type) → Type
-isProp A = Π A (λ a₀ → Π A (λ a₁ → (a₀ ＝ a₁)))
-
-isContr : (A : Type) → Type
-isContr A = A × isProp A
-
-is11 : {A B : Type} (R : A ⇒ B ⇒ Type) → Type
-is11 {A} {B} R = Π A (λ a → isContr (Σ B (λ b → R ∙ a ∙ b))) × Π B (λ b → isContr (Σ A (λ a → R ∙ a ∙ b)))
-
-11Corr : Type → Type → Type
-11Corr A B = Σ (A ⇒ B ⇒ Type) is11
+open import HOTT.Groupoids
 
 ----------------------------------------
 -- Identity types of the universe

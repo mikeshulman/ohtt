@@ -2,6 +2,7 @@
 
 module HOTT.Core where
 
+open import HOTT.Rewrite using (Type) public
 open import HOTT.Telescope public
 open import HOTT.Id public
 open import HOTT.Refl public
