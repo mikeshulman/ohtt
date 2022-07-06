@@ -172,3 +172,6 @@ m *ℕ n = ind _ Z (λ m m*n → n +ℕ m*n) m
 
 +ℕ0 : (x : ℕ) → x +ℕ 0 ＝ x
 +ℕ0 = ind _ (refl {ℕ} Z) (λ x +ℕ0x → S +ℕ0x)
+
++ℕassoc : (x y z : ℕ) → (x +ℕ y) +ℕ z ＝ x +ℕ (y +ℕ z)
++ℕassoc = ind _ (λ y z → refl (y +ℕ z)) (λ x xassoc y z → S (xassoc y z))
