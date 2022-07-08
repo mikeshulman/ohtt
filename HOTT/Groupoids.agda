@@ -30,6 +30,9 @@ rev {A} {x} {y} p = comp→ {ε} (Λ _ ⇨ A) [] {x} {y} p {x} {x} (refl x) (ref
 cong : {A B : Type} (f : A ⇒ B) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) → (f ∙ a₀ ＝ f ∙ a₁)
 cong f {a₀} {a₁} a₂ = refl f ∙ a₀ ∙ a₁ ∙ a₂
 
+tr⇒ : {A : Type} (B : A ⇒ Type) {x y : A} (p : x ＝ y) (b : B ∙ x) → B ∙ y
+tr⇒ {A} B {x} {y} p b = tr→ {ε▸ A} (Λ x ⇨ B ∙ top x) ([] ∷ x ∷ y ∷ p) b
+
 ------------------------------
 -- Equational reasoning
 ------------------------------
@@ -105,28 +108,28 @@ isContr-＝ {A} cA@(center , prp) a b =
 -- transporting across contractibility of the based path-space.
 𝐉 : {A : Type} {a : A} (P : (x : A) → (a ＝ x) → Type) (d : P a (refl a))
   (x : A) (e : a ＝ x) → P x e
-𝐉 {A} {a} P d x e =
-  tr→ {ε▸ (Σ[ x ﹕ A ] a ＝ x)} (Λ z ⇨ P (fst (top z)) (snd (top z)))
-       ([] ∷ (a , refl a) ∷ (x , e) ∷ (isProp-sing a ∙ (a , refl a) ∙ (x , e))) d
+𝐉 {A} {a} P d x e = tr⇒ (ƛ z ⇒ P (fst z) (snd z)) (isProp-sing a ∙ (a , refl a) ∙ (x , e)) d
 
 -- In deducing the typal computation rule for 𝐉, the central lemma is
 -- that transporting along anything equal to refl is the identity.
 -- Note that it uses comp↑, which was defined using symmetry.
-tr→＝refl : (A : Type) (B : (ε▸ A) ⇨ Type)
-  (a : A) (a₂ : a ＝ a) (a₂＝refl : a₂ ＝ refl a) (b : B ⊘ ([] ∷ a)) →
-  tr→ B ([] ∷ a ∷ a ∷ a₂) b ＝ b
-tr→＝refl A B a a₂ a₂＝refl b =
-  comp↑ B (sq∷ (Λ _ ⇨ A) [] {a} {a} (refl a) {a} {a} (refl a) a₂ (refl a)
-                 -- I don't understand why this doesn't fire as a rewrite here.
-                 (coe← (Id-REFL▸▸ (Λ _ ⇨ A) ((Λ⇨ (λ _ → A)) ⊚ ((Λ⇨ᵉ (λ _ → [])) ⊚ᵉ (Λ⇨ᵉ (pop {ε} {Λ⇨ (λ _ → A)}))))
-                                  (Λ⇨ (λ x → top (pop x) ＝ top x)) [] a a a₂ (refl a))
-                       a₂＝refl))
-   {b} {b} (refl b) {tr→ B ([] ∷ a ∷ a ∷ a₂) b} {b} (lift→ B ([] ∷ a ∷ a ∷ a₂) b) (refl b)
+tr⇒＝refl : (A : Type) (B : A ⇒ Type) (a : A) (a₂ : a ＝ a) (a₂＝refl : a₂ ＝ refl a) (b : B ∙ a) →
+  tr⇒ B a₂ b ＝ b
+tr⇒＝refl A B a a₂ a₂＝refl b =
+  comp↑ {ε▸ A} (Λ x ⇨ B ∙ top x)
+        (sq∷ (Λ _ ⇨ A) [] {a} {a} (refl a) {a} {a} (refl a) a₂ (refl a)
+              -- I don't understand why this doesn't fire as a rewrite here.
+              (coe← (Id-REFL▸▸ (Λ _ ⇨ A) ((Λ⇨ (λ _ → A)) ⊚ ((Λ⇨ᵉ (λ _ → [])) ⊚ᵉ (Λ⇨ᵉ (pop {ε} {Λ⇨ (λ _ → A)}))))
+                               (Λ⇨ (λ x → top (pop x) ＝ top x)) [] a a a₂ (refl a))
+                    a₂＝refl))
+   {b} {b} (refl b)
+   {tr→ {ε▸ A} (Λ x ⇨ B ∙ top x) ([] ∷ a ∷ a ∷ a₂) b} {b}
+   (lift→ {ε▸ A} (Λ x ⇨ B ∙ top x) ([] ∷ a ∷ a ∷ a₂) b) (refl b)
 
 -- This proof is, again, just like in cubical type theory.
 𝐉β : {A : Type} {a : A} (P : (x : A) → (a ＝ x) → Type) (d : P a (refl a)) →
   𝐉 P d a (refl a) ＝ d
-𝐉β {A} {a} P d = tr→＝refl (Σ[ x ﹕ A ] a ＝ x) (Λ z ⇨ P (fst (top z)) (snd (top z))) (a , refl a) _
+𝐉β {A} {a} P d = tr⇒＝refl (Σ[ x ﹕ A ] a ＝ x) (ƛ z ⇒ P (fst z) (snd z)) (a , refl a) _
   (isProp-＝ (isProp-sing a) (a , refl a) (a , refl a) ∙
     (isProp-sing a ∙ (a , refl a) ∙ (a , refl a)) ∙ (refl (a , refl a)) ) d 
 
