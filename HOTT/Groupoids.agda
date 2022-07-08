@@ -95,9 +95,9 @@ isProp-＝ {A} prp a b = ƛ p ⇒ ƛ q ⇒
                  (λ x → [] ∷ a ∷ top x) ([] ∷ a ∷ b ∷ q) (Λ x ⇨ top (pop x) ＝ top x) (prp ∙ a ∙ a) (prp ∙ a ∙ b))
           (refl (prp ∙ a) ∙ a ∙ b ∙ q)))
 
--- This implies that the identity types of a contractible type are contractible.
-isContr-＝ : {A : Type} (cA : isContr A) (a b : A) → isContr (a ＝ b)
-isContr-＝ {A} cA@(center , prp) a b =
+-- This implies that the identity types of a proposition are in fact contractible.
+isContr-＝ : {A : Type} (cA : isProp A) (a b : A) → isContr (a ＝ b)
+isContr-＝ {A} prp a b =
   (prp ∙ a ∙ b , isProp-＝ prp a b)
 
 ------------------------------
