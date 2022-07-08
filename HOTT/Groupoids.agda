@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --experimental-lossy-unification #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --experimental-lossy-unification --no-import-sorts #-}
 
 module HOTT.Groupoids where
 
@@ -99,6 +99,29 @@ isProp-＝ {A} prp a b = ƛ p ⇒ ƛ q ⇒
 isContr-＝ : {A : Type} (cA : isProp A) (a b : A) → isContr (a ＝ b)
 isContr-＝ {A} prp a b =
   (prp ∙ a ∙ b , isProp-＝ prp a b)
+
+-- A set is a type whose identity types are propositions.
+isSet : (A : Type) → Type
+isSet A = Π[ x ﹕ A ] Π[ y ﹕ A ] isProp (x ＝ y)
+
+-- Another way of saying isProp-＝ is that any proposition is a set.
+isProp→isSet : {A : Type} (pA : isProp A) → isSet A
+isProp→isSet {A} pA = ƛ x ⇒ ƛ y ⇒ isProp-＝ pA x y
+
+-- The type of all propositions, and the type of all sets.
+Prop : Type
+Prop = Σ[ P ﹕ Type ] isProp P
+
+Set : Type
+Set = Σ[ A ﹕ Type ] isSet A
+
+-- Being a proposition is a proposition
+{-
+isProp-isProp : (A : Type) → isProp (isProp A)
+isProp-isProp A = ƛ prp₀ ⇒ ƛ prp₁ ⇒
+  ƛ a₀₀ ⇒ ƛ a₀₁ ⇒ ƛ a₀₂ ⇒ ƛ a₁₀ ⇒ ƛ a₁₁ ⇒ ƛ a₁₂ ⇒
+  {!!}
+-}
 
 ------------------------------
 -- Identity elimination

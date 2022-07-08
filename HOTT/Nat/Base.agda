@@ -104,7 +104,7 @@ _•＝ℕ_ {m} {n} p q = _•_ {m ＝ n} p q
 -- Pretty input and output
 ----------------------------------------
 
-record Number {a} (A : Set a) : Set a where
+record Number (A : Type) : Type where
   field fromNat : Agda.Builtin.Nat.Nat → A
 
 open Number {{...}} public
