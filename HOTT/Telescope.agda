@@ -4,7 +4,7 @@ module HOTT.Telescope where
 
 open import HOTT.Rewrite
 
-infixl 50 _∷_
+infixl 30 _∷_
 infix 40 _⊘_ _⊘ᵉ_
 infixr 40 _⊚_ _⊚ᵉ_
 infixl 30 _▸_ _▹_

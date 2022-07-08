@@ -7,7 +7,6 @@ infix 60 _₀ _₁ -- Id
 infix 60 _₀₀ _₀₁ _₀₂ _₁₀ _₁₁ _₁₂ _₂₀ _₂₁ -- Square/Base
 
 infixl 50 _↑ _↓ _⇑ -- Copy/Base *
-infixl 50 _∷_ -- Telescope
 
 infixl 40 _⊙_ -- Arrow/Base
 infixl 40 _∙_ -- Pi/Base
@@ -26,6 +25,7 @@ infix 35 _＝ℕ_ -- Nat/Base
 infix 35 _＝ℤ_ -- Int/Base
 infixr 35 _×_ -- Prod/Base, Sigma/Base
 
+infixl 30 _∷_ -- Telescope
 infixr 30 _⇒_ Π -- Pi/Base
 infixl 30 _▸_ _▹_ -- Telescope
 infixr 30 _,_ Σ -- Sigma/Base
