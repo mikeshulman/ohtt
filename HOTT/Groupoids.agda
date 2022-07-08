@@ -10,6 +10,7 @@ open import HOTT.Transport
 open import HOTT.Fill
 open import HOTT.Pi.Base
 open import HOTT.Sigma.Base
+open import HOTT.Sigma.Transport
 
 infixr 35 _•_
 infixl 40 _∘_
@@ -46,7 +47,7 @@ begin x ＝⟨⟩ p = begin p
 begin_ {A} (x ＝⟨ p ⟩ q) = _•_ {A} p (begin q)
 
 --------------------------------------------------
--- Contractibility and 1-1 correspondences
+-- Propositions and contractibility
 --------------------------------------------------
 
 isProp : (A : Type) → Type
@@ -66,6 +67,33 @@ isContr-sing {A} a =
   (a , refl a) ,
   (ƛ x ⇒ ƛ y ⇒ utr→ (Λ _ ⇨ A) [] a (fst x) (fst y) (snd x) (snd y) ,
              ulift→ (Λ _ ⇨ A) [] a (fst x) (fst y) (snd x) (snd y))
+
+＝-isContr : {A : Type} (cA : isContr A) (a b : A) → (a ＝ b)
+＝-isContr {A} (center , prp) a b = _•_ {A} (prp ∙ a ∙ center) (prp ∙ center ∙ b)
+
+------------------------------
+-- Identity elimination
+------------------------------
+
+𝐉 : {A : Type} {a : A} (P : (x : A) → (a ＝ x) → Type) (d : P a (refl a))
+  (x : A) (e : a ＝ x) → P x e
+𝐉 {A} {a} P d x e =
+  tr→ {ε▸ (Σ[ x ﹕ A ] a ＝ x)} (Λ z ⇨ P (fst (top z)) (snd (top z)))
+       ([] ∷ (a , refl a) ∷ (x , e) ∷ ＝-isContr (isContr-sing a) (a , refl a) (x , e)) d
+
+𝐉β : {A : Type} {a : A} (P : (x : A) → (a ＝ x) → Type) (d : P a (refl a)) →
+  𝐉 P d a (refl a) ＝ d
+𝐉β {A} {a} P d =
+  utr→ {ε▸ (Σ[ x ﹕ A ] a ＝ x)} (Λ z ⇨ P (fst (top z)) (snd (top z)))
+        ([] ∷ (a , refl a) ∷ (a , refl a) ∷ ＝-isContr (isContr-sing a) (a , refl a) (a , refl a)) d
+        (𝐉 P d a (refl a)) d
+        (lift→ {ε▸ (Σ[ x ﹕ A ] a ＝ x)} (Λ z ⇨ P (fst (top z)) (snd (top z)))
+          ([] ∷ (a , refl a) ∷ (a , refl a) ∷ ＝-isContr (isContr-sing a) (a , refl a) (a , refl a)) d)
+        {!!}
+
+------------------------------
+-- 1-1 correspondences
+------------------------------
 
 is11 : {A B : Type} (R : A ⇒ B ⇒ Type) → Type
 is11 {A} {B} R = Π A (λ a → isContr (Σ B (λ b → R ∙ a ∙ b))) × Π B (λ b → isContr (Σ A (λ a → R ∙ a ∙ b)))
