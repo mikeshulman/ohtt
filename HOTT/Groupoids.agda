@@ -129,9 +129,10 @@ tr⇒＝refl A B a a₂ a₂＝refl b =
 -- This proof is, again, just like in cubical type theory.
 𝐉β : {A : Type} {a : A} (P : (x : A) → (a ＝ x) → Type) (d : P a (refl a)) →
   𝐉 P d a (refl a) ＝ d
-𝐉β {A} {a} P d = tr⇒＝refl (Σ[ x ﹕ A ] a ＝ x) (ƛ z ⇒ P (fst z) (snd z)) (a , refl a) _
-  (isProp-＝ (isProp-sing a) (a , refl a) (a , refl a) ∙
-    (isProp-sing a ∙ (a , refl a) ∙ (a , refl a)) ∙ (refl (a , refl a)) ) d 
+𝐉β {A} {a} P d =
+  tr⇒＝refl (Σ[ x ﹕ A ] a ＝ x) (ƛ z ⇒ P (fst z) (snd z)) (a , refl a) _
+    (isProp-＝ (isProp-sing a) (a , refl a) (a , refl a) ∙
+      (isProp-sing a ∙ (a , refl a) ∙ (a , refl a)) ∙ (refl (a , refl a)) ) d
 
 ------------------------------
 -- 1-1 correspondences
