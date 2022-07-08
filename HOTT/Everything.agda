@@ -33,6 +33,8 @@ import HOTT.Pi
 import HOTT.Copy
 import HOTT.Universe
 
+import HOTT.Empty
+
 import HOTT.Indices
 import HOTT.Sum
 import HOTT.Nat
