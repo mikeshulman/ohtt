@@ -112,19 +112,16 @@ isContr-＝ {A} cA@(center , prp) a b =
 
 -- In deducing the typal computation rule for 𝐉, the central lemma is
 -- that transporting along anything equal to refl is the identity.
--- Note that it uses comp↑, which was defined using symmetry.
+-- Note that we can prove this with utr→ without using symmetry,
+-- although comp↑ (which was defined using symmetry) would also work.
+tr⇒refl : {A : Type} (B : A ⇒ Type) (a : A) (b : B ∙ a) →
+  tr⇒ B (refl a) b ＝ b
+tr⇒refl {A} B a b = utr→ {ε▸ A} (Λ x ⇨ B ∙ top x) ([] ∷ a ∷ a ∷ refl a) b (tr⇒ B (refl a) b) b
+                         (lift→ {ε▸ A} (Λ x ⇨ B ∙ top x) ([] ∷ a ∷ a ∷ refl a) b) (refl b)
+
 tr⇒＝refl : (A : Type) (B : A ⇒ Type) (a : A) (a₂ : a ＝ a) (a₂＝refl : a₂ ＝ refl a) (b : B ∙ a) →
   tr⇒ B a₂ b ＝ b
-tr⇒＝refl A B a a₂ a₂＝refl b =
-  comp↑ {ε▸ A} (Λ x ⇨ B ∙ top x)
-        (sq∷ (Λ _ ⇨ A) [] {a} {a} (refl a) {a} {a} (refl a) a₂ (refl a)
-              -- I don't understand why this doesn't fire as a rewrite here.
-              (coe← (Id-REFL▸▸ (Λ _ ⇨ A) ((Λ⇨ (λ _ → A)) ⊚ ((Λ⇨ᵉ (λ _ → [])) ⊚ᵉ (Λ⇨ᵉ (pop {ε} {Λ⇨ (λ _ → A)}))))
-                               (Λ⇨ (λ x → top (pop x) ＝ top x)) [] a a a₂ (refl a))
-                    a₂＝refl))
-   {b} {b} (refl b)
-   {tr→ {ε▸ A} (Λ x ⇨ B ∙ top x) ([] ∷ a ∷ a ∷ a₂) b} {b}
-   (lift→ {ε▸ A} (Λ x ⇨ B ∙ top x) ([] ∷ a ∷ a ∷ a₂) b) (refl b)
+tr⇒＝refl A B a a₂ a₂＝refl b = cong (ƛ p ⇒ tr⇒ B p b) a₂＝refl • tr⇒refl B a b
 
 -- This proof is, again, just like in cubical type theory.
 𝐉β : {A : Type} {a : A} (P : (x : A) → (a ＝ x) → Type) (d : P a (refl a)) →
