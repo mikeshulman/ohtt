@@ -10,6 +10,7 @@ open import HOTT.Refl
 infixl 40 _∙_
 infixr 30 _⇒_ Π
 infixr 20 ƛ⇒
+infixl 40 _∘_
 
 --------------------
 -- Π-types
@@ -65,3 +66,9 @@ postulate
           (refl f ∙ a ∙ a ∙ (refl a))
 
 {-# REWRITE apƛ reflƛ ap∙ refl∙ #-}
+
+_∘_ : {A B C : Type} (g : B ⇒ C) (f : A ⇒ B) → (A ⇒ C)
+g ∘ f = ƛ x ⇒ g ∙ (f ∙ x)
+
+idmap : (A : Type) → (A ⇒ A)
+idmap A = ƛ x ⇒ x

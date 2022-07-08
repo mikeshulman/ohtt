@@ -105,8 +105,10 @@ postulate
   Id-REFL[]▸′ : (B : el ε → Type) (A : el (ε ▸ Λ⇨ B) → Type) (b : B [])
     (a₀ : A (_∷_ {ε} {Λ⇨ B} [] b)) (a₁ : A (_∷_ {ε} {Λ⇨ B} [] b)) →
     Id (Λ⇨ A) ([] ∷ b ∷ b ∷ refl b) a₀ a₁ ≡ (a₀ ＝ a₁)
+  Id-REFL[]▸″ : (B : Type) (A : (ε▸ B) ⇨ Type) (b : B) (a₀ a₁ : A ⊘ ([] ∷ b)) →
+    Id A ([] ∷ b ∷ b ∷ refl b) a₀ a₁ ≡ (a₀ ＝ a₁)
 
-{-# REWRITE Id-REFL▸ Id-REFL▸′ Id-REFL[]▸ Id-REFL[]▸′ #-}
+{-# REWRITE Id-REFL▸ Id-REFL▸′ Id-REFL[]▸ Id-REFL[]▸′ Id-REFL[]▸″ #-}
 
 postulate
   Id-REFL▸▸ : {Δ : Tel} (B : Δ ⇨ Type) (C : (Δ ▸ B) ⇨ Type)

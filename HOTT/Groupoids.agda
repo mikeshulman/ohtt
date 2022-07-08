@@ -1,19 +1,21 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --experimental-lossy-unification #-}
 
 module HOTT.Groupoids where
 
-open import HOTT.Rewrite using (Type)
+open import HOTT.Rewrite using (Type; _≡_; _≡ᵉ_; coe→; coe←)
 open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Refl
 open import HOTT.Transport
+open import HOTT.Square.Base
+open import HOTT.Square.EpBoundary
+open import HOTT.Sym.Base
 open import HOTT.Fill
 open import HOTT.Pi.Base
 open import HOTT.Sigma.Base
 open import HOTT.Sigma.Transport
 
 infixr 35 _•_
-infixl 40 _∘_
 
 ------------------------------
 -- Path operations
@@ -50,46 +52,83 @@ begin_ {A} (x ＝⟨ p ⟩ q) = _•_ {A} p (begin q)
 -- Propositions and contractibility
 --------------------------------------------------
 
+-- We define propositions first, as subsingletons: any two points are equal.
 isProp : (A : Type) → Type
 isProp A = Π A (λ a₀ → Π A (λ a₁ → (a₀ ＝ a₁)))
 
+-- The product of two propositions is a proposition.
 isProp-× : {A B : Type} → isProp A → isProp B → isProp (A × B)
 isProp-× p q = ƛ x ⇒ ƛ y ⇒ (p ∙ fst x ∙ fst y , q ∙ snd x ∙ snd y)
 
+-- We define a contractible types to be inhabited propositions.
 isContr : (A : Type) → Type
 isContr A = A × isProp A
 
+-- The product of two contractible types is contractible.
 isContr-× : {A B : Type} → isContr A → isContr B → isContr (A × B)
 isContr-× (a , p) (b , q) = ((a , b) , isProp-× p q)
 
-isContr-sing : {A : Type} (a : A) → isContr (Σ[ y ﹕ A ] a ＝ y)
-isContr-sing {A} a =
-  (a , refl a) ,
-  (ƛ x ⇒ ƛ y ⇒ utr→ (Λ _ ⇨ A) [] a (fst x) (fst y) (snd x) (snd y) ,
-             ulift→ (Λ _ ⇨ A) [] a (fst x) (fst y) (snd x) (snd y))
+-- Based path-spaces (singletons) are contractible.
+isProp-sing : {A : Type} (a : A) → isProp (Σ[ y ﹕ A ] a ＝ y)
+isProp-sing {A} a = (ƛ x ⇒ ƛ y ⇒ utr→ (Λ _ ⇨ A) [] a (fst x) (fst y) (snd x) (snd y) ,
+                               ulift→ (Λ _ ⇨ A) [] a (fst x) (fst y) (snd x) (snd y))
 
-＝-isContr : {A : Type} (cA : isContr A) (a b : A) → (a ＝ b)
-＝-isContr {A} (center , prp) a b = _•_ {A} (prp ∙ a ∙ center) (prp ∙ center ∙ b)
+isContr-sing : {A : Type} (a : A) → isContr (Σ[ y ﹕ A ] a ＝ y)
+isContr-sing {A} a = ((a , refl a) , isProp-sing a)
+
+
+-- The central nontrivial fact about h-levels: the identity types of a
+-- proposition are propositions.  Note that it uses symmetry and also
+-- utr→ (although comp↑ ought to work as well as utr→).
+isProp-＝ : {A : Type} (prp : isProp A) (a b : A) → isProp (a ＝ b)
+isProp-＝ {A} prp a b = ƛ p ⇒ ƛ q ⇒
+  utr→ (Id/ {ε} (Λ _ ⇨ A)) ([] ∷ a ∷ a ∷ (prp ∙ a ∙ a) ∷ a ∷ b ∷ (prp ∙ a ∙ b)) (refl a) p q
+  (sym (Λ _ ⇨ A) [] (refl a) p (prp ∙ a ∙ a) (prp ∙ a ∙ b)
+    (coe→ (Id-AP {ε▸ A} {ε▸ A ▸ ((Λ⇨ (λ _ → A)) ⊚ ((Λ⇨ᵉ (λ _ → [])) ⊚ᵉ (Λ⇨ᵉ (pop {ε} {Λ⇨ (λ _ → A)}))))}
+                 (λ x → [] ∷ a ∷ top x) ([] ∷ a ∷ b ∷ p) (Λ x ⇨ top (pop x) ＝ top x) (prp ∙ a ∙ a) (prp ∙ a ∙ b))
+          (refl (prp ∙ a) ∙ a ∙ b ∙ p)))
+  (sym (Λ _ ⇨ A) [] (refl a) q (prp ∙ a ∙ a) (prp ∙ a ∙ b)
+    (coe→ (Id-AP {ε▸ A} {ε▸ A ▸ ((Λ⇨ (λ _ → A)) ⊚ ((Λ⇨ᵉ (λ _ → [])) ⊚ᵉ (Λ⇨ᵉ (pop {ε} {Λ⇨ (λ _ → A)}))))}
+                 (λ x → [] ∷ a ∷ top x) ([] ∷ a ∷ b ∷ q) (Λ x ⇨ top (pop x) ＝ top x) (prp ∙ a ∙ a) (prp ∙ a ∙ b))
+          (refl (prp ∙ a) ∙ a ∙ b ∙ q)))
+
+-- This implies that the identity types of a contractible type are contractible.
+isContr-＝ : {A : Type} (cA : isContr A) (a b : A) → isContr (a ＝ b)
+isContr-＝ {A} cA@(center , prp) a b =
+  (prp ∙ a ∙ b , isProp-＝ prp a b)
 
 ------------------------------
 -- Identity elimination
 ------------------------------
 
+-- As in cubical type theory, the identity eliminator is defined by
+-- transporting across contractibility of the based path-space.
 𝐉 : {A : Type} {a : A} (P : (x : A) → (a ＝ x) → Type) (d : P a (refl a))
   (x : A) (e : a ＝ x) → P x e
 𝐉 {A} {a} P d x e =
   tr→ {ε▸ (Σ[ x ﹕ A ] a ＝ x)} (Λ z ⇨ P (fst (top z)) (snd (top z)))
-       ([] ∷ (a , refl a) ∷ (x , e) ∷ ＝-isContr (isContr-sing a) (a , refl a) (x , e)) d
+       ([] ∷ (a , refl a) ∷ (x , e) ∷ (isProp-sing a ∙ (a , refl a) ∙ (x , e))) d
 
+-- In deducing the typal computation rule for 𝐉, the central lemma is
+-- that transporting along anything equal to refl is the identity.
+-- Note that it uses comp↑, which was defined using symmetry.
+tr→＝refl : (A : Type) (B : (ε▸ A) ⇨ Type)
+  (a : A) (a₂ : a ＝ a) (a₂＝refl : a₂ ＝ refl a) (b : B ⊘ ([] ∷ a)) →
+  tr→ B ([] ∷ a ∷ a ∷ a₂) b ＝ b
+tr→＝refl A B a a₂ a₂＝refl b =
+  comp↑ B (sq∷ (Λ _ ⇨ A) [] {a} {a} (refl a) {a} {a} (refl a) a₂ (refl a)
+                 -- I don't understand why this doesn't fire as a rewrite here.
+                 (coe← (Id-REFL▸▸ (Λ _ ⇨ A) ((Λ⇨ (λ _ → A)) ⊚ ((Λ⇨ᵉ (λ _ → [])) ⊚ᵉ (Λ⇨ᵉ (pop {ε} {Λ⇨ (λ _ → A)}))))
+                                  (Λ⇨ (λ x → top (pop x) ＝ top x)) [] a a a₂ (refl a))
+                       a₂＝refl))
+   {b} {b} (refl b) {tr→ B ([] ∷ a ∷ a ∷ a₂) b} {b} (lift→ B ([] ∷ a ∷ a ∷ a₂) b) (refl b)
+
+-- This proof is, again, just like in cubical type theory.
 𝐉β : {A : Type} {a : A} (P : (x : A) → (a ＝ x) → Type) (d : P a (refl a)) →
   𝐉 P d a (refl a) ＝ d
-𝐉β {A} {a} P d =
-  utr→ {ε▸ (Σ[ x ﹕ A ] a ＝ x)} (Λ z ⇨ P (fst (top z)) (snd (top z)))
-        ([] ∷ (a , refl a) ∷ (a , refl a) ∷ ＝-isContr (isContr-sing a) (a , refl a) (a , refl a)) d
-        (𝐉 P d a (refl a)) d
-        (lift→ {ε▸ (Σ[ x ﹕ A ] a ＝ x)} (Λ z ⇨ P (fst (top z)) (snd (top z)))
-          ([] ∷ (a , refl a) ∷ (a , refl a) ∷ ＝-isContr (isContr-sing a) (a , refl a) (a , refl a)) d)
-        {!!}
+𝐉β {A} {a} P d = tr→＝refl (Σ[ x ﹕ A ] a ＝ x) (Λ z ⇨ P (fst (top z)) (snd (top z))) (a , refl a) _
+  (isProp-＝ (isProp-sing a) (a , refl a) (a , refl a) ∙
+    (isProp-sing a ∙ (a , refl a) ∙ (a , refl a)) ∙ (refl (a , refl a)) ) d 
 
 ------------------------------
 -- 1-1 correspondences
@@ -104,12 +143,6 @@ is11 {A} {B} R = Π A (λ a → isContr (Σ B (λ b → R ∙ a ∙ b))) × Π B
 ----------------------------------------
 -- Other kinds of equivalences
 ----------------------------------------
-
-_∘_ : {A B C : Type} (g : B ⇒ C) (f : A ⇒ B) → (A ⇒ C)
-g ∘ f = ƛ x ⇒ g ∙ (f ∙ x)
-
-idmap : (A : Type) → (A ⇒ A)
-idmap A = ƛ x ⇒ x
 
 QInv : {A B : Type} (f : A ⇒ B) → Type
 QInv {A} {B} f = Σ[ g ﹕ B ⇒ A ] (g ∘ f ＝ idmap A) × (f ∘ g ＝ idmap B)
