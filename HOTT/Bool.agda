@@ -9,6 +9,7 @@ open import HOTT.Refl
 open import HOTT.Transport
 open import HOTT.Indices
 open import HOTT.Sigma.Base
+open import HOTT.Pi.Base
 open import HOTT.Indices
 open import HOTT.Groupoids
 
@@ -118,3 +119,20 @@ postulate
        e₀ , e₁)
 
 {-# REWRITE ＝-＝𝟚 Id-＝𝟚 #-}
+
+------------------------------
+-- Negation
+------------------------------
+
+¬ : 𝟚 ⇒ 𝟚
+¬ = ƛ x ⇒ 𝟚-case (λ _ → 𝟚) false true x
+
+¬¬ : ¬ ∘ ¬ ＝ idmap 𝟚
+¬¬ = funext {f = ¬ ∘ ¬} {g = idmap 𝟚}
+  (ƛ x ⇒ 𝟚-case (λ x → ¬ ∙ (¬ ∙ x) ＝ x) true false x)
+
+QInv-¬ : QInv ¬
+QInv-¬ = ¬ , ¬¬ , ¬¬
+
+11-¬ : 11Corr 𝟚 𝟚
+11-¬ = QInv→11 ¬ QInv-¬
