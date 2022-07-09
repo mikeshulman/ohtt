@@ -7,7 +7,9 @@ open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Refl
 open import HOTT.Transport
-open import HOTT.Indices
+open import HOTT.Pi.Base
+open import HOTT.Unit
+open import HOTT.Empty
 open import HOTT.Sigma.Base
 open import HOTT.Indices
 open import HOTT.Groupoids
@@ -118,3 +120,44 @@ postulate
        e₀ , e₁)
 
 {-# REWRITE ＝-＝𝟚 Id-＝𝟚 #-}
+
+------------------------------
+-- Negation
+------------------------------
+
+¬ : 𝟚 ⇒ 𝟚
+¬ = ƛ b ⇒ 𝟚-case _ false true b
+
+¬corr : 𝟚 ⇒ 𝟚 ⇒ Type
+¬corr = ƛ a ⇒ ƛ b ⇒ 𝟚-case _ (𝟚-case _ ⊥ ⊤ b) (𝟚-case _ ⊤ ⊥ b) a
+
+¬corr-¬ : (x : 𝟚) → ¬corr ∙ x ∙ (¬ ∙ x)
+¬corr-¬ x = 𝟚-case (λ b → ¬corr ∙ b ∙ (¬ ∙ b)) ★ ★ x
+
+u¬corr : (x y z : 𝟚) (p : ¬corr ∙ x ∙ y) (q : ¬corr ∙ x ∙ z) →
+  (y , p) ＝ (z , q)
+u¬corr x y z = 
+  𝟚-case (λ x → (p : ¬corr ∙ x ∙ y) (q : ¬corr ∙ x ∙ z) → (y , p) ＝ (z , q))
+    (𝟚-case (λ y → (p : 𝟚-case (λ v → Type) ⊥ ⊤ y) (q : 𝟚-case (λ v → Type) ⊥ ⊤ z) → (y , p) ＝ (z , q))
+      (λ p q → ⊥-elim (λ p → Σ[ e ﹕ true ＝𝟚 z ]
+                          Id (Λ⇨ (λ a → 𝟚-case (λ v → Type) ⊥ ⊤ (top {ε} {Λ _ ⇨ 𝟚} a))) ([] ∷ true ∷ z ∷ e) p q)
+                       p)
+      (λ p → 𝟚-case (λ z → (q : 𝟚-case (λ v → Type) ⊥ ⊤ z) → Σ[ e ﹕ false ＝𝟚 z ]
+                             Id (Λ⇨ (λ a → 𝟚-case (λ v → Type) ⊥ ⊤ (top {ε} {Λ _ ⇨ 𝟚} a))) ([] ∷ false ∷ z ∷ e) p q)
+                      (λ q → ⊥-elim (λ q → Σ[ e ﹕ false ＝𝟚 true ]
+                                            Id (Λ⇨ (λ a → 𝟚-case (λ v → Type) ⊥ ⊤ (top {ε} {Λ _ ⇨ 𝟚} a))) ([] ∷ false ∷ true ∷ e) p q)
+                                    q)
+                      -- Requires Id-𝟚-case!
+                      (λ q → (false , {!!})) z) y)
+    (𝟚-case (λ y → (p : 𝟚-case (λ v → Type) ⊤ ⊥ y) (q : 𝟚-case (λ v → Type) ⊤ ⊥ z) → (y , p) ＝ (z , q))
+      {!λ _ → 𝟚-case (λ z → 𝟚-case (λ v → Type) ⊤ ⊥ z → true ＝𝟚 z) (λ _ → {!true!}) (λ e → ⊥-elim _ e) z!}
+      (λ p q → ⊥-elim (λ p → Σ[ e ﹕ false ＝𝟚 z ]
+                              Id (Λ⇨ (λ a → 𝟚-case (λ v → Type) ⊤ ⊥ (top {ε} {Λ _ ⇨ 𝟚} a))) ([] ∷ false ∷ z ∷ e) p q)
+                        p)
+      y) x
+
+¬corr-11 : is11 ¬corr
+¬corr-11 =
+  ((ƛ a ⇒ ((¬ ∙ a , ¬corr-¬ a) ,
+           (ƛ x ⇒ ƛ y ⇒ u¬corr a (fst x) (fst y) (snd x) (snd y)))) ,
+   (ƛ b ⇒ {!!}))
