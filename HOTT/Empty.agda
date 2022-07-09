@@ -7,30 +7,27 @@ open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Refl
 open import HOTT.Transport
+open import HOTT.Indices
+open import HOTT.Sigma.Base
+
+data empty (Ω : Type) : Ω → Type where
+
+empty-elim : {Ω : Type} (P : (x : Ω) → empty Ω x → Type)
+  {ω : Ω} (e : empty Ω ω) → P ω e
+empty-elim P ()
 
 data ⊥ : Type where
 
-postulate
-  ＝⊥ : (u v : ⊥) → (u ＝ v) ≡ ⊥
-
-{-# REWRITE ＝⊥ #-}
+⊥-elim : (P : ⊥ → Type) (e : ⊥) → P e
+⊥-elim P ()
 
 postulate
-  tr→⊥ : {Δ : Tel} (δ : el (ID Δ)) (a₀ : ⊥) → tr→ {Δ} (Λ _ ⇨ ⊥) δ a₀ ≡ a₀
-  lift→⊥ : {Δ : Tel} (δ : el (ID Δ)) (a₀ : ⊥) → lift→ {Δ} (Λ _ ⇨ ⊥) δ a₀ ≡ a₀
-  tr←⊥ : {Δ : Tel} (δ : el (ID Δ)) (a₁ : ⊥) → tr← {Δ} (Λ _ ⇨ ⊥) δ a₁ ≡ a₁
-  lift←⊥ : {Δ : Tel} (δ : el (ID Δ)) (a₁ : ⊥) → lift← {Δ} (Λ _ ⇨ ⊥) δ a₁ ≡ a₁
-  utr→⊥ : {Δ : Tel} (δ : el (ID Δ)) (a₀ : ⊥)
-    (a₁ a₁' : ⊥) (a₂ : Id {Δ} (Λ _ ⇨ ⊥) δ a₀ a₁) (a₂' : Id {Δ} (Λ _ ⇨ ⊥) δ a₀ a₁') →
-    utr→ {Δ} (Λ _ ⇨ ⊥) δ a₀ a₁ a₁' a₂ a₂' ≡ a₀
-  ulift→⊥ : {Δ : Tel} (δ : el (ID Δ)) (a₀ : ⊥)
-    (a₁ a₁' : ⊥) (a₂ : Id {Δ} (Λ _ ⇨ ⊥) δ a₀ a₁) (a₂' : Id {Δ} (Λ _ ⇨ ⊥) δ a₀ a₁') →
-    ulift→ {Δ} (Λ _ ⇨ ⊥) δ a₀ a₁ a₁' a₂ a₂' ≡ a₀
-  utr←⊥ : {Δ : Tel} (δ : el (ID Δ)) (a₁ : ⊥)
-    (a₀ a₀' : ⊥) (a₂ : Id {Δ} (Λ _ ⇨ ⊥) δ a₀ a₁) (a₂' : Id {Δ} (Λ _ ⇨ ⊥) δ a₀' a₁) →
-    utr← {Δ} (Λ _ ⇨ ⊥) δ a₁ a₀ a₀' a₂ a₂' ≡ a₁
-  ulift←⊥ : {Δ : Tel} (δ : el (ID Δ)) (a₁ : ⊥)
-    (a₀ a₀' : ⊥) (a₂ : Id {Δ} (Λ _ ⇨ ⊥) δ a₀ a₁) (a₂' : Id {Δ} (Λ _ ⇨ ⊥) δ a₀' a₁) →
-    ulift← {Δ} (Λ _ ⇨ ⊥) δ a₁ a₀ a₀' a₂ a₂' ≡ a₁
+  ＝⊥ : (u v : ⊥) → (u ＝ v) ≡ empty (⊥ × ⊥) (u , v)
+  ＝-empty : (Ω : Type) (ω : Ω) (u v : empty Ω ω) →
+    (u ＝ v) ≡ empty (＝Idx Ω (empty Ω)) (ω , ω , refl ω , u , v)
+  Id-empty : {Δ : Tel} (Ω : el Δ → Type) (ω : (x : el Δ) → Ω x) (δ : el (ID Δ))
+    (u₀ : empty (Ω (δ ₀)) (ω (δ ₀))) (u₁ : empty (Ω (δ ₁)) (ω (δ ₁))) →
+    Id (Λ x ⇨ empty (Ω x) (ω x)) δ u₀ u₁ ≡
+    empty (Id-Idx δ Ω (λ x y → empty (Ω x) y)) (ω (δ ₀) , ω (δ ₁) , ap (Λ⇨ Ω) ω δ , u₀ , u₁)
 
-{-# REWRITE tr→⊥ lift→⊥ tr←⊥ lift←⊥ utr→⊥ ulift→⊥ utr←⊥ ulift←⊥ #-}
+{-# REWRITE ＝⊥ ＝-empty Id-empty #-}
