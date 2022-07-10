@@ -155,6 +155,24 @@ isContr-＝ : {A : Type} (cA : isProp A) (a b : A) → isContr (a ＝ b)
 isContr-＝ {A} prp a b =
   (prp ∙ a ∙ b , isProp-＝ prp a b)
 
+-- This applies also to dependent identity types
+{-
+isProp-Id : {Δ : Tel} (δ : el (ID Δ)) (A : Δ ⇨ Type)
+  (prp : (x : el Δ) → isProp (A ⊘ x)) (a₀ : A ⊘ (δ ₀)) (a₁ : A ⊘ (δ ₁)) →
+  isProp (Id A δ a₀ a₁)
+isProp-Id δ A prp a₀ a₁ = ƛ p ⇒ ƛ q ⇒ {!!}
+-}
+
+-- Also, any square in a family of propositions can be filled.
+{-
+sq-isProp : {Δ : Tel} (A : Δ ⇨ Type) (prp : (x : el Δ) → isProp (A ⊘ x)) (δ : el (SQ Δ))
+  {a₀₀ : A ⊘ (δ ₀₀)} {a₀₁ : A ⊘ (δ ₀₁)} (a₀₂ : Id A (δ ₀₂) a₀₀ a₀₁)
+  {a₁₀ : A ⊘ (δ ₁₀)} {a₁₁ : A ⊘ (δ ₁₁)} (a₁₂ : Id A (δ ₁₂) a₁₀ a₁₁)
+  (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id A (δ ₂₁) a₀₁ a₁₁) →
+  Sq A δ a₀₂ a₁₂ a₂₀ a₂₁
+sq-isProp A prp δ a₀₂ a₁₂ a₂₀ a₂₁ = {!!}
+-}
+
 -- A set is a type whose identity types are propositions.
 isSet : (A : Type) → Type
 isSet A = Π[ x ﹕ A ] Π[ y ﹕ A ] isProp (x ＝ y)
@@ -169,14 +187,6 @@ Prop = Σ[ P ﹕ Type ] isProp P
 
 Set : Type
 Set = Σ[ A ﹕ Type ] isSet A
-
--- Being a proposition is a proposition
-{-
-isProp-isProp : (A : Type) → isProp (isProp A)
-isProp-isProp A = ƛ prp₀ ⇒ ƛ prp₁ ⇒
-  ƛ a₀₀ ⇒ ƛ a₀₁ ⇒ ƛ a₀₂ ⇒ ƛ a₁₀ ⇒ ƛ a₁₁ ⇒ ƛ a₁₂ ⇒
-  {!!}
--}
 
 ------------------------------
 -- Identity elimination
@@ -221,6 +231,18 @@ rev• {A} {x} {y} p =
 -- Also we can prove naive funext.
 funext : {A B : Type} {f g : A ⇒ B} (p : Π[ x ﹕ A ] f ∙ x ＝ g ∙ x) → (f ＝ g)
 funext {A} {B} {f} {g} p = ƛ a₀ ⇒ ƛ a₁ ⇒ ƛ a₂ ⇒ 𝐉 (λ a₁ a₂ → f ∙ a₀ ＝ g ∙ a₁) (p ∙ a₀) a₁ a₂
+
+------------------------------
+-- isProp-isProp
+------------------------------
+
+-- Being a proposition is a proposition
+{-
+isProp-isProp : (A : Type) → isProp (isProp A)
+isProp-isProp A = ƛ prp₀ ⇒ ƛ prp₁ ⇒
+  ƛ a₀₀ ⇒ ƛ a₀₁ ⇒ ƛ a₀₂ ⇒ ƛ a₁₀ ⇒ ƛ a₁₁ ⇒ ƛ a₁₂ ⇒
+  {! sq-isProp {ε} (Λ _ ⇨ A) (λ _ → prp₀) [] a₀₂ a₁₂ (prp₀ ∙ a₀₀ ∙ a₁₀) (prp₁ ∙ a₀₁ ∙ a₁₁) !}
+-}
 
 ------------------------------
 -- 1-1 correspondences
