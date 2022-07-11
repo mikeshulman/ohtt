@@ -159,8 +159,8 @@ postulate
 postulate
   ＝-＝ℤ : (n₀ n₁ : ℤ) (e₀ e₁ : n₀ ＝ℤ n₁) →
     (e₀ ＝ e₁) ≡
-    int (Σ[ x₀ ﹕ ℤ ] Σ[ x₁ ﹕ ℤ ] (x₀ ＝ x₁) × (x₀ ＝ x₁))
-      {Σ[ x₀ ﹕ ℕ ] Σ[ x₁ ﹕ ℕ ] (x₀ ＝ x₁) × (x₀ ＝ x₁)}
+    int (Σ[ x₀ ⦂ ℤ ] Σ[ x₁ ⦂ ℤ ] (x₀ ＝ x₁) × (x₀ ＝ x₁))
+      {Σ[ x₀ ⦂ ℕ ] Σ[ x₁ ⦂ ℕ ] (x₀ ＝ x₁) × (x₀ ＝ x₁)}
       (λ m → (neg (fst m) , neg (fst (snd m)) ,
               neg (fst (snd (snd m))) , neg (snd (snd (snd m)))))
       (zero , zero , zero , zero)
@@ -170,11 +170,11 @@ postulate
   Id-＝ℤ : {Δ : Tel} (δ : el (ID Δ)) (n₀ n₁ : el Δ → ℤ)
     (e₀ : n₀ (δ ₀) ＝ℤ n₁ (δ ₀)) (e₁ : n₀ (δ ₁) ＝ℤ n₁ (δ ₁)) →
     Id {Δ} (Λ x ⇨ n₀ x ＝ℤ n₁ x) δ e₀ e₁ ≡
-    int (Σ[ x₀₀ ﹕ ℤ ] Σ[ x₀₁ ﹕ ℤ ] Σ[ x₀₂ ﹕ x₀₀ ＝ x₀₁ ]
-         Σ[ x₁₀ ﹕ ℤ ] Σ[ x₁₁ ﹕ ℤ ] Σ[ x₁₂ ﹕ x₁₀ ＝ x₁₁ ]
+    int (Σ[ x₀₀ ⦂ ℤ ] Σ[ x₀₁ ⦂ ℤ ] Σ[ x₀₂ ⦂ x₀₀ ＝ x₀₁ ]
+         Σ[ x₁₀ ⦂ ℤ ] Σ[ x₁₁ ⦂ ℤ ] Σ[ x₁₂ ⦂ x₁₀ ＝ x₁₁ ]
          (x₀₀ ＝ℤ x₁₀) × (x₀₁ ＝ℤ x₁₁))
-      {Σ[ x₀₀ ﹕ ℕ ] Σ[ x₀₁ ﹕ ℕ ] Σ[ x₀₂ ﹕ x₀₀ ＝ x₀₁ ]
-       Σ[ x₁₀ ﹕ ℕ ] Σ[ x₁₁ ﹕ ℕ ] Σ[ x₁₂ ﹕ x₁₀ ＝ x₁₁ ]
+      {Σ[ x₀₀ ⦂ ℕ ] Σ[ x₀₁ ⦂ ℕ ] Σ[ x₀₂ ⦂ x₀₀ ＝ x₀₁ ]
+       Σ[ x₁₀ ⦂ ℕ ] Σ[ x₁₁ ⦂ ℕ ] Σ[ x₁₂ ⦂ x₁₀ ＝ x₁₁ ]
        (x₀₀ ＝ℕ x₁₀) × (x₀₁ ＝ℕ x₁₁)}
       (λ m → neg (fst m) , neg (fst (snd m)) , neg (fst (snd (snd m))) ,
              neg (fst (snd (snd (snd m)))) , neg (fst (snd (snd (snd (snd m))))) ,

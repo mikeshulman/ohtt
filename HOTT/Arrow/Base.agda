@@ -41,10 +41,10 @@ postulate
   Id⇛ : {Δ : Tel} (A B : el Δ → Type)
     (δ : el (ID Δ)) (f₀ : (A (δ ₀)) ⇛ (B (δ ₀))) (f₁ : (A (δ ₁)) ⇛ (B (δ ₁))) →
     Id (Λ w ⇨ (A w) ⇛ (B w)) δ f₀ f₁ ≡
-      Π[ a₀ ﹕ A (δ ₀) ] Π[ a₁ ﹕ A (δ ₁) ]
+      Π[ a₀ ⦂ A (δ ₀) ] Π[ a₁ ⦂ A (δ ₁) ]
       (Id (Λ⇨ A) δ a₀ a₁) ⇛ Id (Λ⇨ B) δ (f₀ ⊙ a₀) (f₁ ⊙ a₁)
   ＝⇛ : (A B : Type) (f₀ f₁ : A ⇛ B) →
-    (f₀ ＝ f₁) ≡ Π[ a₀ ﹕ A ] Π[ a₁ ﹕ A ] (a₀ ＝ a₁) ⇛ (f₀ ⊙ a₀ ＝ f₁ ⊙ a₁)
+    (f₀ ＝ f₁) ≡ Π[ a₀ ⦂ A ] Π[ a₁ ⦂ A ] (a₀ ＝ a₁) ⇛ (f₀ ⊙ a₀ ＝ f₁ ⊙ a₁)
 
 {-# REWRITE Id⇛ ＝⇛ #-}
 

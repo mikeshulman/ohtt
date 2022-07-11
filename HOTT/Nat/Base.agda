@@ -163,7 +163,7 @@ postulate
 postulate
   ＝-＝ℕ : (n₀ n₁ : ℕ) (e₀ e₁ : n₀ ＝ℕ n₁) →
     (e₀ ＝ e₁) ≡
-    nat (Σ[ x₀ ﹕ ℕ ] Σ[ x₁ ﹕ ℕ ] (x₀ ＝ x₁) × (x₀ ＝ x₁))
+    nat (Σ[ x₀ ⦂ ℕ ] Σ[ x₁ ⦂ ℕ ] (x₀ ＝ x₁) × (x₀ ＝ x₁))
       (Z , Z , Z , Z)
       (λ m → (S (fst m) , S (fst (snd m)) ,
               S (fst (snd (snd m))) , S (snd (snd (snd m)))))
@@ -171,8 +171,8 @@ postulate
   Id-＝ℕ : {Δ : Tel} (δ : el (ID Δ)) (n₀ n₁ : el Δ → ℕ)
     (e₀ : n₀ (δ ₀) ＝ℕ n₁ (δ ₀)) (e₁ : n₀ (δ ₁) ＝ℕ n₁ (δ ₁)) →
     Id {Δ} (Λ x ⇨ n₀ x ＝ℕ n₁ x) δ e₀ e₁ ≡
-    nat (Σ[ x₀₀ ﹕ ℕ ] Σ[ x₀₁ ﹕ ℕ ] Σ[ x₀₂ ﹕ x₀₀ ＝ x₀₁ ]
-          Σ[ x₁₀ ﹕ ℕ ] Σ[ x₁₁ ﹕ ℕ ] Σ[ x₁₂ ﹕ x₁₀ ＝ x₁₁ ]
+    nat (Σ[ x₀₀ ⦂ ℕ ] Σ[ x₀₁ ⦂ ℕ ] Σ[ x₀₂ ⦂ x₀₀ ＝ x₀₁ ]
+          Σ[ x₁₀ ⦂ ℕ ] Σ[ x₁₁ ⦂ ℕ ] Σ[ x₁₂ ⦂ x₁₀ ＝ x₁₁ ]
           (x₀₀ ＝ℕ x₁₀) × (x₀₁ ＝ℕ x₁₁))
       (Z , Z , Z , Z , Z , Z , Z , Z)
       (λ m → S (fst m) , S (fst (snd m)) , S (fst (snd (snd m))) ,

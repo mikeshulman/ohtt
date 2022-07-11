@@ -66,7 +66,7 @@ Id-Ω-pop : {Δ : Tel} (C : Δ ⇨ Type) (Ω : el Δ → Type) {A B : el Δ → 
 Id-Ω-pop {Δ} C Ω {A} {B} α β δ c₀ c₁ c₂ =
   ΣΣ≡Σ (Ω (δ ₀)) (Ω (δ ₁))
     (funextᵉ (λ x₀ → funextᵉ λ x₁ → rev (Id-AP (λ x → pop {B = C} x) (δ ∷ c₀ ∷ c₁ ∷ c₂) (Λ⇨ Ω) x₀ x₁)))
-    (λ x₀ x₁ → Σ[ s₀ ﹕ sum (Ω (δ ₀)) (α (δ ₀)) (β (δ ₀)) x₀ ]
+    (λ x₀ x₁ → Σ[ s₀ ⦂ sum (Ω (δ ₀)) (α (δ ₀)) (β (δ ₀)) x₀ ]
                         sum (Ω (δ ₁)) (α (δ ₁)) (β (δ ₁)) x₁)
 
 Id-α : {Δ : Tel} (Ω : el Δ → Type) {A B : el Δ → Type}

@@ -14,19 +14,19 @@ open import HOTT.Sigma.Base
 ------------------------------
 
 ＝Idx : (Ω : Type) (S : Ω → Type) → Type
-＝Idx Ω S = Σ[ x₀ ﹕ Ω ] Σ[ x₁ ﹕ Ω ] Σ[ x₂ ﹕ x₀ ＝ x₁ ] Σ[ s₀ ﹕ S x₀ ] S x₁
+＝Idx Ω S = Σ[ x₀ ⦂ Ω ] Σ[ x₁ ⦂ Ω ] Σ[ x₂ ⦂ x₀ ＝ x₁ ] Σ[ s₀ ⦂ S x₀ ] S x₁
 
 Id-Idx : {Δ : Tel} (δ : el (ID Δ)) (Ω : el Δ → Type)
   (S : (x : el Δ) → Ω x → Type) → Type
 Id-Idx {Δ} δ Ω S =
-  Σ[ x₀ ﹕ Ω (δ ₀) ] Σ[ x₁ ﹕ Ω (δ ₁) ] Σ[ x₂ ﹕ Id (Λ⇨ Ω) δ x₀ x₁ ]
-  Σ[ s₀ ﹕ S (δ ₀) x₀ ] S (δ ₁) x₁
+  Σ[ x₀ ⦂ Ω (δ ₀) ] Σ[ x₁ ⦂ Ω (δ ₁) ] Σ[ x₂ ⦂ Id (Λ⇨ Ω) δ x₀ x₁ ]
+  Σ[ s₀ ⦂ S (δ ₀) x₀ ] S (δ ₁) x₁
 
 IDty : (A : Type) → Type
-IDty A = Σ[ a₀ ﹕ A ] Σ[ a₁ ﹕ A ] (a₀ ＝ a₁)
+IDty A = Σ[ a₀ ⦂ A ] Σ[ a₁ ⦂ A ] (a₀ ＝ a₁)
 
 IDty′ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) → Type
-IDty′ {Δ} A δ = Σ[ a₀ ﹕ A (δ ₀) ] Σ[ a₁ ﹕ A (δ ₁) ] Id (Λ⇨ A) δ a₀ a₁
+IDty′ {Δ} A δ = Σ[ a₀ ⦂ A (δ ₀) ] Σ[ a₁ ⦂ A (δ ₁) ] Id (Λ⇨ A) δ a₀ a₁
 
 ＝toIdx : (Ω : Type) (S : Ω → Type) {A : Type} (α : A → Ω) (i : (a : A) → S (α a)) →
   IDty A → ＝Idx Ω S
@@ -48,22 +48,22 @@ Id-toIdx {Δ} δ Ω S {A} α i (a₀ , a₁ , a₂) =
 ----------------------------------------
 
 ΣΣ≡Σ : (A₀ A₁ : Type) {A₂ A₂' : A₀ → A₁ → Type} (p : A₂ ≡ A₂') (B : A₀ → A₁ → Type) →
-  (Σ[ x₀ ﹕ A₀ ] Σ[ x₁ ﹕ A₁ ] Σ[ x₂ ﹕ A₂ x₀ x₁ ] B x₀ x₁)
-  ≡ Σ[ x₀ ﹕ A₀ ] Σ[ x₁ ﹕ A₁ ] Σ[ x₂ ﹕ A₂' x₀ x₁ ] B x₀ x₁
+  (Σ[ x₀ ⦂ A₀ ] Σ[ x₁ ⦂ A₁ ] Σ[ x₂ ⦂ A₂ x₀ x₁ ] B x₀ x₁)
+  ≡ Σ[ x₀ ⦂ A₀ ] Σ[ x₁ ⦂ A₁ ] Σ[ x₂ ⦂ A₂' x₀ x₁ ] B x₀ x₁
 ΣΣ≡Σ A₀ A₁ reflᵉ B = reflᵉ
 
 ,,≡ʰ, : {A₀ A₁ : Type} {A₂ A₂' : A₀ → A₁ → Type} (p : A₂ ≡ A₂') {B : A₀ → A₁ → Type}
   (a₀ : A₀) (a₁ : A₁) {a₂ : A₂ a₀ a₁} {a₂' : A₂' a₀ a₁} (q : a₂ ≡ʰ a₂') (b : B a₀ a₁) →
   _≡ʰ_
-  {Σ[ x₀ ﹕ A₀ ] Σ[ x₁ ﹕ A₁ ] Σ[ x₂ ﹕ A₂ x₀ x₁ ] B x₀ x₁}
+  {Σ[ x₀ ⦂ A₀ ] Σ[ x₁ ⦂ A₁ ] Σ[ x₂ ⦂ A₂ x₀ x₁ ] B x₀ x₁}
   (a₀ , a₁ , a₂ , b)
-  {Σ[ x₀ ﹕ A₀ ] Σ[ x₁ ﹕ A₁ ] Σ[ x₂ ﹕ A₂' x₀ x₁ ] B x₀ x₁}
+  {Σ[ x₀ ⦂ A₀ ] Σ[ x₁ ⦂ A₁ ] Σ[ x₂ ⦂ A₂' x₀ x₁ ] B x₀ x₁}
   (a₀ , a₁ , a₂' , b)
 ,,≡ʰ, reflᵉ a₀ a₁ reflʰ b = reflʰ
 
 ΣΣ≡ : (A₀ A₁ : Type) {A₂ A₂' : A₀ → A₁ → Type} (p : A₂ ≡ A₂') →
-  (Σ[ x₀ ﹕ A₀ ] Σ[ x₁ ﹕ A₁ ] A₂ x₀ x₁)
-  ≡ Σ[ x₀ ﹕ A₀ ] Σ[ x₁ ﹕ A₁ ] A₂' x₀ x₁
+  (Σ[ x₀ ⦂ A₀ ] Σ[ x₁ ⦂ A₁ ] A₂ x₀ x₁)
+  ≡ Σ[ x₀ ⦂ A₀ ] Σ[ x₁ ⦂ A₁ ] A₂' x₀ x₁
 ΣΣ≡ A₀ A₁ reflᵉ = reflᵉ
 
 IDty′-pop : {Δ : Tel} (C : Δ ⇨ Type) (A : el Δ → Type) (δ : el (ID Δ))

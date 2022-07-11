@@ -21,13 +21,13 @@ data Π (A : Type) (B : A → Type) : Type where
 
 syntax ƛ⇒ (λ x → f) = ƛ x ⇒ f
 
-syntax Π A (λ x → B) = Π[ x ﹕ A ] B
+syntax Π A (λ x → B) = Π[ x ⦂ A ] B
 
 _∙_ : {A : Type} {B : A → Type} (f : Π A B) (a : A) → B a
 ƛ⇒ f ∙ a = f a
 
 _⇒_ : Type → Type → Type
-A ⇒ B = Π[ x ﹕ A ] B
+A ⇒ B = Π[ x ⦂ A ] B
 
 postulate
   ηΠ : {A : Type} {B : A → Type} (f : Π A B) → (ƛ x ⇒ f ∙ x) ≡ f
@@ -38,10 +38,10 @@ postulate
   IdΠ : {Δ : Tel} (A : el Δ → Type) (B : (w : el Δ) → A w → Type)
     (δ : el (ID Δ)) (f₀ : Π (A (δ ₀)) (λ a → B (δ ₀) a)) (f₁ : Π (A (δ ₁)) (λ a → B (δ ₁) a)) →
     Id (Λ w ⇨ Π (A w) (B w)) δ f₀ f₁ ≡
-      Π[ a₀ ﹕ A (δ ₀) ] Π[ a₁ ﹕ A (δ ₁) ] Π[ a₂ ﹕ Id (Λ⇨ A) δ a₀ a₁ ]
+      Π[ a₀ ⦂ A (δ ₀) ] Π[ a₁ ⦂ A (δ ₁) ] Π[ a₂ ⦂ Id (Λ⇨ A) δ a₀ a₁ ]
         Id {Δ ▸ Λ⇨ A} (Λ⇨ (uncurry B)) (δ ∷ a₀ ∷ a₁ ∷ a₂) (f₀ ∙ a₀) (f₁ ∙ a₁)
   ＝Π : (A : Type) (B : A → Type) (f₀ f₁ : Π A B) →
-    (f₀ ＝ f₁) ≡ Π[ a₀ ﹕ A ] Π[ a₁ ﹕ A ] Π[ a₂ ﹕ a₀ ＝ a₁ ]
+    (f₀ ＝ f₁) ≡ Π[ a₀ ⦂ A ] Π[ a₁ ⦂ A ] Π[ a₂ ⦂ a₀ ＝ a₁ ]
       Id {ε▸ A} (Λ a ⇨ B (top a)) ([] ∷ a₀ ∷ a₁ ∷ a₂) (f₀ ∙ a₀) (f₁ ∙ a₁)
 
 {-# REWRITE IdΠ ＝Π #-}

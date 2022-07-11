@@ -121,18 +121,18 @@ isContr-× : {A B : Type} → isContr A → isContr B → isContr (A × B)
 isContr-× (a , p) (b , q) = ((a , b) , isProp-× p q)
 
 -- Based path-spaces (singletons) are contractible.
-isProp-sing→ : {A : Type} (a : A) → isProp (Σ[ y ﹕ A ] a ＝ y)
+isProp-sing→ : {A : Type} (a : A) → isProp (Σ[ y ⦂ A ] a ＝ y)
 isProp-sing→ {A} a = (ƛ x ⇒ ƛ y ⇒ utr→ (Λ _ ⇨ A) [] a (fst x) (fst y) (snd x) (snd y) ,
                                 ulift→ (Λ _ ⇨ A) [] a (fst x) (fst y) (snd x) (snd y))
 
-isContr-sing→ : {A : Type} (a : A) → isContr (Σ[ y ﹕ A ] a ＝ y)
+isContr-sing→ : {A : Type} (a : A) → isContr (Σ[ y ⦂ A ] a ＝ y)
 isContr-sing→ {A} a = ((a , refl a) , isProp-sing→ a)
 
-isProp-sing← : {A : Type} (a : A) → isProp (Σ[ x ﹕ A ] x ＝ a)
+isProp-sing← : {A : Type} (a : A) → isProp (Σ[ x ⦂ A ] x ＝ a)
 isProp-sing← {A} a = (ƛ x ⇒ ƛ y ⇒ utr← (Λ _ ⇨ A) [] a (fst x) (fst y) (snd x) (snd y) ,
                                 ulift← (Λ _ ⇨ A) [] a (fst x) (fst y) (snd x) (snd y))
 
-isContr-sing← : {A : Type} (a : A) → isContr (Σ[ x ﹕ A ] x ＝ a)
+isContr-sing← : {A : Type} (a : A) → isContr (Σ[ x ⦂ A ] x ＝ a)
 isContr-sing← {A} a = ((a , refl a) , isProp-sing← a)
 
 -- The central nontrivial fact about h-levels: the identity types of a
@@ -175,7 +175,7 @@ sq-isProp A prp δ a₀₂ a₁₂ a₂₀ a₂₁ = {!!}
 
 -- A set is a type whose identity types are propositions.
 isSet : (A : Type) → Type
-isSet A = Π[ x ﹕ A ] Π[ y ﹕ A ] isProp (x ＝ y)
+isSet A = Π[ x ⦂ A ] Π[ y ⦂ A ] isProp (x ＝ y)
 
 -- Another way of saying isProp-＝ is that any proposition is a set.
 isProp→isSet : {A : Type} (pA : isProp A) → isSet A
@@ -183,10 +183,10 @@ isProp→isSet {A} pA = ƛ x ⇒ ƛ y ⇒ isProp-＝ pA x y
 
 -- The type of all propositions, and the type of all sets.
 Prop : Type
-Prop = Σ[ P ﹕ Type ] isProp P
+Prop = Σ[ P ⦂ Type ] isProp P
 
 Set : Type
-Set = Σ[ A ﹕ Type ] isSet A
+Set = Σ[ A ⦂ Type ] isSet A
 
 ------------------------------
 -- Identity elimination
@@ -202,7 +202,7 @@ Set = Σ[ A ﹕ Type ] isSet A
 𝐉β : {A : Type} {a : A} (P : (x : A) → (a ＝ x) → Type) (d : P a (refl a)) →
   𝐉 P d a (refl a) ＝ d
 𝐉β {A} {a} P d =
-  tr⇒＝refl (Σ[ x ﹕ A ] a ＝ x) (ƛ z ⇒ P (fst z) (snd z)) (a , refl a) _
+  tr⇒＝refl (Σ[ x ⦂ A ] a ＝ x) (ƛ z ⇒ P (fst z) (snd z)) (a , refl a) _
     (isProp-＝ (isProp-sing→ a) (a , refl a) (a , refl a) ∙
       (isProp-sing→ a ∙ (a , refl a) ∙ (a , refl a)) ∙ (refl (a , refl a)) ) d
 
@@ -229,7 +229,7 @@ rev• {A} {x} {y} p =
   𝐉 (λ y p → rev p • p ＝ refl y) (cong (ƛ q ⇒ q • refl x) (rev-refl x) • •refl (refl x)) y p
 
 -- Also we can prove naive funext.
-funext : {A B : Type} {f g : A ⇒ B} (p : Π[ x ﹕ A ] f ∙ x ＝ g ∙ x) → (f ＝ g)
+funext : {A B : Type} {f g : A ⇒ B} (p : Π[ x ⦂ A ] f ∙ x ＝ g ∙ x) → (f ＝ g)
 funext {A} {B} {f} {g} p = ƛ a₀ ⇒ ƛ a₁ ⇒ ƛ a₂ ⇒ 𝐉 (λ a₁ a₂ → f ∙ a₀ ＝ g ∙ a₁) (p ∙ a₀) a₁ a₂
 
 ------------------------------
@@ -259,10 +259,10 @@ is11 {A} {B} R = Π A (λ a → isContr (Σ B (λ b → R ∙ a ∙ b))) × Π B
 ----------------------------------------
 
 QInv : {A B : Type} (f : A ⇒ B) → Type
-QInv {A} {B} f = Σ[ g ﹕ B ⇒ A ] (g ∘ f ＝ idmap A) × (f ∘ g ＝ idmap B)
+QInv {A} {B} f = Σ[ g ⦂ B ⇒ A ] (g ∘ f ＝ idmap A) × (f ∘ g ＝ idmap B)
 
 _≋_ : Type → Type → Type
-A ≋ B = Σ[ f ﹕ A ⇒ B ] QInv f
+A ≋ B = Σ[ f ⦂ A ⇒ B ] QInv f
 
 -- We will prove any quasi-invertible map yields a 1-1 correspondence.
 -- One approach to this result is to "adjointify" a quasi-inverse to a

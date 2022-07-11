@@ -18,10 +18,10 @@ data Σ (A : Type) (B : A → Type) : Type where
   _,_ : (a : A) → B a → Σ A B
 open Σ
 
-syntax Σ A (λ x → B) = Σ[ x ﹕ A ] B
+syntax Σ A (λ x → B) = Σ[ x ⦂ A ] B
 
 _×_ : Type → Type → Type
-A × B = Σ[ x ﹕ A ] B
+A × B = Σ[ x ⦂ A ] B
 
 fst : {A : Type} {B : A → Type} → Σ A B → A
 fst (a , b) = a
@@ -39,12 +39,12 @@ postulate
     (δ : el (ID Δ)) (u₀ : Σ (A (δ ₀)) (λ a → B (δ ₀) a))
                     (u₁ : Σ (A (δ ₁)) (λ a → B (δ ₁) a)) →
     Id {Δ} (Λ w ⇨ Σ (A w) (B w)) δ u₀ u₁ ≡
-    Σ[ e ﹕ Id (Λ⇨ A) δ (fst u₀) (fst u₁) ]
+    Σ[ e ⦂ Id (Λ⇨ A) δ (fst u₀) (fst u₁) ]
       Id {Δ ▸ (Λ⇨ A)} (Λ x ⇨ B (pop x) (top x))
          (δ ∷ fst u₀ ∷ fst u₁ ∷ e) (snd u₀) (snd u₁)
   ＝Σ : (A : Type) (B : A → Type) (u₀ u₁ : Σ A B) →
     (u₀ ＝ u₁) ≡
-    Σ[ e ﹕ (fst u₀ ＝ fst u₁) ]
+    Σ[ e ⦂ (fst u₀ ＝ fst u₁) ]
     Id {ε▸ A} (Λ a ⇨ B (top a)) ([] ∷ fst u₀ ∷ fst u₁ ∷ e) (snd u₀) (snd u₁)
 
 {-# REWRITE IdΣ ＝Σ #-}
