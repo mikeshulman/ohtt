@@ -100,8 +100,8 @@ reflℤ n = refl n
 revℤ : {m n : ℤ} → (m ＝ n) → (n ＝ m)
 revℤ p = rev {ℤ} p
 
-_•ℤ_ : {x y z : ℤ} → (x ＝ y) → (y ＝ z) → x ＝ z
-p •ℤ q = _•_ {ℤ} p q
+_⊙ℤ_ : {x y z : ℤ} → (x ＝ y) → (y ＝ z) → x ＝ z
+p ⊙ℤ q = _⊙_ {ℤ} p q
 
 refl＝ℤ : {m n : ℤ} (p : m ＝ n) → (p ＝ p)
 refl＝ℤ p = refl p
@@ -109,8 +109,8 @@ refl＝ℤ p = refl p
 rev＝ℤ : {m n : ℤ} {p q : m ＝ n} → (p ＝ q) → (q ＝ p)
 rev＝ℤ {m} {n} r = rev {m ＝ n} r
 
-_•＝ℤ_ : {m n : ℤ} {x y z : m ＝ n} → (x ＝ y) → (y ＝ z) → x ＝ z
-_•＝ℤ_ {m} {n} p q = _•_ {m ＝ n} p q
+_⊙＝ℤ_ : {m n : ℤ} {x y z : m ＝ n} → (x ＝ y) → (y ＝ z) → x ＝ z
+_⊙＝ℤ_ {m} {n} p q = _⊙_ {m ＝ n} p q
 
 ----------------------------------------
 -- Pretty input and output

@@ -88,8 +88,8 @@ reflℕ n = refl n
 revℕ : {m n : ℕ} → (m ＝ n) → (n ＝ m)
 revℕ p = rev {ℕ} p
 
-_•ℕ_ : {x y z : ℕ} → (x ＝ y) → (y ＝ z) → x ＝ z
-p •ℕ q = _•_ {ℕ} p q
+_⊙ℕ_ : {x y z : ℕ} → (x ＝ y) → (y ＝ z) → x ＝ z
+p ⊙ℕ q = _⊙_ {ℕ} p q
 
 refl＝ℕ : {m n : ℕ} (p : m ＝ n) → (p ＝ p)
 refl＝ℕ p = refl p
@@ -97,8 +97,8 @@ refl＝ℕ p = refl p
 rev＝ℕ : {m n : ℕ} {p q : m ＝ n} → (p ＝ q) → (q ＝ p)
 rev＝ℕ {m} {n} r = rev {m ＝ n} r
 
-_•＝ℕ_ : {m n : ℕ} {x y z : m ＝ n} → (x ＝ y) → (y ＝ z) → x ＝ z
-_•＝ℕ_ {m} {n} p q = _•_ {m ＝ n} p q
+_⊙＝ℕ_ : {m n : ℕ} {x y z : m ＝ n} → (x ＝ y) → (y ＝ z) → x ＝ z
+_⊙＝ℕ_ {m} {n} p q = _⊙_ {m ＝ n} p q
 
 ----------------------------------------
 -- Pretty input and output

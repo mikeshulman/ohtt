@@ -15,15 +15,15 @@ open import HOTT.Pi.Base
 open import HOTT.Sigma.Base
 open import HOTT.Sigma.Transport
 
-infix 40 _•_
+infix 40 _⊙_
 infix 35 _≋_
 
 ------------------------------
 -- Path operations
 ------------------------------
 
-_•_ : {A : Type} {x y z : A} (p : x ＝ y) (q : y ＝ z) → x ＝ z
-_•_ {A} {x} {y} {z} p q = comp→ {ε} (Λ _ ⇨ A) [] {x} {x} (refl x) {y} {z} q p
+_⊙_ : {A : Type} {x y z : A} (p : x ＝ y) (q : y ＝ z) → x ＝ z
+_⊙_ {A} {x} {y} {z} p q = comp→ {ε} (Λ _ ⇨ A) [] {x} {x} (refl x) {y} {z} q p
 
 rev : {A : Type} {x y : A} (p : x ＝ y) → (y ＝ x)
 rev {A} {x} {y} p = comp→ {ε} (Λ _ ⇨ A) [] {x} {y} p {x} {x} (refl x) (refl x)
@@ -51,11 +51,11 @@ tr⇒refl {A} B a b = utr→ {ε▸ A} (Λ x ⇨ B ∙ top x) ([] ∷ a ∷ a �
 
 tr⇒＝refl : (A : Type) (B : A ⇒ Type) (a : A) (a₂ : a ＝ a) (a₂＝refl : a₂ ＝ refl a) (b : B ∙ a) →
   tr⇒ B a₂ b ＝ b
-tr⇒＝refl A B a a₂ a₂＝refl b = cong (ƛ p ⇒ tr⇒ B p b) a₂＝refl • tr⇒refl B a b
+tr⇒＝refl A B a a₂ a₂＝refl b = cong (ƛ p ⇒ tr⇒ B p b) a₂＝refl ⊙ tr⇒refl B a b
 
 -- An analogous argument implies one of the unit laws for concatenation.
-•refl : {A : Type} {x y : A} (p : x ＝ y) → (p • refl y ＝ p)
-•refl {A} {x} {y} p =
+⊙refl : {A : Type} {x y : A} (p : x ＝ y) → (p ⊙ refl y ＝ p)
+⊙refl {A} {x} {y} p =
   utr→ {ε▸ A ▸ ((Λ⇨ (λ _ → A)) ⊚ ((Λ⇨ᵉ (λ _ → [])) ⊚ᵉ (Λ⇨ᵉ (pop {ε} {Λ⇨ (λ _ → A)}))))}
        (Λ z ⇨ top (pop z) ＝ top z) ([] ∷ x ∷ x ∷ refl x ∷ y ∷ y ∷ refl y) p
        (tr→ {ε▸ A ▸ ((Λ⇨ (λ _ → A)) ⊚ ((Λ⇨ᵉ (λ _ → [])) ⊚ᵉ (Λ⇨ᵉ (pop {ε} {Λ⇨ (λ _ → A)}))))}
@@ -98,7 +98,7 @@ data _＝′_ {A : Type} : A → A → Type where
 begin_ : {A : Type} {x y : A} → (x ＝′ y) → (x ＝ y)
 begin x ∎ = refl x
 begin x ＝⟨⟩ p = begin p
-begin_ {A} (x ＝⟨ p ⟩ q) = _•_ {A} p (begin q)
+begin_ {A} (x ＝⟨ p ⟩ q) = _⊙_ {A} p (begin q)
 
 --------------------------------------------------
 -- Propositions and contractibility
@@ -210,23 +210,23 @@ Set = Σ[ A ⦂ Type ] isSet A
 -- Groupoid laws
 ------------------------------
 
--- With 𝐉 and •refl and rev-refl, we can derive the other groupoid laws.
+-- With 𝐉 and ⊙refl and rev-refl, we can derive the other groupoid laws.
 
-refl• : {A : Type} {x y : A} (p : x ＝ y) → (refl x • p ＝ p)
-refl• {A} {x} {y} p = 𝐉 (λ z q → refl x • q ＝ q) (•refl (refl x)) y p
+refl⊙ : {A : Type} {x y : A} (p : x ＝ y) → (refl x ⊙ p ＝ p)
+refl⊙ {A} {x} {y} p = 𝐉 (λ z q → refl x ⊙ q ＝ q) (⊙refl (refl x)) y p
 
-•assoc : {A : Type} {x y z w : A} (p : x ＝ y) (q : y ＝ z) (r : z ＝ w) →
-  (p • q) • r ＝ p • (q • r)
-•assoc {A} {x} {y} {z} {w} p q r =
-  𝐉 (λ w r → (p • q) • r ＝ p • (q • r)) (•refl (p • q) • cong (ƛ s ⇒ p • s) (rev (•refl q))) w r
+⊙assoc : {A : Type} {x y z w : A} (p : x ＝ y) (q : y ＝ z) (r : z ＝ w) →
+  (p ⊙ q) ⊙ r ＝ p ⊙ (q ⊙ r)
+⊙assoc {A} {x} {y} {z} {w} p q r =
+  𝐉 (λ w r → (p ⊙ q) ⊙ r ＝ p ⊙ (q ⊙ r)) (⊙refl (p ⊙ q) ⊙ cong (ƛ s ⇒ p ⊙ s) (rev (⊙refl q))) w r
 
-•rev : {A : Type} {x y : A} (p : x ＝ y) → (p • rev p ＝ refl x)
-•rev {A} {x} {y} p =
-  𝐉 (λ y p → p • rev p ＝ refl x) (cong (ƛ q ⇒ refl x • q) (rev-refl x) • •refl (refl x)) y p
+⊙rev : {A : Type} {x y : A} (p : x ＝ y) → (p ⊙ rev p ＝ refl x)
+⊙rev {A} {x} {y} p =
+  𝐉 (λ y p → p ⊙ rev p ＝ refl x) (cong (ƛ q ⇒ refl x ⊙ q) (rev-refl x) ⊙ ⊙refl (refl x)) y p
 
-rev• : {A : Type} {x y : A} (p : x ＝ y) → (rev p • p ＝ refl y)
-rev• {A} {x} {y} p =
-  𝐉 (λ y p → rev p • p ＝ refl y) (cong (ƛ q ⇒ q • refl x) (rev-refl x) • •refl (refl x)) y p
+rev⊙ : {A : Type} {x y : A} (p : x ＝ y) → (rev p ⊙ p ＝ refl y)
+rev⊙ {A} {x} {y} p =
+  𝐉 (λ y p → rev p ⊙ p ＝ refl y) (cong (ƛ q ⇒ q ⊙ refl x) (rev-refl x) ⊙ ⊙refl (refl x)) y p
 
 -- Also we can prove naive funext.
 funext : {A B : Type} {f g : A ⇒ B} (p : Π[ x ⦂ A ] f ∙ x ＝ g ∙ x) → (f ＝ g)
@@ -287,8 +287,8 @@ A ≋ B = Σ[ f ⦂ A ⇒ B ] QInv f
       gsect = fst (snd qg)
       gretr = snd (snd qg) in
   f⁻¹ ∘ g⁻¹ ,
-  funext (ƛ x ⇒ cong f⁻¹ (happly gsect (f ∙ x)) • happly fsect x) ,
-  funext (ƛ y ⇒ cong g (happly fretr (g⁻¹ ∙ y)) • happly gretr y)
+  funext (ƛ x ⇒ cong f⁻¹ (happly gsect (f ∙ x)) ⊙ happly fsect x) ,
+  funext (ƛ y ⇒ cong g (happly fretr (g⁻¹ ∙ y)) ⊙ happly gretr y)
 
 ∘QInv-cancelR : {A B C : Type} (f : A ⇒ B) (qf : QInv f) (g : B ⇒ C) (qgf : QInv (g ∘ f)) → QInv g
 ∘QInv-cancelR f qf g qgf =
@@ -356,45 +356,45 @@ A ≋ B = Σ[ f ⦂ A ⇒ B ] QInv f
 
 -- Concatenating identifications on either side is quasi-invertible,
 -- since you can concatenate with the reverse.
-•QInvR : {A : Type} (x : A) {y z : A} (q : y ＝ z) → QInv (ƛ p ⇒ _•_ {A} {x} p q)
-•QInvR x {y} {z} q = (ƛ r ⇒ r • rev q) ,
+⊙QInvR : {A : Type} (x : A) {y z : A} (q : y ＝ z) → QInv (ƛ p ⇒ _⊙_ {A} {x} p q)
+⊙QInvR x {y} {z} q = (ƛ r ⇒ r ⊙ rev q) ,
   funext (ƛ p ⇒ (begin
-                   (p • q) • rev q
-                 ＝⟨ •assoc p q (rev q) ⟩
-                   p • (q • rev q)
-                 ＝⟨ cong (ƛ r ⇒ p • r) (•rev q) ⟩
-                   p • refl y
-                 ＝⟨ •refl p ⟩
+                   (p ⊙ q) ⊙ rev q
+                 ＝⟨ ⊙assoc p q (rev q) ⟩
+                   p ⊙ (q ⊙ rev q)
+                 ＝⟨ cong (ƛ r ⇒ p ⊙ r) (⊙rev q) ⟩
+                   p ⊙ refl y
+                 ＝⟨ ⊙refl p ⟩
                    p
                  ∎)) ,
   funext (ƛ r ⇒ (begin
-                   (r • rev q) • q
-                 ＝⟨ •assoc r (rev q) q ⟩
-                   r • (rev q • q)
-                 ＝⟨ cong (ƛ p ⇒ r • p) (rev• q) ⟩
-                   r • refl z
-                 ＝⟨ •refl r ⟩
+                   (r ⊙ rev q) ⊙ q
+                 ＝⟨ ⊙assoc r (rev q) q ⟩
+                   r ⊙ (rev q ⊙ q)
+                 ＝⟨ cong (ƛ p ⇒ r ⊙ p) (rev⊙ q) ⟩
+                   r ⊙ refl z
+                 ＝⟨ ⊙refl r ⟩
                    r
                  ∎))
 
-•QInvL : {A : Type} {x y : A} (z : A) (p : x ＝ y) → QInv (ƛ q ⇒ _•_ {A} {x} {y} {z} p q)
-•QInvL {A} {x} {y} z p = (ƛ r ⇒ rev p • r) ,
+⊙QInvL : {A : Type} {x y : A} (z : A) (p : x ＝ y) → QInv (ƛ q ⇒ _⊙_ {A} {x} {y} {z} p q)
+⊙QInvL {A} {x} {y} z p = (ƛ r ⇒ rev p ⊙ r) ,
   funext (ƛ q ⇒ (begin
-                   rev p • (p • q)
-                 ＝⟨ rev (•assoc (rev p) p q) ⟩
-                   (rev p • p) • q
-                 ＝⟨ cong (ƛ r ⇒ r • q) (rev• p) ⟩
-                   refl _ • q
-                 ＝⟨ refl• q ⟩
+                   rev p ⊙ (p ⊙ q)
+                 ＝⟨ rev (⊙assoc (rev p) p q) ⟩
+                   (rev p ⊙ p) ⊙ q
+                 ＝⟨ cong (ƛ r ⇒ r ⊙ q) (rev⊙ p) ⟩
+                   refl _ ⊙ q
+                 ＝⟨ refl⊙ q ⟩
                    q
                  ∎)) ,
   funext (ƛ r ⇒ (begin
-                   p • (rev p • r)
-                 ＝⟨ rev (•assoc p (rev p) r) ⟩
-                   (p • rev p) • r
-                 ＝⟨ cong (ƛ q ⇒ q • r) (•rev p) ⟩
-                   refl _ • r
-                 ＝⟨ refl• r ⟩
+                   p ⊙ (rev p ⊙ r)
+                 ＝⟨ rev (⊙assoc p (rev p) r) ⟩
+                   (p ⊙ rev p) ⊙ r
+                 ＝⟨ cong (ƛ q ⇒ q ⊙ r) (⊙rev p) ⟩
+                   refl _ ⊙ r
+                 ＝⟨ refl⊙ r ⟩
                    r
                  ∎))
 
@@ -447,9 +447,9 @@ QInv-＝-adjoint {A} {B} f qf a b =
   let g = fst qf
       sect = fst (snd qf)
       retr = snd (snd qf) in
-  (ƛ p ⇒ cong f p • (happly retr b)) ,
+  (ƛ p ⇒ cong f p ⊙ (happly retr b)) ,
   ∘QInv (refl f ∙ a ∙ (g ∙ b)) (QInv-＝ f (g , sect , retr) a (g ∙ b))
-        (ƛ p ⇒ p • happly retr b) (•QInvR (f ∙ a) (happly retr b))
+        (ƛ p ⇒ p ⊙ happly retr b) (⊙QInvR (f ∙ a) (happly retr b))
 
 -- Σ-types are functorial on fiberwise quasi-inverses.
 Σ-QInv : {A : Type} (B C : A → Type) (f : (x : A) → B x ⇒ C x) (e : (x : A) → QInv (f x)) →
