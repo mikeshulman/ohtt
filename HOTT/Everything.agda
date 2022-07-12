@@ -12,7 +12,6 @@ import HOTT.Square
 import HOTT.Sym
 import HOTT.Transport
 import HOTT.Fill
-import HOTT.Groupoids
 
 import HOTT.Unit
 import HOTT.Prod                -- Not used in practice
@@ -32,6 +31,9 @@ import HOTT.Arrow
 import HOTT.Pi
 import HOTT.Copy
 import HOTT.Universe
+
+import HOTT.Groupoids
+import HOTT.Decidable
 
 import HOTT.Indices
 import HOTT.Sum

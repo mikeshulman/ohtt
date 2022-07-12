@@ -14,9 +14,6 @@ open import HOTT.Groupoids
 open import HOTT.Sum.Base
 open import HOTT.Empty
 
-K→isSet : {A : Type} (k : (x : A) (p : x ＝ x) → refl x ＝ p) → isSet A
-K→isSet k = ƛ x ⇒ ƛ y ⇒ ƛ p ⇒ ƛ q ⇒ 𝐉 (λ y p → (q : x ＝ y) → p ＝ q) (k x) y p q
-
 -- I don't know why so many arguments have to be given explicitly here.
 rijke : {A : Type} (R : A → A → Type) (Rprp : (x y : A) → isProp (R x y))
   (ρ : (x : A) → R x x) (f : Π[ x ⦂ A ] Π[ y ⦂ A ] R x y ⇒ x ＝ y) → isSet A

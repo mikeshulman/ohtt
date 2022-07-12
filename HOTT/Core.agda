@@ -13,6 +13,7 @@ open import HOTT.Sym public
 open import HOTT.Transport public
 open import HOTT.Fill public
 open import HOTT.Groupoids public
+open import HOTT.Decidable public
 
 open import HOTT.Unit public
 open import HOTT.Sigma public

@@ -218,6 +218,16 @@ funext {A} {B} {f} {g} p = ƛ a₀ ⇒ ƛ a₁ ⇒ ƛ a₂ ⇒ 𝐉 (λ a₁ a�
 -- isProp-isProp
 ------------------------------
 
+-- Just as any two points in a proposition are identified, any two
+-- points in a family of propositions are identified over anything in
+-- the base.
+Id-prop : {A : Type} {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (B : A → Type)
+  (prp : (x : A) → isProp (B x)) (b₀ : B a₀) (b₁ : B a₁) →
+  Id {ε▸ A} (Λ x ⇨ B (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂) b₀ b₁
+Id-prop {A} {a₀} {a₁} a₂ B prp b₀ b₁ =
+   𝐉 (λ a₁ a₂ → (b₁ : B a₁) → Id {ε▸ A} (Λ x ⇨ B (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂) b₀ b₁)
+     (λ b₁' → prp a₀ ∙ b₀ ∙ b₁') a₁ a₂ b₁
+
 -- A version of isProp-＝ for dependent identity types
 isProp-Id : {A : Type} {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (B : A → Type)
   (prp : (x : A) → isProp (B x)) (b₀ : B a₀) (b₁ : B a₁) →
@@ -226,36 +236,52 @@ isProp-Id {A} {a₀} {a₁} a₂ B prp b₀ b₁ =
    𝐉 (λ a₁ a₂ → (b₁ : B a₁) → isProp (Id {ε▸ A} (Λ x ⇨ B (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂) b₀ b₁))
      (λ b₁' → isProp-＝ (prp a₀) b₀ b₁') a₁ a₂ b₁
 
-Id-prop : {A : Type} {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (B : A → Type)
-  (prp : (x : A) → isProp (B x)) (b₀ : B a₀) (b₁ : B a₁) →
-  Id {ε▸ A} (Λ x ⇨ B (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂) b₀ b₁
-Id-prop {A} {a₀} {a₁} a₂ B prp b₀ b₁ =
-   𝐉 (λ a₁ a₂ → (b₁ : B a₁) → Id {ε▸ A} (Λ x ⇨ B (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂) b₀ b₁)
-     (λ b₁' → prp a₀ ∙ b₀ ∙ b₁') a₁ a₂ b₁
-
 isContr-Id : {A : Type} {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (B : A → Type)
   (prp : (x : A) → isProp (B x)) (b₀ : B a₀) (b₁ : B a₁) →
   isContr (Id {ε▸ A} (Λ x ⇨ B (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂) b₀ b₁)
 isContr-Id {A} {a₀} {a₁} a₂ B prp b₀ b₁ =
    (Id-prop a₂ B prp b₀ b₁ , isProp-Id a₂ B prp b₀ b₁)
 
--- Also, any square in a family of propositions can be filled.
-{-
-sq-isProp : {Δ : Tel} (A : Δ ⇨ Type) (prp : (x : el Δ) → isProp (A ⊘ x)) (δ : el (SQ Δ))
-  {a₀₀ : A ⊘ (δ ₀₀)} {a₀₁ : A ⊘ (δ ₀₁)} (a₀₂ : Id A (δ ₀₂) a₀₀ a₀₁)
-  {a₁₀ : A ⊘ (δ ₁₀)} {a₁₁ : A ⊘ (δ ₁₁)} (a₁₂ : Id A (δ ₁₂) a₁₀ a₁₁)
-  (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id A (δ ₂₁) a₀₁ a₁₁) →
-  Sq A δ a₀₂ a₁₂ a₂₀ a₂₁
-sq-isProp A prp δ a₀₂ a₁₂ a₂₀ a₂₁ = {!!}
--}
+-- Every square in a set can be filled.
+sq-set : {A : Type} (prp : isSet A)
+  {a₀₀ a₀₁ : A} (a₀₂ : a₀₀ ＝ a₀₁) {a₁₀ a₁₁ : A} (a₁₂ : a₁₀ ＝ a₁₁)
+  (a₂₀ : a₀₀ ＝ a₁₀) (a₂₁ : a₀₁ ＝ a₁₁) →
+  Sq {ε} (Λ _ ⇨ A) [] a₀₂ a₁₂ a₂₀ a₂₁
+sq-set {A} Aset {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ =
+  𝐉 (λ a₀₁ a₀₂ → (a₂₁ : a₀₁ ＝ a₁₁) → Sq (Λ⇨ (λ _ → A)) [] a₀₂ a₁₂ a₂₀ a₂₁)
+    (λ a₂₁ → 𝐉 (λ a₁₁ a₁₂ → (a₂₁ : a₀₀ ＝ a₁₁) → Sq (Λ⇨ (λ _ → A)) [] (refl a₀₀) a₁₂ a₂₀ a₂₁)
+      (λ a₂₁ → coe← (Id-REFL▸▸ {ε} (Λ _ ⇨ A) ((Λ _ ⇨ A) ⊚ ((Λ _ ⇨ᵉ []) ⊚ᵉ POP))
+                               (Λ x ⇨ top (pop x) ＝ top x) [] a₀₀ a₁₀ a₂₀ a₂₁)
+                    (Aset ∙ a₀₀ ∙ a₁₀ ∙ a₂₀ ∙ a₂₁) )
+      a₁₁ a₁₂ a₂₁)
+    a₀₁ a₀₂ a₂₁
+
+-- A variation that uses a different kind of "square".  This is
+-- actually morally the correct notion of square in a type dependent
+-- on ε, but our definition of Sq comes out different because of the
+-- non-reducing ⊚.
+sq-set′ : {A : Type} (prp : isSet A)
+  {a₀₀ a₀₁ : A} (a₀₂ : a₀₀ ＝ a₀₁) {a₁₀ a₁₁ : A} (a₁₂ : a₁₀ ＝ a₁₁)
+  (a₂₀ : a₀₀ ＝ a₁₀) (a₂₁ : a₀₁ ＝ a₁₁) →
+   Id {ε ▸ Λ⇨ (λ _ → A) ▸ Λ⇨ (λ _ → A)} (Λ z ⇨ top (pop z) ＝ top z)
+       ([] ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂) a₂₀ a₂₁
+sq-set′ {A} Aset {a₀₀} {a₀₁} a₀₂ {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ =
+  𝐉 (λ a₀₁ a₀₂ → (a₂₁ : a₀₁ ＝ a₁₁) → Id {ε ▸ Λ⇨ (λ _ → A) ▸ Λ⇨ (λ _ → A)} (Λ z ⇨ top (pop z) ＝ top z) ([] ∷ a₀₀ ∷ a₀₁ ∷ a₀₂ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂) a₂₀ a₂₁)
+     (λ a₂₁ → 𝐉 (λ a₁₁ a₁₂ → (a₂₁ : a₀₀ ＝ a₁₁) → Id {ε ▸ Λ⇨ (λ _ → A) ▸ Λ⇨ (λ _ → A)} (Λ z ⇨ top (pop z) ＝ top z) ([] ∷ a₀₀ ∷ a₀₀ ∷ refl a₀₀ ∷ a₁₀ ∷ a₁₁ ∷ a₁₂) a₂₀ a₂₁)
+      (λ a₂₁ → coe← (Id-REFL▸▸ {ε} (Λ _ ⇨ A) (Λ _ ⇨ A) (Λ x ⇨ top (pop x) ＝ top x) [] a₀₀ a₁₀ a₂₀ a₂₁)
+                     (Aset ∙ a₀₀ ∙ a₁₀ ∙ a₂₀ ∙ a₂₁) )
+      a₁₁ a₁₂ a₂₁)
+    a₀₁ a₀₂ a₂₁
 
 -- Being a proposition is a proposition
-{-
 isProp-isProp : (A : Type) → isProp (isProp A)
 isProp-isProp A = ƛ prp₀ ⇒ ƛ prp₁ ⇒
   ƛ a₀₀ ⇒ ƛ a₀₁ ⇒ ƛ a₀₂ ⇒ ƛ a₁₀ ⇒ ƛ a₁₁ ⇒ ƛ a₁₂ ⇒
-  {! sq-isProp {ε} (Λ _ ⇨ A) (λ _ → prp₀) [] a₀₂ a₁₂ (prp₀ ∙ a₀₀ ∙ a₁₀) (prp₁ ∙ a₀₁ ∙ a₁₁) !}
--}
+  sq-set′ (isProp→isSet prp₀) a₀₂ a₁₂ (prp₀ ∙ a₀₀ ∙ a₁₀) (prp₁ ∙ a₀₁ ∙ a₁₁)
+
+-- Any type satisfying axiom K is a set.
+K→isSet : {A : Type} (k : (x : A) (p : x ＝ x) → refl x ＝ p) → isSet A
+K→isSet k = ƛ x ⇒ ƛ y ⇒ ƛ p ⇒ ƛ q ⇒ 𝐉 (λ y p → (q : x ＝ y) → p ＝ q) (k x) y p q
 
 ------------------------------
 -- 1-1 correspondences
