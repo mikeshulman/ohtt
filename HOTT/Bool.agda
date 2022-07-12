@@ -10,8 +10,13 @@ open import HOTT.Transport
 open import HOTT.Indices
 open import HOTT.Sigma.Base
 open import HOTT.Pi.Base
+open import HOTT.Sum.Base
+open import HOTT.Unit
+open import HOTT.Empty
 open import HOTT.Indices
 open import HOTT.Groupoids
+open import HOTT.Decidable
+
 
 infix 35 _＝𝟚_
 
@@ -136,3 +141,26 @@ QInv-¬ = ¬ , ¬¬ , ¬¬
 
 11-¬ : 11Corr 𝟚 𝟚
 11-¬ = QInv→11 ¬ QInv-¬
+
+----------------------------------------
+-- Decidable equality and sethood
+----------------------------------------
+
+𝟚-code : 𝟚 → 𝟚 → Type
+𝟚-code = 𝟚-case (λ x → (y : 𝟚) → Type) (𝟚-case (λ y → Type) ⊤ ⊥) (𝟚-case (λ y → Type) ⊥ ⊤)
+
+true≠false : (_＝_ {𝟚} true false) ⇒ ⊥
+true≠false = ƛ e ⇒ ＝𝟚-case (λ x y _ → 𝟚-code x y) ★ ★ e
+
+false≠true : (_＝_ {𝟚} false true) ⇒ ⊥
+false≠true = ƛ e ⇒ ＝𝟚-case (λ x y _ → 𝟚-code x y) ★ ★ e
+
+deceq-𝟚 : DecEq 𝟚
+deceq-𝟚 = ƛ x ⇒ ƛ y ⇒
+  𝟚-case (λ a → (a ＝ y) ⊎ ((a ＝ y) ⇒ ⊥))
+    (𝟚-case (λ b → (true ＝ b) ⊎ ((true ＝ b) ⇒ ⊥)) (inl true) (inr true≠false) y)
+    (𝟚-case (λ b → (false ＝ b) ⊎ ((false ＝ b) ⇒ ⊥)) (inr false≠true) (inl false) y)
+    x
+
+isSet-𝟚 : isSet 𝟚
+isSet-𝟚 = hedberg deceq-𝟚
