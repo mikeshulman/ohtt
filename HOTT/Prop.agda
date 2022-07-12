@@ -14,13 +14,16 @@ open import HOTT.Fill
 open import HOTT.Pi.Base
 open import HOTT.Sigma.Base
 open import HOTT.Universe.Base
+open import HOTT.Groupoids
 
 -- The type of all propositions
 Prop : Type
 Prop = Σ[ P ⦂ Type ] isProp P
 
 -- Prop is a set
+{-
 isSet-Prop : isSet Prop
 isSet-Prop = K→isSet λ A e → {!!}
+-}
 
 -- TODO: Needs ＝U is determined by underlying functions
