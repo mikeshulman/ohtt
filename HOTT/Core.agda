@@ -22,6 +22,7 @@ open import HOTT.Universe public
 open import HOTT.Groupoids public
 open import HOTT.Decidable public
 open import HOTT.Prop public
+open import HOTT.Univalence public
 
 open import HOTT.Sum public
 open import HOTT.Nat public

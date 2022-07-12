@@ -15,6 +15,7 @@ open import HOTT.Pi.Base
 open import HOTT.Sigma.Base
 open import HOTT.Universe.Base
 open import HOTT.Groupoids
+open import HOTT.Univalence
 
 -- The type of all propositions
 Prop : Type
