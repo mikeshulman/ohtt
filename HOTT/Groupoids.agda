@@ -15,7 +15,7 @@ open import HOTT.Pi.Base
 open import HOTT.Sigma.Base
 open import HOTT.Sigma.Transport
 
-infix 40 _⊙_
+infixl 40 _⊙_
 infix 35 _≋_
 
 ------------------------------
@@ -155,24 +155,6 @@ isContr-＝ : {A : Type} (cA : isProp A) (a b : A) → isContr (a ＝ b)
 isContr-＝ {A} prp a b =
   (prp ∙ a ∙ b , isProp-＝ prp a b)
 
--- This applies also to dependent identity types
-{-
-isProp-Id : {Δ : Tel} (δ : el (ID Δ)) (A : Δ ⇨ Type)
-  (prp : (x : el Δ) → isProp (A ⊘ x)) (a₀ : A ⊘ (δ ₀)) (a₁ : A ⊘ (δ ₁)) →
-  isProp (Id A δ a₀ a₁)
-isProp-Id δ A prp a₀ a₁ = ƛ p ⇒ ƛ q ⇒ {!!}
--}
-
--- Also, any square in a family of propositions can be filled.
-{-
-sq-isProp : {Δ : Tel} (A : Δ ⇨ Type) (prp : (x : el Δ) → isProp (A ⊘ x)) (δ : el (SQ Δ))
-  {a₀₀ : A ⊘ (δ ₀₀)} {a₀₁ : A ⊘ (δ ₀₁)} (a₀₂ : Id A (δ ₀₂) a₀₀ a₀₁)
-  {a₁₀ : A ⊘ (δ ₁₀)} {a₁₁ : A ⊘ (δ ₁₁)} (a₁₂ : Id A (δ ₁₂) a₁₀ a₁₁)
-  (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id A (δ ₂₁) a₀₁ a₁₁) →
-  Sq A δ a₀₂ a₁₂ a₂₀ a₂₁
-sq-isProp A prp δ a₀₂ a₁₂ a₂₀ a₂₁ = {!!}
--}
-
 -- A set is a type whose identity types are propositions.
 isSet : (A : Type) → Type
 isSet A = Π[ x ⦂ A ] Π[ y ⦂ A ] isProp (x ＝ y)
@@ -235,6 +217,37 @@ funext {A} {B} {f} {g} p = ƛ a₀ ⇒ ƛ a₁ ⇒ ƛ a₂ ⇒ 𝐉 (λ a₁ a�
 ------------------------------
 -- isProp-isProp
 ------------------------------
+
+-- A version of isProp-＝ for dependent identity types
+isProp-Id : {A : Type} {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (B : A → Type)
+  (prp : (x : A) → isProp (B x)) (b₀ : B a₀) (b₁ : B a₁) →
+  isProp (Id {ε▸ A} (Λ x ⇨ B (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂) b₀ b₁)
+isProp-Id {A} {a₀} {a₁} a₂ B prp b₀ b₁ =
+   𝐉 (λ a₁ a₂ → (b₁ : B a₁) → isProp (Id {ε▸ A} (Λ x ⇨ B (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂) b₀ b₁))
+     (λ b₁' → isProp-＝ (prp a₀) b₀ b₁') a₁ a₂ b₁
+
+Id-prop : {A : Type} {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (B : A → Type)
+  (prp : (x : A) → isProp (B x)) (b₀ : B a₀) (b₁ : B a₁) →
+  Id {ε▸ A} (Λ x ⇨ B (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂) b₀ b₁
+Id-prop {A} {a₀} {a₁} a₂ B prp b₀ b₁ =
+   𝐉 (λ a₁ a₂ → (b₁ : B a₁) → Id {ε▸ A} (Λ x ⇨ B (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂) b₀ b₁)
+     (λ b₁' → prp a₀ ∙ b₀ ∙ b₁') a₁ a₂ b₁
+
+isContr-Id : {A : Type} {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (B : A → Type)
+  (prp : (x : A) → isProp (B x)) (b₀ : B a₀) (b₁ : B a₁) →
+  isContr (Id {ε▸ A} (Λ x ⇨ B (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂) b₀ b₁)
+isContr-Id {A} {a₀} {a₁} a₂ B prp b₀ b₁ =
+   (Id-prop a₂ B prp b₀ b₁ , isProp-Id a₂ B prp b₀ b₁)
+
+-- Also, any square in a family of propositions can be filled.
+{-
+sq-isProp : {Δ : Tel} (A : Δ ⇨ Type) (prp : (x : el Δ) → isProp (A ⊘ x)) (δ : el (SQ Δ))
+  {a₀₀ : A ⊘ (δ ₀₀)} {a₀₁ : A ⊘ (δ ₀₁)} (a₀₂ : Id A (δ ₀₂) a₀₀ a₀₁)
+  {a₁₀ : A ⊘ (δ ₁₀)} {a₁₁ : A ⊘ (δ ₁₁)} (a₁₂ : Id A (δ ₁₂) a₁₀ a₁₁)
+  (a₂₀ : Id A (δ ₂₀) a₀₀ a₁₀) (a₂₁ : Id A (δ ₂₁) a₀₁ a₁₁) →
+  Sq A δ a₀₂ a₁₂ a₂₀ a₂₁
+sq-isProp A prp δ a₀₂ a₁₂ a₂₀ a₂₁ = {!!}
+-}
 
 -- Being a proposition is a proposition
 {-

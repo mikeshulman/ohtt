@@ -10,6 +10,8 @@ open import HOTT.Unit
 open import HOTT.Sigma.Base
 open import HOTT.Indices
 
+infix 35 _⊎_
+
 ----------------------------------------
 -- Sum types
 ----------------------------------------

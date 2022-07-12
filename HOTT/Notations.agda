@@ -17,7 +17,7 @@ infixl 40 _∘_ -- Groupoids
 infix 40 _+ℕ_ _*ℕ_ -- Nat/Base
 infix 40 _+ℤ_ _*ℤ_ -- Int/Base
 
-infixr 40 _⊙_       -- Groupoids
+infixl 40 _⊙_       -- Groupoids
 
 infixr 35 _•ᶠ_ _•ʰ_ -- Rewrite
 
@@ -26,6 +26,7 @@ infix 35 _＝ℕ_ -- Nat/Base
 infix 35 _＝ℤ_ -- Int/Base
 infix 35 _≋_ -- Groupoids
 infixr 35 _×_ -- Prod/Base, Sigma/Base
+infix 35 _⊎_ -- Sum/Base
 
 infixl 30 _∷_ -- Telescope
 infixr 30 _⇒_ Π -- Pi/Base

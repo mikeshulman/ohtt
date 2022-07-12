@@ -9,6 +9,8 @@ open import HOTT.Refl
 open import HOTT.Transport
 open import HOTT.Indices
 open import HOTT.Sigma.Base
+open import HOTT.Pi.Base
+open import HOTT.Groupoids
 
 data empty (Ω : Type) : Ω → Type where
 
@@ -31,3 +33,6 @@ postulate
     empty (Id-Idx δ Ω (λ x y → empty (Ω x) y)) (ω (δ ₀) , ω (δ ₁) , ap (Λ⇨ Ω) ω δ , u₀ , u₁)
 
 {-# REWRITE ＝⊥ ＝-empty Id-empty #-}
+
+isProp-⊥ : isProp ⊥
+isProp-⊥ = ƛ x ⇒ ⊥-elim (λ x → Π[ y ⦂ ⊥ ] x ＝ y) x
