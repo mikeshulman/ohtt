@@ -21,10 +21,6 @@ postulate
 
 {-# REWRITE ＝U #-}
 
--- Univalence for quasi-inverses.
-ua : {A B : Type} (f : A ⇒ B) (qf : QInv f) → (A ＝ B)
-ua f qf = QInv→11 f qf ↑
-
 -- The inverse of univalence: coercion along an identification of types.
 coe⇒ : {A B : Type} → (A ＝ B) → (A ⇒ B)
 coe⇒ e = ƛ x ⇒ fst (fst (fst (snd (e ↓)) ∙ x))
