@@ -10,10 +10,14 @@ open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Refl
 open import HOTT.Unit
+open import HOTT.Empty
+open import HOTT.Sum.Base
 open import HOTT.Sigma.Base
+open import HOTT.Pi.Base
 open import HOTT.Nat
 open import HOTT.Indices
 open import HOTT.Groupoids
+open import HOTT.Decidable
 
 infix 40 _+ℤ_ _*ℤ_
 infix 35 _＝ℤ_
@@ -192,6 +196,60 @@ postulate
        e₀ , e₁)
 
 {-# REWRITE ＝-＝ℤ Id-＝ℤ #-}
+
+----------------------------------------
+-- Decidable equality and sethood
+----------------------------------------
+
+ℤcode : ℤ → ℤ → Type
+ℤcode x y =
+  ℤcase (λ x → ℤ → Type)
+    (λ m → ℤcase (λ _ → Type) (λ n → m ＝ n) ⊥ λ _ → ⊥)
+    (ℤcase (λ _ → Type) (λ _ → ⊥) ⊤ λ _ → ⊥)
+    (λ m → ℤcase (λ _ → Type) (λ _ → ⊥) ⊥ (λ n → m ＝ n))
+    x y
+
+ℤencode : {x y : ℤ} → (x ＝ℤ y) → ℤcode x y
+ℤencode = ＝ℤcase (λ x y _ → ℤcode x y) (λ _ _ e → e) ★ (λ _ _ e → e)
+
+ℤdecode : {x y : ℤ} → (ℤcode x y) → (x ＝ℤ y)
+ℤdecode {x} {y} =
+  ℤcase (λ x → (y : ℤ) → (ℤcode x y) → (x ＝ℤ y))
+    (λ m → ℤcase (λ n → (ℤcode (neg m) n) → (neg m ＝ℤ n))
+      (λ n e → neg e)
+      (⊥-elim (λ _ → neg m ＝ℤ zero))
+      (λ n → ⊥-elim (λ _ → neg m ＝ℤ pos n)))
+    (ℤcase (λ n → ℤcode zero n → zero ＝ℤ n)
+      (λ n → ⊥-elim (λ _ → zero ＝ℤ neg n))
+      (λ _ → zero)
+      (λ n → ⊥-elim (λ _ → zero ＝ℤ pos n)))
+    (λ m → ℤcase (λ n → (ℤcode (pos m) n) → (pos m ＝ℤ n))
+      (λ n → ⊥-elim (λ _ → pos m ＝ℤ neg n))
+      (⊥-elim (λ _ → pos m ＝ℤ zero))
+      λ n e → pos e)
+    x y
+
+deceq-ℤ : DecEq ℤ
+deceq-ℤ = ƛ x ⇒ ƛ y ⇒
+  ℤcase (λ x → (y : ℤ) → (x ＝ℤ y) ⊎ (x ＝ y ⇒ ⊥))
+    (λ m → ℤcase (λ y → (neg m ＝ℤ y) ⊎ (neg m ＝ y ⇒ ⊥))
+      (λ n → case (deceq-ℕ ∙ m ∙ n) (λ _ _ → (neg m ＝ℤ neg n) ⊎ (neg m ＝ℤ neg n ⇒ ⊥))
+                  (λ e → inl (neg e)) (λ ne → inr (ƛ e ⇒ ne ∙ ℤencode e)))
+      (inr (ƛ e ⇒ ℤencode e))
+      (λ n → inr (ƛ e ⇒ ℤencode e)))
+    (ℤcase (λ y → (zero ＝ℤ y) ⊎ (zero ＝ y ⇒ ⊥))
+      (λ n → inr (ƛ e ⇒ ℤencode e))
+      (inl zero)
+      (λ n → inr (ƛ e ⇒ ℤencode e)))
+    (λ m → ℤcase (λ y → (pos m ＝ℤ y) ⊎ (pos m ＝ y ⇒ ⊥))
+      (λ n → inr (ƛ e ⇒ ℤencode e))
+      (inr (ƛ e ⇒ ℤencode e))
+      (λ n → case (deceq-ℕ ∙ m ∙ n) (λ _ _ → (pos m ＝ℤ pos n) ⊎ (pos m ＝ℤ pos n ⇒ ⊥))
+                  (λ e → inl (pos e)) (λ ne → inr (ƛ e ⇒ ne ∙ ℤencode e))))
+    x y
+
+isSet-ℤ : isSet ℤ
+isSet-ℤ = hedberg deceq-ℤ
 
 ------------------------------
 -- Arithmetic
