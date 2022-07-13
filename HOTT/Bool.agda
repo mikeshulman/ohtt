@@ -15,6 +15,7 @@ open import HOTT.Unit
 open import HOTT.Empty
 open import HOTT.Indices
 open import HOTT.Groupoids
+open import HOTT.Univalence
 open import HOTT.Decidable
 
 
