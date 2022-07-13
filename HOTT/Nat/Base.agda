@@ -9,10 +9,13 @@ open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Refl
 open import HOTT.Unit
+open import HOTT.Empty
+open import HOTT.Sum.Base
 open import HOTT.Pi.Base
 open import HOTT.Sigma.Base
 open import HOTT.Indices
 open import HOTT.Groupoids
+open import HOTT.Decidable
 
 infix 40 _+ℕ_ _*ℕ_
 infix 35 _＝ℕ_
@@ -185,6 +188,48 @@ postulate
        e₀ , e₁)
 
 {-# REWRITE ＝-＝ℕ Id-＝ℕ #-}
+
+----------------------------------------
+-- Decidable equality and sethood
+----------------------------------------
+
+ℕcode : ℕ → ℕ → Type
+ℕcode = ind _ (ind _ ⊤ (λ _ _ → ⊥)) (λ m m＝ → ind _ ⊥ (λ n _ → m＝ n))
+
+ℕencode : {m n : ℕ} → (m ＝ℕ n) → ℕcode m n
+ℕencode e = ＝ind (λ m n _ → ℕcode m n) ★ (λ _ _ _ p → p) e
+
+ℕdecode : {m n : ℕ} → (ℕcode m n) → (m ＝ℕ n)
+ℕdecode {m} {n} =
+  ind (λ m → (n : ℕ) → (ℕcode m n) → (m ＝ℕ n))
+    (λ n → ind (λ n → (ℕcode Z n) → (Z ＝ℕ n))
+      (λ _ → Z) (λ _ _ e → ⊥-elim (λ _ → Z ＝ℕ S _) e) n)
+    (λ m' m'≟ n → (ind (λ n → (ℕcode (S m') n) → (S m' ＝ℕ n))
+      (⊥-elim (λ _ → S m' ＝ℕ Z))
+      (λ n' Sm'≟n' e → S (m'≟ n' e))
+      n))
+    m n
+
+Z≠S : (n : ℕ) → (Z ＝ℕ S n) ⇒ ⊥
+Z≠S n = ƛ e ⇒ ℕencode e
+
+S≠Z : (n : ℕ) → (S n ＝ℕ Z) ⇒ ⊥
+S≠Z n = ƛ e ⇒ ℕencode e
+
+Sinj : {m n : ℕ} → (S m ＝ℕ S n) → (m ＝ℕ n)
+Sinj e = ℕdecode (ℕencode e)
+
+deceq-ℕ : DecEq ℕ
+deceq-ℕ = ƛ m ⇒ ƛ n ⇒
+  ind (λ m → (n : ℕ) → (m ＝ n) ⊎ (m ＝ n ⇒ ⊥))
+    (λ n → ind (λ n → (Z ＝ n) ⊎ (Z ＝ n ⇒ ⊥)) (inl Z) (λ _ _ → inr (Z≠S _)) n)
+    (λ m' m'≟ n → ind (λ n → (S m' ＝ n) ⊎ (S m' ＝ n ⇒ ⊥)) (inr (S≠Z _))
+      (λ n' Sm'≟n' → case (m'≟ n') _ (λ e → inl (S e)) λ e → inr (ƛ ne ⇒ e ∙ (Sinj ne)))
+      n)
+    m n
+
+isSet-ℕ : isSet ℕ
+isSet-ℕ = hedberg deceq-ℕ
 
 ------------------------------
 -- Arithmetic
