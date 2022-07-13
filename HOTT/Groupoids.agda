@@ -210,6 +210,45 @@ rev⊙ {A} {x} {y} p =
 funext : {A B : Type} {f g : A ⇒ B} (p : Π[ x ⦂ A ] f ∙ x ＝ g ∙ x) → (f ＝ g)
 funext {A} {B} {f} {g} p = ƛ a₀ ⇒ ƛ a₁ ⇒ ƛ a₂ ⇒ 𝐉 (λ a₁ a₂ → f ∙ a₀ ＝ g ∙ a₁) (p ∙ a₀) a₁ a₂
 
+-- We give the dependent version a different name, since it often requires specifying the type family.
+funextd : {A : Type} (B : A → Type) {f g : Π A B} (p : Π[ x ⦂ A ] f ∙ x ＝ g ∙ x) → (f ＝ g)
+funextd {A} B {f} {g} p = ƛ a₀ ⇒ ƛ a₁ ⇒ ƛ a₂ ⇒
+  𝐉 (λ a₁ a₂ → Id {ε▸ A} (Λ x ⇨ B (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂) (f ∙ a₀) (g ∙ a₁)) (p ∙ a₀) a₁ a₂
+
+-- It follows that propositions and contractible types are closed under Π.
+isProp-Π : {A : Type} {B : A → Type} (pB : (x : A) → isProp (B x)) → isProp (Π A B)
+isProp-Π pB = ƛ f ⇒ ƛ g ⇒ funextd _ (ƛ x ⇒ pB x ∙ (f ∙ x) ∙ (g ∙ x))
+
+isContr-Π : {A : Type} {B : A → Type} (cB : (x : A) → isContr (B x)) → isContr (Π A B)
+isContr-Π cB = ((ƛ x ⇒ fst (cB x)) , isProp-Π (λ x → snd (cB x)))
+
+------------------------------
+-- Retracts
+------------------------------
+
+-- A retract of a proposition or contractible type is again such.
+isProp-retract : {A B : Type} (s : A ⇒ B) (r : B ⇒ A) (retr : r ∘ s ＝ idmap A) → isProp B → isProp A
+isProp-retract s r retr prpB = ƛ a₀ ⇒ ƛ a₁ ⇒
+  (begin
+    a₀
+  ＝⟨ rev (happly retr a₀) ⟩
+    r ∙ (s ∙ a₀)
+  ＝⟨ cong r (prpB ∙ (s ∙ a₀) ∙ (s ∙ a₁)) ⟩
+    r ∙ (s ∙ a₁)
+  ＝⟨ happly retr a₁ ⟩
+    a₁
+  ∎)
+
+isContr-retract : {A B : Type} (s : A ⇒ B) (r : B ⇒ A) (retr : r ∘ s ＝ idmap A) → isContr B → isContr A
+isContr-retract s r retr cB = (r ∙ fst cB , isProp-retract s r retr (snd cB))
+
+Σ-retract : {A : Type} (B C : A → Type) (s : (x : A) → B x ⇒ C x) (r : (x : A) → C x ⇒ B x)
+  (retr : (x : A) → r x ∘ s x ＝ idmap (B x)) →
+  _∘_ {Σ A B} {Σ A C} {Σ A B}
+    (ƛ u ⇒ (fst u , r (fst u) ∙ snd u)) (ƛ u ⇒ (fst u , s (fst u) ∙ snd u)) ＝ idmap (Σ A B)
+Σ-retract {A} B C s r retr = funext (ƛ u ⇒ refl (fst u) ,
+  coe← (Id-REFL[]▸ (Λ _ ⇨ A) (Λ w ⇨ B (top w)) (fst u) _ _) (happly (retr (fst u)) (snd u)))
+
 ------------------------------
 -- isProp-isProp
 ------------------------------
@@ -275,6 +314,10 @@ isProp-isProp A = ƛ prp₀ ⇒ ƛ prp₁ ⇒
   ƛ a₀₀ ⇒ ƛ a₀₁ ⇒ ƛ a₀₂ ⇒ ƛ a₁₀ ⇒ ƛ a₁₁ ⇒ ƛ a₁₂ ⇒
   sq-set′ (isProp→isSet prp₀) a₀₂ a₁₂ (prp₀ ∙ a₀₀ ∙ a₁₀) (prp₁ ∙ a₀₁ ∙ a₁₁)
 
+-- So is being contractible
+isProp-isContr : (A : Type) → isProp (isContr A)
+isProp-isContr A = isProp-from-inhab (λ prp → isProp-× (snd prp) (isProp-isProp A))
+
 -- Any type satisfying axiom K is a set.
 K→isSet : {A : Type} (k : (x : A) (p : x ＝ x) → refl x ＝ p) → isSet A
 K→isSet k = ƛ x ⇒ ƛ y ⇒ ƛ p ⇒ ƛ q ⇒ 𝐉 (λ y p → (q : x ＝ y) → p ＝ q) (k x) y p q
@@ -288,4 +331,3 @@ is11 {A} {B} R = Π A (λ a → isContr (Σ B (λ b → R ∙ a ∙ b))) × Π B
 
 11Corr : Type → Type → Type
 11Corr A B = Σ (A ⇒ B ⇒ Type) is11
-

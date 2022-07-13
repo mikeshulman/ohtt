@@ -21,12 +21,35 @@ postulate
 
 {-# REWRITE ＝U #-}
 
--- The inverse of univalence: coercion along an identification of types.
+-- We give names to the pieces of an equality
+_~[_]_ : {A B : Type} (a : A) (e : A ＝ B) (b : B) → Type
+a ~[ e ] b = fst (e ↓) ∙ a ∙ b
+
 coe⇒ : {A B : Type} → (A ＝ B) → (A ⇒ B)
 coe⇒ e = ƛ x ⇒ fst (fst (fst (snd (e ↓)) ∙ x))
 
+~coe⇒ : {A B : Type} (e : A ＝ B) (a : A) → a ~[ e ] (coe⇒ e ∙ a)
+~coe⇒ e a = snd (fst (fst (snd (e ↓)) ∙ a))
+
+ucoe⇒ : {A B : Type} (e : A ＝ B) (a : A) (b₀ b₁ : B) (s₀ : a ~[ e ] b₀) (s₁ : a ~[ e ] b₁) → b₀ ＝ b₁
+ucoe⇒ e a b₀ b₁ s₀ s₁ = fst ((snd (fst (snd (e ↓)) ∙ a)) ∙ (b₀ , s₀) ∙ (b₁ , s₁))
+
+u~coe⇒ : {A B : Type} (e : A ＝ B) (a : A) (b₀ b₁ : B) (s₀ : a ~[ e ] b₀) (s₁ : a ~[ e ] b₁) →
+  Id {ε▸ B} (Λ x ⇨ (a ~[ e ] top x)) ([] ∷ b₀ ∷ b₁ ∷ ucoe⇒ e a b₀ b₁ s₀ s₁) s₀ s₁
+u~coe⇒ e a b₀ b₁ s₀ s₁ = snd ((snd (fst (snd (e ↓)) ∙ a)) ∙ (b₀ , s₀) ∙ (b₁ , s₁))
+
 coe⇐ : {A B : Type} → (A ＝ B) → (B ⇒ A)
 coe⇐ e = ƛ y ⇒ fst (fst (snd (snd (e ↓)) ∙ y))
+
+~coe⇐ : {A B : Type} (e : A ＝ B) (b : B) → (coe⇐ e ∙ b) ~[ e ] b
+~coe⇐ e b = snd (fst (snd (snd (e ↓)) ∙ b))
+
+ucoe⇐ : {A B : Type} (e : A ＝ B) (b : B) (a₀ a₁ : A) (s₀ : a₀ ~[ e ] b) (s₁ : a₁ ~[ e ] b) → a₀ ＝ a₁
+ucoe⇐ e b a₀ a₁ s₀ s₁ = fst ((snd (snd (snd (e ↓)) ∙ b)) ∙ (a₀ , s₀) ∙ (a₁ , s₁))
+
+u~coe⇐ : {A B : Type} (e : A ＝ B) (b : B) (a₀ a₁ : A) (s₀ : a₀ ~[ e ] b) (s₁ : a₁ ~[ e ] b) →
+  Id {ε▸ A} (Λ y ⇨ (top y ~[ e ] b)) ([] ∷ a₀ ∷ a₁ ∷ ucoe⇐ e b a₀ a₁ s₀ s₁) s₀ s₁
+u~coe⇐ e b a₀ a₁ s₀ s₁ = snd ((snd (snd (snd (e ↓)) ∙ b)) ∙ (a₀ , s₀) ∙ (a₁ , s₁))
 
 postulate
   apU : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) →
