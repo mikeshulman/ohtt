@@ -12,10 +12,16 @@ open import HOTT.Fill
 open import HOTT.Pi.Base
 open import HOTT.Sigma.Base
 open import HOTT.Universe.Base
+open import HOTT.Sum.Base
 open import HOTT.Groupoids
 open import HOTT.Univalence
 
--- The type of all propositions
+infixr 30 fa exists
+
+------------------------------
+-- The type of propositions
+------------------------------
+
 Prop : Type
 Prop = Σ[ P ⦂ Type ] isProp P
 
@@ -45,3 +51,39 @@ isEquiv-props {P} {Q} pP pQ f = ＝Prop-iff (isProp-isEquiv f) (isProp-Π (λ _ 
 -- Prop is a set
 isSet-Prop : isSet Prop
 isSet-Prop = ƛ P ⇒ ƛ Q ⇒ tr⇐ (ƛ X ⇒ isProp X) (＝Prop P Q) (isProp-× (isProp-Π (λ _ → snd Q)) (isProp-Π (λ _ → snd P)))
+
+------------------------------
+-- Propositional truncation
+------------------------------
+
+∥_∥ : Type → Type
+∥ A ∥ = Π[ P ⦂ Type ] isProp P ⇒ (A ⇒ P) ⇒ P
+
+∣_∣ : {A : Type} → A → ∥ A ∥
+∣ a ∣ = ƛ P ⇒ ƛ _ ⇒ ƛ f ⇒ f ∙ a
+
+isProp-∥∥ : (A : Type) → isProp ∥ A ∥
+isProp-∥∥ A = isProp-Π (λ P → isProp-Π (λ prp → isProp-Π (λ _ → prp)))
+
+------------------------------
+-- The logic of propositions
+------------------------------
+
+_∧_ : Prop → Prop → Prop
+P ∧ Q = (fst P × fst Q , isProp-× (snd P) (snd Q))
+
+_∨_ : Prop → Prop → Prop
+P ∨ Q = (∥ fst P ⊎ fst Q ∥ , isProp-∥∥ _)
+
+_⊃_ : Prop → Prop → Prop
+P ⊃ Q = ((fst P ⇒ fst Q) , isProp-Π (λ _ → snd Q))
+
+fa : (A : Type) (P : A → Prop) → Prop
+fa A P = ((Π[ x ⦂ A ] fst (P x)) , isProp-Π (λ x → snd (P x)))
+
+syntax fa A (λ x → P) = ∀[ x ⦂ A ] P
+
+exists : (A : Type) (P : A → Prop) → Prop
+exists A P = (∥ Σ[ x ⦂ A ] fst (P x) ∥ , isProp-∥∥ _)
+
+syntax exists A (λ x → P) = ∃[ x ⦂ A ] P
