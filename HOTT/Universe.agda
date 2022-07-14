@@ -4,3 +4,4 @@ module HOTT.Universe where
 
 open import HOTT.Universe.Base public
 open import HOTT.Universe.Transport public
+open import HOTT.Universe.Top public

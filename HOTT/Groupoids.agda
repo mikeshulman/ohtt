@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --experimental-lossy-unification --no-import-sorts #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --experimental-lossy-unification #-}
 
 module HOTT.Groupoids where
 
@@ -48,9 +48,9 @@ tr⇒refl : {A : Type} (B : A ⇒ Type) (a : A) (b : B ∙ a) →
 tr⇒refl {A} B a b = utr→ {ε▸ A} (Λ x ⇨ B ∙ top x) ([] ∷ a ∷ a ∷ refl a) b (tr⇒ B (refl a) b) b
                          (lift→ {ε▸ A} (Λ x ⇨ B ∙ top x) ([] ∷ a ∷ a ∷ refl a) b) (refl b)
 
-tr⇒＝refl : (A : Type) (B : A ⇒ Type) (a : A) (a₂ : a ＝ a) (a₂＝refl : a₂ ＝ refl a) (b : B ∙ a) →
+tr⇒＝refl : {A : Type} (B : A ⇒ Type) {a : A} (a₂ : a ＝ a) (a₂＝refl : a₂ ＝ refl a) (b : B ∙ a) →
   tr⇒ B a₂ b ＝ b
-tr⇒＝refl A B a a₂ a₂＝refl b = cong (ƛ p ⇒ tr⇒ B p b) a₂＝refl ⊙ tr⇒refl B a b
+tr⇒＝refl B {a} a₂ a₂＝refl b = cong (ƛ p ⇒ tr⇒ B p b) a₂＝refl ⊙ tr⇒refl B a b
 
 -- An analogous argument implies one of the unit laws for concatenation.
 ⊙refl : {A : Type} {x y : A} (p : x ＝ y) → (p ⊙ refl y ＝ p)
@@ -180,7 +180,7 @@ isProp→isSet {A} pA = ƛ x ⇒ ƛ y ⇒ isProp-＝ pA x y
 𝐉β : {A : Type} {a : A} (P : (x : A) → (a ＝ x) → Type) (d : P a (refl a)) →
   𝐉 P d a (refl a) ＝ d
 𝐉β {A} {a} P d =
-  tr⇒＝refl (Σ[ x ⦂ A ] a ＝ x) (ƛ z ⇒ P (fst z) (snd z)) (a , refl a) _
+  tr⇒＝refl {Σ[ x ⦂ A ] a ＝ x} (ƛ z ⇒ P (fst z) (snd z)) {a , refl a} _
     (isProp-＝ (isProp-sing→ a) (a , refl a) (a , refl a) ∙
       (isProp-sing→ a ∙ (a , refl a) ∙ (a , refl a)) ∙ (refl (a , refl a)) ) d
 
@@ -326,8 +326,29 @@ K→isSet k = ƛ x ⇒ ƛ y ⇒ ƛ p ⇒ ƛ q ⇒ 𝐉 (λ y p → (q : x ＝ y)
 -- 1-1 correspondences
 ------------------------------
 
+-- A correspondence (R : A ⇒ B ⇒ Type) is one-to-one if for each
+-- element of A the type of elements of B related to it is
+-- contractible, and dually.
 is11 : {A B : Type} (R : A ⇒ B ⇒ Type) → Type
 is11 {A} {B} R = Π A (λ a → isContr (Σ B (λ b → R ∙ a ∙ b))) × Π B (λ b → isContr (Σ A (λ a → R ∙ a ∙ b)))
 
+-- The obvious definition of the type of 1-1 correspondences is
+{-
 11Corr : Type → Type → Type
 11Corr A B = Σ (A ⇒ B ⇒ Type) is11
+-}
+-- However, we instead rearrange the components of this a little to
+-- put the point-parts of the centers of contraction first.  This is
+-- because in practice, those components are the ones we want to
+-- compute with, and putting them first in the nested Σ-type enables
+-- them to be extracted quickly without having to carry around and
+-- compute with all the other pieces.  Without this change, some
+-- computations are infeasible, but with it they become quick.
+
+11Corr : Type → Type → Type
+11Corr A B =
+  Σ[ f ⦂ A ⇒ B ] Σ[ g ⦂ B ⇒ A ] Σ[ R ⦂ A ⇒ B ⇒ Type ]
+    (Π[ a ⦂ A ] R ∙ a ∙ (f ∙ a)) ×
+    (Π[ b ⦂ B ] R ∙ (g ∙ b) ∙ b) ×
+    Π A (λ a → isProp (Σ B (λ b → R ∙ a ∙ b))) ×
+    Π B (λ b → isProp (Σ A (λ a → R ∙ a ∙ b)))
