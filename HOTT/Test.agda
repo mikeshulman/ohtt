@@ -101,7 +101,7 @@ coe⇨⁻¹⊙ f g b = reflᵉ
 -- less cheap way out would be to define a different notion of
 -- reflexivity specialized to the universe:
 reflU : (A : Type) → (A ＝ A)
-reflU A = ua (idmap A) (QInv-idmap A)
+reflU A = ua (≋-idmap A)
 
 -- And then a specialized notion of concatenation that only differs by
 -- using this special reflexivity.

@@ -272,8 +272,8 @@ QInv→11 {A} {B} f qf =
 -- Univalence for quasi-inverses
 ----------------------------------------
 
-ua : {A B : Type} (f : A ⇒ B) (qf : QInv f) → (A ＝ B)
-ua f qf = QInv→11 f qf ↑
+ua : {A B : Type} (f : A ≋ B) → (A ＝ B)
+ua f = QInv→11 (fst f) (snd f) ↑
 
 QInv-coe⇒ : {A B : Type} (e : A ＝ B) → QInv (coe⇒ e)
 QInv-coe⇒ e = (coe⇐ e ,
@@ -326,7 +326,6 @@ begin≋ x ≋⟨⟩ p = begin≋ p
 begin≋_ (x ≋⟨ p ⟩ q) = (begin≋ q) ∘≋ p
 begin≋ x ≡⟨ reflᵉ ⟩ q = begin≋ q
 
-
 ----------------------------------------
 -- Contractible fibers
 ----------------------------------------
@@ -338,18 +337,18 @@ isProp-fibContr : {A B : Type} (f : A ⇒ B) → isProp (fibContr f)
 isProp-fibContr f = isProp-Π (λ y → isProp-isContr _)
 
 -- We already proved this!
-fibContr-QInv : {A B : Type} (f : A ⇒ B) (qf : QInv f) → fibContr f
-fibContr-QInv f qf = ƛ y ⇒ (fst qf ∙ y , happly (snd (snd qf)) y) , (snd (snd (snd (snd (snd (snd (QInv→11 f qf))))))) ∙ y 
+QInv→fibContr : {A B : Type} (f : A ⇒ B) (qf : QInv f) → fibContr f
+QInv→fibContr f qf = ƛ y ⇒ (fst qf ∙ y , happly (snd (snd qf)) y) , (snd (snd (snd (snd (snd (snd (QInv→11 f qf))))))) ∙ y 
 
-QInv-fibContr : {A B : Type} (f : A ⇒ B) (qf : fibContr f) → QInv f
-QInv-fibContr f qf = (ƛ b ⇒ fst (fst (qf ∙ b))) ,
+fibContr→QInv : {A B : Type} (f : A ⇒ B) (qf : fibContr f) → QInv f
+fibContr→QInv f qf = (ƛ b ⇒ fst (fst (qf ∙ b))) ,
   funext (ƛ a ⇒ fst (snd (qf ∙ (f ∙ a)) ∙ (fst (qf ∙ (f ∙ a))) ∙ (a , refl (f ∙ a)))) ,
   funext (ƛ b ⇒ snd (fst (qf ∙ b)))
 
 fib-total : {A : Type} {B C : A → Type} (f : (x : A) → B x ⇒ C x) (v : Σ A C) →
-  (Σ[ u ⦂ Σ A B ] total f ∙ u ＝ v) ≋ (Σ[ b ⦂ B (fst v) ] f (fst v) ∙ b ＝ snd v)
+  (Σ[ u ⦂ Σ A B ] total f ∙ u ＝ v) ＝ (Σ[ b ⦂ B (fst v) ] f (fst v) ∙ b ＝ snd v)
 fib-total {A} {B} {C} f v =
-  begin≋
+  ua (begin≋
     Σ[ u ⦂ Σ A B ] total f ∙ u ＝ v
   ≋⟨⟩
     Σ[ u ⦂ Σ A B ] Σ[ e ⦂ fst u ＝ fst v ] Id (Λ x ⇨ C (top x)) ([] ∷ fst u ∷ fst v ∷ e) (f (fst u) ∙ snd u) (snd v)
@@ -362,14 +361,17 @@ fib-total {A} {B} {C} f v =
     Σ[ b ⦂ B (fst v) ] Id {ε▸ A} (Λ x ⇨ C (top x)) ([] ∷ fst v ∷ fst v ∷ fst (refl v)) (f (fst v) ∙ b) (snd v)
   ≡⟨ congᶠ (Σ (B (fst v))) (funextᵉ (λ b → Id-REFL[]▸ (Λ _ ⇨ A) (Λ x ⇨ C (top x)) (fst v) _ _ )) ⟩
     Σ[ b ⦂ B (fst v) ] f (fst v) ∙ b ＝ snd v
-  ∎
+  ∎)
 
-{-
-QInv-Σid : {A : Type} (B C : A → Type) (f : (x : A) → B x ⇒ C x) →
-  (fibContr {Σ A B} {Σ A C} (ƛ w ⇒ fst w , f (fst w) ∙ (snd w))) →
+fibContr-of-total : {A : Type} {B C : A → Type} (f : (x : A) → B x ⇒ C x) →
+  (fibContr {Σ A B} {Σ A C} (total f)) →
   (a : A) → fibContr (f a)
-QInv-Σid B C f qf a = ƛ y ⇒ {!!}
--}
+fibContr-of-total f fcf a = ƛ y ⇒ tr⇒ (ƛ X ⇒ isContr X) (fib-total f (a , y)) (fcf ∙ (a , y))
+
+QInv-of-total : {A : Type} {B C : A → Type} (f : (x : A) → B x ⇒ C x) →
+  (QInv {Σ A B} {Σ A C} (total f)) →
+  (a : A) → QInv (f a)
+QInv-of-total f fcf a = fibContr→QInv (f a) (fibContr-of-total f (QInv→fibContr (total f) fcf) a)
 
 ----------------------------------------
 -- Bi-invertible maps
@@ -416,18 +418,21 @@ isProp-BiInv f = isProp-from-inhab (λ biinv →
 _≃_ : Type → Type → Type
 A ≃ B = Σ[ f ⦂ A ⇒ B ] BiInv f
 
--- Univalence for bi-invertible maps
+----------------------------------------
+-- Voevodsky-style univalence
+----------------------------------------
+
 ua≃ : (A B : Type) → (A ≃ B) ⇒ (A ＝ B)
-ua≃ A B = ƛ f ⇒ ua (fst f) (BiInv→QInv (fst f) (snd f))
+ua≃ A B = ƛ f ⇒ ua (fst f , BiInv→QInv (fst f) (snd f))
 
 Σua≃ : (A : Type) → (Σ[ B ⦂ Type ] A ≃ B) ⇒ (Σ[ B ⦂ Type ] A ＝ B)
-Σua≃ A = ƛ t ⇒ (fst t , ua≃ A (fst t) ∙ (snd t))
+Σua≃ A = total (ua≃ A)
 
 coe≃ : (A B : Type) → (A ＝ B) ⇒ (A ≃ B)
 coe≃ A B = ƛ e ⇒ (coe⇒ e , QInv→BiInv (coe⇒ e) (QInv-coe⇒ e))
 
 Σcoe≃ : (A : Type) → (Σ[ B ⦂ Type ] A ＝ B) ⇒ (Σ[ B ⦂ Type ] A ≃ B)
-Σcoe≃ A = ƛ t ⇒ (fst t , coe≃ A (fst t) ∙ (snd t))
+Σcoe≃ A = total (coe≃ A)
 
 retr-ua≃ : (A B : Type) → coe≃ A B ∘ ua≃ A B ＝ idmap (A ≃ B)
 retr-ua≃ A B = funext (ƛ e ⇒ refl (fst e) ,
@@ -443,3 +448,7 @@ isContr-Σ≃ A = isContr-retract (Σua≃ A) (Σcoe≃ A) (retr-Σua≃ A) (isC
 
 QInv-Σcoe≃ : (A : Type) → QInv (Σcoe≃ A)
 QInv-Σcoe≃ A = QInv-contr (Σcoe≃ A) (isContr-sing→ A) (isContr-Σ≃ A)
+
+-- Finally, we have Voevodsky-style univalence (stated with BiInv instead of fibContr).
+QInv-coe≃ : (A B : Type) → QInv (coe≃ A B)
+QInv-coe≃ A B = QInv-of-total (coe≃ A) (QInv-Σcoe≃ A) B
