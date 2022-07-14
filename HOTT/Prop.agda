@@ -20,11 +20,11 @@ open import HOTT.Univalence
 -- The type of all propositions
 Prop : Type
 Prop = Σ[ P ⦂ Type ] isProp P
+{-
+＝Prop : (P Q : Prop) → (P ＝ Q) ＝ ((P → Q) × (Q → P))
+＝Prop P Q =
 
 -- Prop is a set
-{-
 isSet-Prop : isSet Prop
-isSet-Prop = K→isSet λ A e → {!!}
+isSet-Prop = ƛ P ⇒ ƛ Q ⇒ ƛ f ⇒ ƛ g ⇒ ?
 -}
-
--- TODO: Needs ＝U is determined by underlying functions

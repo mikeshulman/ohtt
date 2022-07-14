@@ -76,9 +76,8 @@ coe⇒rev : {A B : Type} (e : A ＝ B) (b : B) →
   coe⇒ (rev {Type} e) ∙ b ≡ coe⇒ (refl A) ∙ (coe⇒ (refl A) ∙ (coe⇐ e ∙ b))
 coe⇒rev e b = reflᵉ
 
--- I don't know if there is any real solution to this problem, short
--- of finding a way to impose regularity.  Instead of comp→, we could
--- use utr→ to define a primitive notion of "rev p ⊙ q":
+-- Instead of comp→, we could use utr→ to define a primitive notion of
+-- "rev p ⊙ q":
 _⁻¹⊙_ : {A : Type} {x y z : A} (p : x ＝ y) (q : x ＝ z) → y ＝ z
 _⁻¹⊙_ {A} {x} {y} {z} p q = utr→ {ε} (Λ _ ⇨ A) [] x y z p q
 
@@ -98,24 +97,19 @@ coe⇨⁻¹⊙ f g b = reflᵉ
 -- specialized to the universe only, which demotes a pair of
 -- identifications of types to equivalences, composes those, and then
 -- promotes the composite back to an identification.  The somewhat
--- less cheap way out would be to define a different notion of
--- reflexivity specialized to the universe:
-reflU : (A : Type) → (A ＝ A)
-reflU A = ua (≋-idmap A)
-
--- And then a specialized notion of concatenation that only differs by
--- using this special reflexivity.
-_⊙U_ : {x y z : Type} (p : x ＝ y) (q : y ＝ z) → x ＝ z
-_⊙U_ {x} {y} {z} p q = comp→ {ε} (Λ _ ⇨ Type) [] {x} {x} (reflU x) {y} {z} q p
-
--- This then coerces without any refls.
+-- less cheap way out is to define a different notion of reflexivity
+-- specialized to the universe, and then a specialized notion of
+-- concatenation that only differs by using this special reflexivity.
+-- This is what we did in Univalence when setting up equivalential
+-- reasoning; it coerces without any refls.
 coe⇨⊙U : {A B C : Type} (f : A ＝ B) (g : B ＝ C) (a : A) →
   coe⇒ (f ⊙U g) ∙ a ≡ coe⇒ g ∙ (coe⇒ f ∙ a)
 coe⇨⊙U f g a = reflᵉ
 
--- It's not fully satisfying because we'd like to be able to use the
--- generic global operations like ⊙ on the universe, treating it like
--- any other type.
+-- But it's not fully satisfying, because we'd like to be able to use
+-- the generic global operations like ⊙ on the universe, treating it
+-- like any other type.  I don't know if there is a perfect solution
+-- to this problem, short of finding a way to impose regularity.
 
 ------------------------------
 -- Coercion along negation

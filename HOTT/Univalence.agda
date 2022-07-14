@@ -238,10 +238,6 @@ QInv-total {A} B C f e = (ƛ w ⇒ fst w , fst (e (fst w)) ∙ (snd w)) ,
   (Σ A B) ≋ (Σ A C)
 ≋-total {A} B C f = (ƛ w ⇒ fst w , fst (f (fst w)) ∙ (snd w)) , QInv-total B C (λ x → fst (f x)) (λ x → snd (f x))
 
--- Any map between contractible types is quasi-invertible.
-QInv-contr : {A B : Type} (f : A ⇒ B) (cA : isContr A) (cB : isContr B) → QInv f
-QInv-contr f cA cB = (ƛ b ⇒ fst cA) , funext (ƛ a ⇒ snd cA ∙ _ ∙ a) , funext (ƛ b ⇒ snd cB ∙ _ ∙ b)
-
 ≋-Σ-over-contr : {A : Type} (B : A ⇒ Type) (cA : isContr A) →
   (Σ[ x ⦂ A ] B ∙ x) ≋ (B ∙ fst cA)
 ≋-Σ-over-contr B cA =
@@ -272,8 +268,8 @@ QInv→11 {A} {B} f qf =
 -- Univalence for quasi-inverses
 ----------------------------------------
 
-ua : {A B : Type} (f : A ≋ B) → (A ＝ B)
-ua f = QInv→11 (fst f) (snd f) ↑
+ua≋ : {A B : Type} (f : A ≋ B) → (A ＝ B)
+ua≋ f = QInv→11 (fst f) (snd f) ↑
 
 QInv-coe⇒ : {A B : Type} (e : A ＝ B) → QInv (coe⇒ e)
 QInv-coe⇒ e = (coe⇐ e ,
@@ -306,51 +302,77 @@ QInv-pre∘ {A} {B} {C} f qf =
   funext {f = ƛ h ⇒ h ∘ f⁻¹ ∘ f} {g = idmap (A ⇒ C)}
     (ƛ h ⇒ funext {f = h ∘ f⁻¹ ∘ f} {h} (ƛ x ⇒ cong h (happly {f = f⁻¹ ∘ f} {g = idmap A} fsect x)))
 
+--------------------------------------------------
+-- Contractible fibers (Voevodsky equivalences)
+--------------------------------------------------
+
+isEquiv : {A B : Type} (f : A ⇒ B) → Type
+isEquiv {A} {B} f = Π[ y ⦂ B ] isContr (Σ[ x ⦂ A ] f ∙ x ＝ y)
+
+isProp-isEquiv : {A B : Type} (f : A ⇒ B) → isProp (isEquiv f)
+isProp-isEquiv f = isProp-Π (λ y → isProp-isContr _)
+
+-- We already proved this!
+QInv→isEquiv : {A B : Type} (f : A ⇒ B) (qf : QInv f) → isEquiv f
+QInv→isEquiv f qf = ƛ y ⇒ (fst qf ∙ y , happly (snd (snd qf)) y) , (snd (snd (snd (snd (snd (snd (QInv→11 f qf))))))) ∙ y 
+
+isEquiv→QInv : {A B : Type} (f : A ⇒ B) (qf : isEquiv f) → QInv f
+isEquiv→QInv f qf = (ƛ b ⇒ fst (fst (qf ∙ b))) ,
+  funext (ƛ a ⇒ fst (snd (qf ∙ (f ∙ a)) ∙ (fst (qf ∙ (f ∙ a))) ∙ (a , refl (f ∙ a)))) ,
+  funext (ƛ b ⇒ snd (fst (qf ∙ b)))
+
+_≃_ : Type → Type → Type
+A ≃ B = Σ[ f ⦂ A ⇒ B ] isEquiv f
+
+ua : {A B : Type} → (A ≃ B) → (A ＝ B)
+ua e = ua≋ (fst e , isEquiv→QInv (fst e) (snd e))
+
 ----------------------------------------
--- QInv equational reasoning
+-- Equivalential reasoning
 ----------------------------------------
 
-infix  1 begin≋_
-infixr 2 _≋⟨⟩_ _≋⟨_⟩_ _≡⟨_⟩_
+-- Since we don't have regularity, the following variant of
+-- reflexivity for the universe has better computational behavior.
+reflU : (A : Type) → (A ＝ A)
+reflU A = ua≋ (≋-idmap A)
+
+-- We use this in defining a similar variant of concatenation.
+_⊙U_ : {x y z : Type} (p : x ＝ y) (q : y ＝ z) → x ＝ z
+_⊙U_ {x} {y} {z} p q = comp→ {ε} (Λ _ ⇨ Type) [] {x} {x} (reflU x) {y} {z} q p
+
+infix  1 beginU_
+infixr 2 _＝⟨⟩_ _≡⟨⟩_ _＝⟨_⟩_ _≋⟨_⟩_ _≃⟨_⟩_ _≡⟨_⟩_
 infix  3 _∎
 
 data _≋′_ : Type → Type → Typeᵉ where
   _∎ : (a : Type) → a ≋′ a
-  _≋⟨⟩_ : (x : Type) {y : Type} → (x ≋′ y) → (x ≋′ y)
+  _＝⟨⟩_ : (x : Type) {y : Type} → (x ≋′ y) → (x ≋′ y)
+  _＝⟨_⟩_ : (x : Type) {y z : Type} → (x ＝ y) → (y ≋′ z) → (x ≋′ z)
   _≋⟨_⟩_ : (x : Type) {y z : Type} → (x ≋ y) → (y ≋′ z) → (x ≋′ z)
+  _≃⟨_⟩_ : (x : Type) {y z : Type} → (x ≃ y) → (y ≋′ z) → (x ≋′ z)
   _≡⟨_⟩_ : (x : Type) {y z : Type} → (x ≡ y) → (y ≋′ z) → (x ≋′ z)
 
-begin≋_ : {x y : Type} → (x ≋′ y) → (x ≋ y)
-begin≋ x ∎ = ≋-idmap x
-begin≋ x ≋⟨⟩ p = begin≋ p
-begin≋_ (x ≋⟨ p ⟩ q) = (begin≋ q) ∘≋ p
-begin≋ x ≡⟨ reflᵉ ⟩ q = begin≋ q
+_≡⟨⟩_ : (x : Type) {y : Type} → (x ≋′ y) → (x ≋′ y)
+_≡⟨⟩_ = _＝⟨⟩_
+
+beginU_ : {x y : Type} → (x ≋′ y) → (x ＝ y)
+beginU x ∎ = reflU x
+beginU x ＝⟨⟩ p = beginU p
+beginU_ (x ＝⟨ p ⟩ q) = p ⊙U (beginU q)
+beginU_ (x ≋⟨ p ⟩ q) = ua≋ p ⊙U (beginU q)
+beginU_ (x ≃⟨ p ⟩ q) = ua p ⊙U (beginU q)
+beginU x ≡⟨ reflᵉ ⟩ q = beginU q
 
 ----------------------------------------
--- Contractible fibers
+-- Equivalences from fibers
 ----------------------------------------
-
-fibContr : {A B : Type} (f : A ⇒ B) → Type
-fibContr {A} {B} f = Π[ y ⦂ B ] isContr (Σ[ x ⦂ A ] f ∙ x ＝ y)
-
-isProp-fibContr : {A B : Type} (f : A ⇒ B) → isProp (fibContr f)
-isProp-fibContr f = isProp-Π (λ y → isProp-isContr _)
-
--- We already proved this!
-QInv→fibContr : {A B : Type} (f : A ⇒ B) (qf : QInv f) → fibContr f
-QInv→fibContr f qf = ƛ y ⇒ (fst qf ∙ y , happly (snd (snd qf)) y) , (snd (snd (snd (snd (snd (snd (QInv→11 f qf))))))) ∙ y 
-
-fibContr→QInv : {A B : Type} (f : A ⇒ B) (qf : fibContr f) → QInv f
-fibContr→QInv f qf = (ƛ b ⇒ fst (fst (qf ∙ b))) ,
-  funext (ƛ a ⇒ fst (snd (qf ∙ (f ∙ a)) ∙ (fst (qf ∙ (f ∙ a))) ∙ (a , refl (f ∙ a)))) ,
-  funext (ƛ b ⇒ snd (fst (qf ∙ b)))
 
 fib-total : {A : Type} {B C : A → Type} (f : (x : A) → B x ⇒ C x) (v : Σ A C) →
   (Σ[ u ⦂ Σ A B ] total f ∙ u ＝ v) ＝ (Σ[ b ⦂ B (fst v) ] f (fst v) ∙ b ＝ snd v)
 fib-total {A} {B} {C} f v =
-  ua (begin≋
+  beginU
     Σ[ u ⦂ Σ A B ] total f ∙ u ＝ v
-  ≋⟨⟩
+  ＝⟨⟩
     Σ[ u ⦂ Σ A B ] Σ[ e ⦂ fst u ＝ fst v ] Id (Λ x ⇨ C (top x)) ([] ∷ fst u ∷ fst v ∷ e) (f (fst u) ∙ snd u) (snd v)
   ≋⟨ (ƛ uew ⇒ (fst (fst uew) , fst (snd uew)) , snd (fst uew) , snd (snd uew)) ,
      (ƛ qbw ⇒ (fst (fst qbw) , fst (snd qbw)) , snd (fst qbw) , snd (snd qbw)) ,
@@ -361,24 +383,18 @@ fib-total {A} {B} {C} f v =
     Σ[ b ⦂ B (fst v) ] Id {ε▸ A} (Λ x ⇨ C (top x)) ([] ∷ fst v ∷ fst v ∷ fst (refl v)) (f (fst v) ∙ b) (snd v)
   ≡⟨ congᶠ (Σ (B (fst v))) (funextᵉ (λ b → Id-REFL[]▸ (Λ _ ⇨ A) (Λ x ⇨ C (top x)) (fst v) _ _ )) ⟩
     Σ[ b ⦂ B (fst v) ] f (fst v) ∙ b ＝ snd v
-  ∎)
+  ∎
 
-fibContr-of-total : {A : Type} {B C : A → Type} (f : (x : A) → B x ⇒ C x) →
-  (fibContr {Σ A B} {Σ A C} (total f)) →
-  (a : A) → fibContr (f a)
-fibContr-of-total f fcf a = ƛ y ⇒ tr⇒ (ƛ X ⇒ isContr X) (fib-total f (a , y)) (fcf ∙ (a , y))
-
-QInv-of-total : {A : Type} {B C : A → Type} (f : (x : A) → B x ⇒ C x) →
-  (QInv {Σ A B} {Σ A C} (total f)) →
-  (a : A) → QInv (f a)
-QInv-of-total f fcf a = fibContr→QInv (f a) (fibContr-of-total f (QInv→fibContr (total f) fcf) a)
+isEquiv-of-total : {A : Type} {B C : A → Type} (f : (x : A) → B x ⇒ C x) →
+  (isEquiv {Σ A B} {Σ A C} (total f)) →
+  (a : A) → isEquiv (f a)
+isEquiv-of-total f fcf a = ƛ y ⇒ tr⇒ (ƛ X ⇒ isContr X) (fib-total f (a , y)) (fcf ∙ (a , y))
 
 ----------------------------------------
 -- Bi-invertible maps
 ----------------------------------------
 
--- It might be better in principle to use half-adjoint equivalences,
--- but bi-invertible maps are easier to show to be a proposition.
+-- This is sort of a digression, which we don't currently use.
 
 BiInv : {A B : Type} (f : A ⇒ B) → Type
 BiInv {A} {B} f = (Σ[ g ⦂ B ⇒ A ] g ∘ f ＝ idmap A) × (Σ[ h ⦂ B ⇒ A ] f ∘ h ＝ idmap B)
@@ -415,30 +431,28 @@ isProp-BiInv f = isProp-from-inhab (λ biinv →
         QInv-＝-adjoint (ƛ h ⇒ f ∘ h) (QInv-post∘ f qf) h (idmap _)))
       (isProp-sing← (fst qf))))
 
-_≃_ : Type → Type → Type
-A ≃ B = Σ[ f ⦂ A ⇒ B ] BiInv f
-
 ----------------------------------------
 -- Voevodsky-style univalence
 ----------------------------------------
 
 ua≃ : (A B : Type) → (A ≃ B) ⇒ (A ＝ B)
-ua≃ A B = ƛ f ⇒ ua (fst f , BiInv→QInv (fst f) (snd f))
+ua≃ A B = ƛ f ⇒ ua f
 
 Σua≃ : (A : Type) → (Σ[ B ⦂ Type ] A ≃ B) ⇒ (Σ[ B ⦂ Type ] A ＝ B)
-Σua≃ A = total (ua≃ A)
+Σua≃ A = total (λ B → ua≃ A B)
+
+isEquiv-coe⇒ : {A B : Type} (e : A ＝ B) → isEquiv (coe⇒ e)
+isEquiv-coe⇒ e = QInv→isEquiv (coe⇒ e) (QInv-coe⇒ e)
 
 coe≃ : (A B : Type) → (A ＝ B) ⇒ (A ≃ B)
-coe≃ A B = ƛ e ⇒ (coe⇒ e , QInv→BiInv (coe⇒ e) (QInv-coe⇒ e))
+coe≃ A B = ƛ e ⇒ (coe⇒ e , isEquiv-coe⇒ e)
 
 Σcoe≃ : (A : Type) → (Σ[ B ⦂ Type ] A ＝ B) ⇒ (Σ[ B ⦂ Type ] A ≃ B)
 Σcoe≃ A = total (coe≃ A)
 
 retr-ua≃ : (A B : Type) → coe≃ A B ∘ ua≃ A B ＝ idmap (A ≃ B)
 retr-ua≃ A B = funext (ƛ e ⇒ refl (fst e) ,
-  Id-prop (refl (fst e)) BiInv isProp-BiInv
-    (QInv→BiInv (coe⇒ (ua≃ A B ∙ e)) (QInv-coe⇒ (ua≃ A B ∙ e)))
-    (snd e))
+  Id-prop (refl (fst e)) isEquiv isProp-isEquiv (isEquiv-coe⇒ (ua≃ A B ∙ e)) (snd e))
 
 retr-Σua≃ : (A : Type) → Σcoe≃ A ∘ Σua≃ A ＝ idmap _
 retr-Σua≃ A = Σ-retract (A ≃_) (A ＝_) (ua≃ A) (coe≃ A) (retr-ua≃ A)
@@ -446,9 +460,61 @@ retr-Σua≃ A = Σ-retract (A ≃_) (A ＝_) (ua≃ A) (coe≃ A) (retr-ua≃ A
 isContr-Σ≃ : (A : Type) → isContr (Σ[ B ⦂ Type ] A ≃ B)
 isContr-Σ≃ A = isContr-retract (Σua≃ A) (Σcoe≃ A) (retr-Σua≃ A) (isContr-sing→ A)
 
-QInv-Σcoe≃ : (A : Type) → QInv (Σcoe≃ A)
-QInv-Σcoe≃ A = QInv-contr (Σcoe≃ A) (isContr-sing→ A) (isContr-Σ≃ A)
+-- Any map between contractible types is an equivalence.
+isEquiv-contr : {A B : Type} (f : A ⇒ B) (cA : isContr A) (cB : isContr B) → isEquiv f
+isEquiv-contr f cA cB = QInv→isEquiv f ((ƛ b ⇒ fst cA) , funext (ƛ a ⇒ snd cA ∙ _ ∙ a) , funext (ƛ b ⇒ snd cB ∙ _ ∙ b))
 
--- Finally, we have Voevodsky-style univalence (stated with BiInv instead of fibContr).
-QInv-coe≃ : (A B : Type) → QInv (coe≃ A B)
-QInv-coe≃ A B = QInv-of-total (coe≃ A) (QInv-Σcoe≃ A) B
+isEquiv-Σcoe≃ : (A : Type) → isEquiv (Σcoe≃ A)
+isEquiv-Σcoe≃ A = isEquiv-contr (Σcoe≃ A) (isContr-sing→ A) (isContr-Σ≃ A)
+
+-- Finally, we have Voevodsky-style univalence.
+isEquiv-coe≃ : (A B : Type) → isEquiv (coe≃ A B)
+isEquiv-coe≃ A B = isEquiv-of-total (coe≃ A) (isEquiv-Σcoe≃ A) B
+
+≃-coe≃ : (A B : Type) → (A ＝ B) ≃ (A ≃ B)
+≃-coe≃ A B = (coe≃ A B , isEquiv-coe≃ A B)
+
+----------------------------------------
+-- Identifications in subtypes
+----------------------------------------
+
+-- Summing a family of contractible types does nothing.
+Σ-contr : {A : Type} (B : A → Type) (cB : (x : A) → isContr (B x)) →
+  (Σ[ x ⦂ A ] B x) ＝ A
+Σ-contr {A} B cB =
+  ua≋ ((ƛ u ⇒ fst u) , (ƛ a ⇒ (a , fst (cB a))) ,
+       funext (ƛ u ⇒ refl (fst u) , Id-prop (fst (refl u)) B (λ x → snd (cB x)) _ _) , refl _)
+
+-- Summing a family of propositions doesn't change the identity types.
+＝Σ-prop : {A : Type} (B : A → Type) (pB : (x : A) → isProp (B x)) (u v : Σ A B) →
+  (u ＝ v) ＝ (fst u ＝ fst v)
+＝Σ-prop {A} B pB u v =
+  Σ-contr {fst u ＝ fst v}
+          (λ e → Id {ε▸ A} (Λ x ⇨ B (top x)) ([] ∷ fst u ∷ fst v ∷ e) (snd u) (snd v))
+          (λ e → isContr-Id e B pB (snd u) (snd v))
+
+------------------------------
+-- Identifications in Id-U
+------------------------------
+
+-- One of the most important consequences of Voevodsky-univalence is
+-- that two identifications in the universe coincide as soon as their
+-- underlying functions do.
+
+isEquiv-＝ : {A B : Type} (f : A ⇒ B) (ef : isEquiv f) (a₀ a₁ : A) →
+  isEquiv (refl f ∙ a₀ ∙ a₁)
+isEquiv-＝ f ef a₀ a₁ = QInv→isEquiv (refl f ∙ a₀ ∙ a₁) (QInv-＝ f (isEquiv→QInv f ef) a₀ a₁)
+
+≃cong : {A B : Type} (f : A ≃ B) (a₀ a₁ : A) →
+  (a₀ ＝ a₁) ≃ (fst f ∙ a₀ ＝ fst f ∙ a₁)
+≃cong f a₀ a₁ = (refl (fst f) ∙ a₀ ∙ a₁ , isEquiv-＝ (fst f) (snd f) a₀ a₁)
+
+＝U-＝⇒ : {A B : Type} (f g : A ＝ B) → (f ＝ g) ＝ (coe⇒ f ＝ coe⇒ g)
+＝U-＝⇒ {A} {B} f g =
+  beginU
+    (f ＝ g)
+  ≃⟨ (≃cong (≃-coe≃ A B) f g) ⟩
+    (coe≃ A B ∙ f ＝ coe≃ A B ∙ g)
+  ＝⟨ ＝Σ-prop isEquiv isProp-isEquiv (coe≃ A B ∙ f) (coe≃ A B ∙ g) ⟩
+    coe⇒ f ＝ coe⇒ g
+  ∎
