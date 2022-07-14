@@ -2,16 +2,19 @@
 
 module HOTT.Test where
 
-open import HOTT.Rewrite
+open import HOTT.Rewrite hiding (rev)
 open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Refl
+open import HOTT.Transport
+open import HOTT.Fill
 open import HOTT.Groupoids
 open import HOTT.Pi
 open import HOTT.Sigma
 open import HOTT.Copy
 open import HOTT.Universe
 open import HOTT.Bool
+open import HOTT.Univalence
 
 ----------------------------------------
 -- Testing normalization of ap-top
@@ -55,6 +58,64 @@ coe⇐ua : {A B : Type} (f : A ⇒ B) (g : B ⇒ A)
   (sect : g ∘ f ＝ idmap A) (retr : f ∘ g ＝ idmap B) →
   coe⇐ (ua f (g , sect , retr)) ≡ g
 coe⇐ua f g sect retr = reflᵉ
+
+-- Furthermore, concatenation in the universe *almost* commutes with
+-- coe⇒.  It only fails because of the lack of regularity:
+-- concatenation is defined by filling a cubical horn with one side
+-- being reflexivity, so coe⇒ on the concatenation must include
+-- coercion backwards along that reflexivity.
+coe⇨⊙ : {A B C : Type} (f : A ＝ B) (g : B ＝ C) (a : A) →
+  coe⇒ (_⊙_ {Type} f g) ∙ a ≡ coe⇒ g ∙ (coe⇒ f ∙ (coe⇐ (refl A) ∙ a))
+-- By the way, this is the reason we rearranged the components of
+-- 11Corr: otherwise this computation would be infeasible.  This
+-- way, the other components can be discarded quickly.
+coe⇨⊙ f g a = reflᵉ
+
+-- A similar thing happens with rev.
+coe⇒rev : {A B : Type} (e : A ＝ B) (b : B) →
+  coe⇒ (rev {Type} e) ∙ b ≡ coe⇒ (refl A) ∙ (coe⇒ (refl A) ∙ (coe⇐ e ∙ b))
+coe⇒rev e b = reflᵉ
+
+-- I don't know if there is any real solution to this problem, short
+-- of finding a way to impose regularity.  Instead of comp→, we could
+-- use utr→ to define a primitive notion of "rev p ⊙ q":
+_⁻¹⊙_ : {A : Type} {x y z : A} (p : x ＝ y) (q : x ＝ z) → y ＝ z
+_⁻¹⊙_ {A} {x} {y} {z} p q = utr→ {ε} (Λ _ ⇨ A) [] x y z p q
+
+-- But with our current definition of utr→Type in terms of filling,
+-- this also computes with a refl in it.
+coe⇨⁻¹⊙ : {A B C : Type} (f : A ＝ B) (g : A ＝ C) (b : B) →
+  coe⇒ (_⁻¹⊙_ {Type} f g) ∙ b ≡ coe⇒ g ∙ (coe⇒ (refl A) ∙ (coe⇐ f ∙ b))
+coe⇨⁻¹⊙ f g b = reflᵉ
+
+-- We could probably give a different definition of utr→Type that
+-- would compute coe⇒⊙′ without any refls.  But using ⊙′ in practice
+-- would necessitate lots of rev's, and I can't think of any way to
+-- define rev that doesn't get a refl: even using utr→ would involve
+-- at least one refl.
+
+-- The cheap way out would be to define a different notion of ⊙
+-- specialized to the universe only, which demotes a pair of
+-- identifications of types to equivalences, composes those, and then
+-- promotes the composite back to an identification.  The somewhat
+-- less cheap way out would be to define a different notion of
+-- reflexivity specialized to the universe:
+reflU : (A : Type) → (A ＝ A)
+reflU A = ua (idmap A) (QInv-idmap A)
+
+-- And then a specialized notion of concatenation that only differs by
+-- using this special reflexivity.
+_⊙U_ : {x y z : Type} (p : x ＝ y) (q : y ＝ z) → x ＝ z
+_⊙U_ {x} {y} {z} p q = comp→ {ε} (Λ _ ⇨ Type) [] {x} {x} (reflU x) {y} {z} q p
+
+-- This then coerces without any refls.
+coe⇨⊙U : {A B C : Type} (f : A ＝ B) (g : B ＝ C) (a : A) →
+  coe⇒ (f ⊙U g) ∙ a ≡ coe⇒ g ∙ (coe⇒ f ∙ a)
+coe⇨⊙U f g a = reflᵉ
+
+-- It's not fully satisfying because we'd like to be able to use the
+-- generic global operations like ⊙ on the universe, treating it like
+-- any other type.
 
 ------------------------------
 -- Coercion along negation
