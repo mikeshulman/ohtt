@@ -474,6 +474,9 @@ isEquiv-coe≃ A B = isEquiv-of-total (coe≃ A) (isEquiv-Σcoe≃ A) B
 ≃-coe≃ : (A B : Type) → (A ＝ B) ≃ (A ≃ B)
 ≃-coe≃ A B = (coe≃ A B , isEquiv-coe≃ A B)
 
+＝-coe≃ : (A B : Type) → (A ＝ B) ＝ (A ≃ B)
+＝-coe≃ A B = ua (≃-coe≃ A B)
+
 ----------------------------------------
 -- Identifications in subtypes
 ----------------------------------------

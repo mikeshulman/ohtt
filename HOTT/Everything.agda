@@ -33,9 +33,9 @@ import HOTT.Copy
 import HOTT.Universe
 
 import HOTT.Groupoids
-import HOTT.Decidable
-import HOTT.Prop
 import HOTT.Univalence
+import HOTT.Prop
+import HOTT.Decidable
 
 import HOTT.Indices
 import HOTT.Sum

@@ -50,13 +50,13 @@ egABC-C = ap {(ε▸ A) ▸ B ▸ C} (C ⊚ POP) (λ w → top w) ([] ∷ a₀ �
 -- We check that both a function and its inverse are preserved
 -- definitionally by passing through univalence.
 
-coe⇒ua : {A B : Type} (f : A ⇒ B) (qf : QInv f) →
-  coe⇒ (ua f qf) ≡ f
+coe⇒ua : {A B : Type} (f : A ⇒ B) (qf : isEquiv f) →
+  coe⇒ (ua (f , qf)) ≡ f
 coe⇒ua f qf = reflᵉ
 
 coe⇐ua : {A B : Type} (f : A ⇒ B) (g : B ⇒ A)
   (sect : g ∘ f ＝ idmap A) (retr : f ∘ g ＝ idmap B) →
-  coe⇐ (ua f (g , sect , retr)) ≡ g
+  coe⇐ (ua≋ (f , g , sect , retr)) ≡ g
 coe⇐ua f g sect retr = reflᵉ
 
 -- Furthermore, concatenation in the universe *almost* commutes with
@@ -121,7 +121,7 @@ coe⇨⊙U f g a = reflᵉ
 -- evidence that we can hope for canonicity.
 
 ＝¬ : 𝟚 ＝ 𝟚
-＝¬ = ua ¬ QInv-¬
+＝¬ = ua≋ (¬ , QInv-¬)
 
 coe⇒¬ : coe⇒ ＝¬ ∙ true ≡ false
 coe⇒¬ = reflᵉ

@@ -263,6 +263,10 @@ Id-prop {A} {a₀} {a₁} a₂ B prp b₀ b₁ =
    𝐉 (λ a₁ a₂ → (b₁ : B a₁) → Id {ε▸ A} (Λ x ⇨ B (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂) b₀ b₁)
      (λ b₁' → prp a₀ ∙ b₀ ∙ b₁') a₁ a₂ b₁
 
+-- This implies propositions are closed under Σ-types
+isProp-Σ : {A : Type} {B : A → Type} (pA : isProp A) (pB : (x : A) → isProp (B x)) → isProp (Σ A B)
+isProp-Σ {A} {B} pA pB = ƛ u ⇒ ƛ v ⇒ (pA ∙ fst u ∙ fst v , Id-prop (pA ∙ fst u ∙ fst v) B pB (snd u) (snd v))
+
 -- A version of isProp-＝ for dependent identity types
 isProp-Id : {A : Type} {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (B : A → Type)
   (prp : (x : A) → isProp (B x)) (b₀ : B a₀) (b₁ : B a₁) →
