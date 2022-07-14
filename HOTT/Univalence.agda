@@ -2,7 +2,7 @@
 
 module HOTT.Univalence where
 
-open import HOTT.Rewrite using (Type; _≡_; _≡ᵉ_; coe→; coe←)
+open import HOTT.Rewrite hiding (cong; rev)
 open import HOTT.Telescope
 open import HOTT.Id
 open import HOTT.Refl
@@ -52,6 +52,9 @@ A ≋ B = Σ[ f ⦂ A ⇒ B ] QInv f
   f⁻¹ ∘ g⁻¹ ,
   funext (ƛ x ⇒ cong f⁻¹ (happly gsect (f ∙ x)) ⊙ happly fsect x) ,
   funext (ƛ y ⇒ cong g (happly fretr (g⁻¹ ∙ y)) ⊙ happly gretr y)
+
+_∘≋_ : {A B C : Type} (g : B ≋ C) (f : A ≋ B) → A ≋ C
+g ∘≋ f = (fst g ∘ fst f , ∘QInv (fst f) (snd f) (fst g) (snd g))
 
 ∘QInv-cancelR : {A B C : Type} (f : A ⇒ B) (qf : QInv f) (g : B ⇒ C) (qgf : QInv (g ∘ f)) → QInv g
 ∘QInv-cancelR f qf g qgf =
@@ -165,6 +168,9 @@ A ≋ B = Σ[ f ⦂ A ⇒ B ] QInv f
 QInv-idmap : (A : Type) → QInv (idmap A)
 QInv-idmap A = idmap A , refl (idmap A) , refl (idmap A)
 
+≋-idmap : (A : Type) → (A ≋ A)
+≋-idmap A = (idmap A , QInv-idmap A)
+
 QInv-cong-＝idmap : {A : Type} (f : A ⇒ A) (p : idmap A ＝ f) (a₀ a₁ : A) → QInv (refl f ∙ a₀ ∙ a₁)
 QInv-cong-＝idmap f p a₀ a₁ = 𝐉 (λ f p → QInv (refl f ∙ a₀ ∙ a₁)) (QInv-idmap _) f p
 
@@ -215,9 +221,12 @@ QInv-＝-adjoint {A} {B} f qf a b =
         (ƛ p ⇒ p ⊙ happly retr b) (⊙QInvR (f ∙ a) (happly retr b))
 
 -- Σ-types are functorial on fiberwise quasi-inverses.
-Σid-QInv : {A : Type} (B C : A → Type) (f : (x : A) → B x ⇒ C x) (e : (x : A) → QInv (f x)) →
-  QInv {Σ A B} {Σ A C} (ƛ w ⇒ fst w , f (fst w) ∙ (snd w))
-Σid-QInv {A} B C f e = (ƛ w ⇒ fst w , fst (e (fst w)) ∙ (snd w)) ,
+total : {A : Type} {B C : A → Type} (f : (x : A) → B x ⇒ C x) → Σ A B ⇒ Σ A C
+total f = (ƛ w ⇒ fst w , f (fst w) ∙ (snd w))
+
+QInv-total : {A : Type} (B C : A → Type) (f : (x : A) → B x ⇒ C x) (e : (x : A) → QInv (f x)) →
+  QInv {Σ A B} {Σ A C} (total f)
+QInv-total {A} B C f e = (ƛ w ⇒ fst w , fst (e (fst w)) ∙ (snd w)) ,
   funext (ƛ w ⇒ refl (fst w) ,
     coe← (Id-REFL[]▸ (Λ _ ⇨ A) (Λ z ⇨ B (top z)) (fst w) (fst (e (fst w)) ∙ (f (fst w) ∙ snd w)) (snd w))
          (happly (fst (snd (e (fst w)))) (snd w))) ,
@@ -225,13 +234,22 @@ QInv-＝-adjoint {A} {B} f qf a b =
     coe← (Id-REFL[]▸ (Λ _ ⇨ A) (Λ z ⇨ C (top z)) (fst w) (f (fst w) ∙ (fst (e (fst w)) ∙ snd w)) (snd w))
          (happly (snd (snd (e (fst w)))) (snd w)))
 
-Σid≋ : {A : Type} (B C : A → Type) (f : (x : A) → (B x ≋ C x)) →
+≋-total : {A : Type} (B C : A → Type) (f : (x : A) → (B x ≋ C x)) →
   (Σ A B) ≋ (Σ A C)
-Σid≋ {A} B C f = (ƛ w ⇒ fst w , fst (f (fst w)) ∙ (snd w)) , Σid-QInv B C (λ x → fst (f x)) (λ x → snd (f x))
+≋-total {A} B C f = (ƛ w ⇒ fst w , fst (f (fst w)) ∙ (snd w)) , QInv-total B C (λ x → fst (f x)) (λ x → snd (f x))
 
 -- Any map between contractible types is quasi-invertible.
 QInv-contr : {A B : Type} (f : A ⇒ B) (cA : isContr A) (cB : isContr B) → QInv f
 QInv-contr f cA cB = (ƛ b ⇒ fst cA) , funext (ƛ a ⇒ snd cA ∙ _ ∙ a) , funext (ƛ b ⇒ snd cB ∙ _ ∙ b)
+
+≋-Σ-over-contr : {A : Type} (B : A ⇒ Type) (cA : isContr A) →
+  (Σ[ x ⦂ A ] B ∙ x) ≋ (B ∙ fst cA)
+≋-Σ-over-contr B cA =
+  (ƛ s ⇒ tr⇒ B (snd cA ∙ fst s ∙ fst cA) (snd s)) ,
+  (ƛ b ⇒ (fst cA , b)) ,
+  rev (funext (ƛ s ⇒ snd cA ∙ fst s ∙ fst cA ,
+    lift→ {ε▸ _} (Λ x ⇨ B ∙ top x) ([] ∷ fst s ∷ fst cA ∷ (snd cA ∙ fst s ∙ fst cA)) (snd s))) ,
+  funext (ƛ b ⇒ tr⇒＝refl B {fst cA} (snd cA ∙ fst cA ∙ fst cA) (isProp-＝ (snd cA) (fst cA) (fst cA) ∙ _ ∙ _) b)
 
 -- Finally, we can prove that every quasi-invertible map yields a 1-1
 -- correspondence.  The correspondence is (f a ＝ b), and it's easy to
@@ -244,12 +262,11 @@ QInv→11 {A} {B} f qf =
   let g = fst qf
       sect = fst (snd qf)
       retr = snd (snd qf) in
-  (ƛ a ⇒ ƛ b ⇒ f ∙ a ＝ b) ,
-  (ƛ a ⇒ (f ∙ a , refl (f ∙ a)) , isProp-sing→ (f ∙ a)) ,
-  (ƛ b ⇒ (g ∙ b , retr ∙ b ∙ b ∙ refl b) ,
-    isProp-QInv
-      (Σid≋ (λ a → a ＝ g ∙ b) (λ a → f ∙ a ＝ b) (λ a → QInv-＝-adjoint f (g , sect , retr) a b))
-      (isProp-sing← (g ∙ b)))
+  f , g , (ƛ a ⇒ ƛ b ⇒ f ∙ a ＝ b) ,
+  (ƛ a ⇒ refl (f ∙ a)) , (ƛ b ⇒ retr ∙ b ∙ b ∙ refl b) ,
+  (ƛ a ⇒ isProp-sing→ (f ∙ a)) ,
+  (ƛ b ⇒ isProp-QInv (≋-total (λ a → a ＝ g ∙ b) (λ a → f ∙ a ＝ b) (λ a → QInv-＝-adjoint f (g , sect , retr) a b))
+                     (isProp-sing← (g ∙ b)))
 
 ----------------------------------------
 -- Univalence for quasi-inverses
@@ -290,6 +307,27 @@ QInv-pre∘ {A} {B} {C} f qf =
     (ƛ h ⇒ funext {f = h ∘ f⁻¹ ∘ f} {h} (ƛ x ⇒ cong h (happly {f = f⁻¹ ∘ f} {g = idmap A} fsect x)))
 
 ----------------------------------------
+-- QInv equational reasoning
+----------------------------------------
+
+infix  1 begin≋_
+infixr 2 _≋⟨⟩_ _≋⟨_⟩_ _≡⟨_⟩_
+infix  3 _∎
+
+data _≋′_ : Type → Type → Typeᵉ where
+  _∎ : (a : Type) → a ≋′ a
+  _≋⟨⟩_ : (x : Type) {y : Type} → (x ≋′ y) → (x ≋′ y)
+  _≋⟨_⟩_ : (x : Type) {y z : Type} → (x ≋ y) → (y ≋′ z) → (x ≋′ z)
+  _≡⟨_⟩_ : (x : Type) {y z : Type} → (x ≡ y) → (y ≋′ z) → (x ≋′ z)
+
+begin≋_ : {x y : Type} → (x ≋′ y) → (x ≋ y)
+begin≋ x ∎ = ≋-idmap x
+begin≋ x ≋⟨⟩ p = begin≋ p
+begin≋_ (x ≋⟨ p ⟩ q) = (begin≋ q) ∘≋ p
+begin≋ x ≡⟨ reflᵉ ⟩ q = begin≋ q
+
+
+----------------------------------------
 -- Contractible fibers
 ----------------------------------------
 
@@ -301,12 +339,30 @@ isProp-fibContr f = isProp-Π (λ y → isProp-isContr _)
 
 -- We already proved this!
 fibContr-QInv : {A B : Type} (f : A ⇒ B) (qf : QInv f) → fibContr f
-fibContr-QInv f qf = snd (snd (QInv→11 f qf))
+fibContr-QInv f qf = ƛ y ⇒ (fst qf ∙ y , happly (snd (snd qf)) y) , (snd (snd (snd (snd (snd (snd (QInv→11 f qf))))))) ∙ y 
 
 QInv-fibContr : {A B : Type} (f : A ⇒ B) (qf : fibContr f) → QInv f
 QInv-fibContr f qf = (ƛ b ⇒ fst (fst (qf ∙ b))) ,
   funext (ƛ a ⇒ fst (snd (qf ∙ (f ∙ a)) ∙ (fst (qf ∙ (f ∙ a))) ∙ (a , refl (f ∙ a)))) ,
   funext (ƛ b ⇒ snd (fst (qf ∙ b)))
+
+fib-total : {A : Type} {B C : A → Type} (f : (x : A) → B x ⇒ C x) (v : Σ A C) →
+  (Σ[ u ⦂ Σ A B ] total f ∙ u ＝ v) ≋ (Σ[ b ⦂ B (fst v) ] f (fst v) ∙ b ＝ snd v)
+fib-total {A} {B} {C} f v =
+  begin≋
+    Σ[ u ⦂ Σ A B ] total f ∙ u ＝ v
+  ≋⟨⟩
+    Σ[ u ⦂ Σ A B ] Σ[ e ⦂ fst u ＝ fst v ] Id (Λ x ⇨ C (top x)) ([] ∷ fst u ∷ fst v ∷ e) (f (fst u) ∙ snd u) (snd v)
+  ≋⟨ (ƛ uew ⇒ (fst (fst uew) , fst (snd uew)) , snd (fst uew) , snd (snd uew)) ,
+     (ƛ qbw ⇒ (fst (fst qbw) , fst (snd qbw)) , snd (fst qbw) , snd (snd qbw)) ,
+     refl _ , refl _ ⟩
+    Σ[ q ⦂ (Σ[ a ⦂ A ] a ＝ fst v) ] Σ[ b ⦂ B (fst q) ] Id {ε▸ A} (Λ x ⇨ C (top x)) ([] ∷ fst q ∷ fst v ∷ snd q) (f (fst q) ∙ b) (snd v)
+  ≋⟨ ≋-Σ-over-contr (ƛ q ⇒ Σ[ b ⦂ B (fst q) ] Id {ε▸ A} (Λ x ⇨ C (top x)) ([] ∷ fst q ∷ fst v ∷ snd q) (f (fst q) ∙ b) (snd v))
+                    (isContr-sing← (fst v)) ⟩
+    Σ[ b ⦂ B (fst v) ] Id {ε▸ A} (Λ x ⇨ C (top x)) ([] ∷ fst v ∷ fst v ∷ fst (refl v)) (f (fst v) ∙ b) (snd v)
+  ≡⟨ congᶠ (Σ (B (fst v))) (funextᵉ (λ b → Id-REFL[]▸ (Λ _ ⇨ A) (Λ x ⇨ C (top x)) (fst v) _ _ )) ⟩
+    Σ[ b ⦂ B (fst v) ] f (fst v) ∙ b ＝ snd v
+  ∎
 
 {-
 QInv-Σid : {A : Type} (B C : A → Type) (f : (x : A) → B x ⇒ C x) →
@@ -349,11 +405,11 @@ isProp-BiInv f = isProp-from-inhab (λ biinv →
   let qf = BiInv→QInv f biinv in
   isProp-×
     (isProp-QInv
-      (Σid≋ (λ g → g ＝ fst qf) (λ g → g ∘ f ＝ idmap _) (λ g →
+      (≋-total (λ g → g ＝ fst qf) (λ g → g ∘ f ＝ idmap _) (λ g →
         QInv-＝-adjoint (ƛ g ⇒ g ∘ f) (QInv-pre∘ f qf) g (idmap _)))
       (isProp-sing← (fst qf)))
     (isProp-QInv
-      (Σid≋ (λ h → h ＝ fst qf) (λ h → f ∘ h ＝ idmap _) (λ h →
+      (≋-total (λ h → h ＝ fst qf) (λ h → f ∘ h ＝ idmap _) (λ h →
         QInv-＝-adjoint (ƛ h ⇒ f ∘ h) (QInv-post∘ f qf) h (idmap _)))
       (isProp-sing← (fst qf))))
 
