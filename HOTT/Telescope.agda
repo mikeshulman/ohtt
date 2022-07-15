@@ -122,7 +122,17 @@ uncurry B w = B (pop w) (top w)
   _≡ᵉ_ {el (Δ ▸ A)} (δ₀ ∷ a₀) (δ₁ ∷ a₁)
 ∷≡ A reflᵉᵉ reflʰ = reflᵉᵉ
 
--- We postulate η-rules by rewriting for our telescope function-spaces.
+-- We postulate η-rules by rewriting for our telescope
+-- function-spaces.  Unfortunately, this apparently has the potential
+-- to break subject-reduction when ⇨ is defined as a datatype: for any
+-- (f : ε ⇨ B), the term (_⊚_ {Δ} {ε} {B} f (Λ (λ _ → []))) (with ⊚ as
+-- below) has type (Δ ⇨ B), but reduces to f.  Evidently this has
+-- something to do with the eta-rule for ⊤ᵉ and the fact that the
+-- constructor Λ isn't annotated internally.  We can avoid it by
+-- making ⇨ a postulate, with a rewrite for the β-rule; but doing that
+-- breaks something in Square/Base and I haven't tried to figure out
+-- how hard that would be to fix.  For the most part, this breakage of
+-- subject-reduction hasn't been a problem (but see below).
 
 postulate
   Λ⇨η : {Δ : Tel} {T : Type} (A : Δ ⇨ T) → (Λ x ⇨ A ⊘ x) ≡ᵉ A
@@ -154,3 +164,8 @@ postulate
     (h ⊚ᵉ g) ⊚ᵉ f ≡ᵉ h ⊚ᵉ (g ⊚ᵉ f)
 
 {-# REWRITE ⊚⊘ ⊚ᵉ⊘ ⊚const ⊚ᵉconst ⊚IDMAP ⊚ᵉIDMAP IDMAP⊚ᵉ ⊚⊚ᵉ⊚ᵉ ⊚ᵉ⊚ᵉ⊚ᵉ #-}
+
+-- It would be nice to have const-⊚ as well, as it might avoid the
+-- need for Universe/TopCompose.  But currently, if we postulate
+-- const-⊚ as a rewrite, we run into the above-mentioned
+-- subject-reduction problem with Λη in some places.
