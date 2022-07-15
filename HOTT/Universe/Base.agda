@@ -51,8 +51,14 @@ u~coe⇐ : {A B : Type} (e : A ＝ B) (b : B) (a₀ a₁ : A) (s₀ : a₀ ~[ e 
   Id {ε▸ A} (Λ y ⇨ (top y ~[ e ] b)) ([] ∷ a₀ ∷ a₁ ∷ ucoe⇐ e b a₀ a₁ s₀ s₁) s₀ s₁
 u~coe⇐ e b a₀ a₁ s₀ s₁ = snd (snd (snd (snd (snd (snd (snd (e ↓)))))) ∙ b ∙ (a₀ , s₀) ∙ (a₁ , s₁))
 
+-- For the universe, the "terms" on which we have to compute ap, refl,
+-- etc. are the Tarski eliminator "El" and its inverse "Name".  Since
+-- Agda's universes are a la Russell, these terms are implicit.  Thus,
+-- computing ap and refl on Name corresponds to computing them on
+-- *anything* living in the universe Type.
+
 postulate
-  apU : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) →
+  ap-Type : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ)) →
     (ap (Λ _ ⇨ Type) A δ) ↓ ≡
     (ƛ a₀ ⇒ tr→ (Λ⇨ A) δ a₀) ,
     (ƛ a₁ ⇒ tr← (Λ⇨ A) δ a₁) ,
@@ -63,5 +69,18 @@ postulate
                           ulift→ (Λ⇨ A) δ a₀ (fst x) (fst x') (snd x) (snd x'))) ,
     (ƛ a₁ ⇒ ƛ x ⇒ ƛ x' ⇒ (utr← (Λ⇨ A) δ a₁ (fst x) (fst x') (snd x) (snd x') ,
                           ulift← (Λ⇨ A) δ a₁ (fst x) (fst x') (snd x) (snd x')))
+  refl-Type : (A : Type) →
+    refl A ↓ ≡
+    -- Because we don't have regularity, we can't compute these
+    -- transports any further without information about A.
+    (ƛ a₀ ⇒ tr→ {ε} (Λ _ ⇨ A) [] a₀) ,
+    (ƛ a₁ ⇒ tr← {ε} (Λ _ ⇨ A) [] a₁) ,
+    (ƛ a₀ ⇒ ƛ a₁ ⇒ a₀ ＝ a₁) ,
+    (ƛ a₀ ⇒ lift→ {ε} (Λ _ ⇨ A) [] a₀) ,
+    (ƛ a₁ ⇒ lift← {ε} (Λ _ ⇨ A) [] a₁) ,
+    (ƛ a₀ ⇒ ƛ x ⇒ ƛ x' ⇒ (utr→ {ε} (Λ _ ⇨ A) [] a₀ (fst x) (fst x') (snd x) (snd x') ,
+                          ulift→ {ε} (Λ _ ⇨ A) [] a₀ (fst x) (fst x') (snd x) (snd x'))) ,
+    (ƛ a₁ ⇒ ƛ x ⇒ ƛ x' ⇒ (utr← {ε} (Λ _ ⇨ A) [] a₁ (fst x) (fst x') (snd x) (snd x') ,
+                          ulift← {ε} (Λ _ ⇨ A) [] a₁ (fst x) (fst x') (snd x) (snd x')))
 
-{-# REWRITE apU #-}
+{-# REWRITE ap-Type refl-Type #-}
