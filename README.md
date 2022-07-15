@@ -8,7 +8,15 @@ It is a "very shallow" embedding using Agda's experimental `--two-level` type th
 
 This is not a formalization *of* HOTT that can be used to prove metatheorems about it; it is intended as an experimental way to formalize results *in* HOTT.  Of necessity, when setting up the library we must engage with some metatheory, such as postulating the expected admissible equalities and coercing along them (when rewriting fails) to ensure that each rewrite rule is well-typed.  However, we intend to set things up so that when working in the HOTT fragment these coercions always vanish.
 
-In addition to `--rewriting` and `--two-level`, we of course have to use the flag `--without-K` to have any consistent homotopical identity type.  (Note that when combined with `--two-level` this applies only to the fibrant fragment; axiom K is still provable for exo-types.)  We also currently use `--type-in-type` to avoid the bureaucracy of universe polymorphism; eventually we intend to migrate away from this.
+## Agda options
+
+In addition to `--rewriting` and `--two-level`, we of course have to use the flag `--without-K` to have any consistent homotopical identity type.  (Note that when combined with `--two-level` this applies only to the fibrant fragment; axiom K is still provable for exo-types.)
+
+We also currently use `--type-in-type` to avoid the bureaucracy of universe polymorphism.  Eventually, if the library becomes more widely used, we could migrate away from this.
+
+We use `--exact-split` mainly on principle.
+
+Finally, the flag `--experimental-lossy-unification` substantially speeds up typechecking of some files in the library.
 
 ## Installation
 
