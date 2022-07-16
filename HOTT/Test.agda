@@ -12,7 +12,10 @@ open import HOTT.Groupoids
 open import HOTT.Pi
 open import HOTT.Sigma
 open import HOTT.Copy
-open import HOTT.Universe
+open import HOTT.Universe.Base
+open import HOTT.Universe.Transport
+open import HOTT.Universe.Top
+open import HOTT.Universe.TopCompose
 open import HOTT.Bool
 open import HOTT.Univalence
 
