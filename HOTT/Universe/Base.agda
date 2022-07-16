@@ -84,3 +84,19 @@ postulate
                           ulift← {ε} (Λ _ ⇨ A) [] a₁ (fst x) (fst x') (snd x) (snd x')))
 
 {-# REWRITE ap-Type refl-Type #-}
+
+-- Since the Tarski eliminator El yields a type rather than a term,
+-- the things we can compute on it are Id and its friends tr→, etc.
+-- Since El is implicit, this means computing these things in any type
+-- family whose head isn't a canonical type-former like Σ or Π.
+-- (Computing Id on the canonical type-formers is handled by their own
+-- rules.  This probably isn't the only way to divide things up.)
+
+-- The result of the computation is in terms of ap and AP, so the
+-- simplest case is when the type family is just "top" applied to a
+-- term to which we can AP.  These computations are specified in the
+-- file Universe/Top (and Universe/TopCompose).
+
+-- We also have additional cases when the head is an elimination form,
+-- like application, projection, and induction, specified in
+-- additional files like Universe/App.
