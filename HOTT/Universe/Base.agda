@@ -89,6 +89,8 @@ postulate
 -- the things we can compute on it are Id and its friends tr→, etc.
 -- Since El is implicit, this means computing these things in any type
 -- family whose head isn't a canonical type-former like Σ or Π.
+-- (Computing Id on the canonical type-formers is handled by their own
+-- rules.  This probably isn't the only way to divide things up.)
 
 -- The result of the computation is in terms of ap and AP, so the
 -- simplest case is when the type family is just "top" applied to a

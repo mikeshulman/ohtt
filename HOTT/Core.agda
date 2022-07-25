@@ -17,12 +17,17 @@ open import HOTT.Unit public
 open import HOTT.Sigma public
 open import HOTT.Pi public
 open import HOTT.Copy public
-open import HOTT.Universe public
+
+-- The other pieces of HOTT.Universe are very slow to compile and not
+-- needed for our current work in algebra.  So, for now, we leave them
+-- out of Core.
+open import HOTT.Universe.Base public
+open import HOTT.Universe.Transport public
 
 open import HOTT.Groupoids public
-open import HOTT.Decidable public
-open import HOTT.Prop public
 open import HOTT.Univalence public
+open import HOTT.Prop public
+open import HOTT.Decidable public
 
 open import HOTT.Sum public
 open import HOTT.Nat public
