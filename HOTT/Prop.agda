@@ -53,8 +53,9 @@ isSet-Prop : isSet Prop
 isSet-Prop = ƛ P ⇒ ƛ Q ⇒ tr⇐ (ƛ X ⇒ isProp X) (＝Prop P Q) (isProp-× (isProp-Π (λ _ → snd Q)) (isProp-Π (λ _ → snd P)))
 
 -- Identifications in a subtype
-＝ΣProp : {A : Type} (B : A → Prop) {u v : Σ A (λ a → fst (B a))} → (fst u ＝ fst v) → (u ＝ v)
-＝ΣProp B p = p , Id-prop _ (λ a → fst (B a)) (λ a → snd (B a)) _ _
+＝ΣProp : {A : Type} (B : A ⇒ Prop) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) {b₀ : fst (B ∙ a₀)} {b₁ : fst (B ∙ a₁)}
+  → (a₀ , b₀) ＝ (a₁ , b₁)
+＝ΣProp B p = p , Id-prop _ (λ a → fst (B ∙ a)) (λ a → snd (B ∙ a)) _ _
 
 ------------------------------
 -- Propositional truncation
