@@ -1,28 +1,31 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --no-projection-like #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --no-import-sorts --no-projection-like #-}
 
 module HOTT.Telescope where
 
 open import HOTT.Rewrite
+open import HOTT.Identity
+open import HOTT.Types.Unit
 
 infixl 30 _∷_
-infix 40 _⊘_ _⊘ᵉ_
-infixr 40 _⊚_ _⊚ᵉ_
+infix 40 _⊘_
 infixl 30 _▸_ _▹_
-infix 20 Λ⇨ Λ⇨ᵉ
+infix 20 𝚲
+infix 20 ℿ
+infix 60 _₀ _₁
 
 ------------------------------
--- Telescope exo-types
+-- Unit exotype
 ------------------------------
 
--- We name the element of the terminal exotype [] because we think of
--- it as an empty list (the element of the empty telescope).
 record ⊤ᵉ : Typeᵉ where
   constructor []
-
 open ⊤ᵉ
 
--- A telescope is a list of dependent types.
+--------------------------------------------------
+-- Telescope exo-types and functions on them
+--------------------------------------------------
 
+-- A telescope is a list of dependent types.
 data Tel : Typeᵉ
 
 -- The elements of a telescope are defined by mutual
@@ -30,27 +33,23 @@ data Tel : Typeᵉ
 el : Tel → Typeᵉ
 
 -- We introduce special datatypes for functions out of telescopes.
--- This enables a more useful kind of pattern-matching for rewrites on
--- Id and AP, to be discussed later.  Because we have no cumulativity,
--- we need two different versions depending on whether the codomain is
--- a type or an exotype.  (We don't give a dependently typed version.)
-data _⇨_ (Δ : Tel) (T : Type) : Typeᵉ where
-  Λ⇨ : (el Δ → T) → (Δ ⇨ T)
+-- This enables a more useful kind of pattern-matching for rewrites.
+postulate
+  ℿ : (Δ : Tel) (T : el Δ → Type) → Type
+  𝚲 : {Δ : Tel} {T : el Δ → Type} → ((x : el Δ) → T x) → ℿ Δ T
 
-data _⇨ᵉ_ (Δ : Tel) (T : Typeᵉ) : Typeᵉ where
-  Λ⇨ᵉ : (el Δ → T) → (Δ ⇨ᵉ T)
+syntax ℿ Δ (λ x → T) = （ x ⦂ Δ ）⇨ T
+syntax 𝚲 (λ x → f) = Λ x ⇨ f
 
--- The constructor above is of course an abstraction, so we allow
--- ourselves to denote it in that way.
-syntax Λ⇨ (λ x → B) = Λ x ⇨ B
-syntax Λ⇨ᵉ (λ x → B) = Λ x ⇨ᵉ B
+postulate
+  _⊘_ : {Δ : Tel} {T : el Δ → Type} (f : （ x ⦂ Δ ）⇨ T x) (a : el Δ) → T a
+  ℿβ : {Δ : Tel} {T : el Δ → Type} (f : (x : el Δ) → T x) (a : el Δ) → (𝚲 {Δ} f) ⊘ a ≡ f a
+  ℿη : {Δ : Tel} {T : el Δ → Type} (f : （ x ⦂ Δ ）⇨ T x) → 𝚲 (λ x → f ⊘ x) ≡ f 
 
--- We also have the dual sort of "application".
-_⊘_ : {Δ : Tel} {T : Type} (B : Δ ⇨ T) (x : el Δ) → T
-(Λ⇨ B) ⊘ x = B x
-
-_⊘ᵉ_ : {Δ : Tel} {T : Typeᵉ} (B : Δ ⇨ᵉ T) (x : el Δ) → T
-(Λ⇨ᵉ B) ⊘ᵉ x = B x
+{-# REWRITE ℿβ ℿη #-}
+  
+_⇨_ : Tel → Type → Type
+Δ ⇨ T = （ _ ⦂ Δ ）⇨ T
 
 -- The definition of "el" involves a sort of Σ-exotype.  But rather
 -- than make this a generic Σ-exotype, we make its first argument a
@@ -80,11 +79,23 @@ _⊘ᵉ_ : {Δ : Tel} {T : Typeᵉ} (B : Δ ⇨ᵉ T) (x : el Δ) → T
 
 -- Note that the type we extend by belongs to our datatype
 -- function-space.  This is why we had to define that mutually.
-data _▹_ (Δ : Tel) (B : Δ ⇨ Type) : Typeᵉ where
--- We name the constructor ∷ because we think of the elements of a
--- telescope as a snoc-list.
-  _∷_ : (x : el Δ) → B ⊘ x → Δ ▹ B
-open _▹_
+postulate
+  _▹_ : (Δ : Tel) (B : Δ ⇨ Type) → Typeᵉ
+  -- We name the constructor ∷ because we think of the elements of a
+  -- telescope as a snoc-list.
+  _∷_ : {Δ : Tel} {B : Δ ⇨ Type} (x : el Δ) → B ⊘ x → Δ ▹ B
+  -- We name the projections of the Σ-type ▹ 'top' and 'pop', thinking
+  -- of them as De Bruijn indices accessing elements of such a list.
+  pop : {Δ : Tel} {B : Δ ⇨ Type} → Δ ▹ B → el Δ
+  top : {Δ : Tel} {B : Δ ⇨ Type} (δ : Δ ▹ B) → B ⊘ (pop δ)
+  popβ : {Δ : Tel} {B : Δ ⇨ Type} (δ : el Δ) (b : B ⊘ δ) → pop {Δ} {B} (δ ∷ b) ≡ᵉ δ
+
+{-# REWRITE popβ #-}
+
+postulate
+  topβ : {Δ : Tel} {B : Δ ⇨ Type} (δ : el Δ) (b : B ⊘ δ) → top {Δ} {B} (δ ∷ b) ≡ b
+
+{-# REWRITE topβ #-}
 
 data Tel where
   ε : Tel
@@ -93,27 +104,22 @@ data Tel where
 el ε = ⊤ᵉ
 el (Δ ▸ A) = Δ ▹ A
 
--- This is the end of the above block of mutual inductive-recursive
--- definitions.
-
--- We name the projections of the Σ-type ▹ 'top' and 'pop', thinking
--- of them as De Bruijn indices accessing elements of such a list.
-pop : {Δ : Tel} {B : Δ ⇨ Type} → Δ ▹ B → el Δ
-pop (δ ∷ _) = δ
-
-top : {Δ : Tel} {B : Δ ⇨ Type} (δ : Δ ▹ B) → B ⊘ (pop δ)
-top (_ ∷ b) = b
+----------------------------------------
+-- Auxiliary functions on telescopes
+----------------------------------------
 
 -- Some useful abbreviations
 
 ε▸ : (A : Type) → Tel
 ε▸ A = ε ▸ (Λ _ ⇨ A)
 
+{-
 POP : {Δ : Tel} {B : Δ ⇨ Type} → ((Δ ▸ B) ⇨ᵉ el Δ)
 POP = (Λ x ⇨ᵉ pop x)
 
 IDMAP : {Γ : Tel} → (Γ ⇨ᵉ el Γ)
 IDMAP = Λ x ⇨ᵉ x
+-}
 
 uncurry : {T : Type} {Δ : Tel} {A : Δ ⇨ Type} (B : (w : el Δ) → A ⊘ w → T) → el (Δ ▸ A) → T
 uncurry B w = B (pop w) (top w)
@@ -122,24 +128,7 @@ uncurry B w = B (pop w) (top w)
   _≡ᵉ_ {el (Δ ▸ A)} (δ₀ ∷ a₀) (δ₁ ∷ a₁)
 ∷≡ A reflᵉᵉ reflʰ = reflᵉᵉ
 
--- We postulate η-rules by rewriting for our telescope
--- function-spaces.  Unfortunately, this apparently has the potential
--- to break subject-reduction when ⇨ is defined as a datatype: for any
--- (f : ε ⇨ B), the term (_⊚_ {Δ} {ε} {B} f (Λ (λ _ → []))) (with ⊚ as
--- below) has type (Δ ⇨ B), but reduces to f.  Evidently this has
--- something to do with the eta-rule for ⊤ᵉ and the fact that the
--- constructor Λ isn't annotated internally.  We can avoid it by
--- making ⇨ a postulate, with a rewrite for the β-rule; but doing that
--- breaks something in Square/Base and I haven't tried to figure out
--- how hard that would be to fix.  For the most part, this breakage of
--- subject-reduction hasn't been a problem (but see below).
-
-postulate
-  Λ⇨η : {Δ : Tel} {T : Type} (A : Δ ⇨ T) → (Λ x ⇨ A ⊘ x) ≡ᵉ A
-  Λ⇨ᵉη : {Δ : Tel} {T : Typeᵉ} (A : Δ ⇨ᵉ T) → (Λ x ⇨ᵉ A ⊘ᵉ x) ≡ᵉ A
-
-{-# REWRITE Λ⇨η Λ⇨ᵉη #-}
-
+{-
 -- We "define" composition ⊚ of our telescope function-spaces.  However,
 -- to preserve better rewrite matching, we don't actually *define* it,
 -- but postulate it, with rewrites specifying its expected behavior.
@@ -169,3 +158,43 @@ postulate
 -- need for Universe/TopCompose.  But currently, if we postulate
 -- const-⊚ as a rewrite, we run into the above-mentioned
 -- subject-reduction problem with Λη in some places.
+-}
+
+--------------------------------------------------------------------------------
+-- Identity types of telescopes and non-dependent telescope function-types
+--------------------------------------------------------------------------------
+
+postulate
+  ID : Tel → Tel
+  IDε : ID ε ≡ᵉ ε
+  ID▸ⁿᵈ : (Δ : Tel) (A : Type) →
+    ID (Δ ▸ (Λ _ ⇨ A)) ≡ᵉ (ID Δ ▸ (Λ _ ⇨ A) ▸ (Λ _ ⇨ A) ▸ (Λ x ⇨ top (pop x) ＝ top x))
+  _₀ : {Δ : Tel} → el (ID Δ) → el Δ
+  _₁ : {Δ : Tel} → el (ID Δ) → el Δ
+
+{-# REWRITE IDε ID▸ⁿᵈ #-}
+
+postulate
+  ▸₀ⁿᵈ : (Δ : Tel) (A : Type) (δ : el (ID Δ)) (a₀ a₁ : A) (a₂ : a₀ ＝ a₁) →
+    (_₀ {Δ ▸ (Λ _ ⇨ A)} (δ ∷ a₀ ∷ a₁ ∷ a₂)) ≡ᵉ (δ ₀ ∷ a₀)
+  ▸₁ⁿᵈ : (Δ : Tel) (A : Type) (δ : el (ID Δ)) (a₀ a₁ : A) (a₂ : a₀ ＝ a₁) →
+    (_₁ {Δ ▸ (Λ _ ⇨ A)} (δ ∷ a₀ ∷ a₁ ∷ a₂)) ≡ᵉ (δ ₁ ∷ a₁)
+  ε▸₀ⁿᵈ : (A : Type) (a₀ a₁ : A) (a₂ : a₀ ＝ a₁) →
+    (_₀ {ε ▸ (Λ _ ⇨ A)} ([] ∷ a₀ ∷ a₁ ∷ a₂)) ≡ᵉ ([] ∷ a₀)
+  ε▸₁ⁿᵈ : (A : Type) (a₀ a₁ : A) (a₂ : a₀ ＝ a₁) →
+    (_₁ {ε ▸ (Λ _ ⇨ A)} ([] ∷ a₀ ∷ a₁ ∷ a₂)) ≡ᵉ ([] ∷ a₁)
+
+{-# REWRITE ▸₀ⁿᵈ ▸₁ⁿᵈ ε▸₀ⁿᵈ ε▸₁ⁿᵈ #-}
+
+postulate
+  ＝⇨ : (Δ : Tel) (T : Type) (f g : Δ ⇨ T) → (f ＝ g) ≡ （ x ⦂ ID Δ ）⇨ f ⊘ x ₀ ＝ g ⊘ x ₁
+
+{-# REWRITE ＝⇨ #-}
+
+-- refl on telescope function-types computes on the structure of its
+-- abstraction.  The base cases are variables and constant terms.
+
+postulate
+  reflΛⁿᵈ-const : (Δ : Tel) (T : Type) (t : T) → refl {（ x ⦂ Δ ）⇨ T} (Λ _ ⇨ t) ≡ Λ _ ⇨ refl t
+
+{-# REWRITE reflΛⁿᵈ-const #-}
