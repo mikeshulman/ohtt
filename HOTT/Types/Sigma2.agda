@@ -8,7 +8,6 @@ open import HOTT.Telescope
 open import HOTT.Types.Pi
 open import HOTT.Types.Sigma
 open import HOTT.Types.Universe
-open import HOTT.DepId
 open import HOTT.Types.Pi2
 
 --------------------------------------------------

@@ -9,6 +9,5 @@ open import HOTT.Types.Unit public
 open import HOTT.Types.Pi public
 open import HOTT.Types.Sigma public
 open import HOTT.Types.Universe public
-open import HOTT.DepId public
 open import HOTT.Types.Pi2 public
 open import HOTT.Types.Sigma2 public

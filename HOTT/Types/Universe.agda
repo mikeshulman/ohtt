@@ -12,6 +12,9 @@ open import HOTT.Types.Pi
 -- Identity types of the universe
 ----------------------------------------
 
+-- Dependent identity types
+Id : {A : Type} (B : A ⇒ Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (b₀ : B ∙ a₀) (b₁ : B ∙ a₁) → Type
+
 record _＝U_ (A B : Type) : Type where
   no-eta-equality
   field
@@ -20,8 +23,10 @@ record _＝U_ (A B : Type) : Type where
     lift→ : (a : A) → _//_~_ a (tr→ a)
     tr← : B → A
     lift← : (b : B) → _//_~_ (tr← b) b
-    utr→ : (a : A) (b₀ b₁ : B) (r₀ : _//_~_ a b₀) (r₁ : _//_~_ a b₁) → (b₀ , r₀) ＝ (b₁ , r₁)
-    utr← : (b : B) (a₀ a₁ : A) (r₀ : _//_~_ a₀ b) (r₁ : _//_~_ a₁ b) → (a₀ , r₀) ＝ (a₁ , r₁)
+    utr→ : (a : A) (b₀ b₁ : B) (r₀ : _//_~_ a b₀) (r₁ : _//_~_ a b₁) → b₀ ＝ b₁
+    ulift→ : (a : A) (b₀ b₁ : B) (r₀ : _//_~_ a b₀) (r₁ : _//_~_ a b₁) → Id (ƛ b ⇒ _//_~_ a b) (utr→ a b₀ b₁ r₀ r₁) r₀ r₁
+    utr← : (b : B) (a₀ a₁ : A) (r₀ : _//_~_ a₀ b) (r₁ : _//_~_ a₁ b) → a₀ ＝ a₁
+    ulift← : (b : B) (a₀ a₁ : A) (r₀ : _//_~_ a₀ b) (r₁ : _//_~_ a₁ b) → Id (ƛ a ⇒ _//_~_ a b) (utr← b a₀ a₁ r₀ r₁) r₀ r₁
 
 open _＝U_ public
 
@@ -34,6 +39,26 @@ postulate
   refl//~ : (A : Type) (a₀ a₁ : A) → (refl A // a₀ ~ a₁) ≡ (a₀ ＝ a₁)
 
 {-# REWRITE refl//~ #-}
+
+----------------------------------------
+-- Dependent identity types
+----------------------------------------
+
+-- Now we can define these
+Id B {a₀} {a₁} a₂ b₀ b₁ = refl B ∙ a₀ ∙ a₁ ∙ a₂ // b₀ ~ b₁
+
+-- We also have ones dependent on a telescope
+𝕀𝕕 : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₀ : A ⊘ δ ₀) (a₁ : A ⊘ δ ₁) → Type
+𝕀𝕕 {Δ} A δ a₀ a₁ = refl A ⊘ δ // a₀ ~ a₁
+
+------------------------------------------------------------
+-- Identity types of dependent telescope function-types
+------------------------------------------------------------
+
+postulate
+  ＝ℿ : (Δ : Tel) (T : el Δ → Type) (f g : ℿ Δ T) → (f ＝ g) ≡ （ δ ⦂ ID Δ ）⇨ 𝕀𝕕 (𝚲 T) δ (f ⊘ δ ₀) (g ⊘ δ ₁)
+
+{-# REWRITE ＝ℿ #-}
 
 ----------------------------------------
 -- Identity types of eliminators

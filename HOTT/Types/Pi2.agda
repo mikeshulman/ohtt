@@ -7,7 +7,6 @@ open import HOTT.Identity
 open import HOTT.Telescope
 open import HOTT.Types.Pi
 open import HOTT.Types.Universe
-open import HOTT.DepId
 
 --------------------------------------------------
 -- Identity types of dependent Π-types
