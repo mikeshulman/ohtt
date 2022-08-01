@@ -5,7 +5,6 @@ module HOTT.Types.Universe where
 open import HOTT.Rewrite
 open import HOTT.Identity
 open import HOTT.Telescope
-open import HOTT.Types.Sigma
 open import HOTT.Types.Pi
 
 ----------------------------------------
@@ -51,15 +50,6 @@ Id B {a₀} {a₁} a₂ b₀ b₁ = refl B ∙ a₀ ∙ a₁ ∙ a₂ // b₀ ~ 
 𝕀𝕕 : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₀ : A ⊘ δ ₀) (a₁ : A ⊘ δ ₁) → Type
 𝕀𝕕 {Δ} A δ a₀ a₁ = refl A ⊘ δ // a₀ ~ a₁
 
-------------------------------------------------------------
--- Identity types of dependent telescope function-types
-------------------------------------------------------------
-
-postulate
-  ＝ℿ : (Δ : Tel) (T : el Δ → Type) (f g : ℿ Δ T) → (f ＝ g) ≡ （ δ ⦂ ID Δ ）⇨ 𝕀𝕕 (𝚲 T) δ (f ⊘ δ ₀) (g ⊘ δ ₁)
-
-{-# REWRITE ＝ℿ #-}
-
 ----------------------------------------
 -- Identity types of eliminators
 ----------------------------------------
@@ -74,4 +64,3 @@ postulate
   ＝∙ : (A : Type) (B : A ⇒ Type) (a : A) (b₀ b₁ : B ∙ a) → (b₀ ＝ b₁) ≡ refl B ∙ a ∙ a ∙ refl a // b₀ ~ b₁
 
 {-# REWRITE ＝∙ #-}
-

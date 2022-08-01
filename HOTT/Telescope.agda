@@ -7,7 +7,7 @@ open import HOTT.Identity
 open import HOTT.Types.Unit
 
 infixl 30 _∷_
-infix 40 _⊘_
+infixl 40 _⊘_
 infixl 30 _▸_ _▹_
 infix 20 𝚲
 infix 20 ℿ
@@ -195,6 +195,6 @@ postulate
 -- abstraction.  The base cases are variables and constant terms.
 
 postulate
-  reflΛⁿᵈ-const : (Δ : Tel) (T : Type) (t : T) → refl {（ x ⦂ Δ ）⇨ T} (Λ _ ⇨ t) ≡ Λ _ ⇨ refl t
+  ap-const : (Δ : Tel) (T : Type) (t : T) → refl {（ x ⦂ Δ ）⇨ T} (Λ _ ⇨ t) ≡ Λ _ ⇨ refl t
 
-{-# REWRITE reflΛⁿᵈ-const #-}
+{-# REWRITE ap-const #-}
