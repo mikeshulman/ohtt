@@ -52,4 +52,36 @@ postulate
 
 {-# REWRITE refl-ƛ ap-ƛ #-}
 
--- TODO: refl-∙, ap-∙
+frob-ap-∙ⁿᵈ : {Δ : Tel} (A B : Δ ⇨ Type)
+    (f : (x : el Δ) → A ⊘ x ⇒ B ⊘ x) (a : (x : el Δ) → A ⊘ x)
+    (δ : el (ID Δ)) →
+    𝕀𝕕 B δ (f (δ ₀) ∙ a (δ ₀)) (f (δ ₁) ∙ a (δ ₁))
+frob-ap-∙ⁿᵈ A B f a δ =
+  refl (𝚲 f) ⊘ δ ∙ a (δ ₀) ∙ a (δ ₁) ∙ (refl (𝚲 a) ⊘ δ)
+
+postulate
+  ap-∙ⁿᵈ : {Δ : Tel} (A B : el Δ → Type)
+    (f : (x : el Δ) → A x ⇒ B x) (a : (x : el Δ) → A x) →
+    refl (Λ x ⇨ f x ∙ a x) ≡ Λ δ ⇨ frob-ap-∙ⁿᵈ (𝚲 A) (𝚲 B) f a δ
+
+{-# REWRITE ap-∙ⁿᵈ #-}
+
+{-
+-- De Bruijn index out of scope
+
+frob-refl-∙ : {A : Type} (B : A ⇒ Type) (f : Π A (B ∙_)) (a : A) →
+  f ∙ a ＝ f ∙ a
+frob-refl-∙ B f a = {!!}
+-}
+
+{-
+postulate
+  refl-∙ : (A : Type) (B : A → Type) (f : Π A B) (a : A) →
+    refl (f ∙ a) ≡ {!!}
+-}
+{-
+  ap-∙ : {Δ : Tel} (A : el Δ → Type) (B : (x : el Δ) → A x → Type)
+    (f : (x : el Δ) → Π (A x) (B x)) (a : (x : el Δ) → A x) (δ : el (ID Δ)) →
+    refl (Λ x ⇨ f x ∙ a x) ≡ ?
+-}
+

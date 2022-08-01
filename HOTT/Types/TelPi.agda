@@ -53,6 +53,11 @@ postulate
 {-# REWRITE ap-⊘ #-}
 
 postulate
+  AP-idmap : (Δ : Tel) (δ : el (ID Δ)) → AP {Δ} (λ z → z) δ ≡ᵉ δ
+
+{-# REWRITE AP-idmap #-}
+
+postulate
   AP-pop : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
     AP (λ x → pop (f x)) γ ≡ᵉ pop (pop (pop (AP f γ)))
   pop-pop-pop-AP₀ : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
