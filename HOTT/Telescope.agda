@@ -34,11 +34,11 @@ el : Tel → Typeᵉ
 -- Id and AP, to be discussed later.  Because we have no cumulativity,
 -- we need two different versions depending on whether the codomain is
 -- a type or an exotype.  (We don't give a dependently typed version.)
-data _⇨_ (Δ : Tel) (T : Type) : Typeᵉ where
-  Λ⇨ : (el Δ → T) → (Δ ⇨ T)
-
-data _⇨ᵉ_ (Δ : Tel) (T : Typeᵉ) : Typeᵉ where
-  Λ⇨ᵉ : (el Δ → T) → (Δ ⇨ᵉ T)
+postulate
+  _⇨_ : (Δ : Tel) (T : Type) → Typeᵉ
+  Λ⇨ : {Δ : Tel} {T : Type} → (el Δ → T) → (Δ ⇨ T)
+  _⇨ᵉ_ : (Δ : Tel) (T : Typeᵉ) → Typeᵉ
+  Λ⇨ᵉ : {Δ : Tel} {T : Typeᵉ} → (el Δ → T) → (Δ ⇨ᵉ T)
 
 -- The constructor above is of course an abstraction, so we allow
 -- ourselves to denote it in that way.
@@ -46,11 +46,13 @@ syntax Λ⇨ (λ x → B) = Λ x ⇨ B
 syntax Λ⇨ᵉ (λ x → B) = Λ x ⇨ᵉ B
 
 -- We also have the dual sort of "application".
-_⊘_ : {Δ : Tel} {T : Type} (B : Δ ⇨ T) (x : el Δ) → T
-(Λ⇨ B) ⊘ x = B x
+postulate
+  _⊘_ : {Δ : Tel} {T : Type} (B : Δ ⇨ T) (x : el Δ) → T
+  ⊘β : {Δ : Tel} {T : Type} (B : el Δ → T) (x : el Δ) → (Λ⇨ {Δ} B) ⊘ x ≡ B x
+  _⊘ᵉ_ : {Δ : Tel} {T : Typeᵉ} (B : Δ ⇨ᵉ T) (x : el Δ) → T
+  ⊘ᵉβ : {Δ : Tel} {T : Typeᵉ} (B : el Δ → T) (x : el Δ) → (Λ⇨ᵉ {Δ} B) ⊘ᵉ x ≡ᵉ B x
 
-_⊘ᵉ_ : {Δ : Tel} {T : Typeᵉ} (B : Δ ⇨ᵉ T) (x : el Δ) → T
-(Λ⇨ᵉ B) ⊘ᵉ x = B x
+{-# REWRITE ⊘β ⊘ᵉβ #-}
 
 -- The definition of "el" involves a sort of Σ-exotype.  But rather
 -- than make this a generic Σ-exotype, we make its first argument a
