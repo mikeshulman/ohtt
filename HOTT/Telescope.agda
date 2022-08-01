@@ -169,10 +169,16 @@ postulate
   IDε : ID ε ≡ᵉ ε
   ID▸ⁿᵈ : (Δ : Tel) (A : Type) →
     ID (Δ ▸ (Λ _ ⇨ A)) ≡ᵉ (ID Δ ▸ (Λ _ ⇨ A) ▸ (Λ _ ⇨ A) ▸ (Λ x ⇨ top (pop x) ＝ top x))
-  _₀ : {Δ : Tel} → el (ID Δ) → el Δ
-  _₁ : {Δ : Tel} → el (ID Δ) → el Δ
 
 {-# REWRITE IDε ID▸ⁿᵈ #-}
+
+postulate
+  _₀ : {Δ : Tel} → el (ID Δ) → el Δ
+  []₀ : [] ₀ ≡ᵉ []
+  _₁ : {Δ : Tel} → el (ID Δ) → el Δ
+  []₁ : [] ₁ ≡ᵉ []
+
+{-# REWRITE []₀ []₁ #-}
 
 postulate
   ▸₀ⁿᵈ : (Δ : Tel) (A : Type) (δ : el (ID Δ)) (a₀ a₁ : A) (a₂ : a₀ ＝ a₁) →

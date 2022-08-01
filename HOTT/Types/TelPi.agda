@@ -29,6 +29,16 @@ postulate
 {-# REWRITE ID▸ AP₀ AP₁ #-}
 
 postulate
+  ∷₀ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ))
+    (a₀ : A (δ ₀)) (a₁ : A (δ ₁)) (a₂ : 𝕀𝕕 (𝚲 A) δ a₀ a₁) →
+    (_∷_ {ID Δ} δ a₀ ∷ a₁ ∷ a₂) ₀ ≡ᵉ _∷_ {Δ} {𝚲 A} (δ ₀) a₀
+  ∷₁ : {Δ : Tel} (A : el Δ → Type) (δ : el (ID Δ))
+    (a₀ : A (δ ₀)) (a₁ : A (δ ₁)) (a₂ : 𝕀𝕕 (𝚲 A) δ a₀ a₁) →
+    (_∷_ {ID Δ} δ a₀ ∷ a₁ ∷ a₂) ₁ ≡ᵉ _∷_ {Δ} {𝚲 A} (δ ₁) a₁
+
+{-# REWRITE ∷₀ ∷₁ #-}
+
+postulate
   ap-⊘ⁿᵈ : (Γ Δ : Tel) (T : Type)
     (f : el Γ → （ x ⦂ Δ ）⇨ T) (a : el Γ → el Δ) →
     refl (Λ w ⇨ f w ⊘ a w) ≡ Λ γ ⇨ refl (𝚲 f) ⊘ γ ⊘ (AP a γ)

@@ -46,18 +46,26 @@ idmap A = ƛ x ⇒ x
 -- Identity types of non-dependent function types
 --------------------------------------------------
 
+-- We will give all the rules involving identity types for Π-types in
+-- Pi2, after we have dependent identity types defined using the
+-- universe.  However, defining all of that requires already knowing
+-- identity types of *non-dependent* function types, and a bit of
+-- computation for them, so we give those here.  They will later be
+-- subsumed by the rules in Pi2.
+
 postulate
   ＝⇒ : (A B : Type) (f g : A ⇒ B) → (f ＝ g) ≡ （ a₀ ⦂ A ）⇒ （ a₁ ⦂ A ）⇒ (a₀ ＝ a₁) ⇒ (f ∙ a₀ ＝ g ∙ a₁)
 
 {-# REWRITE ＝⇒ #-}
 
 postulate
-  reflƛⁿᵈ : (A B : Type) (f : A ⇒ B) →
-    refl f ≡ (ƛ a₀ ⇒ ƛ a₁ ⇒ ƛ a₂ ⇒ refl {（ x ⦂ (ε ▸ (Λ _ ⇨ A)) ）⇨ B} (Λ x ⇨ f ∙ top x) ⊘ ([] ∷ a₀ ∷ a₁ ∷ a₂))
+  refl-ƛⁿᵈ : (A B : Type) (f : A ⇒ B) →
+    refl f ≡ (ƛ a₀ ⇒ ƛ a₁ ⇒ ƛ a₂ ⇒
+    refl {（ x ⦂ (ε ▸ (Λ _ ⇨ A)) ）⇨ B} (Λ x ⇨ f ∙ top x) ⊘ ([] ∷ a₀ ∷ a₁ ∷ a₂))
 
-{-# REWRITE reflƛⁿᵈ #-}
+{-# REWRITE refl-ƛⁿᵈ #-}
 
 postulate
-  refl∙ⁿᵈ : (A B : Type) (f : A ⇒ B) (a : A) → refl (f ∙ a) ≡ refl f ∙ a ∙ a ∙ refl a
+  refl-∙ⁿᵈ : (A B : Type) (f : A ⇒ B) (a : A) → refl (f ∙ a) ≡ refl f ∙ a ∙ a ∙ refl a
 
-{-# REWRITE refl∙ⁿᵈ #-}
+{-# REWRITE refl-∙ⁿᵈ #-}

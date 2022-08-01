@@ -30,9 +30,9 @@ record _＝U_ (A B : Type) : Type where
 open _＝U_ public
 
 postulate
-  ＝U : (A B : Type) → (A ＝ B) ≡ (A ＝U B)
+  ＝-U : (A B : Type) → (A ＝ B) ≡ (A ＝U B)
 
-{-# REWRITE ＝U #-}
+{-# REWRITE ＝-U #-}
 
 postulate
   refl//~ : (A : Type) (a₀ a₁ : A) → (refl A // a₀ ~ a₁) ≡ (a₀ ＝ a₁)
