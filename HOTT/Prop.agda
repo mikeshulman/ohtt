@@ -99,6 +99,10 @@ P ∧ Q = (fst P × fst Q , isProp-× (snd P) (snd Q))
 _∨_ : Prop → Prop → Prop
 P ∨ Q = (∥ fst P ⊎ fst Q ∥ , isProp-∥∥ _)
 
+∨-case : {P Q : Prop} (R : Prop) (f : fst P → fst R) (g : fst Q → fst R) →
+  fst (P ∨ Q) → fst R
+∨-case R f g u = ∥∥-rec R (λ v → case v (λ _ _ → fst R) f g) u
+
 _⊃_ : Prop → Prop → Prop
 P ⊃ Q = ((fst P ⇒ fst Q) , isProp-Π (λ _ → snd Q))
 
