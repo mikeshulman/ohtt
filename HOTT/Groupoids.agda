@@ -215,7 +215,7 @@ funextd : {A : Type} (B : A → Type) {f g : Π A B} (p : Π[ x ⦂ A ] f ∙ x 
 funextd {A} B {f} {g} p = ƛ a₀ ⇒ ƛ a₁ ⇒ ƛ a₂ ⇒
   𝐉 (λ a₁ a₂ → Id {ε▸ A} (Λ x ⇨ B (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂) (f ∙ a₀) (g ∙ a₁)) (p ∙ a₀) a₁ a₂
 
--- It follows that propositions and contractible types are closed under Π.
+-- It follows that propositions and contractible types, are closed under Π.
 isProp-Π : {A : Type} {B : A → Type} (pB : (x : A) → isProp (B x)) → isProp (Π A B)
 isProp-Π pB = ƛ f ⇒ ƛ g ⇒ funextd _ (ƛ x ⇒ pB x ∙ (f ∙ x) ∙ (g ∙ x))
 
@@ -280,6 +280,19 @@ isContr-Id : {A : Type} {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (B : A → Type)
   isContr (Id {ε▸ A} (Λ x ⇨ B (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂) b₀ b₁)
 isContr-Id {A} {a₀} {a₁} a₂ B prp b₀ b₁ =
    (Id-prop a₂ B prp b₀ b₁ , isProp-Id a₂ B prp b₀ b₁)
+
+-- Similarly for a family of sets
+isProp-Id-isSet : {A : Type} {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (B : A → Type)
+  (bs : (x : A) → isSet (B x)) (b₀ : B a₀) (b₁ : B a₁) →
+  isProp (Id {ε▸ A} (Λ x ⇨ B (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂) b₀ b₁)
+isProp-Id-isSet {A} {a₀} {a₁} a₂ B bs b₀ b₁ =
+   𝐉 (λ a₁ a₂ → (b₁ : B a₁) → isProp (Id {ε▸ A} (Λ x ⇨ B (top x)) ([] ∷ a₀ ∷ a₁ ∷ a₂) b₀ b₁))
+     (λ b₁' → bs a₀ ∙ b₀ ∙ b₁') a₁ a₂ b₁
+
+-- Sets are closed under Π-types
+isSet-Π : {A : Type} {B : A → Type} (sB : (x : A) → isSet (B x)) → isSet (Π A B)
+isSet-Π {A} {B} sB = ƛ f ⇒ ƛ g ⇒ isProp-Π (λ a₀ → isProp-Π (λ a₁ → isProp-Π (λ a₂ →
+  isProp-Id-isSet a₂ B sB (f ∙ a₀) (g ∙ a₁) )))
 
 -- Every square in a set can be filled.
 sq-set : {A : Type} (prp : isSet A)
