@@ -79,6 +79,16 @@ isSet-Prop = ƛ P ⇒ ƛ Q ⇒ tr⇐ (ƛ X ⇒ isProp X) (＝Prop P Q) (isProp-�
 isProp-∥∥ : (A : Type) → isProp ∥ A ∥
 isProp-∥∥ A = isProp-Π (λ P → isProp-Π (λ prp → isProp-Π (λ _ → prp)))
 
+∥∥-elim : {A : Type} (P : ∥ A ∥ → Type) (p : (x : ∥ A ∥) → isProp (P x))
+  (d : (a : A) → P (∣ a ∣)) (u : ∥ A ∥) →
+  P u
+∥∥-elim {A} P p d u =
+  coe⇒ (cong (ƛ x ⇒ P x) (isProp-∥∥ A ∙ _ ∙ u)) ∙
+    (snd (u ∙ Σ _ P ∙ (ƛ x ⇒ ƛ y ⇒ ＝ΣProp (ƛ x ⇒ (P x , p x)) (isProp-∥∥ A ∙ fst x ∙ fst y) {snd x} {snd y}) ∙ (ƛ a ⇒ (∣ a ∣ , d a))))
+
+∥∥-rec : {A : Type} (P : Prop) (d : A → fst P) → ∥ A ∥ → fst P
+∥∥-rec {A} P d u = u ∙ fst P ∙ snd P ∙ (ƛ x ⇒ d x)
+
 ------------------------------
 -- The logic of propositions
 ------------------------------
@@ -88,6 +98,10 @@ P ∧ Q = (fst P × fst Q , isProp-× (snd P) (snd Q))
 
 _∨_ : Prop → Prop → Prop
 P ∨ Q = (∥ fst P ⊎ fst Q ∥ , isProp-∥∥ _)
+
+∨-case : {P Q : Prop} (R : Prop) (f : fst P → fst R) (g : fst Q → fst R) →
+  fst (P ∨ Q) → fst R
+∨-case R f g u = ∥∥-rec R (λ v → case v (λ _ _ → fst R) f g) u
 
 _⊃_ : Prop → Prop → Prop
 P ⊃ Q = ((fst P ⇒ fst Q) , isProp-Π (λ _ → snd Q))
@@ -101,3 +115,7 @@ exists : (A : Type) (P : A → Prop) → Prop
 exists A P = (∥ Σ[ x ⦂ A ] fst (P x) ∥ , isProp-∥∥ _)
 
 syntax exists A (λ x → P) = ∃[ x ⦂ A ] P
+
+∃-elim : {A : Type} (P : A → Prop) (Q : Prop) (d : (a : A) → fst (P a) → fst Q)
+  (u : fst (∃[ x ⦂ A ] P x)) → fst Q
+∃-elim P Q d u = ∥∥-rec Q (λ v → d (fst v) (snd v)) u
