@@ -67,8 +67,6 @@ postulate
 {-# REWRITE ap-∙ⁿᵈ #-}
 
 {-
--- De Bruijn index out of scope
-
 frob-refl-∙ : {A : Type} (B : A ⇒ Type) (f : Π A (B ∙_)) (a : A) →
   f ∙ a ＝ f ∙ a
 frob-refl-∙ B f a = {!!}

@@ -44,14 +44,14 @@ postulate
 
 {-# REWRITE refl-, refl-fst #-}
 
-{-
--- This makes a De Bruijn index out of scope
 frob-refl-snd : {A : Type} (B : A ⇒ Type) (u : （ x ⦂ A ）× B ∙ x) → snd u ＝ snd u
-frob-refl-snd B u = {!snd (refl u)!}
+frob-refl-snd B u = snd (refl u)
 
 postulate
-  refl-snd : (A : Type) (B : A → Type) (u : Σ A B) → refl (snd u) ≡ {!snd (refl u)!}
+  refl-snd : (A : Type) (B : A → Type) (u : Σ A B) → refl (snd u) ≡ frob-refl-snd (𝛌 B) u
 
+{-# REWRITE refl-snd #-}
+{-
 ----------------------------------------
 -- Identity types of eliminators
 ----------------------------------------
