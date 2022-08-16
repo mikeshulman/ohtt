@@ -57,6 +57,7 @@ postulate
 
 {-# REWRITE AP-idmap #-}
 
+-- TODO: these probably need frobs too.
 postulate
   AP-pop : {Γ Δ : Tel} (A : Δ ⇨ Type) (f : el Γ → el (Δ ▸ A)) (γ : el (ID Γ)) →
     AP (λ x → pop (f x)) γ ≡ᵉ pop (pop (pop (AP f γ)))
@@ -75,8 +76,12 @@ postulate
 
 {-# REWRITE top-pop-AP top-pop-pop-AP #-}
 
+frob-ap-top : (Γ Δ : Tel) (A : Δ ⇨ Type) (f : el Γ → el (Δ ▸ A)) →
+  ℿ (ID Γ) (λ δ → (refl (𝚲 (λ z → A ⊘ (pop (f z)))) ⊘ δ) // top (f (δ ₀)) ~ top (f (δ ₁)))
+frob-ap-top Γ Δ A f = Λ γ ⇨ top (AP f γ)
+
 postulate
-  ap-top : (Γ Δ : Tel) (A : Δ ⇨ Type) (f : el Γ → el (Δ ▸ A)) →
-    refl (Λ x ⇨ top (f x)) ≡ Λ γ ⇨ top (AP f γ)  
+  ap-top : (Γ Δ : Tel) (A : el Δ → Type) (f : el Γ → el (Δ ▸ (𝚲 A))) →
+    refl (Λ x ⇨ top (f x)) ≡ frob-ap-top Γ Δ (𝚲 A) f
 
 {-# REWRITE ap-top #-}
