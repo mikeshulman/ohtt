@@ -22,6 +22,9 @@ postulate
 syntax Π A (λ x → B) = （ x ⦂ A ）⇒ B
 syntax 𝛌 (λ x → f) = ƛ x ⇒ f
 
+-- It's tempting to try to make Π a record type, with 𝛌 a constructor
+-- and _∙_ a field.  But then _∙_ doesn't store A and B as implicit
+-- arguments, which means that refl-∙ can't bind them.
 postulate
   _∙_ : {A : Type} {B : A → Type} (f : Π A B) (a : A) → B a
   Πβ : {A : Type} {B : A → Type} (f : (x : A) → B x) (a : A) → (𝛌 f ∙ a) ≡ f a
@@ -59,9 +62,14 @@ postulate
 {-# REWRITE ＝⇒ #-}
 
 postulate
+{-
   refl-ƛⁿᵈ : (A B : Type) (f : A → B) →
     refl (𝛌 f) ≡ (ƛ a₀ ⇒ ƛ a₁ ⇒ ƛ a₂ ⇒
     refl {（ x ⦂ (ε ▸ (Λ _ ⇨ A)) ）⇨ B} (Λ x ⇨ f (top x)) ⊘ ([] ∷ a₀ ∷ a₁ ∷ a₂))
+-}
+  refl-ƛⁿᵈ : (A B : Type) (f : A → B) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) →
+    refl (𝛌 f) ∙ a₀ ∙ a₁ ∙ a₂ ≡
+    refl {（ x ⦂ (ε ▸ (Λ _ ⇨ A)) ）⇨ B} (Λ x ⇨ f (top x)) ⊘ ([] ∷ a₀ ∷ a₁ ∷ a₂)
 
 {-# REWRITE refl-ƛⁿᵈ #-}
 

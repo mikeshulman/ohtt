@@ -49,18 +49,3 @@ Id B {a₀} {a₁} a₂ b₀ b₁ = refl B ∙ a₀ ∙ a₁ ∙ a₂ // b₀ ~ 
 -- We also have ones dependent on a telescope
 𝕀𝕕 : {Δ : Tel} (A : Δ ⇨ Type) (δ : el (ID Δ)) (a₀ : A ⊘ δ ₀) (a₁ : A ⊘ δ ₁) → Type
 𝕀𝕕 {Δ} A δ a₀ a₁ = refl A ⊘ δ // a₀ ~ a₁
-
-----------------------------------------
--- Identity types of eliminators
-----------------------------------------
-
--- Since refl//~ computes to ＝ rather than vice versa, we need to
--- assert the computation rules that would apply to refl also for ＝.
--- Since Type has no introduction forms, this just means eliminators.
-
--- It seems that this ought to go in Pi2.agda, but when put there it
--- takes forever.
-postulate
-  ＝∙ : (A : Type) (B : A ⇒ Type) (a : A) (b₀ b₁ : B ∙ a) → (b₀ ＝ b₁) ≡ refl B ∙ a ∙ a ∙ refl a // b₀ ~ b₁
-
-{-# REWRITE ＝∙ #-}

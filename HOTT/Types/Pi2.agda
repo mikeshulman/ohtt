@@ -42,15 +42,59 @@ postulate
 {-# REWRITE ap-Π apΠ//~ #-}
 
 postulate
-  refl-ƛ : (A : Type) (B : A → Type) (f : (x : A) → B x) →
-    refl (𝛌 f) ≡ (ƛ a₀ ⇒ ƛ a₁ ⇒ ƛ a₂ ⇒
-    refl {（ x ⦂ (ε ▸ (Λ _ ⇨ A)) ）⇨ B (top x)} (Λ x ⇨ f (top x)) ⊘ ([] ∷ a₀ ∷ a₁ ∷ a₂))
+  refl-ƛ : (A : Type) (B : A → Type) (f : (x : A) → B x) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) →
+    refl (𝛌 f) ∙ a₀ ∙ a₁ ∙ a₂ ≡
+    {!refl {（ x ⦂ (ε ▸ (Λ _ ⇨ A)) ）⇨ B (top x)} (Λ x ⇨ f (top x)) ⊘ ([] ∷ a₀ ∷ a₁ ∷ a₂)!}
   ap-ƛ : (Δ : Tel) (A : el Δ → Type) (B : (x : el Δ) → A x → Type)
     (f : (x : el Δ) → (y : A x) → B x y) →
     refl (Λ x ⇨ 𝛌 (f x)) ≡ Λ δ ⇨ ƛ a₀ ⇒ ƛ a₁ ⇒ ƛ a₂ ⇒
     refl (Λ y ⇨ f (pop y) (top y)) ⊘ (δ ∷ a₀ ∷ a₁ ∷ a₂)
 
+{-
+LHS of refl-ƛⁿᵈ is:
+
+_∙_ {_＝_ {A} a₀ a₁} {λ x → _＝_ {B} (f a₀) (f a₁)}
+ (_∙_ {A} {λ a₃ → _＝_ {A} a₀ a₃ ⇒ _＝_ {B} (f a₀) (f a₃)}
+  (_∙_ {A}
+   {λ a₃ → Π A (λ a₄ → _＝_ {A} a₃ a₄ ⇒ _＝_ {B} (f a₃) (f a₄))}
+   (refl {Π A (λ _ → B)} (𝛌 {A} {λ _ → B} f)) a₀)
+  a₁)
+ a₂
+
+Goal of refl-λ is:
+
+_∙_ {_＝_ {A} a₀ a₁} {λ x → B a₀ ＝U B a₁}
+      (_∙_ {A} {λ a₃ → _＝_ {A} a₀ a₃ ⇒ (B a₀ ＝U B a₃)}
+       (_∙_ {A} {λ a₃ → Π A (λ a₄ → _＝_ {A} a₃ a₄ ⇒ (B a₃ ＝U B a₄))}
+        (refl {Π A (λ x → Type)} (𝛌 {A} {λ x → Type} B)) a₀)
+       a₁)
+      a₂
+
+      // f a₀ ~ f a₁
+
+I think it doesn't match because ＝U is not actually an equality type.
+This is the "rewriting green slime" problem.  Surprisingly, it doesn't
+seem to come up much elsewhere in this development. -}
+
+
+{-
 {-# REWRITE refl-ƛ ap-ƛ #-}
+
+{-
+Ah, I see the problem.  Applying (refl f) to an argument forces its
+type to be computed; C-u C-u C-c C-. on (refl f) also triggers the
+problem.  Computing this type, by ＝Π, yields a function type whose
+codomain is (Id (𝛌 B)).  Applying the definition of Id, this becomes
+(refl (𝛌 B)), or more precisely (refl (𝛌 {A} {Type} B)).  But refl-ƛ
+then computes this to something involving (Id (ƛ _ ⇒ Type)), and we're
+in a cycle.
+
+The above fix of refl-ƛ, which reduces only when applied to all of its
+arguments, appears to solve this problem, at least where we've
+encountered it so far.  But a similar change made to refl-ƛⁿᵈ in
+Pi.agda causes refl-ƛ itself to not typecheck!  I don't know why yet.
+
+-}
 
 frob-ap-∙ⁿᵈ : {Δ : Tel} (A B : Δ ⇨ Type)
     (f : (x : el Δ) → A ⊘ x ⇒ B ⊘ x) (a : (x : el Δ) → A ⊘ x)
@@ -83,3 +127,17 @@ postulate
     refl (Λ x ⇨ f x ∙ a x) ≡ ?
 -}
 
+----------------------------------------
+-- Identity types of eliminators
+----------------------------------------
+
+-- Since refl//~ computes to ＝ rather than vice versa, we need to
+-- assert the computation rules that would apply to refl also for ＝.
+-- Since Type has no introduction forms, this just means eliminators.
+
+postulate
+  ＝∙ : (A : Type) (B : A ⇒ Type) (a : A) (b₀ b₁ : B ∙ a) →
+    (b₀ ＝ b₁) ≡ refl B ∙ a ∙ a ∙ refl a // b₀ ~ b₁ 
+
+{-# REWRITE ＝∙ #-}
+-}
