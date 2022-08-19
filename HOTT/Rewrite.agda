@@ -61,6 +61,12 @@ coeᶠ→ reflᵉ u = u
 coeᶠ← : {A B : Type} → (A ≡ B) → B → A
 coeᶠ← reflᵉ v = v
 
+coeᵉ→ : {A B : Typeᵉ} → (A ≡ᵉ B) → A → B
+coeᵉ→ reflᵉᵉ u = u
+
+coeᵉ← : {A B : Typeᵉ} → (A ≡ᵉ B) → B → A
+coeᵉ← reflᵉᵉ v = v
+
 axiomKᶠ : {A : Type} {a : A} {p : a ≡ a} → p ≡ᵉ reflᵉ
 axiomKᶠ {p = reflᵉ} = reflᵉᵉ
 
@@ -163,6 +169,9 @@ coeᶠ→≡ʰ reflᵉ _ = reflʰ
 
 coeᶠ←≡ʰ : {A B : Type} (e : A ≡ B) (b : B) → coeᶠ← e b ≡ʰ b
 coeᶠ←≡ʰ reflᵉ _ = reflʰ
+
+coeᵉ←→ : {A B : Typeᵉ} (e₁ e₂ : A ≡ᵉ B) (a : A) → coeᵉ← e₁ (coeᵉ→ e₂ a) ≡ᵉ a
+coeᵉ←→ reflᵉᵉ reflᵉᵉ a = reflᵉᵉ
 
 coeᶠ←←≡ʰ : {A B C : Type} (u : A ≡ B) (v : B ≡ C) (c : C) → coeᶠ← u (coeᶠ← v c) ≡ʰ c
 coeᶠ←←≡ʰ reflᵉ reflᵉ _ = reflʰ
