@@ -4,11 +4,11 @@ module HOTT.Newer where
 
 open import Agda.Primitive renaming (Set to Type; SSet to Typeᵉ) public
 
-infixl 40 _∙_ _∘_
+infixl 40 _∙_ _∙'_ _∘_
 infix  35 _＝_
 infixr 35 _×_
 infixr 30 _,_ Σ _⇒_ Π
-infixr 20 𝛌
+infixr 20 𝛌 𝛌'
 infix  10 _≡_ _≡ᵉ_
 
 ------------------------------
@@ -147,33 +147,54 @@ postulate
 -- Non-dependent function types
 ----------------------------------------
 
+postulate
+  _⇒_ : Type → Type → Type
+  𝛌' : {A B : Type} (f : A → B) → A ⇒ B
+
+syntax 𝛌' (λ x → f) = ƛ' x ⇒ f
+
+postulate
+  _∙'_ : {A B : Type} (f : A ⇒ B) (a : A) → B
+  ⇒β : {A B : Type} (f : A → B) (a : A) → (𝛌' f ∙' a) ≡ f a
+  ⇒η : {A B : Type} (f : A ⇒ B) → (ƛ' x ⇒ f ∙' x) ≡ f
+
+{-# REWRITE ⇒β ⇒η #-}
+
+{-
 _⇒_ : Type → Type → Type
 A ⇒ B = （ x ⦂ A ）⇒ B
+-}
 
 _∘_ : {A B C : Type} (g : B ⇒ C) (f : A ⇒ B) → (A ⇒ C)
-g ∘ f = ƛ x ⇒ g ∙ (f ∙ x)
+g ∘ f = ƛ' x ⇒ g ∙' (f ∙' x)
 
 idmap : (A : Type) → (A ⇒ A)
-idmap A = ƛ x ⇒ x
+idmap A = ƛ' x ⇒ x
 
 --------------------------------------------------
 -- Dependent identity types (declaration)
 --------------------------------------------------
 
 postulate
-  Id : {A : Type} (B : A ⇒ Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (b₀ : B ∙ a₀) (b₁ : B ∙ a₁) → Type
+  -- (Far) below we will give a simple "definition" of Id with a
+  -- rewrite.  So we could make it an ordinary function, with type
+  -- declaration here and definition below.  But that makes the entire
+  -- block in between the two a mutual definition, which is
+  -- psychologically a bit much; plus it makes the termination checker
+  -- complain.
+  Id : {A : Type} (B : A ⇒ Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (b₀ : B ∙' a₀) (b₁ : B ∙' a₁) → Type
   -- These will follow from the definition of Id, but for now we make
   -- them rewrites in order to make other stuff well-typed.
   Id-const : (A B : Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (b₀ b₁ : B) →
-    Id {A} (ƛ _ ⇒ B) a₂ b₀ b₁ ≡ (b₀ ＝ b₁) 
-  Id-refl : {A : Type} (B : A ⇒ Type) {a : A} (b₀ b₁ : B ∙ a) →
+    Id {A} (ƛ' _ ⇒ B) a₂ b₀ b₁ ≡ (b₀ ＝ b₁) 
+  Id-refl : {A : Type} (B : A ⇒ Type) {a : A} (b₀ b₁ : B ∙' a) →
     Id B (refl a) b₀ b₁ ≡ (b₀ ＝ b₁)
 
 {-# REWRITE Id-const Id-refl #-}
 
 postulate
   ap : {A : Type} {B : A → Type} (f : (x : A) → B x)
-    {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) → Id (𝛌 B) a₂ (f a₀) (f a₁)
+    {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) → Id (𝛌' B) a₂ (f a₀) (f a₁)
   ap-const : {A B : Type} (b : B) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) →
     ap {A} (λ _ → b) a₂ ≡ refl b
   -- This should also follow from the definitions in concrete cases.
@@ -188,15 +209,15 @@ postulate
 
 postulate
   ＝-Σ : {A : Type} {B : A → Type} (u v : Σ A B) →
-    (u ＝ v) ≡ （ p ⦂ fst u ＝ fst v ）× Id (𝛌 B) p (snd u) (snd v)
+    (u ＝ v) ≡ （ p ⦂ fst u ＝ fst v ）× Id (𝛌' B) p (snd u) (snd v)
 
---{-# REWRITE ＝-Σ #-}
-{-
+{-# REWRITE ＝-Σ #-}
+
 postulate
   refl-, : {A : Type} {B : A → Type} (a : A) (b : B a) →
     refl {Σ A B} (a , b) ≡ (refl a , refl b)
--}
---{-# REWRITE refl-, #-}
+
+{-# REWRITE refl-, #-}
 
 -- We want to rewrite (refl (snd u)) to (snd (refl u)), but this isn't
 -- well-typed, because refl-fst and Id-refl are not confluent:
@@ -205,13 +226,13 @@ postulate
 -- and these are not convertible by Agda, even though they are both
 -- reducts of (Id B (refl (fst u)) (snd u) (snd u)), the first by
 -- Id-refl and the second by refl-fst.
-{-
+
 -- To work around this, we use the trick of declaring a rewrite in
 -- between the type signature of a function and its definition.
 -- Specifically, we give a name to the putative result of refl-snd,
 -- giving it the type that reduces to the two incompatible things.
 frob-refl-snd : {A : Type} {B : A → Type} (u : Σ A B) →
-  Id (𝛌 B) (refl (fst u)) (snd u) (snd u)
+  Id (𝛌' B) (refl (fst u)) (snd u) (snd u)
 
 postulate
   refl-fst : {A : Type} {B : A → Type} (u : Σ A B) →
@@ -228,38 +249,40 @@ postulate
 -- u reduces instead to (Id B (fst (refl u)) (snd u) (snd u)), so that
 -- we can give (snd (refl u)) as its definition.
 frob-refl-snd u = snd (refl u)
--}
-{-
+
 -- This will be part of the definition of ap-Σ, once Id is defined.
 IdΣ : (Δ : Type) (A : Δ → Type) (B : (x : Δ) → A x → Type)
       (δ₀ δ₁ : Δ) (δ₂ : δ₀ ＝ δ₁) (u₀ : Σ (A δ₀) (B δ₀)) (u₁ : Σ (A δ₁) (B δ₁)) →
       Type
 IdΣ Δ A B δ₀ δ₁ δ₂ u₀ u₁ =
-  （ a₂ ⦂ Id (𝛌 A) δ₂ (fst u₀) (fst u₁) ）×
-    Id {Σ Δ A} (ƛ y ⇒ B (fst y) (snd y)) {δ₀ , fst u₀} {δ₁ , fst u₁} (δ₂ , a₂) (snd u₀) (snd u₁)
+  （ a₂ ⦂ Id (𝛌' A) δ₂ (fst u₀) (fst u₁) ）×
+    Id {Σ Δ A} (ƛ' y ⇒ B (fst y) (snd y)) {δ₀ , fst u₀} {δ₁ , fst u₁} (δ₂ , a₂) (snd u₀) (snd u₁)
 
 postulate
   Id-Σ : {Δ : Type} {A : Δ → Type} {B : (x : Δ) → A x → Type}
     {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
     (u₀ : Σ (A δ₀) (B δ₀)) (u₁ : Σ (A δ₁) (B δ₁)) →
-    Id (ƛ x ⇒ Σ (A x) (B x)) δ₂ u₀ u₁ ≡ IdΣ Δ A B δ₀ δ₁ δ₂ u₀ u₁
--}
---{-# REWRITE Id-Σ #-}
+    Id (ƛ' x ⇒ Σ (A x) (B x)) δ₂ u₀ u₁ ≡ IdΣ Δ A B δ₀ δ₁ δ₂ u₀ u₁
+
+{-# REWRITE Id-Σ #-}
 
 ------------------------------
 -- Identifications in Π-types
 ------------------------------
 
+ID : Type → Type
+ID A = （ a₀ ⦂ A ）× （ a₁ ⦂ A ）× a₀ ＝ a₁
+
 postulate
+  ＝-⇒ : {A B : Type} (f g : A ⇒ B) →
+    (f ＝ g) ≡ （ aₓ ⦂ ID A ）⇒ (f ∙' ₁st aₓ ＝ g ∙' ₂nd aₓ)
   ＝-Π : {A : Type} {B : A → Type} (f g : Π A B) →
-    (f ＝ g) ≡ （ aₓ ⦂ （ a₀ ⦂ A ）× （ a₁ ⦂ A ）× a₀ ＝ a₁ ）⇒
-      Id (𝛌 B) (₃rd' aₓ) (f ∙ ₁st aₓ) (g ∙ ₂nd aₓ)
+    (f ＝ g) ≡ （ aₓ ⦂ ID A ）⇒ Id (𝛌' B) (₃rd' aₓ) (f ∙ ₁st aₓ) (g ∙ ₂nd aₓ)
 
-{-# REWRITE ＝-Π #-}
+{-# REWRITE ＝-⇒ ＝-Π #-}
 
 postulate
-  refl-ƛ : {A : Type} {B : A → Type} (f : (x : A) → B x)
-    (aₓ : （ a₀ ⦂ A ）× （ a₁ ⦂ A ）× a₀ ＝ a₁) →
+  refl-ƛ : {A : Type} {B : A → Type} (f : (x : A) → B x) (aₓ : ID A) →
     refl (𝛌 f) ∙ aₓ ≡ ap f (₃rd' aₓ)
   refl-∙ : {A : Type} {B : A → Type} (f : Π A B) (a : A) →
     refl (f ∙ a) ≡ refl f ∙ (a , a , refl a)
@@ -316,7 +339,7 @@ postulate
   √ : {I : Type} (A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type) → I → Type
   dig : {I : Type} (A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type)
     {i₀ i₁ : I} (i₂ : i₀ ＝ i₁)
-    (s₀ : √ A i₀) (s₁ : √ A i₁) (s₂ : Id (𝛌 (√ A)) i₂ s₀ s₁) →
+    (s₀ : √ A i₀) (s₁ : √ A i₁) (s₂ : Id (𝛌' (√ A)) i₂ s₀ s₁) →
     A i₀ i₁ i₂
 
 {-
@@ -354,7 +377,7 @@ postulate
 
 btc : (A B : Type) → Type
 btc A B = （ tr⇒ ⦂ A ⇒ B ）× （ tr⇐ ⦂ B ⇒ A ）× （ rel ⦂ A ⇒ B ⇒ Type ）×
-  (（ x ⦂ A ）⇒ rel ∙ x ∙ (tr⇒ ∙ x)) × ( （ y ⦂ B ）⇒ rel ∙ (tr⇐ ∙ y) ∙ y)
+  (（ x ⦂ A ）⇒ rel ∙' x ∙' (tr⇒ ∙' x)) × ( （ y ⦂ B ）⇒ rel ∙' (tr⇐ ∙' y) ∙' y)
 
 postulate
   corr : (X : Type) → √ (λ X₀ X₁ X₂ → btc X₀ X₁) X
@@ -363,7 +386,7 @@ _↓ : {X₀ X₁ : Type} (X₂ : X₀ ＝ X₁) → btc X₀ X₁
 _↓ {X₀} {X₁} X₂ = dig (λ X₀ X₁ X₂ → btc X₀ X₁) X₂ (corr X₀) (corr X₁) (ap corr {X₀} {X₁} X₂)
 
 _~[_]_ : {A B : Type} → A → (A ＝ B) → B → Type
-a ~[ e ] b = ₃rd (e ↓) ∙ a ∙ b
+a ~[ e ] b = ₃rd (e ↓) ∙' a ∙' b
 
 coe⇒ : {A B : Type} → (A ＝ B) → A ⇒ B
 coe⇒ e = ₁st (e ↓)
@@ -371,10 +394,10 @@ coe⇒ e = ₁st (e ↓)
 coe⇐ : {A B : Type} → (A ＝ B) → B ⇒ A
 coe⇐ e = ₂nd (e ↓)
 
-~coe⇒ : {A B : Type} (e : A ＝ B) (a : A) → a ~[ e ] coe⇒ e ∙ a
+~coe⇒ : {A B : Type} (e : A ＝ B) (a : A) → a ~[ e ] coe⇒ e ∙' a
 ~coe⇒ e a = ₄th (e ↓) ∙ a
 
-~coe⇐ : {A B : Type} (e : A ＝ B) (b : B) → coe⇐ e ∙ b ~[ e ] b
+~coe⇐ : {A B : Type} (e : A ＝ B) (b : B) → coe⇐ e ∙' b ~[ e ] b
 ~coe⇐ e b = ₅th' (e ↓) ∙ b
 
 --------------------------------------------------
@@ -382,7 +405,7 @@ coe⇐ e = ₂nd (e ↓)
 --------------------------------------------------
 
 postulate
-  Id-def : {A : Type} (B : A ⇒ Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (b₀ : B ∙ a₀) (b₁ : B ∙ a₁) →
+  Id-def : {A : Type} (B : A ⇒ Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (b₀ : B ∙' a₀) (b₁ : B ∙' a₁) →
     Id {A} B {a₀} {a₁} a₂ b₀ b₁ ≡ b₀ ~[ refl B ∙ (a₀ , a₁ , a₂) ] b₁
 
 -- Why is this (apparently) causing a rewrite loop?  I guess it's
@@ -391,9 +414,8 @@ postulate
 -- (refl (𝛌 B)), whose type also has to be computed.
 {-# REWRITE Id-def #-}
 
-tr⇒ : {A : Type} (B : A ⇒ Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) → B ∙ a₀ ⇒ B ∙ a₁
-tr⇒ {A} B {a₀} {a₁} a₂ = {!refl B --∙ (a₀ , a₁ , a₂)!}
-                         -- coe⇒ (refl B ∙ (a₀ , a₁ , a₂))
+tr⇒ : {A : Type} (B : A ⇒ Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) → B ∙' a₀ ⇒ B ∙' a₁
+tr⇒ {A} B {a₀} {a₁} a₂ = coe⇒ (refl B ∙ (a₀ , a₁ , a₂))
 
 ------------------------------
 -- refl and ap of Σ-types
