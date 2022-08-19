@@ -136,6 +136,7 @@ syntax 𝛌 (λ x → f) = ƛ x ⇒ f
 -- and _∙_ a field.  But then _∙_ doesn't store A and B as implicit
 -- arguments, which means that refl-∙ can't bind them.
 postulate
+  -- TODO: Add an equality to _∙_ so that rules like refl-ƛ can fire.
   _∙_ : {A : Type} {B : A → Type} (f : Π A B) (a : A) → B a
   Πβ : {A : Type} {B : A → Type} (f : (x : A) → B x) (a : A) → (𝛌 f ∙ a) ≡ f a
   Πη : {A : Type} {B : A → Type} (f : Π A B) → (ƛ x ⇒ f ∙ x) ≡ f
@@ -159,11 +160,10 @@ idmap A = ƛ x ⇒ x
 -- Dependent identity types (declaration)
 --------------------------------------------------
 
-Id : {A : Type} (B : A ⇒ Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (b₀ : B ∙ a₀) (b₁ : B ∙ a₁) → Type
-
--- These will follow from the definition of Id, but for now we make
--- them rewrites in order to make other stuff well-typed.
 postulate
+  Id : {A : Type} (B : A ⇒ Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (b₀ : B ∙ a₀) (b₁ : B ∙ a₁) → Type
+  -- These will follow from the definition of Id, but for now we make
+  -- them rewrites in order to make other stuff well-typed.
   Id-const : (A B : Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (b₀ b₁ : B) →
     Id {A} (ƛ _ ⇒ B) a₂ b₀ b₁ ≡ (b₀ ＝ b₁) 
   Id-refl : {A : Type} (B : A ⇒ Type) {a : A} (b₀ b₁ : B ∙ a) →
@@ -176,6 +176,7 @@ postulate
     {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) → Id (𝛌 B) a₂ (f a₀) (f a₁)
   ap-const : {A B : Type} (b : B) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) →
     ap {A} (λ _ → b) a₂ ≡ refl b
+  -- This should also follow from the definitions in concrete cases.
   ap-refl : {A : Type} {B : A → Type} (f : (x : A) → B x) (a : A) →
     ap f (refl a) ≡ refl (f a)
 
@@ -189,13 +190,13 @@ postulate
   ＝-Σ : {A : Type} {B : A → Type} (u v : Σ A B) →
     (u ＝ v) ≡ （ p ⦂ fst u ＝ fst v ）× Id (𝛌 B) p (snd u) (snd v)
 
-{-# REWRITE ＝-Σ #-}
-
+--{-# REWRITE ＝-Σ #-}
+{-
 postulate
   refl-, : {A : Type} {B : A → Type} (a : A) (b : B a) →
     refl {Σ A B} (a , b) ≡ (refl a , refl b)
-
-{-# REWRITE refl-, #-}
+-}
+--{-# REWRITE refl-, #-}
 
 -- We want to rewrite (refl (snd u)) to (snd (refl u)), but this isn't
 -- well-typed, because refl-fst and Id-refl are not confluent:
@@ -204,7 +205,7 @@ postulate
 -- and these are not convertible by Agda, even though they are both
 -- reducts of (Id B (refl (fst u)) (snd u) (snd u)), the first by
 -- Id-refl and the second by refl-fst.
-
+{-
 -- To work around this, we use the trick of declaring a rewrite in
 -- between the type signature of a function and its definition.
 -- Specifically, we give a name to the putative result of refl-snd,
@@ -227,40 +228,23 @@ postulate
 -- u reduces instead to (Id B (fst (refl u)) (snd u) (snd u)), so that
 -- we can give (snd (refl u)) as its definition.
 frob-refl-snd u = snd (refl u)
+-}
+{-
+-- This will be part of the definition of ap-Σ, once Id is defined.
+IdΣ : (Δ : Type) (A : Δ → Type) (B : (x : Δ) → A x → Type)
+      (δ₀ δ₁ : Δ) (δ₂ : δ₀ ＝ δ₁) (u₀ : Σ (A δ₀) (B δ₀)) (u₁ : Σ (A δ₁) (B δ₁)) →
+      Type
+IdΣ Δ A B δ₀ δ₁ δ₂ u₀ u₁ =
+  （ a₂ ⦂ Id (𝛌 A) δ₂ (fst u₀) (fst u₁) ）×
+    Id {Σ Δ A} (ƛ y ⇒ B (fst y) (snd y)) {δ₀ , fst u₀} {δ₁ , fst u₁} (δ₂ , a₂) (snd u₀) (snd u₁)
 
--- This will eventually follow from the definition of Id and ap-Σ.
 postulate
   Id-Σ : {Δ : Type} {A : Δ → Type} {B : (x : Δ) → A x → Type}
     {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
     (u₀ : Σ (A δ₀) (B δ₀)) (u₁ : Σ (A δ₁) (B δ₁)) →
-    Id (ƛ x ⇒ Σ (A x) (B x)) δ₂ u₀ u₁ ≡
-    （ a₂ ⦂ Id (𝛌 A) δ₂ (fst u₀) (fst u₁) ）×
-    Id {Σ Δ A} (ƛ y ⇒ B (fst y) (snd y))
-      {δ₀ , fst u₀} {δ₁ , fst u₁} (δ₂ , a₂) (snd u₀) (snd u₁)
-
-{-# REWRITE Id-Σ #-}
-
-{-
-foo : (A : Type) (B : A → Type) (C : (x : A) → B x → Type)
-  (D : (x : A) (y : B x) → C x y → Type)
-  (u : （ a ⦂ A ）× （ b ⦂ B a ）× （ c ⦂ C a b ）× D a b c) →
-  (v : （ a ⦂ A ）× （ b ⦂ B a ）× （ c ⦂ C a b ）× D a b c) →
-  {!u ＝ v!}
+    Id (ƛ x ⇒ Σ (A x) (B x)) δ₂ u₀ u₁ ≡ IdΣ Δ A B δ₀ δ₁ δ₂ u₀ u₁
 -}
-
-{-
-postulate
-  ap-, : {Δ : Type} {A : Δ → Type} {B : (x : Δ) → A x → Type}
-    (a : (x : Δ) → A x) (b : (x : Δ) → B x (a x))
-    {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
-    ap (λ x → (_,_ {A x} {B x} (a x) (b x))) δ₂ ≡
-    -- Needs Id-AP, which will follow from the definition of Id.
-    (ap a δ₂ , {!ap b δ₂!})
--}
-{-
-  ap-fst
-  ap-snd 
--}    
+--{-# REWRITE Id-Σ #-}
 
 ------------------------------
 -- Identifications in Π-types
@@ -274,24 +258,30 @@ postulate
 {-# REWRITE ＝-Π #-}
 
 postulate
-  refl-ƛ : {A : Type} {B : A → Type} (f : (x : A) → B x) →
-    refl (𝛌 f) ≡ ƛ aₓ ⇒ ap f (₃rd' aₓ)
+  refl-ƛ : {A : Type} {B : A → Type} (f : (x : A) → B x)
+    (aₓ : （ a₀ ⦂ A ）× （ a₁ ⦂ A ）× a₀ ＝ a₁) →
+    refl (𝛌 f) ∙ aₓ ≡ ap f (₃rd' aₓ)
   refl-∙ : {A : Type} {B : A → Type} (f : Π A B) (a : A) →
     refl (f ∙ a) ≡ refl f ∙ (a , a , refl a)
 
-{-# REWRITE refl-ƛ refl-∙ #-}
-
+--{-# REWRITE refl-ƛ refl-∙ #-}
+{-
 -- This will eventually follow from the definition of Id and ap-Σ.
+IdΠ : (Δ : Type) (A : Δ → Type) (B : (x : Δ) → A x → Type)
+    (δ₀ δ₁ : Δ) (δ₂ : δ₀ ＝ δ₁) (f₀ : Π (A δ₀) (B δ₀)) (f₁ : Π (A δ₁) (B δ₁)) →
+    Type
+IdΠ Δ A B δ₀ δ₁ δ₂ f₀ f₁ =
+  （ aₓ ⦂ （ a₀ ⦂ A δ₀ ）× （ a₁ ⦂ A δ₁ ）× Id (𝛌 A) δ₂ a₀ a₁ ）⇒
+    Id {Σ Δ A} (ƛ y ⇒ B (fst y) (snd y)) {δ₀ , ₁st aₓ} {δ₁ , ₂nd aₓ} (δ₂ , ₃rd' aₓ)
+      (f₀ ∙ ₁st aₓ) (f₁ ∙ ₂nd aₓ)
+
 postulate
   Id-Π : {Δ : Type} {A : Δ → Type} {B : (x : Δ) → A x → Type}
     {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
     (f₀ : Π (A δ₀) (B δ₀)) (f₁ : Π (A δ₁) (B δ₁)) →
-    Id (ƛ x ⇒ Π (A x) (B x)) δ₂ f₀ f₁ ≡
-    （ aₓ ⦂ （ a₀ ⦂ A δ₀ ）× （ a₁ ⦂ A δ₁ ）× Id (𝛌 A) δ₂ a₀ a₁ ）⇒
-    Id {Σ Δ A} (ƛ y ⇒ B (fst y) (snd y)) {δ₀ , ₁st aₓ} {δ₁ , ₂nd aₓ} (δ₂ , ₃rd' aₓ)
-      (f₀ ∙ ₁st aₓ) (f₁ ∙ ₂nd aₓ)
-
-{-# REWRITE Id-Π #-}
+    Id (ƛ x ⇒ Π (A x) (B x)) δ₂ f₀ f₁ ≡ IdΠ Δ A B δ₀ δ₁ δ₂ f₀ f₁
+-}
+--{-# REWRITE Id-Π #-}
 
 {-
   ap-Π
@@ -302,7 +292,7 @@ postulate
 ------------------------------
 -- Squares and symmetry
 ------------------------------
-
+{-
 Sq : (A : Type)
   {a₀₀ a₀₁ : A} (a₀₂ : a₀₀ ＝ a₀₁)
   {a₁₀ a₁₁ : A} (a₁₂ : a₁₀ ＝ a₁₁)
@@ -317,7 +307,7 @@ postulate
     {a₁₀ a₁₁ : A} (a₁₂ : a₁₀ ＝ a₁₁)
     (a₂₀ : a₀₀ ＝ a₁₀) (a₂₁ : a₀₁ ＝ a₁₁) →
     Sq A a₀₂ a₁₂ a₂₀ a₂₁ → Sq A a₂₀ a₂₁ a₀₂ a₁₂
-
+-}
 ------------------------------
 -- Amazing right adjoints
 ------------------------------
@@ -391,4 +381,43 @@ coe⇐ e = ₂nd (e ↓)
 -- Dependent identity types (definition)
 --------------------------------------------------
 
-Id {A} B {a₀} {a₁} a₂ b₀ b₁ = b₀ ~[ refl B ∙ (a₀ , a₁ , a₂) ] b₁
+postulate
+  Id-def : {A : Type} (B : A ⇒ Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (b₀ : B ∙ a₀) (b₁ : B ∙ a₁) →
+    Id {A} B {a₀} {a₁} a₂ b₀ b₁ ≡ b₀ ~[ refl B ∙ (a₀ , a₁ , a₂) ] b₁
+
+-- Why is this (apparently) causing a rewrite loop?  I guess it's
+-- probably the same problem as before, that the type of (refl f)
+-- involves (Id (𝛌 B)), which reduces to something involving another
+-- (refl (𝛌 B)), whose type also has to be computed.
+{-# REWRITE Id-def #-}
+
+tr⇒ : {A : Type} (B : A ⇒ Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) → B ∙ a₀ ⇒ B ∙ a₁
+tr⇒ {A} B {a₀} {a₁} a₂ = {!refl B --∙ (a₀ , a₁ , a₂)!}
+                         -- coe⇒ (refl B ∙ (a₀ , a₁ , a₂))
+
+------------------------------
+-- refl and ap of Σ-types
+------------------------------
+
+postulate
+  refl-Σ : (A : Type) (B : A → Type) →
+    refl (Σ A B) ↓ ≡ {!!}
+
+------------------------------
+-- Ap in Σ-types
+------------------------------
+
+{-
+postulate
+  ap-, : {Δ : Type} {A : Δ → Type} {B : (x : Δ) → A x → Type}
+    (a : (x : Δ) → A x) (b : (x : Δ) → B x (a x))
+    {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
+    ap (λ x → (_,_ {A x} {B x} (a x) (b x))) δ₂ ≡
+    -- Needs Id-AP, which will follow from the definition of Id.
+    {!ap a δ₂ , {!ap b δ₂!}!}
+-}
+{-
+  ap-fst
+  ap-snd 
+-}    
+
