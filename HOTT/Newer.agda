@@ -182,19 +182,19 @@ postulate
   -- block in between the two a mutual definition, which is
   -- psychologically a bit much; plus it makes the termination checker
   -- complain.
-  Id : {A : Type} (B : A ⇒ Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (b₀ : B ∙' a₀) (b₁ : B ∙' a₁) → Type
+  Id : {A : Type} (B : A → Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (b₀ : B a₀) (b₁ : B a₁) → Type
   -- These will follow from the definition of Id, but for now we make
   -- them rewrites in order to make other stuff well-typed.
   Id-const : (A B : Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (b₀ b₁ : B) →
-    Id {A} (ƛ' _ ⇒ B) a₂ b₀ b₁ ≡ (b₀ ＝ b₁) 
-  Id-refl : {A : Type} (B : A ⇒ Type) {a : A} (b₀ b₁ : B ∙' a) →
+    Id {A} (λ _ → B) a₂ b₀ b₁ ≡ (b₀ ＝ b₁) 
+  Id-refl : {A : Type} (B : A → Type) {a : A} (b₀ b₁ : B a) →
     Id B (refl a) b₀ b₁ ≡ (b₀ ＝ b₁)
 
 {-# REWRITE Id-const Id-refl #-}
 
 postulate
   ap : {A : Type} {B : A → Type} (f : (x : A) → B x)
-    {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) → Id (𝛌' B) a₂ (f a₀) (f a₁)
+    {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) → Id B a₂ (f a₀) (f a₁)
   ap-const : {A B : Type} (b : B) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) →
     ap {A} (λ _ → b) a₂ ≡ refl b
   -- This should also follow from the definitions in concrete cases.
@@ -209,7 +209,7 @@ postulate
 
 postulate
   ＝-Σ : {A : Type} {B : A → Type} (u v : Σ A B) →
-    (u ＝ v) ≡ （ p ⦂ fst u ＝ fst v ）× Id (𝛌' B) p (snd u) (snd v)
+    (u ＝ v) ≡ （ p ⦂ fst u ＝ fst v ）× Id B p (snd u) (snd v)
 
 {-# REWRITE ＝-Σ #-}
 
@@ -232,7 +232,7 @@ postulate
 -- Specifically, we give a name to the putative result of refl-snd,
 -- giving it the type that reduces to the two incompatible things.
 frob-refl-snd : {A : Type} {B : A → Type} (u : Σ A B) →
-  Id (𝛌' B) (refl (fst u)) (snd u) (snd u)
+  Id B (refl (fst u)) (snd u) (snd u)
 
 postulate
   refl-fst : {A : Type} {B : A → Type} (u : Σ A B) →
@@ -255,14 +255,14 @@ IdΣ : (Δ : Type) (A : Δ → Type) (B : (x : Δ) → A x → Type)
       (δ₀ δ₁ : Δ) (δ₂ : δ₀ ＝ δ₁) (u₀ : Σ (A δ₀) (B δ₀)) (u₁ : Σ (A δ₁) (B δ₁)) →
       Type
 IdΣ Δ A B δ₀ δ₁ δ₂ u₀ u₁ =
-  （ a₂ ⦂ Id (𝛌' A) δ₂ (fst u₀) (fst u₁) ）×
-    Id {Σ Δ A} (ƛ' y ⇒ B (fst y) (snd y)) {δ₀ , fst u₀} {δ₁ , fst u₁} (δ₂ , a₂) (snd u₀) (snd u₁)
+  （ a₂ ⦂ Id A δ₂ (fst u₀) (fst u₁) ）×
+    Id {Σ Δ A} (λ y → B (fst y) (snd y)) {δ₀ , fst u₀} {δ₁ , fst u₁} (δ₂ , a₂) (snd u₀) (snd u₁)
 
 postulate
   Id-Σ : {Δ : Type} {A : Δ → Type} {B : (x : Δ) → A x → Type}
     {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
     (u₀ : Σ (A δ₀) (B δ₀)) (u₁ : Σ (A δ₁) (B δ₁)) →
-    Id (ƛ' x ⇒ Σ (A x) (B x)) δ₂ u₀ u₁ ≡ IdΣ Δ A B δ₀ δ₁ δ₂ u₀ u₁
+    Id (λ x → Σ (A x) (B x)) δ₂ u₀ u₁ ≡ IdΣ Δ A B δ₀ δ₁ δ₂ u₀ u₁
 
 {-# REWRITE Id-Σ #-}
 
@@ -277,7 +277,7 @@ postulate
   ＝-⇒ : {A B : Type} (f g : A ⇒ B) →
     (f ＝ g) ≡ （ aₓ ⦂ ID A ）⇒ (f ∙' ₁st aₓ ＝ g ∙' ₂nd aₓ)
   ＝-Π : {A : Type} {B : A → Type} (f g : Π A B) →
-    (f ＝ g) ≡ （ aₓ ⦂ ID A ）⇒ Id (𝛌' B) (₃rd' aₓ) (f ∙ ₁st aₓ) (g ∙ ₂nd aₓ)
+    (f ＝ g) ≡ （ aₓ ⦂ ID A ）⇒ Id B (₃rd' aₓ) (f ∙ ₁st aₓ) (g ∙ ₂nd aₓ)
 
 {-# REWRITE ＝-⇒ ＝-Π #-}
 
@@ -339,7 +339,7 @@ postulate
   √ : {I : Type} (A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type) → I → Type
   dig : {I : Type} (A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type)
     {i₀ i₁ : I} (i₂ : i₀ ＝ i₁)
-    (s₀ : √ A i₀) (s₁ : √ A i₁) (s₂ : Id (𝛌' (√ A)) i₂ s₀ s₁) →
+    (s₀ : √ A i₀) (s₁ : √ A i₁) (s₂ : Id (√ A) i₂ s₀ s₁) →
     A i₀ i₁ i₂
 
 {-
@@ -405,8 +405,8 @@ coe⇐ e = ₂nd (e ↓)
 --------------------------------------------------
 
 postulate
-  Id-def : {A : Type} (B : A ⇒ Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (b₀ : B ∙' a₀) (b₁ : B ∙' a₁) →
-    Id {A} B {a₀} {a₁} a₂ b₀ b₁ ≡ b₀ ~[ refl B ∙ (a₀ , a₁ , a₂) ] b₁
+  Id-def : {A : Type} (B : A → Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (b₀ : B a₀) (b₁ : B a₁) →
+    Id {A} B {a₀} {a₁} a₂ b₀ b₁ ≡ b₀ ~[ ap B a₂ ] b₁
 
 -- Why is this (apparently) causing a rewrite loop?  I guess it's
 -- probably the same problem as before, that the type of (refl f)
