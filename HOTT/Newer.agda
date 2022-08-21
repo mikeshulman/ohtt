@@ -324,9 +324,12 @@ module _ {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Ty
   (（ x ⦂ A ）⇒ rel ∙ x ∙ (tr⇒ ∙ x)) × ( （ y ⦂ B ）⇒ rel ∙ (tr⇐ ∙ y) ∙ y)
 -}
 -- However, nested Σ-types seem to make Agda really slow, possibly
--- because our Σ-types are postulates and so all the parameters have
+-- because our Σ-types were postulates and so all the parameters had
 -- to be carried around as implicit arguments to fst, snd, and _,_.
 -- Thus, instead we define bitotal correspondences to be a record.
+
+-- (TODO: Is this still true now that we've made Σ a datatype?  Could
+-- we go back to using a Σ-type here?)
 
 -- As a mnemonic, whenever a coercion- or transport-like operation
 -- belongs to a ⇒, so that it has to be applied with ∙, we name it
@@ -373,7 +376,7 @@ module _ {A : Type} (B : A → Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) wher
     lift⇐ : （ b₁ ⦂ B a₁ ）⇒ Id B a₂ (tr⇐ ∙ b₁) b₁
     ap↓ : -- ap B a₂ ↓ ≡
       dig {Type} {λ X₀ X₁ X₂ → X₀ ≊ X₁} {B a₀} {B a₁} {ap B a₂} {kan (B a₀)} {kan (B a₁)} (ap kan (ap B a₂)) ≡
-      ≊[ Id B a₂ , tr⇒ , tr⇐  , lift⇒ , lift⇐ ]
+      ≊[ Id B a₂ , tr⇒ , tr⇐ , lift⇒ , lift⇐ ]
 {-# REWRITE ap↓ #-}
 
 -- Similarly, the correspondence part of ((refl A) ↓) is (_＝_ {A}),
@@ -400,6 +403,25 @@ module _ {A : Type} where
 -- backwards, so that (ap kan (ap (ap B e))) would compute to (ap (kan
 -- (ap B e))) so that then the previous rule for (kan (ap B e)) could
 -- fire?  I'm not sure how that would interact with dig.
+
+-- Hmm, actually instead of computing dig-ap-kan on type-formers to
+-- concrete answers, we should compute kan on type-formers to a bury
+-- that encodes the same information.  Then dig-ap-kan will be
+-- dig-ap-bury which will compute by the β-rule for √.  But moreover,
+-- we can define ap-dig to be dig for an identification √ type, and
+-- likewise ap-bury (how does that interact with the β-rule?), and so
+-- the rules carry over automatically to all higher dimensions using
+-- the rules for √.  The only thing to worry about then in principle
+-- should be if we have an unadorned ap-kan (or apⁿ-kan), it has to
+-- inspect its identification argument and merge with previous aps in
+-- order to compute in the bound term of the ap.
+
+-- TODO: Can this principled approach be reconciled with the idea
+-- above where we define Id, tr⇒, etc. separately for type-formers and
+-- compute kan to them?  It seems that it requires computing in the
+-- other way, defining tr⇒ etc. to be the components of dig-ap-kan.
+-- But we certainly don't want to compute ＝ to a dig-ap-kan-refl!
+-- And it would make for nicer printing not to compute the others too...
 
 ----------------------------------------
 -- Rules for transport
@@ -730,6 +752,7 @@ module _ (Δ : Type) (A : Δ → Type) (B : (x : Δ) → A x → Type) (δ₀ δ
       tr⇐ {Δ} (λ δ → Π (A δ) (B δ)) δ₂ ∙ f₁ ∙ a₀ ≡
       tr⇐ (uncurry B) {δ₀ , a₀} {δ₁ , tr⇒ A δ₂ ∙ a₀} (δ₂ , lift⇒ A δ₂ ∙ a₀)  ∙ (f₁ ∙ (tr⇒ A δ₂ ∙ a₀))
   {-# REWRITE tr⇒-Π tr⇐-Π #-}
+{-
   postulate
     lift⇒-Π : (f₀ : Π (A δ₀) (B δ₀)) (aₓ : IDᵈ A δ₂) →
       lift⇒ {Δ} (λ δ → Π (A δ) (B δ)) δ₂ ∙ f₀ ∙ aₓ ≡
@@ -749,6 +772,7 @@ module _ {A : Type} {B : A → Type} (f : Π A B) where
     touch⇒-Π : (aₓ : ID A) → touch⇒ ∙ f ∙ aₓ ≡ {!!}
     touch⇐-Π : (aₓ : ID A) → touch⇐ ∙ f ∙ aₓ ≡ {!!}
   --{-# REWRITE touch⇒-Π touch⇐-Π #-}
+-}
 
 ------------------------------
 -- Computation in √
