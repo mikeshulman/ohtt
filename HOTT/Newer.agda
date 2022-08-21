@@ -561,15 +561,6 @@ postulate
 -- less type dependency.  We also have to interleave this process for
 -- all three of them, since they depend on each other as well.
 
-postulate
-  ap-∙¹ : {Δ A B : Type}
-    (f : (δ : Δ) → A ⇒ B) (a : (δ : Δ) → A)
-    {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
-    ap (λ δ → f δ ∙ a δ) δ₂ ≡ ap f δ₂ ∙ (a δ₀ , a δ₁ , ap a δ₂) 
-  ap-snd¹ : {Δ A B : Type} (u : Δ → A × B) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
-    ap (λ δ → snd (u δ)) δ₂ ≡ snd (ap u δ₂)
-{-# REWRITE ap-∙¹ ap-snd¹ #-}
-
 -- We also frequently use the following trick.  The rule Id-∙ only
 -- fires on type families that belong to a ⇒ and are applied with ∙,
 -- but for general rewriting we need these rules to apply to arbitrary
@@ -577,86 +568,60 @@ postulate
 -- the type we need under the assumption of a ⇒ type family, and then
 -- in the actual rewrite rule we hand off with a 𝛌-abstraction.
 
-frob-ap-∙² : {Δ : Type} (A B : Δ ⇒ Type)
-  (f : (δ : Δ) → (A ∙ δ) ⇒ (B ∙ δ)) (a : (δ : Δ) → A ∙ δ)
-  {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
-  Id (B ∙_) δ₂ (f δ₀ ∙ a δ₀) (f δ₁ ∙ a δ₁)
-frob-ap-∙² A B f a {δ₀} {δ₁} δ₂ = ap f δ₂ ∙ (a δ₀ , a δ₁ , ap a δ₂)
-
-postulate
-  ap-∙² : {Δ : Type} {A B : Δ → Type}
-    (f : (δ : Δ) → (A δ) ⇒ (B δ)) (a : (δ : Δ) → A δ)
-    {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
-    ap (λ δ → f δ ∙ a δ) δ₂ ≡ frob-ap-∙² (𝛌 A) (𝛌 B) f a δ₂
-{-# REWRITE ap-∙² #-}
-
-frob-ap-snd² : {Δ : Type} (A B : Δ ⇒ Type) (u : (δ : Δ) → A ∙ δ × B ∙ δ)
+-- First we can state ap-snd for non-dependent product types.
+frob-ap-snd¹ : {Δ : Type} (A B : Δ ⇒ Type) (u : (δ : Δ) → (A ∙ δ) × (B ∙ δ))
   {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
   Id (B ∙_) δ₂ (snd (u δ₀)) (snd (u δ₁))
-frob-ap-snd² A B u {δ₀} {δ₁} δ₂ = snd (ap u δ₂)
+frob-ap-snd¹ A B u {δ₀} {δ₁} δ₂ = snd (ap u δ₂)
 
 postulate
-  ap-snd² : {Δ : Type} {A B : Δ → Type} (u : (δ : Δ) → A δ × B δ)
+  ap-snd¹ : {Δ : Type} {A B : Δ → Type} (u : (δ : Δ) → A δ × B δ)
     {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
-    ap (λ δ → snd (u δ)) δ₂ ≡ frob-ap-snd² (𝛌 A) (𝛌 B) u δ₂
-{-# REWRITE ap-snd² #-}
+    ap (λ δ → snd (u δ)) δ₂ ≡ frob-ap-snd¹ (𝛌 A) (𝛌 B) u δ₂
+{-# REWRITE ap-snd¹ #-}
 
-frob-ap-∙³ : {Δ A : Type} (B : A ⇒ Type)
+-- This allows us to state all three rules for dependent Π- and
+-- Σ-types, as long as they don't depend on the context.
+frob-ap-snd² : {Δ A : Type} (B : A ⇒ Type)
+  (u : (δ : Δ) → Σ A (B ∙_)) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
+  Id (λ z → B ∙ (fst (u z))) δ₂ (snd (u δ₀)) (snd (u δ₁))
+frob-ap-snd² B u δ₂ = snd (ap u δ₂)
+
+frob-ap-∙² : {Δ A : Type} (B : A ⇒ Type)
   (f : (δ : Δ) → Π A (B ∙_)) (a : (δ : Δ) → A)
   {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
   Id (λ z → B ∙ (a z)) δ₂ (f δ₀ ∙ a δ₀) (f δ₁ ∙ a δ₁)
-frob-ap-∙³ {Δ} {A} B f a {δ₀} {δ₁} δ₂ = ap f δ₂ ∙ (a δ₀ , a δ₁ , ap a δ₂)
+frob-ap-∙² {Δ} {A} B f a {δ₀} {δ₁} δ₂ = ap f δ₂ ∙ (a δ₀ , a δ₁ , ap a δ₂)
+
+frob-ap-,² : {Δ A : Type} (B : A ⇒ Type)
+  (a : (x : Δ) → A) (b : (x : Δ) → B ∙ (a x)) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
+  Id {Δ × A} (λ u → B ∙ (snd u)) {δ₀ , a δ₀} {δ₁ , a δ₁} (δ₂ , ap a δ₂) (b δ₀) (b δ₁)
+frob-ap-,² B a b δ₂ = ap b δ₂
 
 postulate
-  ap-∙³ : {Δ A : Type} (B : A → Type)
+  ap-snd² : {Δ A : Type} (B : A → Type)
+    (u : (δ : Δ) → Σ A B) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
+    ap (λ δ → snd (u δ)) δ₂ ≡ frob-ap-snd² (𝛌 B) u δ₂
+  ap-∙² : {Δ A : Type} (B : A → Type)
     (f : (δ : Δ) → Π A B) (a : (δ : Δ) → A)
     {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
-    ap (λ δ → f δ ∙ a δ) δ₂ ≡ frob-ap-∙³ (𝛌 B) f a δ₂
-{-# REWRITE ap-∙³ #-}
+    ap (λ δ → f δ ∙ a δ) δ₂ ≡ frob-ap-∙² (𝛌 B) f a δ₂
+  ap-,² : {Δ A : Type} (B : A → Type)
+    (a : (x : Δ) → A) (b : (x : Δ) → B (a x)) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
+    ap (λ x → (_,_ {A} {B} (a x) (b x))) δ₂ ≡ (ap a δ₂ , frob-ap-,² (𝛌 B) a b δ₂)
+{-# REWRITE ap-snd² ap-∙² ap-,² #-}
 
-frob-ap-snd³ : {Δ A : Type} (B : A ⇒ Type)
-  (u : (δ : Δ) → Σ A (B ∙_)) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
-  Id (λ z → B ∙ (fst (u z))) δ₂ (snd (u δ₀)) (snd (u δ₁))
-frob-ap-snd³ B u δ₂ = snd (ap u δ₂)
-
-postulate
-  ap-snd³ : {Δ A : Type} (B : A → Type)
-    (u : (δ : Δ) → Σ A B) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
-    ap (λ δ → snd (u δ)) δ₂ ≡ frob-ap-snd³ (𝛌 B) u δ₂
-{-# REWRITE ap-snd³ #-}
-
+-- These, in turn, allow us to state the general forms of all three
+-- rules.
 frob-ap-snd : {Δ : Type} (A : Δ ⇒ Type) (B : （ x ⦂ Δ ）⇒ A ∙ x ⇒ Type)
   (u : (δ : Δ) → Σ (A ∙ δ) (B ∙ δ ∙_)) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
   Id (λ z → B ∙ z ∙ (fst (u z))) δ₂ (snd (u δ₀)) (snd (u δ₁))
 frob-ap-snd A B u δ₂ = snd (ap u δ₂)
 
-postulate
-  ap-snd : {Δ : Type} (A : Δ → Type) (B : (x : Δ) → A x → Type)
-    (u : (δ : Δ) → Σ (A δ) (B δ)) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
-    ap (λ δ → snd (u δ)) δ₂ ≡ frob-ap-snd (𝛌 A) (ƛ δ ⇒ ƛ a ⇒ B δ a) u δ₂
-{-# REWRITE ap-snd #-}
-
-frob-ap-,³ : {Δ A : Type} (B : A ⇒ Type)
-  (a : (x : Δ) → A) (b : (x : Δ) → B ∙ (a x)) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
-  Id {Δ × A} (λ u → B ∙ (snd u)) {δ₀ , a δ₀} {δ₁ , a δ₁} (δ₂ , ap a δ₂) (b δ₀) (b δ₁)
-frob-ap-,³ B a b δ₂ = ap b δ₂
-
-postulate
-  ap-,³ : {Δ A : Type} (B : A → Type)
-    (a : (x : Δ) → A) (b : (x : Δ) → B (a x)) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
-    ap (λ x → (_,_ {A} {B} (a x) (b x))) δ₂ ≡ (ap a δ₂ , frob-ap-,³ (𝛌 B) a b δ₂)
-{-# REWRITE ap-,³ #-}
-
 frob-ap-, : {Δ : Type} (A : Δ ⇒ Type) (B : Σ Δ (A ∙_) ⇒ Type)
   (a : (x : Δ) → A ∙ x) (b : (x : Δ) → B ∙ (x , a x)) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
   Id (B ∙_) (δ₂ , ap a δ₂) (b δ₀) (b δ₁)
 frob-ap-, A B a b δ₂ = ap b δ₂
-
-postulate
-  ap-, : {Δ : Type} (A : Δ → Type) (B : (x : Δ) → A x → Type)
-    (a : (x : Δ) → A x) (b : (x : Δ) → B x (a x)) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
-    ap (λ x → (_,_ {A x} {B x} (a x) (b x))) δ₂ ≡ (ap a δ₂ , frob-ap-, (𝛌 A) (ƛ z ⇒ B (fst z) (snd z)) a b δ₂)
-{-# REWRITE ap-, #-}
 
 frob-ap-∙ : {Δ : Type} (A : Δ ⇒ Type) (B : Σ Δ (A ∙_) ⇒ Type)
   (f : (δ : Δ) → Π (A ∙ δ) (λ x → B ∙ (δ , x))) (a : (δ : Δ) → A ∙ δ)
@@ -665,13 +630,18 @@ frob-ap-∙ : {Δ : Type} (A : Δ ⇒ Type) (B : Σ Δ (A ∙_) ⇒ Type)
 frob-ap-∙ {Δ} A B f a {δ₀} {δ₁} δ₂ = ap f δ₂ ∙ (a δ₀ , a δ₁ , ap a δ₂) 
 
 postulate
+  ap-snd : {Δ : Type} (A : Δ → Type) (B : (x : Δ) → A x → Type)
+    (u : (δ : Δ) → Σ (A δ) (B δ)) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
+    ap (λ δ → snd (u δ)) δ₂ ≡ frob-ap-snd (𝛌 A) (ƛ δ ⇒ ƛ a ⇒ B δ a) u δ₂
+  ap-, : {Δ : Type} (A : Δ → Type) (B : (x : Δ) → A x → Type)
+    (a : (x : Δ) → A x) (b : (x : Δ) → B x (a x)) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
+    ap (λ x → (_,_ {A x} {B x} (a x) (b x))) δ₂ ≡ (ap a δ₂ , frob-ap-, (𝛌 A) (ƛ z ⇒ B (fst z) (snd z)) a b δ₂)
   ap-∙ : {Δ : Type} {A : Δ → Type} {B : (δ : Δ) → A δ → Type}
     (f : (δ : Δ) → Π (A δ) (B δ)) (a : (δ : Δ) → A δ)
     {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
     ap (λ δ → f δ ∙ a δ) δ₂ ≡ frob-ap-∙ (𝛌 A) (ƛ z ⇒ B (fst z) (snd z)) f a δ₂
-{-# REWRITE ap-∙ #-}
+{-# REWRITE ap-snd ap-, ap-∙ #-}
 
-{-
 ----------------------------------------
 -- Squares, filling, and symmetry
 ----------------------------------------
@@ -804,5 +774,3 @@ module _ {A : Type} {B : A → Type} (f : Π A B) where
     touch⇒-Π : (aₓ : ID A) → touch⇒ ∙ f ∙ aₓ ≡ {!!}
     touch⇐-Π : (aₓ : ID A) → touch⇐ ∙ f ∙ aₓ ≡ {!!}
   --{-# REWRITE touch⇒-Π touch⇐-Π #-}
-
--}
