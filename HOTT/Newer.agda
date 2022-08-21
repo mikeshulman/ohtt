@@ -313,33 +313,6 @@ module _ {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Ty
     bury : {@♭ K : Type} (@♭ j : K → I)
       (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂)) →
       (k : K) → √ (j k)
-{-
-    dig-bury : {@♭ K : Type} (@♭ j : K → I)
-      (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂))
-      (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) →
-      -- Requires Id-ap
-      dig {ap j k₂} {bury j d k₀} {bury j d k₁} {!ap (bury j d) k₂!} ≡ d k₀ k₁ k₂
-    Id-√ : {i₀ i₁ : I} {i₂ : i₀ ＝ i₁} (s₀ : √ A i₀) (s₁ : √ A i₁) →
-      Id (𝛌 (√ A)) i₂ s₀ s₁ ≡
-      A i₀ i₁ i₂ ×
-      √ {（ i₀ ⦂ I ）× （ i₁ ⦂ I ）× （ i₂ ⦂ i₀ ＝ i₁ ）× √ A i₀ × √ A i₁}
-        (λ u₀ u₁ u₂ → Id {（ i₀ ⦂ I ）× （ i₁ ⦂ I ）× (i₀ ＝ i₁)}
-                       (ƛ iₓ ⇒ A (fst iₓ) (fst (snd iₓ)) (snd (snd iₓ)))
-                       {fst u₀ , fst u₁ , fst u₂}
-                       {fst (snd u₀) , fst (snd u₁) , ←Id-const I I (fst u₂) _ _ (fst (snd u₂))}
-                       (fst (snd (snd u₀)) , →Id-const I I (fst (snd (snd u₀))) _ _ (fst (snd (snd u₁))) , {!!} )
-                       (dig {I} {A} {fst u₀} {fst u₁} {fst u₂}
-                         {fst (snd (snd (snd u₀)))} {fst (snd (snd (snd u₁)))} {!fst (snd (snd (snd u₂)))!} )
-                       (dig {I} {A} {fst (snd u₀)} {fst (snd u₁)} {←Id-const I I (fst u₂) _ _ (fst (snd u₂))}
-                         {snd (snd (snd (snd u₀)))} {snd (snd (snd (snd u₁)))} {!snd (snd (snd (snd u₂)))!}))
-                       (i₀ , i₁ , i₂ , s₀ , s₁)
-  {-# REWRITE Id-√ #-}
-  postulate
-    dig-def : {i₀ i₁ : I} (i₂ : i₀ ＝ i₁)
-      {s₀ : √ A i₀} {s₁ : √ A i₁} (s₂ : Id (𝛌 (√ A)) i₂ s₀ s₁) →
-      dig {A} {i₂} {s₀} {s₁} s₂ ≡ fst s₂
-  {-# REWRITE dig-def #-}
--}
 
 ------------------------------
 -- The universe
@@ -699,6 +672,8 @@ fill↓ {A} {a₀₀} {a₀₁} {a₁₀} {a₁₁} a₁₂ a₂₀ a₂₁ =
   sym A {a₀₀} {a₁₀} a₂₀ {a₀₁} {a₁₁} a₂₁ (comp← {A} {a₀₀} {a₁₀} a₂₀ {a₀₁} {a₁₁} a₂₁ a₁₂) a₁₂
     (fill← {A} {a₀₀} {a₁₀} a₂₀ {a₀₁} {a₁₁} a₂₁ a₁₂)
 
+-- TODO: dependent symmetry, dependent square-filling
+
 ------------------------------
 -- Transport in ⊤
 ------------------------------
@@ -774,3 +749,37 @@ module _ {A : Type} {B : A → Type} (f : Π A B) where
     touch⇒-Π : (aₓ : ID A) → touch⇒ ∙ f ∙ aₓ ≡ {!!}
     touch⇐-Π : (aₓ : ID A) → touch⇐ ∙ f ∙ aₓ ≡ {!!}
   --{-# REWRITE touch⇒-Π touch⇐-Π #-}
+
+------------------------------
+-- Computation in √
+------------------------------
+
+{-
+module _ {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type} where
+  postulate
+    dig-bury : {@♭ K : Type} (@♭ j : K → I)
+      (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂))
+      (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) →
+      -- Requires Id-ap
+      dig {ap j k₂} {bury j d k₀} {bury j d k₁} {!ap (bury j d) k₂!} ≡ d k₀ k₁ k₂
+    Id-√ : {i₀ i₁ : I} {i₂ : i₀ ＝ i₁} (s₀ : √ A i₀) (s₁ : √ A i₁) →
+      Id (𝛌 (√ A)) i₂ s₀ s₁ ≡
+      A i₀ i₁ i₂ ×
+      √ {（ i₀ ⦂ I ）× （ i₁ ⦂ I ）× （ i₂ ⦂ i₀ ＝ i₁ ）× √ A i₀ × √ A i₁}
+        (λ u₀ u₁ u₂ → Id {（ i₀ ⦂ I ）× （ i₁ ⦂ I ）× (i₀ ＝ i₁)}
+                       (ƛ iₓ ⇒ A (fst iₓ) (fst (snd iₓ)) (snd (snd iₓ)))
+                       {fst u₀ , fst u₁ , fst u₂}
+                       {fst (snd u₀) , fst (snd u₁) , ←Id-const I I (fst u₂) _ _ (fst (snd u₂))}
+                       (fst (snd (snd u₀)) , →Id-const I I (fst (snd (snd u₀))) _ _ (fst (snd (snd u₁))) , {!!} )
+                       (dig {I} {A} {fst u₀} {fst u₁} {fst u₂}
+                         {fst (snd (snd (snd u₀)))} {fst (snd (snd (snd u₁)))} {!fst (snd (snd (snd u₂)))!} )
+                       (dig {I} {A} {fst (snd u₀)} {fst (snd u₁)} {←Id-const I I (fst u₂) _ _ (fst (snd u₂))}
+                         {snd (snd (snd (snd u₀)))} {snd (snd (snd (snd u₁)))} {!snd (snd (snd (snd u₂)))!}))
+                       (i₀ , i₁ , i₂ , s₀ , s₁)
+  {-# REWRITE Id-√ #-}
+  postulate
+    dig-def : {i₀ i₁ : I} (i₂ : i₀ ＝ i₁)
+      {s₀ : √ A i₀} {s₁ : √ A i₁} (s₂ : Id (𝛌 (√ A)) i₂ s₀ s₁) →
+      dig {A} {i₂} {s₀} {s₁} s₂ ≡ fst s₂
+  {-# REWRITE dig-def #-}
+-}
