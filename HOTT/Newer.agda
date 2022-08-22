@@ -352,116 +352,78 @@ open _≊_
 -- we should make them a record too, and only go to Σ-types at the
 -- next level.
 
+-- Now, as we will see, the following simple postulate equips all
+-- types with Kan cubical structure.
 postulate
   kan : (X : Type) → √ (λ X₀ X₁ X₂ → X₀ ≊ X₁) ∙ X
 
 _↓ : {X₀ X₁ : Type} (X₂ : X₀ ＝ X₁) → X₀ ≊ X₁
 _↓ {X₀} {X₁} X₂ = dig {Type} {λ X₀ X₁ X₂ → X₀ ≊ X₁} {X₀} {X₁} {X₂} {kan X₀} {kan X₁} (ap kan {X₀} {X₁} X₂)
 
-------------------------------
--- Transport
-------------------------------
+-- Computationally, we regard "kan" (informally) as a DESTRUCTOR of a
+-- COINDUCTIVE UNIVERSE.  This means that whenever we introduce a map
+-- into the universe (i.e. a type constructor), we must specify how
+-- kan computes on it.  Since the codomain of kan is a √-type, the
+-- result of this computation will generally be a "bury".  (Note that
+-- semantically, √-types have η-laws, whether or not we can enforce
+-- these syntactically, so it is reasonable to compute to a literal
+-- "bury" term.)  Giving such a computation law for a particular type
+-- former amounts to specifying its identity types along with its
+-- transport and lifting, which will generally be instances of the
+-- same type former (so that this is morally a corecursive definition,
+-- matching the coinductive nature of the universe).
+
+-- This also means that ap-kan, ap-ap-kan, and so on ought also to be
+-- regarded as coinductive destructors (of ＝U, SqU, and so on).  In
+-- particular, the computation laws for "kan" on type-formers that
+-- produce "bury"s should lift to computation laws of ap-kan on
+-- ap-type-formers that produce "ap-bury"s, while the latter compute
+-- to "bury"s for the ＝-√ (and thus the "dig" of ＝-√, which is
+-- ap-dig, computes on them).
+
+-- I haven't tried yet in Agda to specify rewrite rules for all of
+-- these computations at once.  Perhaps we can define all the
+-- "apⁿ-kan"s as an ℕᵉ-indexed family.
+
+-- The behavior of ap-ap-kan on symmetry is simply given by the
+-- ordinary rules of ap-ap on symmetry, together with the definition
+-- of symmetry on √-types.  As we will see, this specifies precisely
+-- the primitive symmetrized squares that we need.
+
+-- Finally, the fact that ap-kan is (informally) the destructor of a
+-- coinductive ＝U means that it's sensible to add an additional
+-- constructor of ＝U as long as we specify how ap-kan computes on it.
+-- This will be  the "promotion" rule from one-to-one correspondences.
+
+-- Intuitively, we can say that while Book HoTT specifies ∞-groupoid
+-- structure *inductively*, and cubical type theory specifies it
+-- *explicitly*, HOTT specifies it *coinductively*.
+
+--------------------------------------------------
+-- Comparing correspondences to identifications
+--------------------------------------------------
 
 -- The correspondence component of ((ap B e) ↓) is (Id B e), while the
--- other four components are transport and lifting.  We choose to
--- compute the former to the latter, so that transport and lifting
--- are, like Id, primitives (which, like Id, compute on type-formers).
+-- other four components are transport and lifting, and similarly for
+-- (refl B ↓) and (_＝_ {B}).  Morally, we regard these as
+-- "definitions" of Id and ＝.  However, to actually "define" ＝ that
+-- way (in the sense of rewriting (_＝_ {B}) to part of (refl B ↓))
+-- would almost certainly be horribly circular, so we rewrite it in
+-- the other direction.
 
-module _ {A : Type} (B : A → Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) where
-  postulate
-    tr⇒ : B a₀ ⇒ B a₁
-    tr⇐ : B a₁ ⇒ B a₀
-    lift⇒ : （ b₀ ⦂ B a₀ ）⇒ Id B a₂ b₀ (tr⇒ ∙ b₀)
-    lift⇐ : （ b₁ ⦂ B a₁ ）⇒ Id B a₂ (tr⇐ ∙ b₁) b₁
-    ap↓ : -- ap B a₂ ↓ ≡
-      dig {Type} {λ X₀ X₁ X₂ → X₀ ≊ X₁} {B a₀} {B a₁} {ap B a₂} {kan (B a₀)} {kan (B a₁)} (ap kan (ap B a₂)) ≡
-      ≊[ Id B a₂ , tr⇒ , tr⇐ , lift⇒ , lift⇐ ]
-{-# REWRITE ap↓ #-}
-
--- Similarly, the correspondence part of ((refl A) ↓) is (_＝_ {A}),
--- while the other four components are trivial nudges.  We compute
--- these in the same direction.
-
-module _ {A : Type} where
-  postulate
-    nudge⇒ : A ⇒ A
-    nudge⇐ : A ⇒ A
-    touch⇒ : （ a ⦂ A ）⇒ a ＝ nudge⇒ ∙ a
-    touch⇐ : （ a ⦂ A ）⇒ nudge⇐ ∙ a ＝ a
-    refl↓ : -- refl A ↓ ≡
-      dig {Type} {λ X₀ X₁ X₂ → X₀ ≊ X₁} {A} {A} {refl A} {kan A} {kan A} (refl (kan A)) ≡
-      ≊[ _＝_ {A} , nudge⇒ , nudge⇐ , touch⇒ , touch⇐ ]
+postulate
+    refl↓ : (A : Type) →
+      -- _／_～_ (refl A ↓) ≡
+      _／_～_ (dig {Type} {λ X₀ X₁ X₂ → X₀ ≊ X₁} {A} {A} {refl A} {kan A} {kan A} (refl (kan A))) ≡
+      _＝_ {A}
 {-# REWRITE refl↓ #-}
 
--- In fact, ap↓ and refl↓ should be lifted to all ap's.  That is,
--- something like (ap _↓ (ap (ap B e))) should compute to things like
--- (ap tr⇒), and so on.  Since ap-dig is comprehensible in terms of
--- √-types, this probably boils down to specifying that the ap's of
--- kan compute on ap's.  Maybe we can say that kan (and all its ap's)
--- belong to a class of terms on which ap-functoriality computes
--- backwards, so that (ap kan (ap (ap B e))) would compute to (ap (kan
--- (ap B e))) so that then the previous rule for (kan (ap B e)) could
--- fire?  I'm not sure how that would interact with dig.
+-- Because of the direction we compute in refl↓, for confluence we
+-- need to give explicit analogues for ＝ of all the relevant rules
+-- for refl.  On constructors of the universe, i.e. type formers, this
+-- is all over the place.  What remains is eliminators mapping into
+-- the universe.
 
--- Hmm, actually instead of computing dig-ap-kan on type-formers to
--- concrete answers, we should compute kan on type-formers to a bury
--- that encodes the same information.  Then dig-ap-kan will be
--- dig-ap-bury which will compute by the β-rule for √.  But moreover,
--- we can define ap-dig to be dig for an identification √ type, and
--- likewise ap-bury (how does that interact with the β-rule?), and so
--- the rules carry over automatically to all higher dimensions using
--- the rules for √.  The only thing to worry about then in principle
--- should be if we have an unadorned ap-kan (or apⁿ-kan), it has to
--- inspect its identification argument and merge with previous aps in
--- order to compute in the bound term of the ap.
-
--- TODO: Can this principled approach be reconciled with the idea
--- above where we define Id, tr⇒, etc. separately for type-formers and
--- compute kan to them?  It seems that it requires computing in the
--- other way, defining tr⇒ etc. to be the components of dig-ap-kan.
--- But we certainly don't want to compute ＝ to a dig-ap-kan-refl!
--- And it would make for nicer printing not to compute the others too...
-
-----------------------------------------
--- Rules for transport
-----------------------------------------
-
--- Because of the direction we compute, we need to give explicit
--- analogues for Id, ＝, transport, and nudging of all the rules for
--- ap and refl.
-
--- Analogues of ap-const (including Id-const)
-module _ (A B : Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) where
-  postulate
-    tr⇒-const : (b₀ : B) → tr⇒ {A} (λ _ → B) a₂ ∙ b₀ ≡ nudge⇒ ∙ b₀
-    tr⇐-const : (b₀ : B) → tr⇐ {A} (λ _ → B) a₂ ∙ b₀ ≡ nudge⇐ ∙ b₀
-  {-# REWRITE tr⇒-const tr⇐-const #-}
-  postulate
-    lift⇒-const : (b₀ : B) → lift⇒ {A} (λ _ → B) a₂ ∙ b₀ ≡ touch⇒ ∙ b₀
-    lift⇐-const : (b₀ : B) → lift⇐ {A} (λ _ → B) a₂ ∙ b₀ ≡ touch⇐ ∙ b₀
-  {-# REWRITE lift⇒-const lift⇐-const #-}
-
--- Analogues of ap-refl (including Id-refl)
-module _ {A : Type} (B : A → Type) (a : A) where
-  postulate
-    tr⇒-refl : (b₀ : B a) → tr⇒ B (refl a) ∙ b₀ ≡ nudge⇒ ∙ b₀
-    tr⇐-refl : (b₀ : B a) → tr⇐ B (refl a) ∙ b₀ ≡ nudge⇐ ∙ b₀
-  {-# REWRITE tr⇒-refl tr⇐-refl #-}
-  postulate
-    lift⇒-refl : (b₀ : B a) → lift⇒ B (refl a) ∙ b₀ ≡ touch⇒ ∙ b₀
-    lift⇐-refl : (b₀ : B a) → lift⇐ B (refl a) ∙ b₀ ≡ touch⇐ ∙ b₀
-  {-# REWRITE lift⇒-refl lift⇐-refl #-}
-
-------------------------------------------------------------
--- Rules for identifications and transport on eliminators
-------------------------------------------------------------
-
--- This also includes rules for the computation of ap on terms.  The
--- introduction forms of the universe are type-formers, and computing
--- all these things on them is what we're doing all throughout.  But
--- we also have to compute them on elimination forms of other types.
-
--- Analogues of refl-∙
 postulate
   ＝-∙ : {A : Type} (f : A ⇒ Type) (a : A) (x₀ x₁ : f ∙ a) →
     (x₀ ＝ x₁) ≡ ((refl f ∙ (a , a , refl a) ↓) ／ x₀ ～ x₁)
@@ -469,80 +431,38 @@ postulate
   --- refl (f ∙ a)             ⟼  refl f ∙ (a , a , refl a)                [by refl-∙]
   --- x₀ ~[ refl (f ∙ a) ] x₁  ⟼  (_＝_ {f ∙ a} x₀ x₁)                     [by refl↓]
   --- (_＝_ {f ∙ a} x₀ x₁)     ⟼  (x₀ ~[ refl f ∙ (a , a , refl a) ] x₁)   [by ＝-∙]
-  -- Thus, ＝-∙ restores (some) confluence between refl-∙ and refl↓.
-  nudge⇒-∙ : {A : Type} (f : A ⇒ Type) (a : A) →
-    nudge⇒ ≡ coe⇒ (refl f ∙ (a , a , refl a) ↓)
-  nudge⇐-∙ : {A : Type} (f : A ⇒ Type) (a : A) →
-    nudge⇐ ≡ coe⇐ (refl f ∙ (a , a , refl a) ↓)
-{-# REWRITE ＝-∙ nudge⇒-∙ nudge⇐-∙ #-}
+  -- Thus, ＝-∙ restores confluence between refl-∙ and refl↓.
+  ＝-fst :  {B : Type → Type} (u : Σ Type B) (x₀ x₁ : fst u) →
+    (x₀ ＝ x₁) ≡ (fst (refl u) ↓ ／ x₀ ～ x₁)
+  ＝-snd : {A : Type} (u : A × Type) (x₀ x₁ : snd u) →
+    (x₀ ＝ x₁) ≡ (snd (refl u) ↓ ／ x₀ ～ x₁)
+
+{-# REWRITE ＝-∙ ＝-fst ＝-snd #-}
+
+-- On the other hand, we can (I hope) consistently rewrite (Id B e) to
+-- part of ((ap B e) ↓), and we will do this below in Id-def.  (Note
+-- that if the Id is of a sort that should reduce to ＝, then the
+-- corresponding ap also reduces to refl, so this is consistent.)
+
+-- However, that definition of Id will only have the desired
+-- properties once we know that ap has the desired properties,
+-- particularly its computation laws like ap-∙.  And unfortunately, we
+-- require Id to *already* have these computation laws in order for
+-- ap-∙ to be well-typed!  Thus, we postpone Id-def until we have
+-- proven ap-∙ and its friends, instead postulating directly the
+-- behavior of Id that we need.
+
 postulate
-  touch⇒-∙ : {A : Type} (f : A ⇒ Type) (a : A) →
-    touch⇒ ≡ push⇒ (refl f ∙ (a , a , refl a) ↓)
-  touch⇐-∙ : {A : Type} (f : A ⇒ Type) (a : A) →
-    touch⇐ ≡ push⇐ (refl f ∙ (a , a , refl a) ↓)
-{-# REWRITE touch⇒-∙ touch⇐-∙ #-}
-
--- Analogues of refl-fst
-module _ {B : Type → Type} (u : Σ Type B) where
-  postulate
-    ＝-fst : (x₀ x₁ : fst u) → (x₀ ＝ x₁) ≡ (fst (refl u) ↓ ／ x₀ ～ x₁)
-    nudge⇒-fst : nudge⇒ ≡ coe⇒ (fst (refl u) ↓)
-    nudge⇐-fst : nudge⇐ ≡ coe⇐ (fst (refl u) ↓)
-  {-# REWRITE ＝-fst nudge⇒-fst nudge⇐-fst #-}
-  postulate
-    touch⇒-fst : touch⇒ ≡ push⇒ (fst (refl u) ↓)
-    touch⇐-fst : touch⇐ ≡ push⇐ (fst (refl u) ↓)
-  {-# REWRITE touch⇒-fst touch⇐-fst #-}
-
--- Analogues of refl-snd
-module _ {A : Type} (u : A × Type) where
-  postulate
-    ＝-snd : (x₀ x₁ : snd u) → (x₀ ＝ x₁) ≡ (snd (refl u) ↓ ／ x₀ ～ x₁)
-    nudge⇒-snd : nudge⇒ ≡ coe⇒ (snd (refl u) ↓)
-    nudge⇐-snd : nudge⇐ ≡ coe⇐ (snd (refl u) ↓)
-  {-# REWRITE ＝-snd nudge⇒-snd nudge⇐-snd #-}
-  postulate
-    touch⇒-snd : touch⇒ ≡ push⇒ (snd (refl u) ↓)
-    touch⇐-snd : touch⇐ ≡ push⇐ (snd (refl u) ↓)
-  {-# REWRITE touch⇒-snd touch⇐-snd #-}
-
--- Analogues of ap-fst
-module _  {Δ : Type} {B : Δ → Type → Type} (u : (δ : Δ) → Σ Type (B δ)) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) where
-  postulate
-    Id-fst : (x₀ : fst (u δ₀)) (x₁ : fst (u δ₁)) →
-      Id (λ δ → fst (u δ)) δ₂ x₀ x₁ ≡ (fst (ap u δ₂) ↓ ／ x₀ ～ x₁)
-    tr⇒-fst : tr⇒ (λ δ → fst (u δ)) δ₂ ≡ coe⇒ (fst (ap u δ₂) ↓)
-    tr⇐-fst : tr⇐ (λ δ → fst (u δ)) δ₂ ≡ coe⇐ (fst (ap u δ₂) ↓)
-  {-# REWRITE Id-fst tr⇒-fst tr⇐-fst #-}
-  postulate
-    lift⇒-fst : lift⇒ (λ δ → fst (u δ)) δ₂ ≡ push⇒ (fst (ap u δ₂) ↓)
-    lift⇐-fst : lift⇐ (λ δ → fst (u δ)) δ₂ ≡ push⇐ (fst (ap u δ₂) ↓)
-  {-# REWRITE lift⇒-fst lift⇐-fst #-}
-
--- TODO: Analogues af ap-snd
-
--- Analogues of ap-∙
-postulate
+  Id-fst : {Δ : Type} {B : Δ → Type → Type} (u : (δ : Δ) → Σ Type (B δ)) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
+    (x₀ : fst (u δ₀)) (x₁ : fst (u δ₁)) →
+    Id (λ δ → fst (u δ)) δ₂ x₀ x₁ ≡ (fst (ap u δ₂) ↓ ／ x₀ ～ x₁)
+  -- TODO: Id-snd
   Id-∙ : {Δ : Type} {A : Δ → Type} (f : (δ : Δ) → A δ ⇒ Type)
     (a : (δ : Δ) → A δ) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
     (x₀ : f δ₀ ∙ a δ₀) (x₁ : f δ₁ ∙ a δ₁) →
     Id (λ δ → f δ ∙ a δ) δ₂ x₀ x₁ ≡ (ap f δ₂ ∙ (a δ₀ , a δ₁ , ap a δ₂) ↓ ／ x₀ ～ x₁)
-  tr⇒-∙ : {Δ : Type} {A : Δ → Type} (f : (δ : Δ) → A δ ⇒ Type)
-    (a : (δ : Δ) → A δ) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
-    tr⇒ (λ δ → f δ ∙ a δ) δ₂ ≡ coe⇒ (ap f δ₂ ∙ (a δ₀ , a δ₁ , ap a δ₂) ↓)
-  tr⇐-∙ : {Δ : Type} {A : Δ → Type} (f : (δ : Δ) → A δ ⇒ Type)
-    (a : (δ : Δ) → A δ) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
-    tr⇐ (λ δ → f δ ∙ a δ) δ₂ ≡ coe⇐ (ap f δ₂ ∙ (a δ₀ , a δ₁ , ap a δ₂) ↓)
-{-# REWRITE Id-∙ tr⇒-∙ tr⇐-∙ #-}
-postulate
-  lift⇒-∙ : {Δ : Type} {A : Δ → Type} (f : (δ : Δ) → A δ ⇒ Type)
-    (a : (δ : Δ) → A δ) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
-    lift⇒ (λ δ → f δ ∙ a δ) δ₂ ≡ push⇒ (ap f δ₂ ∙ (a δ₀ , a δ₁ , ap a δ₂) ↓)
-  lift⇐-∙ : {Δ : Type} {A : Δ → Type} (f : (δ : Δ) → A δ ⇒ Type)
-    (a : (δ : Δ) → A δ) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
-    lift⇐ (λ δ → f δ ∙ a δ) δ₂ ≡ push⇐ (ap f δ₂ ∙ (a δ₀ , a δ₁ , ap a δ₂) ↓)
-{-# REWRITE lift⇒-∙ lift⇐-∙ #-}
 
+{-# REWRITE Id-fst Id-∙ #-}
 
 ------------------------------
 -- ap-snd and ap-, and ap-∙
@@ -636,6 +556,101 @@ postulate
     ap (λ δ → f δ ∙ a δ) δ₂ ≡ frob-ap-∙ (𝛌 A) (ƛ z ⇒ B (fst z) (snd z)) f a δ₂
 {-# REWRITE ap-snd ap-, ap-∙ #-}
 
+------------------------------
+-- Definition of Id
+------------------------------
+
+-- Now we can define Id in terms of ap and retain the desired behavior.
+
+postulate
+  Id-def : {A : Type} (B : A → Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) →
+    Id B a₂ ≡ (ap B a₂ ↓) ／_～_
+--{-# REWRITE Id-def #-}
+
+-- TODO: This seems to blow up time and memory usage in anything that
+-- happens after it.  Possibly the problem is normalizing the type of
+-- (ap B a₂).
+
+Id-test : {A : Type} (B : A → Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (b₀ : B a₀) (b₁ : B a₁) →
+  {!_／_～_ (refl Type ↓)
+   -- normalizes instantly with C-c C-n to
+   {-_／_～_ (dig {Type} {λ X₀ X₁ X₂ → X₀ ≊ X₁} {Type} {Type}
+     {refl {Type} Type} {kan Type} {kan Type}
+     (refl {_∙_ {Type} {λ x → Type} (√ {Type} (λ X₀ X₁ X₂ → X₀ ≊ X₁)) Type} (kan Type)))-}
+   -- but *that* doesn't normalize quickly at all!  Without Id-def, it
+   -- normalizes instantly to _＝_ ... which is still different from
+   -- what the first one does!  I don't understand what's going on:
+   -- how can C-c C-n not be idempotent, and how can Id-def influence
+   -- the normalization of this term which doesn't contain any Id's?
+  
+   --- ap B a₂
+   -- has type
+   --- Id {A} (λ _ → Type) a₂ (B a₀) (B a₁)
+   -- which should now rewrite by Id-def to
+   --- (ap {A} (λ _ → Type) a₂ ↓) ／ B a₀ ～ B a₁
+   -- which should rewrite by ap-const to
+   --- (refl Type ↓) ／ B a₀ ～ B a₁
+   -- and then by refl↓ to
+   --- B a₀ ＝ B a₁
+   !}
+
+
+-- The other components of ap-↓ are transport and lifting.
+
+{-
+tr⇒ : {A : Type} (B : A → Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) → B a₀ ⇒ B a₁
+tr⇒ {A} B {a₀} {a₁} a₂ = coe⇒ (ap B a₂ ↓)
+
+tr⇐ : {A : Type} (B : A → Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) → B a₁ ⇒ B a₀
+tr⇐ {A} B {a₀} {a₁} a₂ = coe⇐ (ap B a₂ ↓)
+
+lift⇒ : {A : Type} (B : A → Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) →
+  （ b₀ ⦂ B a₀ ）⇒ Id B a₂ b₀ (tr⇒ B a₂ b₀)
+lift⇒ {A} B {a₀} {a₁} a₂ = push⇒ (ap B a₂ ↓)
+
+lift⇐ : {A : Type} (B : A → Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) →
+  （ b₁ ⦂ B a₁ ）⇒ Id B a₂ (tr⇐ B a₂ b₁) b₁
+lift⇐ {A} B {a₀} {a₁} a₂ = push⇐ (ap B a₂ ↓)
+-}
+
+------------------------------
+-- Computation in √
+------------------------------
+{-
+postulate
+  dig-ap-bury : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type} {@♭ K : Type} (@♭ j : K → I)
+    (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂))
+    (@♭ k₀ k₁ : K) (@♭ k₂ : k₀ ＝ k₁) →
+    dig {I} {A} {j k₀} {j k₁} {ap j k₂} {bury A j d k₀} {bury A j d k₁} (ap (bury A j d) k₂) ≡ d k₀ k₁ k₂
+  dig-refl-bury : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type}
+    {@♭ K : Type} (@♭ j : K → I) (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂)) (@♭ k : K) →
+    dig {I} {A} {j k} {j k} {refl (j k)} {bury A j d k} {bury A j d k} (refl (bury A j d k)) ≡ d k k (refl k)
+{-# REWRITE dig-ap-bury dig-refl-bury #-}
+-}
+{-
+    Id-√ : {i₀ i₁ : I} {i₂ : i₀ ＝ i₁} (s₀ : √ A i₀) (s₁ : √ A i₁) →
+      Id (𝛌 (√ A)) i₂ s₀ s₁ ≡
+      A i₀ i₁ i₂ ×
+      √ {（ i₀ ⦂ I ）× （ i₁ ⦂ I ）× （ i₂ ⦂ i₀ ＝ i₁ ）× √ A i₀ × √ A i₁}
+        (λ u₀ u₁ u₂ → Id {（ i₀ ⦂ I ）× （ i₁ ⦂ I ）× (i₀ ＝ i₁)}
+                       (ƛ iₓ ⇒ A (fst iₓ) (fst (snd iₓ)) (snd (snd iₓ)))
+                       {fst u₀ , fst u₁ , fst u₂}
+                       {fst (snd u₀) , fst (snd u₁) , ←Id-const I I (fst u₂) _ _ (fst (snd u₂))}
+                       (fst (snd (snd u₀)) , →Id-const I I (fst (snd (snd u₀))) _ _ (fst (snd (snd u₁))) , {!!} )
+                       (dig {I} {A} {fst u₀} {fst u₁} {fst u₂}
+                         {fst (snd (snd (snd u₀)))} {fst (snd (snd (snd u₁)))} {!fst (snd (snd (snd u₂)))!} )
+                       (dig {I} {A} {fst (snd u₀)} {fst (snd u₁)} {←Id-const I I (fst u₂) _ _ (fst (snd u₂))}
+                         {snd (snd (snd (snd u₀)))} {snd (snd (snd (snd u₁)))} {!snd (snd (snd (snd u₂)))!}))
+                       (i₀ , i₁ , i₂ , s₀ , s₁)
+  {-# REWRITE Id-√ #-}
+  postulate
+    dig-def : {i₀ i₁ : I} (i₂ : i₀ ＝ i₁)
+      {s₀ : √ A i₀} {s₁ : √ A i₁} (s₂ : Id (𝛌 (√ A)) i₂ s₀ s₁) →
+      dig {A} {i₂} {s₀} {s₁} s₂ ≡ fst s₂
+  {-# REWRITE dig-def #-}
+-}
+
+{-
 ----------------------------------------
 -- Squares, filling, and symmetry
 ----------------------------------------
@@ -773,39 +788,4 @@ module _ {A : Type} {B : A → Type} (f : Π A B) where
   --{-# REWRITE touch⇒-Π touch⇐-Π #-}
 -}
 
-------------------------------
--- Computation in √
-------------------------------
-
-postulate
-  dig-ap-bury : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type} {@♭ K : Type} (@♭ j : K → I)
-    (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂))
-    (@♭ k₀ k₁ : K) (@♭ k₂ : k₀ ＝ k₁) →
-    dig {I} {A} {j k₀} {j k₁} {ap j k₂} {bury A j d k₀} {bury A j d k₁} (ap (bury A j d) k₂) ≡ d k₀ k₁ k₂
-  dig-refl-bury : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type}
-    {@♭ K : Type} (@♭ j : K → I) (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂)) (@♭ k : K) →
-    dig {I} {A} {j k} {j k} {refl (j k)} {bury A j d k} {bury A j d k} (refl (bury A j d k)) ≡ d k k (refl k)
-{-# REWRITE dig-ap-bury dig-refl-bury #-}
-
-{-
-    Id-√ : {i₀ i₁ : I} {i₂ : i₀ ＝ i₁} (s₀ : √ A i₀) (s₁ : √ A i₁) →
-      Id (𝛌 (√ A)) i₂ s₀ s₁ ≡
-      A i₀ i₁ i₂ ×
-      √ {（ i₀ ⦂ I ）× （ i₁ ⦂ I ）× （ i₂ ⦂ i₀ ＝ i₁ ）× √ A i₀ × √ A i₁}
-        (λ u₀ u₁ u₂ → Id {（ i₀ ⦂ I ）× （ i₁ ⦂ I ）× (i₀ ＝ i₁)}
-                       (ƛ iₓ ⇒ A (fst iₓ) (fst (snd iₓ)) (snd (snd iₓ)))
-                       {fst u₀ , fst u₁ , fst u₂}
-                       {fst (snd u₀) , fst (snd u₁) , ←Id-const I I (fst u₂) _ _ (fst (snd u₂))}
-                       (fst (snd (snd u₀)) , →Id-const I I (fst (snd (snd u₀))) _ _ (fst (snd (snd u₁))) , {!!} )
-                       (dig {I} {A} {fst u₀} {fst u₁} {fst u₂}
-                         {fst (snd (snd (snd u₀)))} {fst (snd (snd (snd u₁)))} {!fst (snd (snd (snd u₂)))!} )
-                       (dig {I} {A} {fst (snd u₀)} {fst (snd u₁)} {←Id-const I I (fst u₂) _ _ (fst (snd u₂))}
-                         {snd (snd (snd (snd u₀)))} {snd (snd (snd (snd u₁)))} {!snd (snd (snd (snd u₂)))!}))
-                       (i₀ , i₁ , i₂ , s₀ , s₁)
-  {-# REWRITE Id-√ #-}
-  postulate
-    dig-def : {i₀ i₁ : I} (i₂ : i₀ ＝ i₁)
-      {s₀ : √ A i₀} {s₁ : √ A i₁} (s₂ : Id (𝛌 (√ A)) i₂ s₀ s₁) →
-      dig {A} {i₂} {s₀} {s₁} s₂ ≡ fst s₂
-  {-# REWRITE dig-def #-}
 -}
