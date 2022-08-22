@@ -456,13 +456,15 @@ postulate
   Id-fst : {Δ : Type} {B : Δ → Type → Type} (u : (δ : Δ) → Σ Type (B δ)) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
     (x₀ : fst (u δ₀)) (x₁ : fst (u δ₁)) →
     Id (λ δ → fst (u δ)) δ₂ x₀ x₁ ≡ (fst (ap u δ₂) ↓ ／ x₀ ～ x₁)
-  -- TODO: Id-snd
+  Id-snd : {Δ : Type} (A : Δ → Type) (u : (δ : Δ) → Σ (A δ) (λ _ → Type)) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
+    (x₀ : snd (u δ₀)) (x₁ : snd (u δ₁)) →
+    Id (λ δ → snd (u δ)) δ₂ x₀ x₁ ≡ (snd (ap u δ₂) ↓ ／ x₀ ～ x₁)
   Id-∙ : {Δ : Type} {A : Δ → Type} (f : (δ : Δ) → A δ ⇒ Type)
     (a : (δ : Δ) → A δ) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
     (x₀ : f δ₀ ∙ a δ₀) (x₁ : f δ₁ ∙ a δ₁) →
     Id (λ δ → f δ ∙ a δ) δ₂ x₀ x₁ ≡ (ap f δ₂ ∙ (a δ₀ , a δ₁ , ap a δ₂) ↓ ／ x₀ ～ x₁)
 
-{-# REWRITE Id-fst Id-∙ #-}
+{-# REWRITE Id-fst Id-snd Id-∙ #-}
 
 ------------------------------
 -- ap-snd and ap-, and ap-∙
