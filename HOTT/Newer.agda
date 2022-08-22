@@ -389,7 +389,7 @@ module _ {A : Type} where
     touch⇒ : （ a ⦂ A ）⇒ a ＝ nudge⇒ ∙ a
     touch⇐ : （ a ⦂ A ）⇒ nudge⇐ ∙ a ＝ a
     refl↓ : -- refl A ↓ ≡
-      dig {Type} {λ X₀ X₁ X₂ → X₀ ≊ X₁} {A} {A} {refl A} {kan A} {kan A} (ap kan (refl A)) ≡
+      dig {Type} {λ X₀ X₁ X₂ → X₀ ≊ X₁} {A} {A} {refl A} {kan A} {kan A} (refl (kan A)) ≡
       ≊[ _＝_ {A} , nudge⇒ , nudge⇐ , touch⇒ , touch⇐ ]
 {-# REWRITE refl↓ #-}
 
