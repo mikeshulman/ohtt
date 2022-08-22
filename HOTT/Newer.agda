@@ -304,15 +304,14 @@ postulate
 -- Amazing right adjoints
 ------------------------------
 
-module _ {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type} where
-  postulate
-    √ : I → Type
-    dig : {i₀ i₁ : I} {i₂ : i₀ ＝ i₁}
-      {s₀ : √ i₀} {s₁ : √ i₁} (s₂ : Id √ i₂ s₀ s₁) →
-      A i₀ i₁ i₂
-    bury : {@♭ K : Type} (@♭ j : K → I)
-      (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂)) →
-      (k : K) → √ (j k)
+postulate
+  √ : {@♭ I : Type} (@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type) → I ⇒ Type
+  dig : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type} {i₀ i₁ : I} {i₂ : i₀ ＝ i₁}
+    {s₀ : √ A ∙ i₀} {s₁ : √ A ∙ i₁} (s₂ : Id (√ A ∙_) i₂ s₀ s₁) →
+    A i₀ i₁ i₂
+  bury : {@♭ I : Type} (@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type) {@♭ K : Type} (@♭ j : K → I)
+    (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂)) →
+    (k : K) → √ A ∙ j k
 
 ------------------------------
 -- The universe
@@ -354,7 +353,7 @@ open _≊_
 -- next level.
 
 postulate
-  kan : (X : Type) → √ {Type} {λ X₀ X₁ X₂ → X₀ ≊ X₁} X
+  kan : (X : Type) → √ (λ X₀ X₁ X₂ → X₀ ≊ X₁) ∙ X
 
 _↓ : {X₀ X₁ : Type} (X₂ : X₀ ＝ X₁) → X₀ ≊ X₁
 _↓ {X₀} {X₁} X₂ = dig {Type} {λ X₀ X₁ X₂ → X₀ ≊ X₁} {X₀} {X₁} {X₂} {kan X₀} {kan X₁} (ap kan {X₀} {X₁} X₂)
@@ -778,14 +777,17 @@ module _ {A : Type} {B : A → Type} (f : Π A B) where
 -- Computation in √
 ------------------------------
 
+postulate
+  dig-ap-bury : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type} {@♭ K : Type} (@♭ j : K → I)
+    (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂))
+    (@♭ k₀ k₁ : K) (@♭ k₂ : k₀ ＝ k₁) →
+    dig {I} {A} {j k₀} {j k₁} {ap j k₂} {bury A j d k₀} {bury A j d k₁} (ap (bury A j d) k₂) ≡ d k₀ k₁ k₂
+  dig-refl-bury : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type}
+    {@♭ K : Type} (@♭ j : K → I) (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂)) (@♭ k : K) →
+    dig {I} {A} {j k} {j k} {refl (j k)} {bury A j d k} {bury A j d k} (refl (bury A j d k)) ≡ d k k (refl k)
+{-# REWRITE dig-ap-bury dig-refl-bury #-}
+
 {-
-module _ {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type} where
-  postulate
-    dig-bury : {@♭ K : Type} (@♭ j : K → I)
-      (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂))
-      (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) →
-      -- Requires Id-ap
-      dig {ap j k₂} {bury j d k₀} {bury j d k₁} {!ap (bury j d) k₂!} ≡ d k₀ k₁ k₂
     Id-√ : {i₀ i₁ : I} {i₂ : i₀ ＝ i₁} (s₀ : √ A i₀) (s₁ : √ A i₁) →
       Id (𝛌 (√ A)) i₂ s₀ s₁ ≡
       A i₀ i₁ i₂ ×
