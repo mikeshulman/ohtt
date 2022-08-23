@@ -76,8 +76,9 @@ isSet-Prop = ƛ P ⇒ ƛ Q ⇒ tr⇐ (ƛ X ⇒ isProp X) (＝Prop P Q) (isProp-�
 ∣_∣ : {A : Type} → A → ∥ A ∥
 ∣ a ∣ = ƛ P ⇒ ƛ _ ⇒ ƛ f ⇒ f ∙ a
 
-isProp-∥∥ : (A : Type) → isProp ∥ A ∥
-isProp-∥∥ A = isProp-Π (λ P → isProp-Π (λ prp → isProp-Π (λ _ → prp)))
+abstract
+  isProp-∥∥ : (A : Type) → isProp ∥ A ∥
+  isProp-∥∥ A = isProp-Π (λ P → isProp-Π (λ prp → isProp-Π (λ _ → prp)))
 
 ∥∥-elim : {A : Type} (P : ∥ A ∥ → Type) (p : (x : ∥ A ∥) → isProp (P x))
   (d : (a : A) → P (∣ a ∣)) (u : ∥ A ∥) →
