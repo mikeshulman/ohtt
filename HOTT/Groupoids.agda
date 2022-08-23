@@ -290,9 +290,10 @@ isProp-Id-isSet {A} {a₀} {a₁} a₂ B bs b₀ b₁ =
      (λ b₁' → bs a₀ ∙ b₀ ∙ b₁') a₁ a₂ b₁
 
 -- Sets are closed under Π-types
-isSet-Π : {A : Type} {B : A → Type} (sB : (x : A) → isSet (B x)) → isSet (Π A B)
-isSet-Π {A} {B} sB = ƛ f ⇒ ƛ g ⇒ isProp-Π (λ a₀ → isProp-Π (λ a₁ → isProp-Π (λ a₂ →
-  isProp-Id-isSet a₂ B sB (f ∙ a₀) (g ∙ a₁) )))
+abstract
+  isSet-Π : {A : Type} {B : A → Type} (sB : (x : A) → isSet (B x)) → isSet (Π A B)
+  isSet-Π {A} {B} sB = ƛ f ⇒ ƛ g ⇒ isProp-Π (λ a₀ → isProp-Π (λ a₁ → isProp-Π (λ a₂ →
+    isProp-Id-isSet a₂ B sB (f ∙ a₀) (g ∙ a₁) )))
 
 -- Every square in a set can be filled.
 sq-set : {A : Type} (prp : isSet A)
