@@ -193,17 +193,20 @@ postulate
 -- Functoriality of Id
 ------------------------------
 
--- TODO: Describe.  Can these be used systematically in place of the
--- various custom frobs?
+-- With the computation rules for Id on application, we can prove that
+-- its functoriality holds definitionally.  However, this only holds
+-- for ⇒-functions rather than framework →-functions.  Thus, in other
+-- situations we may need to apply these coercions manually, wrapping
+-- a type family in 𝛌 by hand.
 ←Id-ap : {A B : Type} (f : A → B) (C : B ⇒ Type)
-  {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (c₀ : C ∙ f a₀) (c₁ : C  ∙ f a₁) →
+  {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) {c₀ : C ∙ f a₀} {c₁ : C  ∙ f a₁} →
   Id (λ a → C ∙ f a) a₂ c₀ c₁ → Id (C ∙_) (ap f a₂) c₀ c₁
-←Id-ap f C a₂ c₀ c₁ e = e
+←Id-ap f C a₂ e = e
 
 →Id-ap : {A B : Type} (f : A → B) (C : B ⇒ Type)
-  {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (c₀ : C ∙ f a₀) (c₁ : C  ∙ f a₁) →
+  {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) {c₀ : C ∙ f a₀} {c₁ : C  ∙ f a₁} →
   Id (C ∙_) (ap f a₂) c₀ c₁ → Id (λ a → C ∙ f a) a₂ c₀ c₁
-→Id-ap f C a₂ c₀ c₁ e = e
+→Id-ap f C a₂ e = e
 
 ------------------------------
 -- ap-snd and ap-, and ap-∙
@@ -222,6 +225,9 @@ postulate
 -- type families that belong to a →.  So we first define an element of
 -- the type we need under the assumption of a ⇒ type family, and then
 -- in the actual rewrite rule we hand off with a 𝛌-abstraction.
+-- (Morally, we are using one of the Id-ap rules from above, but they
+-- don't work completely until we have these computation rules for ap
+-- in place, so we use special lemmas instead.)
 
 -- First we can state ap-snd for non-dependent product types.
 frob-ap-snd¹ : {Δ : Type} (A B : Δ ⇒ Type) (u : (δ : Δ) → (A ∙ δ) × (B ∙ δ))
@@ -347,7 +353,7 @@ postulate
   ap-refl, : {A : Type} (B : A → Type) (C : Σ A B → Type)
     (f : (x : Σ A B) → C x) (a : A) {b₀ b₁ : B a} (b₂ : b₀ ＝ b₁) →
     ap f {a , b₀} {a , b₁} (refl a , b₂) ≡
-    ←Id-ap {B a} {Σ A B} (λ b → (a , b)) (𝛌 C) b₂ (f (a , b₀)) (f (a , b₁)) (ap (λ y → f (a , y)) b₂)
+    ←Id-ap {B a} {Σ A B} (λ b → (a , b)) (𝛌 C) b₂ (ap (λ y → f (a , y)) b₂)
   Id-refl, : {A : Type} (B : A → Type) (C : Σ A B → Type)
     (a : A) {b₀ b₁ : B a} (b₂ : b₀ ＝ b₁) (c₀ : C (a , b₀)) (c₁ : C (a , b₁)) →
     Id C {a , b₀} {a , b₁} (refl a , b₂) c₀ c₁ ≡ Id (λ b → C (a , b)) {b₀} {b₁} b₂ c₀ c₁

@@ -260,7 +260,7 @@ Sqᵈ {A} B {a₀₀} {a₀₁} {a₁₀} {a₁₁} a a₂₂ {b₀₀} {b₀₁
   ←Id-ap {（ a₀ ⦂ A ）× （ a₁ ⦂ A ）× （ a₂ ⦂ a₀ ＝ a₁ ）× B × B} {B × B}
          (λ u → snd (snd (snd u))) (ƛ u ⇒ fst u ＝ snd u)
          {a₀₀ , a₁₀ , a ₂₀ , b₀₀ , b₁₀} {a₀₁ , a₁₁ , a ₂₁ , b₀₁ , b₁₁}
-         (a ₀₂ , a ₁₂ , a₂₂ , b ₀₂ , b ₁₂) (b ₂₀) (b ₂₁) b₂₂
+         (a ₀₂ , a ₁₂ , a₂₂ , b ₀₂ , b ₁₂) b₂₂
 
 →Sqᵈ-const :  {A : Type} (B : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁)
   (a₂₂ : Sq A ┌─    a ₁₂    ─┐
@@ -279,7 +279,7 @@ Sqᵈ {A} B {a₀₀} {a₀₁} {a₁₀} {a₁₁} a a₂₂ {b₀₀} {b₀₁
   →Id-ap {（ a₀ ⦂ A ）× （ a₁ ⦂ A ）× （ a₂ ⦂ a₀ ＝ a₁ ）× B × B} {B × B}
          (λ u → snd (snd (snd u))) (ƛ u ⇒ fst u ＝ snd u)
          {a₀₀ , a₁₀ , a ₂₀ , b₀₀ , b₁₀} {a₀₁ , a₁₁ , a ₂₁ , b₀₁ , b₁₁}
-         (a ₀₂ , a ₁₂ , a₂₂ , b ₀₂ , b ₁₂) (b ₂₀) (b ₂₁) b₂₂
+         (a ₀₂ , a ₁₂ , a₂₂ , b ₀₂ , b ₁₂) b₂₂
 
 -- Dependent boundaries over refl-refl are ordinary boundaries
 ←∂ᵈ-refl : {A : Type} (B : A ⇒ Type) (a : A) {b₀₀ b₀₁ b₁₀ b₁₁ : B ∙ a} →
