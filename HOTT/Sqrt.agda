@@ -9,18 +9,6 @@ open import HOTT.Id
 open import HOTT.Universe public
 open import HOTT.Square
 
--- TODO: Move these into HOTT.Id.  Can they be used systematically in
--- place of the various custom frobs?
-←Id-ap : {A B : Type} (f : A → B) (C : B ⇒ Type)
-  {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (c₀ : C ∙ f a₀) (c₁ : C  ∙ f a₁) →
-  Id (λ a → C ∙ f a) a₂ c₀ c₁ → Id (C ∙_) (ap f a₂) c₀ c₁
-←Id-ap f C a₂ c₀ c₁ e = e
-
-→Id-ap : {A B : Type} (f : A → B) (C : B ⇒ Type)
-  {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) (c₀ : C ∙ f a₀) (c₁ : C  ∙ f a₁) →
-  Id (C ∙_) (ap f a₂) c₀ c₁ → Id (λ a → C ∙ f a) a₂ c₀ c₁
-→Id-ap f C a₂ c₀ c₁ e = e
-
 ------------------------------
 -- Identifications in √
 ------------------------------

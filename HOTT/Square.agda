@@ -25,9 +25,26 @@ Sq : (A : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁
 Sq A {a₀₀} {a₀₁} {a₁₀} {a₁₁} a =
   Id {A × A} (λ u → fst u ＝ snd u) {a₀₀ , a₁₀} {a₀₁ , a₁₁} (a ₀₂ , a ₁₂) (a ₂₀) (a ₂₁)
 
+-- This doesn't help with sym-refl-refl: refl-ƛ isn't firing anyway
+-- (green slime I think), but even if it were, it would just reduce to
+-- the above.
+--- (refl (ƛ a₀ ⇒ ƛ a₁ ⇒ (refl A ↓ ／ a₀ ～ a₁)) ∙ (a₀₀ , a₀₁ , a ₀₂) ∙ (a₁₀ , a₁₁ , a ₁₂) ↓) ／ a ₂₀ ～ a ₂₁ 
+
 --------------------
 -- Symmetry
 --------------------
+
+sym-∂ : {A : Type} {a₀₀ a₀₁ a₁₀ a₁₁ : A} → ∂ A a₀₀ a₀₁ a₁₀ a₁₁ → ∂ A a₀₀ a₁₀ a₀₁ a₁₁
+sym-∂ ┌─  a₁₂  ─┐
+      a₂₀  □  a₂₁
+      └─  a₀₂  ─┘ = ┌─  a₂₁  ─┐
+                    a₀₂  □  a₁₂
+                    └─  a₂₀  ─┘
+
+refl-∂ : {A : Type} (a : A) → ∂ A a a a a
+refl-∂ a = ┌─     refl a     ─┐
+           refl a   □    refl a
+           └─     refl a     ─┘
 
 postulate
   sym : (A : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁) →
@@ -36,6 +53,14 @@ postulate
          └─   a ₀₂    ─┘  →  Sq A ┌─   a ₂₁    ─┐
                                   a ₀₂   □   a ₁₂
                                   └─   a ₂₀    ─┘
+  sym-sym : (A : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁) →
+    (a₂₂ : Sq A ┌─   a ₁₂    ─┐
+                a ₂₀   □   a ₂₁
+                └─   a ₀₂    ─┘) → sym A (sym-∂ a) (sym A a a₂₂) ≡ a₂₂
+  sym-refl-refl : (A : Type) (a : A) → sym A (refl-∂ a) {!refl (refl a)!} ≡ {!refl (refl a)!}
+--{-# REWRITE sym-sym #-}
+
+{-
 
 ------------------------------
 -- Composition and filling
@@ -186,3 +211,4 @@ Sqᵈ {A} B {a₀₀} {a₀₁} {a₁₀} {a₁₁} a a₂₂ {b₀₀} {b₀₁
 -- TODO: Dependent square-filling
 ------------------------------------------------------------
 
+-}
