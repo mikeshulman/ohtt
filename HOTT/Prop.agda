@@ -120,3 +120,6 @@ syntax exists A (λ x → P) = ∃[ x ⦂ A ] P
 ∃-elim : {A : Type} (P : A → Prop) (Q : Prop) (d : (a : A) → fst (P a) → fst Q)
   (u : fst (∃[ x ⦂ A ] P x)) → fst Q
 ∃-elim P Q d u = ∥∥-rec Q (λ v → d (fst v) (snd v)) u
+
+_＝[_]_ : {A : Type} (a : A) (aset : isSet A) (b : A) → Prop
+_＝[_]_ {A} a aset b = (a ＝ b , aset ∙ a ∙ b)
