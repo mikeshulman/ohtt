@@ -12,13 +12,13 @@ infix 30 _↓
 ------------------------------
 
 postulate
-  √ : {@♭ I : Type} (@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type) → I ⇒ Type
+  √ : {@♭ I : Type} (@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type) → I → Type
   dig : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type} {i₀ i₁ : I} {i₂ : i₀ ＝ i₁}
-    {s₀ : √ A ∙ i₀} {s₁ : √ A ∙ i₁} (s₂ : Id (√ A ∙_) i₂ s₀ s₁) →
+    {s₀ : √ A i₀} {s₁ : √ A i₁} (s₂ : Id (√ A) i₂ s₀ s₁) →
     A i₀ i₁ i₂
   bury : {@♭ I : Type} (@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type) {@♭ K : Type} (@♭ j : K → I)
     (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂)) →
-    (k : K) → √ A ∙ j k
+    (k : K) → √ A (j k)
   -- The computation rules require better Id behavior, so we postpone them to later.
 
 ------------------------------
@@ -66,7 +66,7 @@ open _≊_ public
 -- Now, as we will see, the following simple postulate equips all
 -- types with Kan cubical structure.
 postulate
-  kan : (X : Type) → √ [≊] ∙ X
+  kan : (X : Type) → √ [≊] X
 
 _↓ : {X₀ X₁ : Type} (X₂ : X₀ ＝ X₁) → X₀ ≊ X₁
 _↓ {X₀} {X₁} X₂ = dig {Type} {[≊]} {X₀} {X₁} {X₂} {kan X₀} {kan X₁} (ap kan {X₀} {X₁} X₂)
