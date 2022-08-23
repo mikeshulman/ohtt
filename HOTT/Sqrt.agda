@@ -28,11 +28,11 @@ open import HOTT.Square
     (dig {I} {A} {₁st u₀} {₁st u₁} {₁st u₂} {₄th u₀} {₄th u₁}
          (←Id-ap {（ z ⦂ I × I ）× fst z ＝ snd z} {I} (λ z → fst (fst z)) (𝛌 (√ A))
                  {(₁st u₀ , ₂nd u₀) , ₃rd u₀} {(₁st u₁ , ₂nd u₁) , ₃rd u₁} ((₁st u₂ , ₂nd u₂) , ₃rd u₂)
-                 (₄th u₀) (₄th u₁) (₄th u₂)))
+                 (₄th u₂)))
     (dig {I} {A} {₂nd u₀} {₂nd u₁} {₂nd u₂} {₅th' u₀} {₅th' u₁}
          (←Id-ap {（ w ⦂ （ z ⦂ I × I ）× fst z ＝ snd z ）× √ A (fst (fst w))} {I} (λ z → snd (fst (fst z))) (𝛌 (√ A))
                  {((₁st u₀ , ₂nd u₀) , ₃rd u₀) , ₄th u₀} {((₁st u₁ , ₂nd u₁) , ₃rd u₁) , ₄th u₁} (((₁st u₂ , ₂nd u₂) , ₃rd u₂) , ₄th u₂)
-                 (₅th' u₀) (₅th' u₁) (₅th' u₂)))
+                 (₅th' u₂)))
 
 postulate
   ＝-√ : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type} (i : I) (s₀ s₁ : √ A i) →
@@ -55,15 +55,45 @@ postulate
 -- Computation in √
 ------------------------------
 
+-- Because dig computes to fst, there is no need for refl-dig or
+-- ap-dig.  But we do need refl-bury and ap-bury.  Because √
+-- semantically has a strict universal property, it makes sense to
+-- compute these to pairs whose second components are actual "bury"s
+-- for √′.  Note also that the *first* components of these pairs are
+-- what ensure the β-rule for √, meaning the value of dig (i.e. fst)
+-- composed with ap-bury.
+
 postulate
   refl-bury : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type}
     {@♭ K : Type} (@♭ j : K → I)
     (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂)) (k : K) →
-    refl (bury A j d k) ≡ (d k k (refl k) , {!!})
-  -- TODO: ap-bury should have an arbitrary Δ.
+    refl (bury A j d k) ≡
+    (d k k (refl k) ,
+     bury (√′-A A) (λ k → (j k , j k , refl (j k) , bury A j d k , bury A j d k))
+       (λ k₀ k₁ k₂ → {!!})
+       k)
+--{-# REWRITE dig-refl-bury #-}
+
+-- For the types to match in ap-bury, we need ap-ap functoriality for
+-- j and k.  We can make this happen definitionally by wrapping one of
+-- them in a ⇒.
+frob-ap-bury : {@♭ I : Type} (@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type)
+  {@♭ K : Type} (@♭ j : K ⇒ I)
+  (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j ∙ k₀) (j ∙ k₁) (ap (j ∙_) k₂))
+  {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) (k : Δ → K) →
+  (A (j ∙ k δ₀) (j ∙ k δ₁) (ap (λ z → j ∙ k z) δ₂)) ×
+  √ (√′-A (λ i₂ i₁ i₀ → A i₂ i₁ i₀))
+    (j ∙ k δ₀ , j ∙ k δ₁ , ap (λ z → j ∙ k z) δ₂ , bury A (j ∙_) d (k δ₀) , bury A (j ∙_) d (k δ₁))
+frob-ap-bury {I} A {K} j d {Δ} {δ₀} {δ₁} δ₂ k =
+  (d (k δ₀) (k δ₁) (ap k δ₂) ,
+   bury (√′-A A) {ID K} (λ kₓ → (j ∙ ₁st kₓ , j ∙ ₂nd kₓ , ap (j ∙_) (₃rd' kₓ) , bury A (j ∙_) d (₁st kₓ) , bury A (j ∙_) d (₂nd kₓ)))
+     (λ k₀ k₁ k₂ → {!!})
+     (k δ₀ , k δ₁ , ap k δ₂))
+
+postulate
   ap-bury : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type}
     {@♭ K : Type} (@♭ j : K → I)
     (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂))
     {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) (k : Δ → K) →
-    ap (λ δ → bury A j d (k δ)) δ₂ ≡ ({!d (k δ₀) (k δ₁) (ap k δ₂) !} , {!!})
---{-# REWRITE dig-refl-bury dig-ap-bury #-}
+    ap (λ δ → bury A j d (k δ)) δ₂ ≡ frob-ap-bury A (𝛌 j) d δ₂ k
+--{-# REWRITE dig-ap-bury #-}
