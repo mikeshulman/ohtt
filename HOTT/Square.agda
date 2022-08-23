@@ -37,18 +37,6 @@ Sq A {a₀₀} {a₀₁} {a₁₀} {a₁₁} a =
 -- Symmetry
 --------------------
 
-sym-∂ : {A : Type} {a₀₀ a₀₁ a₁₀ a₁₁ : A} → ∂ A a₀₀ a₀₁ a₁₀ a₁₁ → ∂ A a₀₀ a₁₀ a₀₁ a₁₁
-sym-∂ ┌─  a₁₂  ─┐
-      a₂₀  □  a₂₁
-      └─  a₀₂  ─┘ = ┌─  a₂₁  ─┐
-                    a₀₂  □  a₁₂
-                    └─  a₂₀  ─┘
-
-refl-∂ : {A : Type} (a : A) → ∂ A a a a a
-refl-∂ a = ┌─     refl a     ─┐
-           refl a   □    refl a
-           └─     refl a     ─┘
-
 postulate
   sym : (A : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁) →
     Sq A ┌─   a ₁₂    ─┐
@@ -56,11 +44,25 @@ postulate
          └─   a ₀₂    ─┘  →  Sq A ┌─   a ₂₁    ─┐
                                   a ₀₂   □   a ₁₂
                                   └─   a ₂₀    ─┘
+
+sym-∂ : {A : Type} {a₀₀ a₀₁ a₁₀ a₁₁ : A} → ∂ A a₀₀ a₀₁ a₁₀ a₁₁ → ∂ A a₀₀ a₁₀ a₀₁ a₁₁
+sym-∂ ┌─  a₁₂  ─┐
+      a₂₀  □  a₂₁
+      └─  a₀₂  ─┘ = ┌─  a₂₁  ─┐
+                    a₀₂  □  a₁₂
+                    └─  a₂₀  ─┘
+
+postulate
   sym-sym : (A : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁) →
     (a₂₂ : Sq A ┌─   a ₁₂    ─┐
                 a ₂₀   □   a ₂₁
                 └─   a ₀₂    ─┘) → sym A (sym-∂ a) (sym A a a₂₂) ≡ a₂₂
 {-# REWRITE sym-sym #-}
+
+refl-∂ : {A : Type} (a : A) → ∂ A a a a a
+refl-∂ a = ┌─     refl a     ─┐
+           refl a   □    refl a
+           └─     refl a     ─┘
 
 -- This relies on Id-refl, for well-typedness.  Like Id-refl and
 -- ap-refl, it should be admissible in concrete cases like Σ and Π,
@@ -226,11 +228,161 @@ Sqᵈ {A} B {a₀₀} {a₀₁} {a₁₀} {a₁₁} a a₂₂ {b₀₀} {b₀₁
       (b ₂₀)
       (b ₂₁)
 
+
+-- Dependent boundaries in constant families are ordinary boundaries
+←∂ᵈ-const : {A B : Type} {a₀₀ a₀₁ a₁₀ a₁₁ : A} {a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁}
+  {a₂₂ : Sq A ┌─    a ₁₂    ─┐
+              a ₂₀   □    a ₂₁
+              └─    a ₀₂    ─┘}
+  {b₀₀ b₀₁ b₁₀ b₁₁ : B} →
+  ∂ᵈ (ƛ _ ⇒ B) a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁ → ∂ B b₀₀ b₀₁ b₁₀ b₁₁
+←∂ᵈ-const ╔═  b₁₂  ═╗
+          b₂₀  □  b₂₁
+          ╚═  b₀₂  ═╝ = ┌─  b₁₂  ─┐
+                        b₂₀  □  b₂₁
+                        └─  b₀₂  ─┘
+
+-- Dependent squares in constant families are ordinary squares
+←Sqᵈ-const :  {A : Type} (B : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁)
+  (a₂₂ : Sq A ┌─    a ₁₂    ─┐
+              a ₂₀   □    a ₂₁
+              └─    a ₀₂    ─┘)
+  {b₀₀ b₀₁ b₁₀ b₁₁ : B} (b : ∂ᵈ (ƛ _ ⇒ B) a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁) →
+  Sqᵈ {A} (ƛ _ ⇒ B) ┌─   a ₁₂   ─┐
+                    a ₂₀  □   a ₂₁
+                    └─   a ₀₂   ─┘  a₂₂  ╔═   b ₁₂  ═╗
+                                         b ₂₀  □  b ₂₁
+                                         ╚═   b ₀₂  ═╝ →
+  Sq B ┌─   b ₁₂  ─┐
+       b ₂₀  □  b ₂₁
+       └─   b ₀₂  ─┘
+←Sqᵈ-const {A} B {a₀₀} {a₀₁} {a₁₀} {a₁₁} a a₂₂ {b₀₀} {b₀₁} {b₁₀} {b₁₁} b b₂₂ =
+  ←Id-ap {（ a₀ ⦂ A ）× （ a₁ ⦂ A ）× （ a₂ ⦂ a₀ ＝ a₁ ）× B × B} {B × B}
+         (λ u → snd (snd (snd u))) (ƛ u ⇒ fst u ＝ snd u)
+         {a₀₀ , a₁₀ , a ₂₀ , b₀₀ , b₁₀} {a₀₁ , a₁₁ , a ₂₁ , b₀₁ , b₁₁}
+         (a ₀₂ , a ₁₂ , a₂₂ , b ₀₂ , b ₁₂) (b ₂₀) (b ₂₁) b₂₂
+
+→Sqᵈ-const :  {A : Type} (B : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁)
+  (a₂₂ : Sq A ┌─    a ₁₂    ─┐
+              a ₂₀   □    a ₂₁
+              └─    a ₀₂    ─┘)
+  {b₀₀ b₀₁ b₁₀ b₁₁ : B} (b : ∂ᵈ (ƛ _ ⇒ B) a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁) →
+  Sq B ┌─   b ₁₂  ─┐
+       b ₂₀  □  b ₂₁
+       └─   b ₀₂  ─┘ →
+  Sqᵈ {A} (ƛ _ ⇒ B) ┌─   a ₁₂   ─┐
+                    a ₂₀  □   a ₂₁
+                    └─   a ₀₂   ─┘  a₂₂  ╔═   b ₁₂  ═╗
+                                         b ₂₀  □  b ₂₁
+                                         ╚═   b ₀₂  ═╝
+→Sqᵈ-const {A} B {a₀₀} {a₀₁} {a₁₀} {a₁₁} a a₂₂ {b₀₀} {b₀₁} {b₁₀} {b₁₁} b b₂₂ =
+  →Id-ap {（ a₀ ⦂ A ）× （ a₁ ⦂ A ）× （ a₂ ⦂ a₀ ＝ a₁ ）× B × B} {B × B}
+         (λ u → snd (snd (snd u))) (ƛ u ⇒ fst u ＝ snd u)
+         {a₀₀ , a₁₀ , a ₂₀ , b₀₀ , b₁₀} {a₀₁ , a₁₁ , a ₂₁ , b₀₁ , b₁₁}
+         (a ₀₂ , a ₁₂ , a₂₂ , b ₀₂ , b ₁₂) (b ₂₀) (b ₂₁) b₂₂
+
+-- Dependent boundaries over refl-refl are ordinary boundaries
+←∂ᵈ-refl : {A : Type} (B : A ⇒ Type) (a : A) {b₀₀ b₀₁ b₁₀ b₁₁ : B ∙ a} →
+  ∂ᵈ B (refl-∂ a) (refl (refl a)) b₀₀ b₀₁ b₁₀ b₁₁ →
+  ∂ (B ∙ a) b₀₀ b₀₁ b₁₀ b₁₁
+←∂ᵈ-refl B a ╔═  b₁₂  ═╗
+             b₂₀  □  b₂₁
+             ╚═  b₀₂  ═╝ = ┌─  b₁₂  ─┐
+                           b₂₀  □  b₂₁
+                           └─  b₀₂  ─┘
+
+-- Dependent squares over refl-refl are ordinary squares.  This holds
+-- definitionally even without nudging!
+{-
+←Sqᵈ-refl : {A : Type} (B : A ⇒ Type) {a : A} {b₀₀ b₀₁ b₁₀ b₁₁ : B ∙ a}
+  (b : ∂ᵈ B (refl-∂ a) (refl (refl a)) b₀₀ b₀₁ b₁₀ b₁₁) →
+  Sqᵈ B ┌─    refl a   ─┐
+        refl a  □  refl a
+        └─    refl a   ─┘  (refl (refl a))   ╔═   b ₁₂  ═╗
+                                             b ₂₀  □  b ₂₁
+                                             ╚═   b ₀₂  ═╝ →
+  Sq (B ∙ a) ┌─   b ₁₂  ─┐
+             b ₂₀  □  b ₂₁
+             └─   b ₀₂  ─┘
+←Sqᵈ-refl {A} B {a} {b₀₀} {b₀₁} {b₁₀} {b₁₁} b b₂₂ = b₂₂
+-}
+
 ------------------------------
--- TODO: Dependent symmetry
+-- Dependent symmetry
 ------------------------------
 
+postulate
+  symᵈ : {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁)
+    (a₂₂ : Sq A ┌─    a ₁₂    ─┐
+                a ₂₀   □    a ₂₁
+                └─    a ₀₂    ─┘)
+    {b₀₀ : B ∙ a₀₀} {b₀₁ : B ∙ a₀₁} {b₁₀ : B ∙ a₁₀} {b₁₁ : B ∙ a₁₁}
+    (b : ∂ᵈ B a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁) →
+    Sqᵈ B ┌─   a ₁₂   ─┐
+          a ₂₀  □   a ₂₁
+          └─   a ₀₂   ─┘     a₂₂       ╔═   b ₁₂  ═╗
+                                       b ₂₀  □  b ₂₁
+                                       ╚═   b ₀₂  ═╝ →
+    Sqᵈ B ┌─   a ₂₁   ─┐
+          a ₀₂  □   a ₁₂
+          └─   a ₂₀   ─┘ (sym A a a₂₂) ╔═   b ₂₁  ═╗
+                                       b ₀₂  □  b ₁₂
+                                       ╚═   b ₂₀  ═╝
 
+sym-∂ᵈ : {A : Type} {B : A ⇒ Type} {a₀₀ a₀₁ a₁₀ a₁₁ : A} {a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁}
+    {a₂₂ : Sq A ┌─    a ₁₂    ─┐
+                a ₂₀   □    a ₂₁
+                └─    a ₀₂    ─┘}
+    {b₀₀ : B ∙ a₀₀} {b₀₁ : B ∙ a₀₁} {b₁₀ : B ∙ a₁₀} {b₁₁ : B ∙ a₁₁} →
+    ∂ᵈ B a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁ → ∂ᵈ B (sym-∂ a) (sym A a a₂₂) b₀₀ b₁₀ b₀₁ b₁₁
+sym-∂ᵈ ╔═  b₁₂  ═╗
+       b₂₀  □  b₂₁
+       ╚═  b₀₂  ═╝ = ╔═  b₂₁  ═╗
+                     b₀₂  □  b₁₂
+                     ╚═  b₂₀  ═╝
+
+postulate
+  sym-symᵈ : {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁)
+    (a₂₂ : Sq A ┌─    a ₁₂    ─┐
+                a ₂₀   □    a ₂₁
+                └─    a ₀₂    ─┘)
+    {b₀₀ : B ∙ a₀₀} {b₀₁ : B ∙ a₀₁} {b₁₀ : B ∙ a₁₀} {b₁₁ : B ∙ a₁₁}
+    (b : ∂ᵈ B a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁) →
+    (b₂₂ : Sqᵈ B ┌─   a ₁₂   ─┐
+                 a ₂₀  □   a ₂₁
+                 └─   a ₀₂   ─┘  a₂₂  ╔═   b ₁₂  ═╗
+                                      b ₂₀  □  b ₂₁
+                                      ╚═   b ₀₂  ═╝) →
+    symᵈ B (sym-∂ a) (sym A a a₂₂) (sym-∂ᵈ b) (symᵈ B a a₂₂ b b₂₂) ≡ b₂₂
+{-# REWRITE sym-symᵈ #-}
+
+postulate
+  symᵈ-const : {A B : Type} {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁)
+    (a₂₂ : Sq A ┌─    a ₁₂    ─┐
+                a ₂₀   □    a ₂₁
+                └─    a ₀₂    ─┘)
+    {b₀₀ b₀₁ b₁₀ b₁₁ : B} (b : ∂ᵈ (ƛ _ ⇒ B) a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁) →
+    (b₂₂ : Sqᵈ {A} (ƛ _ ⇒ B) ┌─   a ₁₂   ─┐
+                             a ₂₀  □   a ₂₁
+                             └─   a ₀₂   ─┘  a₂₂  ╔═   b ₁₂  ═╗
+                                                  b ₂₀  □  b ₂₁
+                                                  ╚═   b ₀₂  ═╝) →
+    symᵈ (ƛ _ ⇒ B) a a₂₂ b b₂₂ ≡
+    →Sqᵈ-const B (sym-∂ a) (sym A a a₂₂) (sym-∂ᵈ b)
+      (sym B (←∂ᵈ-const b) (←Sqᵈ-const B a a₂₂ b b₂₂))
+{-# REWRITE symᵈ-const #-}
+
+postulate
+  symᵈ-refl : {A : Type} (B : A ⇒ Type) (a : A) {b₀₀ b₀₁ b₁₀ b₁₁ : B ∙ a}
+    (b : ∂ᵈ B (refl-∂ a) (refl (refl a)) b₀₀ b₀₁ b₁₀ b₁₁) →
+    (b₂₂ : Sqᵈ B ┌─    refl a   ─┐
+                 refl a  □  refl a
+                 └─    refl a   ─┘  (refl (refl a))   ╔═   b ₁₂  ═╗
+                                                      b ₂₀  □  b ₂₁
+                                                      ╚═   b ₀₂  ═╝) →
+    symᵈ B (refl-∂ a) (refl (refl a)) b b₂₂ ≡
+    sym (B ∙ a) (←∂ᵈ-refl B a b) b₂₂
+{-# REWRITE symᵈ-refl #-}
 
 ------------------------------------------------------------
 -- TODO: Dependent square-filling
