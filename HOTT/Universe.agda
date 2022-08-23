@@ -331,3 +331,30 @@ touch⇒ {A} = push⇒ (refl A ↓)
 
 touch⇐ : {A : Type} → （ a ⦂ A ）⇒ nudge⇐ ∙ a ＝ a
 touch⇐ {A} = push⇐ (refl A ↓)
+
+----------------------------------------
+-- Fancier ap-refl and Id-refl
+----------------------------------------
+
+-- The problem with Id-refl and ap-refl as rewrites is that (refl a)
+-- is volatile, so it may have already been reduced to something else.
+-- This is an issue for squares, which are defined as Id-＝, where I
+-- don't know of another way to enforce Id-refl.  The following
+-- rewrites allow us to at least break down the case when refl has
+-- been reduced to a tuple of refls.
+
+postulate
+  ap-refl, : {A : Type} (B : A → Type) (C : Σ A B → Type)
+    (f : (x : Σ A B) → C x) (a : A) {b₀ b₁ : B a} (b₂ : b₀ ＝ b₁) →
+    ap f {a , b₀} {a , b₁} (refl a , b₂) ≡
+    ←Id-ap {B a} {Σ A B} (λ b → (a , b)) (𝛌 C) b₂ (f (a , b₀)) (f (a , b₁)) (ap (λ y → f (a , y)) b₂)
+  Id-refl, : {A : Type} (B : A → Type) (C : Σ A B → Type)
+    (a : A) {b₀ b₁ : B a} (b₂ : b₀ ＝ b₁) (c₀ : C (a , b₀)) (c₁ : C (a , b₁)) →
+    Id C {a , b₀} {a , b₁} (refl a , b₂) c₀ c₁ ≡ Id (λ b → C (a , b)) {b₀} {b₁} b₂ c₀ c₁
+{-# REWRITE ap-refl, Id-refl, #-}
+
+-- This isn't perfect, even when considering tuples, since it doesn't
+-- deal with cases like ((refl a , b₂) , c₂), which arise naturally
+-- due to (for instance) ap-ƛ.  This would be an advantage of using
+-- telescopes instead of Σ-types, since a telescope can be maintained
+-- as right-associated even when extending it on the right.

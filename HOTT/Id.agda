@@ -23,7 +23,9 @@ postulate
   -- Id-idmap comes later, as it requires the universe
   Id-const : (A B : Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) →
     Id {A} (λ _ → B) a₂ ≡ _＝_ {B}
-  -- This should follow from the definitions in concrete cases.
+  -- This should follow from the definitions in most concrete cases.
+  -- I'm not sure about Id-＝ for a variable type; see Id-refl, and
+  -- ap-refl, later on.
   Id-refl : {A : Type} (B : A → Type) {a : A} →
     Id B (refl a) ≡ _＝_ {B a}
 {-# REWRITE Id-const Id-refl #-}
@@ -35,7 +37,7 @@ postulate
     ap {A} (λ x → x) a₂ ≡ a₂
   ap-const : {A B : Type} (b : B) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) →
     ap {A} (λ _ → b) a₂ ≡ refl b
-  -- This should also follow from the definitions in concrete cases.
+  -- This should also be admissible in most concrete cases.
   ap-refl : {A : Type} {B : A → Type} (f : (x : A) → B x) (a : A) →
     ap f (refl a) ≡ refl (f a)
 {-# REWRITE ap-const ap-idmap ap-refl #-}

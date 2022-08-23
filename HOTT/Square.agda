@@ -25,11 +25,6 @@ Sq : (A : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁
 Sq A {a₀₀} {a₀₁} {a₁₀} {a₁₁} a =
   Id {A × A} (λ u → fst u ＝ snd u) {a₀₀ , a₁₀} {a₀₁ , a₁₁} (a ₀₂ , a ₁₂) (a ₂₀) (a ₂₁)
 
--- This doesn't help with sym-refl-refl: refl-ƛ isn't firing anyway
--- (green slime I think), but even if it were, it would just reduce to
--- the above.
---- (refl (ƛ a₀ ⇒ ƛ a₁ ⇒ (refl A ↓ ／ a₀ ～ a₁)) ∙ (a₀₀ , a₀₁ , a ₀₂) ∙ (a₁₀ , a₁₁ , a ₁₂) ↓) ／ a ₂₀ ～ a ₂₁ 
-
 --------------------
 -- Symmetry
 --------------------
@@ -57,10 +52,9 @@ postulate
     (a₂₂ : Sq A ┌─   a ₁₂    ─┐
                 a ₂₀   □   a ₂₁
                 └─   a ₀₂    ─┘) → sym A (sym-∂ a) (sym A a a₂₂) ≡ a₂₂
-  sym-refl-refl : (A : Type) (a : A) → sym A (refl-∂ a) {!refl (refl a)!} ≡ {!refl (refl a)!}
---{-# REWRITE sym-sym #-}
-
-{-
+  -- This relies on Id-refl, for well-typedness
+  sym-refl-refl : (A : Type) (a : A) → sym A (refl-∂ a) (refl (refl a)) ≡ refl (refl a)
+{-# REWRITE sym-sym sym-refl-refl #-}
 
 ------------------------------
 -- Composition and filling
@@ -210,5 +204,3 @@ Sqᵈ {A} B {a₀₀} {a₀₁} {a₁₀} {a₁₁} a a₂₂ {b₀₀} {b₀₁
 ------------------------------------------------------------
 -- TODO: Dependent square-filling
 ------------------------------------------------------------
-
--}
