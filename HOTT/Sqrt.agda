@@ -34,8 +34,10 @@ open import HOTT.Square
   Id {ID I} (λ iₓ → A (₁st iₓ) (₂nd iₓ) (₃rd' iₓ))
     {₁st u₀ , ₁st u₁ , ₁st u₂} {₂nd u₀ , ₂nd u₁ , ₂nd u₂}
     -- NB: There is a symmetry here!
-    (₃rd u₀ , ₃rd u₁ , sym I (₁st u₂) (₂nd u₂) (₃rd u₀) (₃rd u₁) (₃rd u₂))
-    (dig {I} {A} {₁st u₀} {₁st u₁} {₁st u₂} {₄th u₀}  {₄th u₁}
+    (₃rd u₀ , ₃rd u₁ , sym I ┌─     ₂nd u₂     ─┐
+                             ₃rd u₀   □    ₃rd u₁
+                             └─     ₁st u₂     ─┘  (₃rd u₂))
+    (dig {I} {A} {₁st u₀} {₁st u₁} {₁st u₂} {₄th u₀} {₄th u₁}
          (←Id-ap {（ z ⦂ I × I ）× fst z ＝ snd z} {I} (λ z → fst (fst z)) (𝛌 (√ A))
                  {(₁st u₀ , ₂nd u₀) , ₃rd u₀} {(₁st u₁ , ₂nd u₁) , ₃rd u₁} ((₁st u₂ , ₂nd u₂) , ₃rd u₂)
                  (₄th u₀) (₄th u₁) (₄th u₂)))
