@@ -58,8 +58,9 @@ coe⇐Prop : {P Q : Prop} → (P ＝ Q) → (fst Q ⇒ fst P)
 coe⇐Prop e = coe⇐ (cong (ƛ x ⇒ fst x) e)
 
 -- Prop is a set
-isSet-Prop : isSet Prop
-isSet-Prop = ƛ P ⇒ ƛ Q ⇒ tr⇐ (ƛ X ⇒ isProp X) (＝Prop P Q) (isProp-× (isProp-Π (λ _ → snd Q)) (isProp-Π (λ _ → snd P)))
+abstract
+  isSet-Prop : isSet Prop
+  isSet-Prop = ƛ P ⇒ ƛ Q ⇒ tr⇐ (ƛ X ⇒ isProp X) (＝Prop P Q) (isProp-× (isProp-Π (λ _ → snd Q)) (isProp-Π (λ _ → snd P)))
 
 -- Identifications in a subtype
 ＝ΣProp : {A : Type} (B : A ⇒ Prop) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) {b₀ : fst (B ∙ a₀)} {b₁ : fst (B ∙ a₁)}
@@ -70,25 +71,25 @@ isSet-Prop = ƛ P ⇒ ƛ Q ⇒ tr⇐ (ƛ X ⇒ isProp X) (＝Prop P Q) (isProp-�
 -- Propositional truncation
 ------------------------------
 
-∥_∥ : Type → Type
-∥ A ∥ = Π[ P ⦂ Type ] isProp P ⇒ (A ⇒ P) ⇒ P
-
-∣_∣ : {A : Type} → A → ∥ A ∥
-∣ a ∣ = ƛ P ⇒ ƛ _ ⇒ ƛ f ⇒ f ∙ a
-
 abstract
+  ∥_∥ : Type → Type
+  ∥ A ∥ = Π[ P ⦂ Type ] isProp P ⇒ (A ⇒ P) ⇒ P
+
+  ∣_∣ : {A : Type} → A → ∥ A ∥
+  ∣ a ∣ = ƛ P ⇒ ƛ _ ⇒ ƛ f ⇒ f ∙ a
+
   isProp-∥∥ : (A : Type) → isProp ∥ A ∥
   isProp-∥∥ A = isProp-Π (λ P → isProp-Π (λ prp → isProp-Π (λ _ → prp)))
 
-∥∥-elim : {A : Type} (P : ∥ A ∥ → Type) (p : (x : ∥ A ∥) → isProp (P x))
-  (d : (a : A) → P (∣ a ∣)) (u : ∥ A ∥) →
-  P u
-∥∥-elim {A} P p d u =
-  coe⇒ (cong (ƛ x ⇒ P x) (isProp-∥∥ A ∙ _ ∙ u)) ∙
-    (snd (u ∙ Σ _ P ∙ (ƛ x ⇒ ƛ y ⇒ ＝ΣProp (ƛ x ⇒ (P x , p x)) (isProp-∥∥ A ∙ fst x ∙ fst y) {snd x} {snd y}) ∙ (ƛ a ⇒ (∣ a ∣ , d a))))
+  ∥∥-elim : {A : Type} (P : ∥ A ∥ → Type) (p : (x : ∥ A ∥) → isProp (P x))
+    (d : (a : A) → P (∣ a ∣)) (u : ∥ A ∥) →
+    P u
+  ∥∥-elim {A} P p d u =
+    coe⇒ (cong (ƛ x ⇒ P x) (isProp-∥∥ A ∙ _ ∙ u)) ∙
+      (snd (u ∙ Σ _ P ∙ (ƛ x ⇒ ƛ y ⇒ ＝ΣProp (ƛ x ⇒ (P x , p x)) (isProp-∥∥ A ∙ fst x ∙ fst y) {snd x} {snd y}) ∙ (ƛ a ⇒ (∣ a ∣ , d a))))
 
-∥∥-rec : {A : Type} (P : Prop) (d : A → fst P) → ∥ A ∥ → fst P
-∥∥-rec {A} P d u = u ∙ fst P ∙ snd P ∙ (ƛ x ⇒ d x)
+  ∥∥-rec : {A : Type} (P : Prop) (d : A → fst P) → ∥ A ∥ → fst P
+  ∥∥-rec {A} P d u = u ∙ fst P ∙ snd P ∙ (ƛ x ⇒ d x)
 
 ------------------------------
 -- The logic of propositions

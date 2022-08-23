@@ -163,8 +163,9 @@ isSet : (A : Type) → Type
 isSet A = Π[ x ⦂ A ] Π[ y ⦂ A ] isProp (x ＝ y)
 
 -- Another way of saying isProp-＝ is that any proposition is a set.
-isProp→isSet : {A : Type} (pA : isProp A) → isSet A
-isProp→isSet {A} pA = ƛ x ⇒ ƛ y ⇒ isProp-＝ pA x y
+abstract
+  isProp→isSet : {A : Type} (pA : isProp A) → isSet A
+  isProp→isSet {A} pA = ƛ x ⇒ ƛ y ⇒ isProp-＝ pA x y
 
 ------------------------------
 -- Identity elimination
