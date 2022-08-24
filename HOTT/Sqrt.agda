@@ -7,7 +7,7 @@ open import HOTT.Id
 -- The definition of √ is in the Universe file, since it requires Id
 -- and is required for the universe.
 open import HOTT.Universe public
-open import HOTT.Square
+open import HOTT.Square.Simple
 
 ------------------------------
 -- Identifications in √
