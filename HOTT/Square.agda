@@ -79,6 +79,15 @@ postulate
   sym-refl-refl : (A : Type) (a : A) → sym A (refl-∂ a) (refl (refl a)) ≡ refl (refl a)
 {-# REWRITE sym-refl-refl #-}
 
+postulate
+  ap-refl-sym : (A : Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) →
+    ap {A} {λ x → x ＝ x} (λ x → refl x) a₂ ≡
+    →Id-ap (λ x → (x , x)) (ƛ u ⇒ fst u ＝ snd u) {a₀} {a₁} a₂ {refl a₀} {refl a₁}
+      (sym A ┌─  refl a₁  ─┐
+             a₂     □     a₂
+             └─  refl a₀  ─┘  (refl a₂))
+{-# REWRITE ap-refl-sym #-}
+
 ------------------------------
 -- Composition and filling
 ------------------------------
