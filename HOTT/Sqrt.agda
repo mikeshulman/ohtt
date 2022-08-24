@@ -45,18 +45,27 @@ postulate
     A (i δ₀) (i δ₁) (ap i δ₂) × √ {√′-I A} (√′-A A) (i δ₀ , i δ₁ , ap i δ₂ , s₀ , s₁)
 {-# REWRITE ＝-√ Id-√ #-}
 
--- TODO: dig-def causes normalization loops in (A₂ ↓).  I think the
+-- TODO: dig≡fst causes normalization loops in (A₂ ↓).  I think the
 -- problem is that the fst that dig normalizes to has both types in
 -- the × of Id-√ as parameters, but the second one includes some digs
 -- in √′-A.  Thus, fully normalizing it ends up rewriting those digs
--- to fsts, and so on forever.  I haven't thought of a solution to
--- this yet.
+-- to fsts, and so on forever.
+
+-- A possibly-ideal solution would be for Agda to implement rewriting
+-- that matches on record projections.  Then our Σ could be a record
+-- and fst wouldn't have parameters.
+
+-- Lacking that, the best option I've thought of so far is to not make
+-- dig≡fst a rewrite, but coerce across it when necessary.  We could
+-- reduce the impact of this by also asserting dig-ap-bury directly as
+-- a rewrite, which would hopefully allow making dig≡fst rewrite to
+-- reflᵉ when applied to an ap-bury.
 {-
 postulate
-  dig-def : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type}
+  dig≡fst : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type}
     {i₀ i₁ : I} (i₂ : i₀ ＝ i₁) {s₀ : √ A i₀} {s₁ : √ A i₁} (s₂ : Id (√ A) i₂ s₀ s₁) →
     dig {I} {A} {i₀} {i₁} {i₂} {s₀} {s₁} s₂ ≡ fst s₂
-{-# REWRITE dig-def #-}
+{-# REWRITE dig≡fst #-}
 
 _ : {A₀ A₁ : Type} (A₂ : A₀ ＝ A₁) → {!A₂ ↓!}
 -}
