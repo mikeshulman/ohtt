@@ -78,6 +78,10 @@ refl-∂ a = ┌─     refl a     ─┐
 postulate
   sym-refl-refl : (A : Type) (a : A) → sym A (refl-∂ a) (refl (refl a)) ≡ refl (refl a)
 {-# REWRITE sym-refl-refl #-}
+-- TODO: Can we replace Id-refl, with a general Id-＝ that uses
+-- "heterogeneous" squares associated to squares in the universe?  I
+-- think we'll need to say something about Id-＝U, maybe with its own
+-- record type.
 
 postulate
   ap-refl-sym : (A : Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) →
@@ -223,20 +227,20 @@ record ∂ᵈ {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} 
     _₀₂ : Id (B ∙_) (a ₀₂) b₀₀ b₀₁
 open ∂ᵈ
 
+ID× : {A : Type} (B : A ⇒ Type) → Type
+ID× {A} B = （ a₀ ⦂ A ）× （ a₁ ⦂ A ）× （ a₂ ⦂ a₀ ＝ a₁ ）× B ∙ a₀ × B ∙ a₁
+
+Idᵈ : {A : Type} (B : A ⇒ Type) → ID× B → Type
+Idᵈ {A} B u = Id (B ∙_) (₃rd u) (₄th u) (₅th' u)
+
 Sqᵈ : {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁)
       (a₂₂ : Sq A ┌─    a ₁₂    ─┐
                   a ₂₀   □    a ₂₁
                   └─    a ₀₂    ─┘)
       {b₀₀ : B ∙ a₀₀} {b₀₁ : B ∙ a₀₁} {b₁₀ : B ∙ a₁₀} {b₁₁ : B ∙ a₁₁} (b : ∂ᵈ B a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁) → Type
 Sqᵈ {A} B {a₀₀} {a₀₁} {a₁₀} {a₁₁} a a₂₂ {b₀₀} {b₀₁} {b₁₀} {b₁₁} b =
-  Id {（ a₀ ⦂ A ）× （ a₁ ⦂ A ）× （ a₂ ⦂ a₀ ＝ a₁ ）× B ∙ a₀ × B ∙ a₁}
-      (λ u → Id (B ∙_) (₃rd u) (₄th u) (₅th' u))
-      {a₀₀ , a₁₀ , a ₂₀ , b₀₀ , b₁₀}
-      {a₀₁ , a₁₁ , a ₂₁ , b₀₁ , b₁₁}
-      (a ₀₂ , a ₁₂ , a₂₂ , b ₀₂ , b ₁₂)
-      (b ₂₀)
-      (b ₂₁)
-
+  Id {ID× B} (Idᵈ B) {a₀₀ , a₁₀ , a ₂₀ , b₀₀ , b₁₀} {a₀₁ , a₁₁ , a ₂₁ , b₀₁ , b₁₁}
+     (a ₀₂ , a ₁₂ , a₂₂ , b ₀₂ , b ₁₂) (b ₂₀) (b ₂₁)
 
 -- Dependent boundaries in constant families are ordinary boundaries
 ←∂ᵈ-const : {A B : Type} {a₀₀ a₀₁ a₁₀ a₁₁ : A} {a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁}
@@ -393,6 +397,68 @@ postulate
     sym (B ∙ a) (←∂ᵈ-refl B a b) b₂₂
 {-# REWRITE symᵈ-refl #-}
 
-------------------------------------------------------------
--- TODO: Dependent square-filling
-------------------------------------------------------------
+----------------------------------------
+-- Dependent composition and filling
+----------------------------------------
+
+module _ {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁)
+  (a₂₂ : Sq A ┌─    a ₁₂    ─┐
+              a ₂₀   □    a ₂₁
+              └─    a ₀₂    ─┘)
+  {b₀₀ : B ∙ a₀₀} {b₀₁ : B ∙ a₀₁} {b₁₀ : B ∙ a₁₀} {b₁₁ : B ∙ a₁₁} where 
+
+  compᵈ→ : (b₀₂ : Id (B ∙_) (a ₀₂) b₀₀ b₀₁) (b₁₂ : Id (B ∙_) (a ₁₂) b₁₀ b₁₁) (b₂₀ : Id (B ∙_) (a ₂₀) b₀₀ b₁₀) →
+    Id (B ∙_) (a ₂₁) b₀₁ b₁₁
+  compᵈ→ b₀₂ b₁₂ b₂₀ =
+    tr⇒ (Idᵈ B) {a₀₀ , a₁₀ , a ₂₀ , b₀₀ , b₁₀} {a₀₁ , a₁₁ , a ₂₁ , b₀₁ , b₁₁} (a ₀₂ , a ₁₂ , a₂₂ , b₀₂ , b₁₂) ∙ b₂₀
+
+  fillᵈ→ : (b₀₂ : Id (B ∙_) (a ₀₂) b₀₀ b₀₁) (b₁₂ : Id (B ∙_) (a ₁₂) b₁₀ b₁₁) (b₂₀ : Id (B ∙_) (a ₂₀) b₀₀ b₁₀) →
+    Sqᵈ B a a₂₂ ╔═   b₁₂  ═╗
+                b₂₀   □  compᵈ→ b₀₂ b₁₂ b₂₀
+                ╚═   b₀₂  ═╝
+  fillᵈ→ b₀₂ b₁₂ b₂₀ =
+    lift⇒ (Idᵈ B) {a₀₀ , a₁₀ , a ₂₀ , b₀₀ , b₁₀} {a₀₁ , a₁₁ , a ₂₁ , b₀₁ , b₁₁} (a ₀₂ , a ₁₂ , a₂₂ , b₀₂ , b₁₂) ∙ b₂₀
+
+  compᵈ← : (b₀₂ : Id (B ∙_) (a ₀₂) b₀₀ b₀₁) (b₁₂ : Id (B ∙_) (a ₁₂) b₁₀ b₁₁) (b₂₁ : Id (B ∙_) (a ₂₁) b₀₁ b₁₁) →
+    Id (B ∙_) (a ₂₀) b₀₀ b₁₀
+  compᵈ← b₀₂ b₁₂ b₂₁ =
+    tr⇐ (Idᵈ B) {a₀₀ , a₁₀ , a ₂₀ , b₀₀ , b₁₀} {a₀₁ , a₁₁ , a ₂₁ , b₀₁ , b₁₁} (a ₀₂ , a ₁₂ , a₂₂ , b₀₂ , b₁₂) ∙ b₂₁
+
+  fillᵈ← : (b₀₂ : Id (B ∙_) (a ₀₂) b₀₀ b₀₁) (b₁₂ : Id (B ∙_) (a ₁₂) b₁₀ b₁₁) (b₂₁ : Id (B ∙_) (a ₂₁) b₀₁ b₁₁) →
+    Sqᵈ B a a₂₂        ╔═           b₁₂  ═╗
+                compᵈ← b₀₂ b₁₂ b₂₁   □  b₂₁
+                       ╚═           b₀₂  ═╝
+  fillᵈ← b₀₂ b₁₂ b₂₁ =
+    lift⇐ (Idᵈ B) {a₀₀ , a₁₀ , a ₂₀ , b₀₀ , b₁₀} {a₀₁ , a₁₁ , a ₂₁ , b₀₁ , b₁₁} (a ₀₂ , a ₁₂ , a₂₂ , b₀₂ , b₁₂) ∙ b₂₁
+
+module _ {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁)
+  (a₂₂ : Sq A ┌─    a ₁₂    ─┐
+              a ₂₀   □    a ₂₁
+              └─    a ₀₂    ─┘)
+  {b₀₀ : B ∙ a₀₀} {b₀₁ : B ∙ a₀₁} {b₁₀ : B ∙ a₁₀} {b₁₁ : B ∙ a₁₁} where 
+
+  compᵈ↑ : (b₀₂ : Id (B ∙_) (a ₀₂) b₀₀ b₀₁) (b₂₀ : Id (B ∙_) (a ₂₀) b₀₀ b₁₀) (b₂₁ : Id (B ∙_) (a ₂₁) b₀₁ b₁₁) →
+    Id (B ∙_) (a ₁₂) b₁₀ b₁₁
+  compᵈ↑ b₀₂ b₂₀ b₂₁ = compᵈ→ B (sym-∂ a) (sym A a a₂₂) b₂₀ b₂₁ b₀₂
+
+  fillᵈ↑ : (b₀₂ : Id (B ∙_) (a ₀₂) b₀₀ b₀₁) (b₂₀ : Id (B ∙_) (a ₂₀) b₀₀ b₁₀) (b₂₁ : Id (B ∙_) (a ₂₁) b₀₁ b₁₁) →
+    Sqᵈ B a a₂₂ ╔═  compᵈ↑ b₀₂ b₂₀ b₂₁  ═╗
+                b₂₀          □         b₂₁
+                ╚═          b₀₂         ═╝
+  fillᵈ↑ b₀₂ b₂₀ b₂₁ = symᵈ B (sym-∂ a) (sym A a a₂₂) ╔═   b₂₁  ═╗
+                                                      b₀₂   □  compᵈ↑ b₀₂ b₂₀ b₂₁
+                                                      ╚═   b₂₀  ═╝
+                             (fillᵈ→ B (sym-∂ a) (sym A a a₂₂) b₂₀ b₂₁ b₀₂)
+
+  compᵈ↓ : (b₁₂ : Id (B ∙_) (a ₁₂) b₁₀ b₁₁) (b₂₀ : Id (B ∙_) (a ₂₀) b₀₀ b₁₀) (b₂₁ : Id (B ∙_) (a ₂₁) b₀₁ b₁₁) →
+    Id (B ∙_) (a ₀₂) b₀₀ b₀₁
+  compᵈ↓ b₁₂ b₂₀ b₂₁ = compᵈ← B (sym-∂ a) (sym A a a₂₂) b₂₀ b₂₁ b₁₂
+
+  fillᵈ↓ : (b₁₂ : Id (B ∙_) (a ₁₂) b₁₀ b₁₁) (b₂₀ : Id (B ∙_) (a ₂₀) b₀₀ b₁₀) (b₂₁ : Id (B ∙_) (a ₂₁) b₀₁ b₁₁) →
+    Sqᵈ B a a₂₂ ╔═          b₁₂         ═╗
+                b₂₀          □         b₂₁
+                ╚═  compᵈ↓ b₁₂ b₂₀ b₂₁  ═╝
+  fillᵈ↓ b₁₂ b₂₀ b₂₁ = symᵈ B (sym-∂ a) (sym A a a₂₂)         ╔═         b₂₁  ═╗
+                                                      compᵈ↓ b₁₂ b₂₀ b₂₁  □  b₁₂
+                                                              ╚═         b₂₀  ═╝
+                             (fillᵈ← B (sym-∂ a) (sym A a a₂₂) b₂₀ b₂₁ b₁₂)
