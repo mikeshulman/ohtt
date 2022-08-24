@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --no-import-sorts --no-projection-like #-}
+{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --no-import-sorts #-}
 
 module HOTT.Sqrt where
 
@@ -45,11 +45,23 @@ postulate
     A (i δ₀) (i δ₁) (ap i δ₂) × √ {√′-I A} (√′-A A) (i δ₀ , i δ₁ , ap i δ₂ , s₀ , s₁)
 {-# REWRITE ＝-√ Id-√ #-}
 
+-- TODO: dig-def causes normalization loops in (A₂ ↓).  I think the
+-- problem is that the fst that dig normalizes to has both types in
+-- the × of Id-√ as parameters, but the second one includes some digs
+-- in √′-A.  Thus, fully normalizing it ends up rewriting those digs
+-- to fsts, and so on forever.  I haven't thought of a solution to
+-- this yet.
+{-
 postulate
   dig-def : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type}
     {i₀ i₁ : I} (i₂ : i₀ ＝ i₁) {s₀ : √ A i₀} {s₁ : √ A i₁} (s₂ : Id (√ A) i₂ s₀ s₁) →
     dig {I} {A} {i₀} {i₁} {i₂} {s₀} {s₁} s₂ ≡ fst s₂
 {-# REWRITE dig-def #-}
+
+_ : {A₀ A₁ : Type} (A₂ : A₀ ＝ A₁) → {!A₂ ↓!}
+-}
+
+{-
 
 ------------------------------
 -- Computation in √
@@ -97,3 +109,4 @@ postulate
     {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) (k : Δ → K) →
     ap (λ δ → bury A j d (k δ)) δ₂ ≡ frob-ap-bury A (𝛌 j) d δ₂ k
 --{-# REWRITE dig-ap-bury #-}
+-}
