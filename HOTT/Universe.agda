@@ -63,6 +63,10 @@ open _≊_ public
 -- we should make them a record too, and only go to Σ-types at the
 -- next level.
 
+------------------------------
+-- Kan cubical structure
+------------------------------
+
 -- Now, as we will see, the following simple postulate equips all
 -- types with Kan cubical structure.
 postulate
