@@ -62,14 +62,22 @@ sym-∂ʰ a = ┏━   a ₂₁   ━┓
            a ₀₂  □   a ₁₂
            ┗━   a ₂₀   ━┛
 
+coe⇉ᵉ : {A B : Type} (C : A → B → Type) {a₀ a₁ : A} (a₂ : a₀ ≡ a₁) {b₀ b₁ : B} (b₂ : b₀ ≡ b₁) →
+  C a₀ b₀ → C a₁ b₁
+coe⇉ᵉ C reflᵉ reflᵉ c = c
+
+coe⇇ᵉ : {A B : Type} (C : A → B → Type) {a₀ a₁ : A} (a₂ : a₀ ≡ a₁) {b₀ b₁ : B} (b₂ : b₀ ≡ b₁) →
+  C a₁ b₁ → C a₀ b₀
+coe⇇ᵉ C reflᵉ reflᵉ c = c
+
 Sqʰ : {A₀₀ A₀₁ A₁₀ A₁₁ : Type} (A : ∂ Type A₀₀ A₀₁ A₁₀ A₁₁) (A₂₂ : Sq Type A)
   {a₀₀ : A₀₀} {a₀₁ : A₀₁} {a₁₀ : A₁₀} {a₁₁ : A₁₁} (a : ∂ʰ A A₂₂ a₀₀ a₀₁ a₁₀ a₁₁) → Type
 Sqʰ {A₀₀} {A₀₁} {A₁₀} {A₁₁} A A₂₂ {a₀₀} {a₀₁} {a₁₀} {a₁₁} a =
   ap-／ {A₀₀} {A₀₁} {A ₀₂} {A₁₀} {A₁₁} {A ₁₂} {A ₂₀ ↓} {A ₂₁ ↓}
     -- To have the correct boundary, this requires identifying dig
     -- (which appears in ↓) with fst.
-    {!ap (λ Aₓ → fst (ap kan {₁st Aₓ} {₂nd Aₓ} (₃rd' Aₓ)))
-        {A₀₀ , A₁₀ , A ₂₀} {A₀₁ , A₁₁ , A ₂₁} (A ₀₂ , A ₁₂ , A₂₂)!}
+    (coe⇇ᵉ (Id≊ (A ₀₂) (A ₁₂)) (dig≡fst _ (ap kan (A ₂₀))) (dig≡fst _ (ap kan (A ₂₁)))
+       (ap (λ Aₓ → fst (ap kan {₁st Aₓ} {₂nd Aₓ} (₃rd' Aₓ))) {A₀₀ , A₁₀ , A ₂₀} {A₀₁ , A₁₁ , A ₂₁} (A ₀₂ , A ₁₂ , A₂₂)))
     {a₀₀} {a₀₁} (a ₀₂) {a₁₀} {a₁₁} (a ₁₂) ↓ ／ a ₂₀ ～ (a ₂₁)
 
 -- Note that instead of (ap (λ Aₓ → fst (ap kan (₃rd' Aₓ)))) we could
@@ -98,6 +106,8 @@ postulate
   unsymʰ : {A₀₀ A₀₁ A₁₀ A₁₁ : Type} (A : ∂ Type A₀₀ A₀₁ A₁₀ A₁₁) (A₂₂ : Sq Type A)
     {a₀₀ : A₀₀} {a₀₁ : A₀₁} {a₁₀ : A₁₀} {a₁₁ : A₁₁} (a : ∂ʰ A A₂₂ a₀₀ a₀₁ a₁₀ a₁₁) →
     Symʰ A A₂₂ a → Sqʰ (sym-∂ A) (sym Type A A₂₂) (sym-∂ʰ a)
+{-
+postulate
   unsym-symʰ : {A₀₀ A₀₁ A₁₀ A₁₁ : Type} (A : ∂ Type A₀₀ A₀₁ A₁₀ A₁₁) (A₂₂ : Sq Type A)
     {a₀₀ : A₀₀} {a₀₁ : A₀₁} {a₁₀ : A₁₀} {a₁₁ : A₁₁} (a : ∂ʰ A A₂₂ a₀₀ a₀₁ a₁₀ a₁₁)
     (a₂₂ : Sqʰ A A₂₂ a) →
@@ -111,3 +121,4 @@ postulate
 --{-# REWRITE unsym-symʰ sym-unsymʰ #-}
 
 -- TODO: symʰ computes on ap to symᵈ, and on refl to sym.
+-}
