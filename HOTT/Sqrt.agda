@@ -71,13 +71,15 @@ postulate
 -- dig≡fst a rewrite at all, but just coerce across it when necessary.
 postulate
   dig≡fst : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type}
-    {i₀ i₁ : I} (i₂ : i₀ ＝ i₁) {s₀ : √ A i₀} {s₁ : √ A i₁} (s₂ : Id (√ A) i₂ s₀ s₁) →
+    {i₀ i₁ : I} {i₂ : i₀ ＝ i₁} {s₀ : √ A i₀} {s₁ : √ A i₁} (s₂ : Id (√ A) i₂ s₀ s₁) →
     dig {I} {A} {i₀} {i₁} {i₂} {s₀} {s₁} s₂ ≡ fst s₂
 
 -- We reduce the impact of this by *also* asserting dig-refl-bury and
 -- dig-ap-bury directly as rewrites.  This will hopefully allow making
 -- the equality dig≡fst rewrite to reflᵉ when applied to an ap-bury,
--- so that coercions disappear in most concrete cases.
+-- so that coercions disappear in most concrete cases.  In addition,
+-- these rewrites seem to be necessary in order for the general
+-- refl-bury and ap-bury rules below to be well-typed.
 
 postulate
   dig-refl-bury : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type}
@@ -145,3 +147,30 @@ postulate
     ap (λ δ → bury A j d (k δ)) δ₂ ≡ frob-ap-bury A (𝛌 j) d δ₂ k
 --{-# REWRITE ap-bury #-}
 -}
+
+------------------------------
+-- Reducing dig≡fst
+------------------------------
+
+-- Since now refl-bury reduces directly, the previous rewrite
+-- dig-refl-bury doesn't fire any more, so we restate it applying to
+-- the reduced version of refl-bury.
+postulate
+  dig-refl-bury' : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type}
+    {@♭ K : Type} (@♭ j : K → I)
+    (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂)) (k : K) →
+    dig (d k k (refl k) ,
+     bury (√′-A A) (λ k → (j k , j k , refl (j k) , bury A j d k , bury A j d k))
+       (λ k₀ k₁ k₂ → refl (d k₀ k₁ k₂))
+       k) ≡ d k k (refl k)
+--- For some reason this REWRITE pragma seems to spin forever.
+--{-# REWRITE dig-refl-bury' #-}
+
+{-
+postulate
+  dig≡fst-refl-bury : {@♭ I : Type} (@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type)
+    {@♭ K : Type} (@♭ j : K → I)
+    (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂)) (k : K) →
+    dig≡fst (refl (bury A j d k)) ≡ᵉ {!reflᵉ!}
+-}
+
