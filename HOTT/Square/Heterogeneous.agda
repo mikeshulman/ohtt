@@ -13,8 +13,6 @@ open import HOTT.Sqrt
 ------------------------------
 
 -- This is the identity types of ≊, computed as if it were a Σ-type.
--- TODO: For some reason, defining this after declaring the rewrites
--- ＝-√ and Id-√ and dig-def causes it to spin for(ever?).
 record Id≊ {A₀₀ A₀₁ : Type} (A₀₂ : A₀₀ ＝ A₀₁) {A₁₀ A₁₁ : Type} (A₁₂ : A₁₀ ＝ A₁₁)
   (A₂₀ : A₀₀ ≊ A₁₀) (A₂₁ : A₀₁ ≊ A₁₁) : Type where
   constructor Id≊[_,_,_,_,_]
