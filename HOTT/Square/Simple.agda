@@ -84,12 +84,12 @@ postulate
 -- record type.
 
 postulate
-  ap-refl-sym : (A : Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) →
-    ap {A} {λ x → x ＝ x} (λ x → refl x) a₂ ≡
-    →Id-ap (λ x → (x , x)) (ƛ u ⇒ fst u ＝ snd u) {a₀} {a₁} a₂ {refl a₀} {refl a₁}
-      (sym A ┌─  refl a₁  ─┐
-             a₂     □     a₂
-             └─  refl a₀  ─┘  (refl a₂))
+  ap-refl-sym : {Δ : Type} (A : Type) (f : Δ → A) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) →
+    ap {Δ} {λ x → f x ＝ f x} (λ x → refl (f x)) δ₂ ≡
+    →Id-ap (λ x → (f x , f x)) (ƛ u ⇒ fst u ＝ snd u) {δ₀} {δ₁} δ₂ {refl (f δ₀)} {refl (f δ₁)}
+      (sym A ┌─  refl (f δ₁)  ─┐
+             ap f δ₂  □  ap f δ₂
+             └─  refl (f δ₀)  ─┘  (refl (ap f δ₂)))
 {-# REWRITE ap-refl-sym #-}
 
 ------------------------------

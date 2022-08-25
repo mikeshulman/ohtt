@@ -45,44 +45,72 @@ postulate
     A (i δ₀) (i δ₁) (ap i δ₂) × √ {√′-I A} (√′-A A) (i δ₀ , i δ₁ , ap i δ₂ , s₀ , s₁)
 {-# REWRITE ＝-√ Id-√ #-}
 
--- TODO: dig≡fst causes normalization loops in (A₂ ↓).  I think the
--- problem is that the fst that dig normalizes to has both types in
--- the × of Id-√ as parameters, but the second one includes some digs
--- in √′-A.  Thus, fully normalizing it ends up rewriting those digs
--- to fsts, and so on forever.
+------------------------------
+-- Dig vs fst
+------------------------------
+
+-- Once we have the computation rules for identifications in √ as a
+-- cartesian product, we can see that "dig" is really just the
+-- projection "fst" to the first component.  Under this
+-- characterization, the specification of the first components in
+-- refl-bury and ap-bury are what implement the β-rule for √, meaning
+-- the value of dig (i.e. fst) composed with ap-bury.
+
+-- Unfortunately, declaring dig≡fst as a rewrite causes normalization
+-- loops in anything of the form (A₂ ↓).  I think the problem is that
+-- the fst that dig normalizes to has both types in the × of Id-√ as
+-- parameters, but the second one includes some digs in √′-A.  Thus,
+-- fully normalizing it ends up rewriting those digs to fsts, and so
+-- on forever.
 
 -- A possibly-ideal solution would be for Agda to implement rewriting
 -- that matches on record projections.  Then our Σ could be a record
 -- and fst wouldn't have parameters.
 
 -- Lacking that, the best option I've thought of so far is to not make
--- dig≡fst a rewrite, but coerce across it when necessary.  We could
--- reduce the impact of this by also asserting dig-ap-bury directly as
--- a rewrite, which would hopefully allow making dig≡fst rewrite to
--- reflᵉ when applied to an ap-bury.
-{-
+-- dig≡fst a rewrite at all, but just coerce across it when necessary.
 postulate
   dig≡fst : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type}
     {i₀ i₁ : I} (i₂ : i₀ ＝ i₁) {s₀ : √ A i₀} {s₁ : √ A i₁} (s₂ : Id (√ A) i₂ s₀ s₁) →
     dig {I} {A} {i₀} {i₁} {i₂} {s₀} {s₁} s₂ ≡ fst s₂
-{-# REWRITE dig≡fst #-}
 
-_ : {A₀ A₁ : Type} (A₂ : A₀ ＝ A₁) → {!A₂ ↓!}
--}
+-- We reduce the impact of this by *also* asserting dig-refl-bury and
+-- dig-ap-bury directly as rewrites.  This will hopefully allow making
+-- the equality dig≡fst rewrite to reflᵉ when applied to an ap-bury,
+-- so that coercions disappear in most concrete cases.
 
-{-
+postulate
+  dig-refl-bury : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type}
+    {@♭ K : Type} (@♭ j : K → I)
+    (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂)) (k : K) →
+    dig (refl (bury A j d k)) ≡ d k k (refl k)
+{-# REWRITE dig-refl-bury #-}
+
+-- For the types to match in dig-ap-bury, we need ap-ap functoriality
+-- for j and k.  We can make this happen definitionally by wrapping
+-- one of them in a ⇒.
+frob-dig-ap-bury : {@♭ I : Type} (@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type)
+  {@♭ K : Type} (@♭ j : K ⇒ I)
+  (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j ∙ k₀) (j ∙ k₁) (ap (j ∙_) k₂))
+  {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) (k : Δ → K) →
+  A (j ∙ k δ₀) (j ∙ k δ₁) (ap (λ z → j ∙ k z) δ₂)
+frob-dig-ap-bury {I} A {K} j d {Δ} {δ₀} {δ₁} δ₂ k = d (k δ₀) (k δ₁) (ap k δ₂)
+
+postulate
+  dig-ap-bury : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type}
+    {@♭ K : Type} (@♭ j : K → I)
+    (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂))
+    {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) (k : Δ → K) →
+    dig (ap (λ δ → bury A j d (k δ)) δ₂) ≡ frob-dig-ap-bury A (𝛌 j) d δ₂ k
+{-# REWRITE dig-ap-bury #-}
 
 ------------------------------
 -- Computation in √
 ------------------------------
 
--- Because dig computes to fst, there is no need for refl-dig or
--- ap-dig.  But we do need refl-bury and ap-bury.  Because √
--- semantically has a strict universal property, it makes sense to
--- compute these to pairs whose second components are actual "bury"s
--- for √′.  Note also that the *first* components of these pairs are
--- what ensure the β-rule for √, meaning the value of dig (i.e. fst)
--- composed with ap-bury.
+-- Because √ semantically has a strict universal property, it makes
+-- sense to compute refl-bury and ap-bury to pairs whose second
+-- components are actual "bury"s for √′.
 
 postulate
   refl-bury : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type}
@@ -91,13 +119,11 @@ postulate
     refl (bury A j d k) ≡
     (d k k (refl k) ,
      bury (√′-A A) (λ k → (j k , j k , refl (j k) , bury A j d k , bury A j d k))
-       (λ k₀ k₁ k₂ → {!!})
+       (λ k₀ k₁ k₂ → refl (d k₀ k₁ k₂))
        k)
---{-# REWRITE dig-refl-bury #-}
+{-# REWRITE refl-bury #-}
 
--- For the types to match in ap-bury, we need ap-ap functoriality for
--- j and k.  We can make this happen definitionally by wrapping one of
--- them in a ⇒.
+{-
 frob-ap-bury : {@♭ I : Type} (@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type)
   {@♭ K : Type} (@♭ j : K ⇒ I)
   (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j ∙ k₀) (j ∙ k₁) (ap (j ∙_) k₂))
@@ -108,7 +134,7 @@ frob-ap-bury : {@♭ I : Type} (@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) 
 frob-ap-bury {I} A {K} j d {Δ} {δ₀} {δ₁} δ₂ k =
   (d (k δ₀) (k δ₁) (ap k δ₂) ,
    bury (√′-A A) {ID K} (λ kₓ → (j ∙ ₁st kₓ , j ∙ ₂nd kₓ , ap (j ∙_) (₃rd' kₓ) , bury A (j ∙_) d (₁st kₓ) , bury A (j ∙_) d (₂nd kₓ)))
-     (λ k₀ k₁ k₂ → {!!})
+     (λ k₀ k₁ k₂ → {!dig (ap (λ x → ap (bury A (j ∙_) d) (₃rd' x)) k₂)!})
      (k δ₀ , k δ₁ , ap k δ₂))
 
 postulate
@@ -117,5 +143,5 @@ postulate
     (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂))
     {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) (k : Δ → K) →
     ap (λ δ → bury A j d (k δ)) δ₂ ≡ frob-ap-bury A (𝛌 j) d δ₂ k
---{-# REWRITE dig-ap-bury #-}
+--{-# REWRITE ap-bury #-}
 -}
