@@ -144,7 +144,6 @@ postulate
   IdU-𝐳 : (x : ∂U 𝐳) → IdU 𝐳 x ≡ Type
 
 ∂U 𝐳 = ⊤
--- TODO: Define (∂U (𝐬 𝐳)) separately, to avoid all the ★s.
 ∂U (𝐬 n) = ID× (𝛌 (IdU n))
 
 {-# REWRITE IdU-𝐳 #-}
@@ -164,17 +163,18 @@ Kan : (n : ℕᵉ) → ∂U n → Type
 postulate
   -- Here is the function assigning such structure.  We include an
   -- equality to eliminate green slime in rewrites, notably ap-kan
-  -- below which will say that (ap (kan {n})) is (kan {𝐬 n}).
+  -- below which will say that (ap (kan {n})) is part of (kan {𝐬 n}).
+  -- The other parts of (kan {𝐬 n}) are determined by symmetry.
   kan : {n : ℕᵉ} {a : ∂U n} {Ω : Type} ⦃ ω : Kan n a ≡ Ω ⦄ (x : IdU n a) → Ω
   -- In order to define Kan, recursively on n, we define in parallel a
   -- type of "Kan-generators".  This comes from the type under the √
   -- in the iterated identity types of a √, which on each application
   -- of Id gets copied *outside* the √ but also gets an Id applied to
-  -- itself under the √.
+  -- itself under the √.  It essentially adds one more primitive
+  -- symmetry every time we go up a dimension.
   gKan : (n : ℕᵉ) → ∂U (𝐬 n) → Type
 
 Kan 𝐳 x = ⊤
--- TODO: Define (Kan (𝐬 𝐳)) separately, to avoid all the snd's.
 Kan (𝐬 n) A = Id (Kan n) (₃rd A) (kan {n} (₄th A)) (kan {n} (₅th' A)) × gKan n A
 
 -- gKan is actually defined recursively on ℕᵉ.  But the successor case
@@ -185,6 +185,8 @@ postulate
   gKan-𝐳 : (A : ∂U (𝐬 𝐳)) → gKan 𝐳 A ≡ (₄th A ≊ ₅th' A)
 {-# REWRITE gKan-𝐳 #-}
 
+-- Here is the "primary part" of kan, the "demotion" that extracts a
+-- bitotal correspondence from an identification in the universe.
 _↓ : {X₀ X₁ : Type} (X₂ : X₀ ＝ X₁) → X₀ ≊ X₁
 _↓ {X₀} {X₁} X₂ = snd (kan X₂)
 
@@ -201,10 +203,11 @@ _↓ {X₀} {X₁} X₂ = snd (kan X₂)
 -- This also means that ap-kan, ap-ap-kan, and so on ought also to be
 -- regarded as coinductive destructors (of ＝U, SqU, and so on).  In
 -- particular, the computation laws for "kan" on type-formers should
--- lift to computation laws of ap-kan.  Our primitive "kan n"
--- encapsulates all of these ap's, and should compute *on* aps by
--- pulling the ap out (i.e. reverse functoriality), so that
--- lower-dimensional kans can do the actual computation.
+-- lift to computation laws of ap-kan.  We will enforce this by
+-- computing iterated ap/refl on type formers to a "corecursive
+-- constructor" of higher cubes in the universe that essentially
+-- specifies the output of higher "kan"s on itself, analogously to how
+-- ap behaves on the introduction form of a √.
 
 -- The behavior of (kan 2) on symmetry is simply given by the ordinary
 -- rules of ap-ap on symmetry, together with the definition of
@@ -216,7 +219,8 @@ _↓ {X₀} {X₁} X₂ = snd (kan X₂)
 -- Finally, the fact that ap-kan is (informally) the destructor of a
 -- coinductive ＝U means that it's sensible to add an additional
 -- constructor of ＝U as long as we specify how ap-kan computes on it.
--- This will be  the "promotion" rule from one-to-one correspondences.
+-- This will be the "promotion" rule taking a one-to-one
+-- correspondence to an identification in the universe.
 
 -- Intuitively, we can say that while Book HoTT specifies ∞-groupoid
 -- structure *inductively*, and cubical type theory specifies it
