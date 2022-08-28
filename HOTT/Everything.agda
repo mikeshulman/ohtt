@@ -8,7 +8,6 @@ open import HOTT.Id
 open import HOTT.Universe
 open import HOTT.Square
 
-open import HOTT.Unit
-open import HOTT.Sigma
+--open import HOTT.Unit
+--open import HOTT.Sigma
 --open import HOTT.Pi
-
