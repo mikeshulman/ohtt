@@ -13,6 +13,13 @@ open import HOTT.Square.Simple
 -- Identifications in √
 ------------------------------
 
+-- We would like to compute ＝-√ and Id-√ to a product of A with
+-- √(Id).  Unfortunately, doing this naively causes divergence in
+-- normalization.  I think the reason is that the base I type of the
+-- "√(Id)" includes two points in (√ A) itself, and therefore any
+-- occurrence of identifications in that type (such as in the domain
+-- of √′-A, when reduced by ＝-Σ) will involve reducing the same Id-√
+
 √′-I : {@♭ I : Type} (@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type) → Type
 √′-I {I} A = （ i₀ ⦂ I ）× （ i₁ ⦂ I ）× （ i₂ ⦂ i₀ ＝ i₁ ）× √ A i₀ × √ A i₁
 
