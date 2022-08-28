@@ -159,12 +159,11 @@ module _  {A₀₀ A₀₁ A₁₀ A₁₁ : Type} (A : ∂ Type A₀₀ A₀₁
     A ₂₁ ↓ ／ a₀₁ ～ a₁₁
   compʰ→ a₀₂ a₁₂ a₂₀ = tr⇒ Idʰ {A₀₀ , A₁₀ , A ₂₀ , a₀₀ , a₁₀} {A₀₁ , A₁₁ , A ₂₁ , a₀₁ , a₁₁} (A ₀₂ , A ₁₂ , A₂₂ , a₀₂ , a₁₂) ∙ a₂₀
 
-  -- Needs a rule for Id in _／_～_, which is an analogue of ap on it.
   fillʰ→ : (a₀₂ : A ₀₂ ↓ ／ a₀₀ ～ a₀₁) (a₁₂ : A ₁₂ ↓ ／ a₁₀ ～ a₁₁) (a₂₀ : A ₂₀ ↓ ／ a₀₀ ～ a₁₀) →
     Sqʰ A A₂₂ ┏━   a₁₂   ━┓
               a₂₀  □   compʰ→ a₀₂ a₁₂ a₂₀
               ┗━   a₀₂   ━┛
-  fillʰ→ a₀₂ a₁₂ a₂₀ = {!lift⇒ Idʰ {A₀₀ , A₁₀ , A ₂₀ , a₀₀ , a₁₀} {A₀₁ , A₁₁ , A ₂₁ , a₀₁ , a₁₁} (A ₀₂ , A ₁₂ , A₂₂ , a₀₂ , a₁₂) ∙ a₂₀!}
+  fillʰ→ a₀₂ a₁₂ a₂₀ = lift⇒ Idʰ {A₀₀ , A₁₀ , A ₂₀ , a₀₀ , a₁₀} {A₀₁ , A₁₁ , A ₂₁ , a₀₁ , a₁₁} (A ₀₂ , A ₁₂ , A₂₂ , a₀₂ , a₁₂) ∙ a₂₀
 
   compʰ← : (a₀₂ : A ₀₂ ↓ ／ a₀₀ ～ a₀₁) (a₁₂ : A ₁₂ ↓ ／ a₁₀ ～ a₁₁) (a₂₁ : A ₂₁ ↓ ／ a₀₁ ～ a₁₁) →
     A ₂₀ ↓ ／ a₀₀ ～ a₁₀
@@ -174,7 +173,7 @@ module _  {A₀₀ A₀₁ A₁₀ A₁₁ : Type} (A : ∂ Type A₀₀ A₀₁
     Sqʰ A A₂₂ ┏━                 a₁₂   ━┓
               compʰ← a₀₂ a₁₂ a₂₁  □    a₂₁
               ┗━                 a₀₂   ━┛
-  fillʰ← a₀₂ a₁₂ a₂₁ = {!lift⇐ Idʰ {A₀₀ , A₁₀ , A ₂₀ , a₀₀ , a₁₀} {A₀₁ , A₁₁ , A ₂₁ , a₀₁ , a₁₁} (A ₀₂ , A ₁₂ , A₂₂ , a₀₂ , a₁₂) ∙ a₂₁!}
+  fillʰ← a₀₂ a₁₂ a₂₁ = lift⇐ Idʰ {A₀₀ , A₁₀ , A ₂₀ , a₀₀ , a₁₀} {A₀₁ , A₁₁ , A ₂₁ , a₀₁ , a₁₁} (A ₀₂ , A ₁₂ , A₂₂ , a₀₂ , a₁₂) ∙ a₂₁
 
 module _  {A₀₀ A₀₁ A₁₀ A₁₁ : Type} (A : ∂ Type A₀₀ A₀₁ A₁₀ A₁₁) (A₂₂ : Sq Type A)
   {a₀₀ : A₀₀} {a₀₁ : A₀₁} {a₁₀ : A₁₀} {a₁₁ : A₁₁} where

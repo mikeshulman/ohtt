@@ -162,8 +162,10 @@ postulate
 Kan : (n : ℕᵉ) → ∂U n → Type
 
 postulate
-  -- Here is the function assigning such structure.
-  kan : {n : ℕᵉ} {a : ∂U n} (x : IdU n a) → Kan n a
+  -- Here is the function assigning such structure.  We include an
+  -- equality to eliminate green slime in rewrites, notably ap-kan
+  -- below which will say that (ap (kan {n})) is (kan {𝐬 n}).
+  kan : {n : ℕᵉ} {a : ∂U n} {Ω : Type} ⦃ ω : Kan n a ≡ Ω ⦄ (x : IdU n a) → Ω
   -- In order to define Kan, recursively on n, we define in parallel a
   -- type of "Kan-generators".  This comes from the type under the √
   -- in the iterated identity types of a √, which on each application
@@ -474,3 +476,27 @@ postulate
 -- due to (for instance) ap-ƛ.  This would be an advantage of using
 -- telescopes instead of Σ-types, since a telescope can be maintained
 -- as right-associated even when extending it on the right.
+
+--------------------
+-- ap-kan
+--------------------
+
+-- Now that we have Id-ap, we can postulate ap-kan.  This requires the
+-- equality in kan to eliminate green slime and fire, since the
+-- codomain of the "ap" may in practice be a reduced version of Kan
+-- rather than Kan itself.  Since these equalities are under a binder,
+-- we need to apply funextᵉ before we can destruct them in the output;
+-- for this we use an auxiliary function.
+
+frob-ap-kan : {n : ℕᵉ} {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
+  {a : Δ → ∂U n} (x : (δ : Δ) → IdU n (a δ))
+  {Ω : Δ → Type} (ω : (λ δ → Kan n (a δ)) ≡ Ω) →
+  Id Ω δ₂ (kan ⦃ happlyᵉ ω δ₀ ⦄ (x δ₀)) (kan ⦃ happlyᵉ ω δ₁ ⦄ (x δ₁))
+frob-ap-kan {n} δ₂ {a} x reflᵉ = →Id-ap a (𝛌 (Kan n)) δ₂ (fst (kan {𝐬 n} (ap x δ₂)))
+
+postulate
+  ap-kan : {n : ℕᵉ} {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
+    {a : Δ → ∂U n} (x : (δ : Δ) → IdU n (a δ))
+    {Ω : Δ → Type} (ω : (δ : Δ) → Kan n (a δ) ≡ Ω δ) →
+    ap (λ δ → kan {n} {a δ} ⦃ ω δ ⦄ (x δ)) δ₂ ≡ frob-ap-kan δ₂ x (funextᵉ ω)
+{-# REWRITE ap-kan #-}

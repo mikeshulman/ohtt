@@ -21,11 +21,27 @@ infix  10 _≡_ _≡ᵉ_
 -- itself, where we write ≡ instead of ≡ᶠ.
 
 data _≡_ {A : Type} (a : A) : A → Typeᵉ where
-  reflᵉ : a ≡ a
+  instance
+    reflᵉ : a ≡ a
 data _≡ᵉ_ {A : Typeᵉ} (a : A) : A → Typeᵉ where
-  reflᵉᵉ : a ≡ᵉ a
+  instance
+    reflᵉᵉ : a ≡ᵉ a
 {-# BUILTIN REWRITE _≡_ #-}
 {-# BUILTIN REWRITE _≡ᵉ_ #-}
+
+happlyᵉ : {A : Type} {B : A → Type} {f g : (x : A) → B x} →
+  (f ≡ g) → ((x : A) → f x ≡ g x)
+happlyᵉ reflᵉ = λ x → reflᵉ
+
+postulate
+  funextᵉ : {A : Type} {B : A → Type} {f g : (x : A) → B x} →
+    ((x : A) → f x ≡ g x) → (f ≡ g)
+  happlyᵉ-funextᵉ : {A : Type} {B : A → Type} {f g : (x : A) → B x} →
+    (p : (x : A) → f x ≡ g x) →
+    happlyᵉ (funextᵉ p) ≡ᵉ p
+  funextᵉ-reflᵉ : {A : Type} {B : A → Type} (f : (x : A) → B x) →
+    funextᵉ {f = f} (λ x → reflᵉ) ≡ᵉ reflᵉ
+{-# REWRITE happlyᵉ-funextᵉ funextᵉ-reflᵉ #-}
 
 --------------------
 -- Unit type
