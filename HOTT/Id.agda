@@ -119,12 +119,27 @@ module _ (Δ : Type) (A : Δ → Type) (B : (x : Δ) → A x → Type) where
 
 -- ap-, and ap-snd are very difficult to define, so we postpone them to later.
 
---------------------------------------------------
--- Identifications, refl, and ap in Π-types
---------------------------------------------------
+------------------------------
+-- Bundled identity types
+------------------------------
+
+-- TODO: Find a consistent naming scheme for these.
 
 ID : Type → Type
 ID A = （ a₀ ⦂ A ）× （ a₁ ⦂ A ）× a₀ ＝ a₁
+
+IDᵈ : {Δ : Type} (A : Δ → Type) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) → Type
+IDᵈ A {δ₀} {δ₁} δ₂ = （ a₀ ⦂ A δ₀ ）× （ a₁ ⦂ A δ₁ ）× Id A δ₂ a₀ a₁
+
+ID× : {A : Type} (B : A ⇒ Type) → Type
+ID× {A} B = （ a₀ ⦂ A ）× （ a₁ ⦂ A ）× （ a₂ ⦂ a₀ ＝ a₁ ）× B ∙ a₀ × B ∙ a₁
+
+Idᵈ : {A : Type} (B : A ⇒ Type) → ID× B → Type
+Idᵈ {A} B u = Id (B ∙_) (₃rd u) (₄th u) (₅th' u)
+
+--------------------------------------------------
+-- Identifications, refl, and ap in Π-types
+--------------------------------------------------
 
 postulate
   ＝-Π : {A : Type} {B : A → Type} (f g : Π A B) →
@@ -137,9 +152,6 @@ postulate
   refl-∙ : {A : Type} {B : A → Type} (f : Π A B) (a : A) →
     refl (f ∙ a) ≡ refl f ∙ (a , a , refl a)
 {-# REWRITE refl-ƛ refl-∙ #-}
-
-IDᵈ : {Δ : Type} (A : Δ → Type) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) → Type
-IDᵈ A {δ₀} {δ₁} δ₂ = （ a₀ ⦂ A δ₀ ）× （ a₁ ⦂ A δ₁ ）× Id A δ₂ a₀ a₁
 
 IdΠ : (Δ : Type) (A : Δ → Type) (B : (x : Δ) → A x → Type)
     (δ₀ δ₁ : Δ) (δ₂ : δ₀ ＝ δ₁) (f₀ : Π (A δ₀) (B δ₀)) (f₁ : Π (A δ₁) (B δ₁)) →

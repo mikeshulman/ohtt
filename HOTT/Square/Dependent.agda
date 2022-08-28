@@ -22,12 +22,6 @@ record ∂ᵈ {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} 
     _₀₂ : Id (B ∙_) (a ₀₂) b₀₀ b₀₁
 open ∂ᵈ public
 
-ID× : {A : Type} (B : A ⇒ Type) → Type
-ID× {A} B = （ a₀ ⦂ A ）× （ a₁ ⦂ A ）× （ a₂ ⦂ a₀ ＝ a₁ ）× B ∙ a₀ × B ∙ a₁
-
-Idᵈ : {A : Type} (B : A ⇒ Type) → ID× B → Type
-Idᵈ {A} B u = Id (B ∙_) (₃rd u) (₄th u) (₅th' u)
-
 Sqᵈ : {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁)
       (a₂₂ : Sq A ┌─    a ₁₂    ─┐
                   a ₂₀   □    a ₂₁
