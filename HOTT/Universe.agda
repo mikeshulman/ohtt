@@ -4,25 +4,12 @@ module HOTT.Universe where
 
 open import HOTT.Base
 open import HOTT.Id
+open import HOTT.Exonat
 
 infix 30 _↓
 
 ------------------------------
--- Amazing right adjoints
-------------------------------
-
-postulate
-  √ : {@♭ I : Type} (@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type) → I → Type
-  dig : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type} {i₀ i₁ : I} {i₂ : i₀ ＝ i₁}
-    {s₀ : √ A i₀} {s₁ : √ A i₁} (s₂ : Id (√ A) i₂ s₀ s₁) →
-    A i₀ i₁ i₂
-  bury : {@♭ I : Type} (@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type) {@♭ K : Type} (@♭ j : K → I)
-    (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂)) →
-    (k : K) → √ A (j k)
-  -- The computation rules require better Id behavior, so we postpone them to later.
-
-------------------------------
--- The universe
+-- Bitotal correspondences
 ------------------------------
 
 -- Morally, the definition of bitotal correspondence should be
@@ -67,43 +54,146 @@ open _≊_ public
 -- Kan cubical structure
 ------------------------------
 
--- Now, as we will see, the following simple postulate equips all
--- types with Kan cubical structure.
+-- One way to describe the Kan cubical structure is with a √-type:
+{-
+postulate
+  √ : {@♭ I : Type} (@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type) → I → Type
+  dig : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type} {i₀ i₁ : I} {i₂ : i₀ ＝ i₁}
+    {s₀ : √ A i₀} {s₁ : √ A i₁} (s₂ : Id (√ A) i₂ s₀ s₁) →
+    A i₀ i₁ i₂
+  bury : {@♭ I : Type} (@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type) {@♭ K : Type} (@♭ j : K → I)
+    (@♭ d : (k₀ k₁ : K) (k₂ : k₀ ＝ k₁) → A (j k₀) (j k₁) (ap j k₂)) →
+    (k : K) → √ A (j k)
+-}
+-- With identities defined like so:
+{-
+√′-I : {@♭ I : Type} (@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type) → Type
+√′-I {I} A = （ i₀ ⦂ I ）× （ i₁ ⦂ I ）× （ i₂ ⦂ i₀ ＝ i₁ ）× √ A i₀ × √ A i₁
+
+√′-A : {@♭ I : Type} (@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type) →
+  (u₀ u₁ : √′-I A) (u₂ : u₀ ＝ u₁) → Type
+√′-A {I} A u₀ u₁ u₂ =
+  Id {ID I} (λ iₓ → A (₁st iₓ) (₂nd iₓ) (₃rd' iₓ))
+    {₁st u₀ , ₁st u₁ , ₁st u₂} {₂nd u₀ , ₂nd u₁ , ₂nd u₂}
+    -- NB: There is a symmetry here!
+    (₃rd u₀ , ₃rd u₁ , sym I ┌─     ₂nd u₂     ─┐
+                             ₃rd u₀   □    ₃rd u₁
+                             └─     ₁st u₂     ─┘  (₃rd u₂))
+    (dig {I} {A} {₁st u₀} {₁st u₁} {₁st u₂} {₄th u₀} {₄th u₁}
+         (←Id-ap {（ z ⦂ I × I ）× fst z ＝ snd z} {I} (λ z → fst (fst z)) (𝛌 (√ A))
+                 {(₁st u₀ , ₂nd u₀) , ₃rd u₀} {(₁st u₁ , ₂nd u₁) , ₃rd u₁} ((₁st u₂ , ₂nd u₂) , ₃rd u₂)
+                 (₄th u₂)))
+    (dig {I} {A} {₂nd u₀} {₂nd u₁} {₂nd u₂} {₅th' u₀} {₅th' u₁}
+         (←Id-ap {（ w ⦂ （ z ⦂ I × I ）× fst z ＝ snd z ）× √ A (fst (fst w))} {I} (λ z → snd (fst (fst z))) (𝛌 (√ A))
+                 {((₁st u₀ , ₂nd u₀) , ₃rd u₀) , ₄th u₀} {((₁st u₁ , ₂nd u₁) , ₃rd u₁) , ₄th u₁} (((₁st u₂ , ₂nd u₂) , ₃rd u₂) , ₄th u₂)
+                 (₅th' u₂)))
+
+postulate
+  ＝-√ : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type} (i : I) (s₀ s₁ : √ A i) →
+    (s₀ ＝ s₁) ≡
+    A i i (refl i) × √ {√′-I A} (√′-A A) (i , i , refl i , s₀ , s₁)
+  Id-√ : {@♭ I : Type} {@♭ A : (i₀ i₁ : I) (i₂ : i₀ ＝ i₁) → Type}
+    {Δ : Type} (i : Δ → I) {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
+    (s₀ : √ A (i δ₀)) (s₁ : √ A (i δ₁)) →
+    Id (λ δ → √ A (i δ)) δ₂ s₀ s₁ ≡
+    A (i δ₀) (i δ₁) (ap i δ₂) × √ {√′-I A} (√′-A A) (i δ₀ , i δ₁ , ap i δ₂ , s₀ , s₁)
+{-# REWRITE ＝-√ Id-√ #-}
+-}
+-- Then dig can be identified with fst, we can compute ap-dig to
+-- another dig, and so on.  Then the kan structure is given by
+{-
 postulate
   kan : (X : Type) → √ [≊] X
+-}
+-- However, computing with √ in practice gets kind of hairy; the naive
+-- rules ＝-√ and Id-√ above cause divergence in normalization.  I
+-- think the reason is that the base I type of the "√(Id)" includes
+-- two points in (√ A) itself, and therefore any occurrence of
+-- identifications in that type (such as in the domain of √′-A, when
+-- reduced by ＝-Σ) will involve reducing the same Id-√.  I've tried
+-- various tricks, but right now the most promising seems to be to
+-- "β-reduce away" the √ completely and just assert the resulting
+-- destructors of iterated identity types of the universe by hand.
+
+-- To this end, we postulate a primitive "type of n-cubes in the
+-- universe" for all exo-natural numbers n, which is the target of
+-- reductions from the directly defined ones.  This type depends on a
+-- type of "n-boundaries" in the universe, which is defined mutually
+-- recursively with it.
+
+∂U : ℕᵉ → Type
+
+postulate
+  IdU : (n : ℕᵉ) → ∂U n → Type
+  IdU-𝐳 : (x : ∂U 𝐳) → IdU 𝐳 x ≡ Type
+
+∂U 𝐳 = ⊤
+-- TODO: Define (∂U (𝐬 𝐳)) separately, to avoid all the ★s.
+∂U (𝐬 n) = ID× (𝛌 (IdU n))
+
+{-# REWRITE IdU-𝐳 #-}
+
+postulate
+  ＝-U : {A₀ A₁ : Type} → (A₀ ＝ A₁) ≡ IdU (𝐬 𝐳) (★ , ★ , ★ , A₀ , A₁)
+  ＝-IdU : {n : ℕᵉ} {A : ∂U n} (a₀ a₁ : IdU n A) →
+    (a₀ ＝ a₁) ≡ IdU (𝐬 n) (A , A , refl A , a₀ , a₁)
+  Id-IdU : {n : ℕᵉ} {Δ : Type} {A : Δ → ∂U n} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
+    (a₀ : IdU n (A δ₀)) (a₁ : IdU n (A δ₁)) →
+    Id (λ δ → IdU n (A δ)) δ₂ a₀ a₁ ≡ IdU (𝐬 n) (A δ₀ , A δ₁ , ap A δ₂ , a₀ , a₁)
+{-# REWRITE ＝-U ＝-IdU Id-IdU #-}
+
+-- This is the output type of the Kan structure on n-cubes.
+Kan : (n : ℕᵉ) → ∂U n → Type
+
+postulate
+  -- Here is the function assigning such structure.
+  kan : {n : ℕᵉ} {a : ∂U n} (x : IdU n a) → Kan n a
+  -- In order to define Kan, recursively on n, we define in parallel a
+  -- type of "Kan-generators".  This comes from the type under the √
+  -- in the iterated identity types of a √, which on each application
+  -- of Id gets copied *outside* the √ but also gets an Id applied to
+  -- itself under the √.
+  gKan : (n : ℕᵉ) → ∂U (𝐬 n) → Type
+
+Kan 𝐳 x = ⊤
+-- TODO: Define (Kan (𝐬 𝐳)) separately, to avoid all the snd's.
+Kan (𝐬 n) A = Id (Kan n) (₃rd A) (kan {n} (₄th A)) (kan {n} (₅th' A)) × gKan n A
+
+-- gKan is actually defined recursively on ℕᵉ.  But the successor case
+-- can't be stated until we have symmetry and more computation laws
+-- for ap, so we postpone it by making gKan into a postulate and its
+-- definitional clauses into rewrites.  The zero case is easy.
+postulate
+  gKan-𝐳 : (A : ∂U (𝐬 𝐳)) → gKan 𝐳 A ≡ (₄th A ≊ ₅th' A)
+{-# REWRITE gKan-𝐳 #-}
 
 _↓ : {X₀ X₁ : Type} (X₂ : X₀ ＝ X₁) → X₀ ≊ X₁
-_↓ {X₀} {X₁} X₂ = dig {Type} {[≊]} {X₀} {X₁} {X₂} {kan X₀} {kan X₁} (ap kan {X₀} {X₁} X₂)
+_↓ {X₀} {X₁} X₂ = snd (kan X₂)
 
--- Computationally, we regard "kan" (informally) as a DESTRUCTOR of a
--- COINDUCTIVE UNIVERSE.  This means that whenever we introduce a map
--- into the universe (i.e. a type constructor), we must specify how
--- kan computes on it.  Since the codomain of kan is a √-type, the
--- result of this computation will generally be a "bury".  (Note that
--- semantically, √-types have η-laws, whether or not we can enforce
--- these syntactically, so it is reasonable to compute to a literal
--- "bury" term.)  Giving such a computation law for a particular type
--- former amounts to specifying its identity types along with its
--- transport and lifting, which will generally be instances of the
--- same type former (so that this is morally a corecursive definition,
--- matching the coinductive nature of the universe).
+-- Computationally, we regard "kan 𝐳" (informally) as a DESTRUCTOR of
+-- a COINDUCTIVE UNIVERSE.  This means that whenever we introduce a
+-- map into the universe (i.e. a type constructor), we must specify
+-- how kan computes on it.  Giving such a computation law for a
+-- particular type former amounts to specifying its identity types
+-- along with its transport and lifting, which will generally be
+-- instances of the same type former (so that this is morally a
+-- corecursive definition, matching the coinductive nature of the
+-- universe).
 
 -- This also means that ap-kan, ap-ap-kan, and so on ought also to be
 -- regarded as coinductive destructors (of ＝U, SqU, and so on).  In
--- particular, the computation laws for "kan" on type-formers that
--- produce "bury"s should lift to computation laws of ap-kan on
--- ap-type-formers that produce "ap-bury"s, while the latter compute
--- to "bury"s for the ＝-√ (and thus the "dig" of ＝-√, which is
--- ap-dig, computes on them).
+-- particular, the computation laws for "kan" on type-formers should
+-- lift to computation laws of ap-kan.  Our primitive "kan n"
+-- encapsulates all of these ap's, and should compute *on* aps by
+-- pulling the ap out (i.e. reverse functoriality), so that
+-- lower-dimensional kans can do the actual computation.
 
--- I haven't tried yet in Agda to specify rewrite rules for all of
--- these computations at once.  Perhaps we can define all the
--- "apⁿ-kan"s as an ℕᵉ-indexed family.
-
--- The behavior of ap-ap-kan on symmetry is simply given by the
--- ordinary rules of ap-ap on symmetry, together with the definition
--- of symmetry on √-types.  As we will see, this specifies precisely
--- the primitive symmetrized squares that we need.
+-- The behavior of (kan 2) on symmetry is simply given by the ordinary
+-- rules of ap-ap on symmetry, together with the definition of
+-- symmetry on √-types.  Although since (kan 2) reduces *from*
+-- ap-ap-kan, we probably need a special rewrite rule for it, and more
+-- generally for (kan (𝐬 (𝐬 n))).  As we will see, this specifies
+-- precisely the primitive symmetrized squares that we need.
 
 -- Finally, the fact that ap-kan is (informally) the destructor of a
 -- coinductive ＝U means that it's sensible to add an additional
@@ -129,7 +219,7 @@ _↓ {X₀} {X₁} X₂ = dig {Type} {[≊]} {X₀} {X₁} {X₂} {kan X₀} {ka
 postulate
   refl↓ : (A : Type) →
     -- _／_～_ (refl A ↓) ≡
-    _／_～_ (dig {Type} {[≊]} {A} {A} {refl A} {kan A} {kan A} (refl (kan A))) ≡
+    _／_～_ (snd (kan (refl A))) ≡
     _＝_ {A}
 {-# REWRITE refl↓ #-}
 
@@ -162,7 +252,7 @@ postulate
 postulate
   ap↓ : {A : Type} (B : A → Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) →
     -- _／_～_ (ap B a₂ ↓) ≡
-    _／_～_ (dig {Type} {[≊]} {B a₀} {B a₁} {ap B a₂} {kan (B a₀)} {kan (B a₁)} (ap kan (ap B a₂))) ≡
+    _／_～_ (snd (kan (ap B a₂))) ≡
     Id B a₂
 {-# REWRITE ap↓ #-}
 
