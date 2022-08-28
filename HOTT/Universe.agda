@@ -20,7 +20,8 @@ infix 30 _↓
 -- However, nested Σ-types seem to make Agda really slow, possibly
 -- because our Σ-types were postulates and so all the parameters had
 -- to be carried around as implicit arguments to fst, snd, and _,_.
--- Thus, instead we define bitotal correspondences to be a record.
+-- Thus, instead we define bitotal correspondences to be a datatype.
+-- (We can't make it a record for the same reason as Σ.)
 
 -- (TODO: Is this still true now that we've made Σ a datatype?  Could
 -- we go back to using a Σ-type here?)
@@ -29,15 +30,30 @@ infix 30 _↓
 -- belongs to a ⇒, so that it has to be applied with ∙, we name it
 -- with a ⇒ or a ⇐.
 
-record _≊_ (A B : Type) : Type where
-  constructor ≊[_,_,_,_,_]
-  field
-    _／_～_ : A → B → Type
-    coe⇒ : A ⇒ B
-    coe⇐ : B ⇒ A
-    push⇒ : （ a ⦂ A ）⇒ _／_～_ a (coe⇒ ∙ a)
-    push⇐ : （ b ⦂ B ）⇒ _／_～_ (coe⇐ ∙ b) b
+data _≊_ (A B : Type) : Type where
+  ≊[_,_,_,_,_] :
+    (rel : A ⇒ B ⇒ Type) →
+    (coe⇒ : A ⇒ B) →
+    (coe⇐ : B ⇒ A) →
+    (（ a ⦂ A ）⇒ rel ∙ a ∙ (coe⇒ ∙ a)) →
+    (（ b ⦂ B ）⇒ rel ∙ (coe⇐ ∙ b) ∙ b) →
+    A ≊ B
 open _≊_ public
+
+_／_～_ : {A B : Type} (e : A ≊ B) → A → B → Type
+≊[ rel , _ , _ , _ , _ ] ／ a ～ b = rel ∙ a ∙ b
+
+coe⇒ : {A B : Type} (e : A ≊ B) → A ⇒ B
+coe⇒ ≊[ rel , coe⇒ , coe⇐ , _ , _ ] = coe⇒
+
+coe⇐ : {A B : Type} (e : A ≊ B) → B ⇒ A
+coe⇐ ≊[ rel , coe⇒ , coe⇐ , _ , _ ] = coe⇐
+
+push⇒ : {A B : Type} (e : A ≊ B) → （ a ⦂ A ）⇒ (e ／ a ～ (coe⇒ e ∙ a))
+push⇒ ≊[ rel , coe⇒ , coe⇐ , push⇒ , push⇐ ] = push⇒
+
+push⇐ : {A B : Type} (e : A ≊ B) → （ b ⦂ B ）⇒ (e ／ (coe⇐ e ∙ b) ～ b)
+push⇐ ≊[ rel , coe⇒ , coe⇐ , push⇒ , push⇐ ] = push⇐
 
 [≊] : (X₀ X₁ : Type) (X₂ : X₀ ＝ X₁) → Type
 [≊] X₀ X₁ X₂ = X₀ ≊ X₁

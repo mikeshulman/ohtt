@@ -7,13 +7,13 @@ open import HOTT.Id
 open import HOTT.Universe
 open import HOTT.Square.Simple
 open import HOTT.Exonat
---open import HOTT.Sqrt
 
 ------------------------------
 -- Id-Id in the universe
 ------------------------------
 
 -- This is the identity types of ≊, computed as if it were a Σ-type.
+-- TODO: This needs to be a datatype too.  And, of course, its identity types...
 record Id≊ {A₀₀ A₀₁ : Type} (A₀₂ : A₀₀ ＝ A₀₁) {A₁₀ A₁₁ : Type} (A₁₂ : A₁₀ ＝ A₁₁)
   (A₂₀ : A₀₀ ≊ A₁₀) (A₂₁ : A₀₁ ≊ A₁₁) : Type where
   constructor Id≊[_,_,_,_,_]
@@ -41,6 +41,16 @@ postulate
 
 -- TODO: compute ap and refl on all the constructors and fields of ≊.
 -- Also deal with the higher identity types of ≊ too.
+
+-- Here's part of this, an Id analogue of the putative ap on _／_～_.
+postulate
+  Id-／ : {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
+    (A B : Δ → Type) (e : (δ : Δ) → A δ ≊ B δ)
+    (a : (δ : Δ) → A δ) (b : (δ : Δ) → B δ)
+    (u₀ : e δ₀ ／ a δ₀ ～ b δ₀) (u₁ : e δ₁ ／ a δ₁ ～ b δ₁) →
+    Id (λ δ → e δ ／ a δ ～ b δ) δ₂ u₀ u₁ ≡
+    (snd (kan {𝐬 𝐳} (ap-／ (ap e δ₂) (ap a δ₂) (ap b δ₂))) ／ u₀ ～ u₁)
+{-# REWRITE Id-／ #-}
 
 ------------------------------
 -- Computing gKan on 𝐬
