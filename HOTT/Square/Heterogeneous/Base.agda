@@ -49,29 +49,22 @@ postulate
     (a : (δ : Δ) → A δ) (b : (δ : Δ) → B δ)
     (u₀ : e δ₀ ／ a δ₀ ～ b δ₀) (u₁ : e δ₁ ／ a δ₁ ～ b δ₁) →
     Id (λ δ → e δ ／ a δ ～ b δ) δ₂ u₀ u₁ ≡
-    (snd (kan {𝐬 𝐳} (ap-／ (ap e δ₂) (ap a δ₂) (ap b δ₂))) ／ u₀ ～ u₁)
+    (snd (kan {𝐬 𝐳} (_ , _ , ap-／ (ap e δ₂) (ap a δ₂) (ap b δ₂))) ／ u₀ ～ u₁)
 {-# REWRITE Id-／ #-}
 
 ------------------------------
 -- Computing gKan on 𝐬
 ------------------------------
 
--- This is nice and fast when written with pattern-matching, but
--- prohibitively slow when written with projections.  Since our
--- Σ-types don't have η, that could conceivably be a problem, but
--- there's a chance that in practice we'll only be applying this to
--- actual tuples.
-gKan𝐬 : (n : ℕᵉ) → ∂U (𝐬 (𝐬 n)) → Type
-gKan𝐬 n ((A₀₀ , A₁₀ , A₂₀ , a₀₀ , a₁₀) , (A₀₁ , A₁₁ , A₂₁ , a₀₁ , a₁₁) , (A₀₂ , A₁₂ , A₂₂ , a₀₂ , a₁₂) , (a₂₀ , a₂₁)) =
-  Id (gKan n) {A₀₀ , A₀₁ , A₀₂ , a₀₀ , a₀₁} {A₁₀ , A₁₁ , A₁₂ , a₁₀ , a₁₁}
-     (A₂₀ , A₂₁ , sym (∂U n) ┌─  A₁₂  ─┐
-                             A₂₀  □  A₂₁
-                             └─  A₀₂  ─┘  A₂₂ , a₂₀ , a₂₁)
-     (snd (kan {𝐬 n} a₀₂)) (snd (kan {𝐬 n} a₁₂))
-
 postulate
-  gKan-𝐬 : {n : ℕᵉ} (A : ∂U (𝐬 (𝐬 n))) →
-    gKan (𝐬 n) A ≡ gKan𝐬 n A
+  gKan-𝐬 : {n : ℕᵉ} (A : SqU (𝐬 (𝐬 n))) →
+    gKan (𝐬 n) A ≡
+    Id (gKan n) {₁st (₁st A) , ₁st (₂nd A) , ₁st (₃rd' A)} {₂nd (₁st A) , ₂nd (₂nd A) , ₂nd (₃rd' A)} (₃rd' (₁st A) , ₃rd' (₂nd A) ,
+      sym (SqU n) ┌─      ₂nd (₃rd' A)       ─┐
+                  ₃rd' (₁st A)  □  ₃rd' (₂nd A)
+                  └─      ₁st (₃rd' A)       ─┘  (₃rd' (₃rd' A)))
+      (snd (kan {𝐬 n} (₁st (₁st A) , ₁st (₂nd A) , ₁st (₃rd' A)) ⦃ reflᵉ ⦄))
+      (snd (kan {𝐬 n} (₂nd (₁st A) , ₂nd (₂nd A) , ₂nd (₃rd' A)) ⦃ reflᵉ ⦄))
 {-# REWRITE gKan-𝐬 #-}
 
 ----------------------------------------
@@ -99,7 +92,8 @@ sym-∂ʰ a = ┏━   a ₂₁   ━┓
 Sqʰ : {A₀₀ A₀₁ A₁₀ A₁₁ : Type} (A : ∂ Type A₀₀ A₀₁ A₁₀ A₁₁) (A₂₂ : Sq Type A)
   {a₀₀ : A₀₀} {a₀₁ : A₀₁} {a₁₀ : A₁₀} {a₁₁ : A₁₁} (a : ∂ʰ A A₂₂ a₀₀ a₀₁ a₁₀ a₁₁) → Type
 Sqʰ {A₀₀} {A₀₁} {A₁₀} {A₁₁} A A₂₂ {a₀₀} {a₀₁} {a₁₀} {a₁₁} a =
-  ap-／ {A₀₀} {A₀₁} {A ₀₂} {A₁₀} {A₁₁} {A ₁₂} {A ₂₀ ↓} {A ₂₁ ↓} (snd (fst (kan {𝐬 (𝐬 𝐳)} A₂₂)))
+  ap-／ {A₀₀} {A₀₁} {A ₀₂} {A₁₀} {A₁₁} {A ₁₂} {A ₂₀ ↓} {A ₂₁ ↓}
+    (snd (fst (kan {𝐬 (𝐬 𝐳)} ((A₀₀ , A₁₀ , A ₂₀) , (A₀₁ , A₁₁ , A ₂₁) , (A ₀₂ , A ₁₂ , A₂₂)))))
     {a₀₀} {a₀₁} (a ₀₂) {a₁₀} {a₁₁} (a ₁₂) ↓ ／ a ₂₀ ～ (a ₂₁)
 
 -- The other component of kan is a primitive symmetrized square.  The
@@ -109,9 +103,11 @@ Sqʰ {A₀₀} {A₀₁} {A₁₀} {A₁₁} A A₂₂ {a₀₀} {a₀₁} {a₁
 Symʰ : {A₀₀ A₀₁ A₁₀ A₁₁ : Type} (A : ∂ Type A₀₀ A₀₁ A₁₀ A₁₁) (A₂₂ : Sq Type A)
   {a₀₀ : A₀₀} {a₀₁ : A₀₁} {a₁₀ : A₁₀} {a₁₁ : A₁₁} (a : ∂ʰ A A₂₂ a₀₀ a₀₁ a₁₀ a₁₁) → Type
 Symʰ {A₀₀} {A₀₁} {A₁₀} {A₁₁} A A₂₂ {a₀₀} {a₀₁} {a₁₀} {a₁₁} a =
-  ap-／ {A₀₀} {A₁₀} {A ₂₀} {A₀₁} {A₁₁} {A ₂₁} {A ₀₂ ↓} {A ₁₂ ↓} (snd (kan {𝐬 (𝐬 𝐳)} A₂₂))
+  ap-／ {A₀₀} {A₁₀} {A ₂₀} {A₀₁} {A₁₁} {A ₂₁} {A ₀₂ ↓} {A ₁₂ ↓}
+    (snd (kan {𝐬 (𝐬 𝐳)} ((A₀₀ , A₁₀ , A ₂₀) , (A₀₁ , A₁₁ , A ₂₁) , (A ₀₂ , A ₁₂ , A₂₂))))
     {a₀₀} {a₁₀} (a ₂₀) {a₀₁} {a₁₁} (a ₂₁) ↓ ／ a ₀₂ ～ (a ₁₂)
 
 -- TODO: Heterogeneous squares in refl-refl are ordinary squares
 
 -- TODO: Heterogeneous squares in ap-ap are dependent squares
+

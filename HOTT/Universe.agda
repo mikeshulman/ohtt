@@ -131,23 +131,16 @@ postulate
 -- "β-reduce away" the √ completely and just assert the resulting
 -- destructors of iterated identity types of the universe by hand.
 
--- To this end, we postulate a primitive "type of n-cubes in the
--- universe" for all exo-natural numbers n, which is the target of
--- reductions from the directly defined ones.  This type depends on a
--- type of "n-boundaries" in the universe, which is defined mutually
--- recursively with it.
+-- To this end, we define a "type of n-cubes in the universe" for all
+-- exo-natural numbers n.  This depends on a type of "n-boundaries" in
+-- the universe, which is defined mutually recursively with it.
 
-∂U : ℕᵉ → Type
+SqU : ℕᵉ → Type
 
-postulate
-  IdU : (n : ℕᵉ) → ∂U n → Type
-  IdU-𝐳 : (x : ∂U 𝐳) → IdU 𝐳 x ≡ Type
+SqU 𝐳 = Type
+SqU (𝐬 n) = ID (SqU n)
 
-∂U 𝐳 = ⊤
-∂U (𝐬 n) = ID× (𝛌 (IdU n))
-
-{-# REWRITE IdU-𝐳 #-}
-
+{-
 postulate
   ＝-U : {A₀ A₁ : Type} → (A₀ ＝ A₁) ≡ IdU (𝐬 𝐳) (★ , ★ , ★ , A₀ , A₁)
   ＝-IdU : {n : ℕᵉ} {A : ∂U n} (a₀ a₁ : IdU n A) →
@@ -156,39 +149,40 @@ postulate
     (a₀ : IdU n (A δ₀)) (a₁ : IdU n (A δ₁)) →
     Id (λ δ → IdU n (A δ)) δ₂ a₀ a₁ ≡ IdU (𝐬 n) (A δ₀ , A δ₁ , ap A δ₂ , a₀ , a₁)
 {-# REWRITE ＝-U ＝-IdU Id-IdU #-}
+-}
 
 -- This is the output type of the Kan structure on n-cubes.
-Kan : (n : ℕᵉ) → ∂U n → Type
+Kan : (n : ℕᵉ) (A : SqU n) → Type
 
 postulate
   -- Here is the function assigning such structure.  We include an
   -- equality to eliminate green slime in rewrites, notably ap-kan
   -- below which will say that (ap (kan {n})) is part of (kan {𝐬 n}).
   -- The other parts of (kan {𝐬 n}) are determined by symmetry.
-  kan : {n : ℕᵉ} {a : ∂U n} {Ω : Type} ⦃ ω : Kan n a ≡ Ω ⦄ (x : IdU n a) → Ω
+  kan : {n : ℕᵉ} (A : SqU n) {Ω : Type} ⦃ ω : Kan n A ≡ Ω ⦄ → Ω
   -- In order to define Kan, recursively on n, we define in parallel a
   -- type of "Kan-generators".  This comes from the type under the √
   -- in the iterated identity types of a √, which on each application
   -- of Id gets copied *outside* the √ but also gets an Id applied to
   -- itself under the √.  It essentially adds one more primitive
   -- symmetry every time we go up a dimension.
-  gKan : (n : ℕᵉ) → ∂U (𝐬 n) → Type
+  gKan : (n : ℕᵉ) (A : SqU (𝐬 n)) → Type
 
-Kan 𝐳 x = ⊤
-Kan (𝐬 n) A = Id (Kan n) (₃rd A) (kan {n} (₄th A)) (kan {n} (₅th' A)) × gKan n A
+Kan 𝐳 A = ⊤
+Kan (𝐬 n) A = Id {SqU n} (Kan n) {₁st A} {₂nd A} (₃rd' A) (kan (₁st A)) (kan (₂nd A)) × gKan n A
 
 -- gKan is actually defined recursively on ℕᵉ.  But the successor case
 -- can't be stated until we have symmetry and more computation laws
 -- for ap, so we postpone it by making gKan into a postulate and its
 -- definitional clauses into rewrites.  The zero case is easy.
 postulate
-  gKan-𝐳 : (A : ∂U (𝐬 𝐳)) → gKan 𝐳 A ≡ (₄th A ≊ ₅th' A)
+  gKan-𝐳 : (A : SqU (𝐬 𝐳)) → gKan 𝐳 A ≡ (₁st A ≊ ₂nd A)
 {-# REWRITE gKan-𝐳 #-}
 
 -- Here is the "primary part" of kan, the "demotion" that extracts a
 -- bitotal correspondence from an identification in the universe.
 _↓ : {X₀ X₁ : Type} (X₂ : X₀ ＝ X₁) → X₀ ≊ X₁
-_↓ {X₀} {X₁} X₂ = snd (kan X₂)
+_↓ {X₀} {X₁} X₂ = snd (kan (X₀ , X₁ , X₂))
 
 -- Computationally, we regard "kan 𝐳" (informally) as a DESTRUCTOR of
 -- a COINDUCTIVE UNIVERSE.  This means that whenever we introduce a
@@ -241,7 +235,7 @@ _↓ {X₀} {X₁} X₂ = snd (kan X₂)
 postulate
   refl↓ : (A : Type) →
     -- _／_～_ (refl A ↓) ≡
-    _／_～_ (snd (kan (refl A))) ≡
+    _／_～_ (snd (kan (A , A , refl A))) ≡
     _＝_ {A}
 {-# REWRITE refl↓ #-}
 
@@ -274,7 +268,7 @@ postulate
 postulate
   ap↓ : {A : Type} (B : A → Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) →
     -- _／_～_ (ap B a₂ ↓) ≡
-    _／_～_ (snd (kan (ap B a₂))) ≡
+    _／_～_ (snd (kan (B a₀ , B a₁ , ap B a₂))) ≡
     Id B a₂
 {-# REWRITE ap↓ #-}
 
@@ -493,14 +487,13 @@ postulate
 -- for this we use an auxiliary function.
 
 frob-ap-kan : {n : ℕᵉ} {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
-  {a : Δ → ∂U n} (x : (δ : Δ) → IdU n (a δ))
-  {Ω : Δ → Type} (ω : (λ δ → Kan n (a δ)) ≡ Ω) →
-  Id Ω δ₂ (kan ⦃ happlyᵉ ω δ₀ ⦄ (x δ₀)) (kan ⦃ happlyᵉ ω δ₁ ⦄ (x δ₁))
-frob-ap-kan {n} δ₂ {a} x reflᵉ = →Id-ap a (𝛌 (Kan n)) δ₂ (fst (kan {𝐬 n} (ap x δ₂)))
+  (A : Δ → SqU n) {Ω : Δ → Type} (ω : (λ δ → Kan n (A δ)) ≡ Ω) →
+  Id Ω δ₂ (kan (A δ₀) ⦃ happlyᵉ ω δ₀ ⦄) (kan (A δ₁) ⦃ happlyᵉ ω δ₁ ⦄)
+frob-ap-kan {n} {Δ} {δ₀} {δ₁} δ₂ A reflᵉ =
+  →Id-ap A (𝛌 (Kan n)) δ₂ (fst (kan {𝐬 n} (A δ₀ , A δ₁ , ap A δ₂) ⦃ reflᵉ ⦄))
 
 postulate
   ap-kan : {n : ℕᵉ} {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
-    {a : Δ → ∂U n} (x : (δ : Δ) → IdU n (a δ))
-    {Ω : Δ → Type} (ω : (δ : Δ) → Kan n (a δ) ≡ Ω δ) →
-    ap (λ δ → kan {n} {a δ} ⦃ ω δ ⦄ (x δ)) δ₂ ≡ frob-ap-kan δ₂ x (funextᵉ ω)
+    (A : Δ → SqU n) {Ω : Δ → Type} (ω : (δ : Δ) → Kan n (A δ) ≡ Ω δ) →
+    ap (λ δ → kan {n} (A δ) ⦃ ω δ ⦄) δ₂ ≡ frob-ap-kan δ₂ A (funextᵉ ω)
 {-# REWRITE ap-kan #-}

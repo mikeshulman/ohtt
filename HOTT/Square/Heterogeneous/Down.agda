@@ -16,7 +16,7 @@ module _  {A₀₀ A₀₁ A₁₀ A₁₁ : Type} (A : ∂ Type A₀₀ A₀₁
 
   compʰ↓ : (a₁₂ : A ₁₂ ↓ ／ a₁₀ ～ a₁₁) (a₂₀ : A ₂₀ ↓ ／ a₀₀ ～ a₁₀) (a₂₁ : A ₂₁ ↓ ／ a₀₁ ～ a₁₁) →
      A ₀₂ ↓ ／ a₀₀ ～ a₀₁
-  compʰ↓ a₁₂ a₂₀ a₂₁ = coe⇐ (ap-／ (snd (kan {𝐬 (𝐬 𝐳)} A₂₂)) a₂₀ a₂₁ ↓) ∙ a₁₂
+  compʰ↓ a₁₂ a₂₀ a₂₁ = coe⇐ (ap-／ (snd (kan {𝐬 (𝐬 𝐳)} ((A₀₀ , A₁₀ , A ₂₀) , (A₀₁ , A₁₁ , A ₂₁) , (A ₀₂ , A ₁₂ , A₂₂)))) a₂₀ a₂₁ ↓) ∙ a₁₂
 
   fillʰ↓ : (a₁₂ : A ₁₂ ↓ ／ a₁₀ ～ a₁₁) (a₂₀ : A ₂₀ ↓ ／ a₀₀ ～ a₁₀) (a₂₁ : A ₂₁ ↓ ／ a₀₁ ～ a₁₁) →
     Sqʰ A A₂₂ ┏━         a₁₂           ━┓
@@ -25,4 +25,5 @@ module _  {A₀₀ A₀₁ A₁₀ A₁₁ : Type} (A : ∂ Type A₀₀ A₀₁
   fillʰ↓ a₁₂ a₂₀ a₂₁ =
     unsymʰ A A₂₂ ┏━         a₁₂          ━┓
                  a₂₀         □          a₂₁
-                 ┗━  compʰ↓ a₁₂ a₂₀ a₂₁  ━┛  (push⇐ (ap-／ (snd (kan {𝐬 (𝐬 𝐳)} A₂₂)) a₂₀ a₂₁ ↓) ∙ a₁₂)
+                 ┗━  compʰ↓ a₁₂ a₂₀ a₂₁  ━┛
+           (push⇐ (ap-／ (snd (kan {𝐬 (𝐬 𝐳)} ((A₀₀ , A₁₀ , A ₂₀) , (A₀₁ , A₁₁ , A ₂₁) , (A ₀₂ , A ₁₂ , A₂₂)))) a₂₀ a₂₁ ↓) ∙ a₁₂)
