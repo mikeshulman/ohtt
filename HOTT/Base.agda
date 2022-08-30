@@ -76,6 +76,16 @@ snd (_ , b) = b
 --  Ση : (A : Type) (B : A → Type) (u : Σ A B) → (fst u , snd u) ≡ u
 -- {-# REWRITE Ση #-}
 
+-- We can't have a definitional η-rule, but we can postulate η as an
+-- exo-equality, and stipulate that this equality becomes reflexivity
+-- on pairs (for which the η-rule does hold definitionally).  This way
+-- the coercions along η will vanish in most concrete computations.
+postulate
+  ηΣ : {A : Type} (B : A → Type) (u : Σ A B) → (fst u , snd u) ≡ u
+  ηΣ-, : {A : Type} (B : A → Type) (a : A) (b : B a) →
+    ηΣ B (a , b) ≡ᵉ reflᵉ
+{-# REWRITE ηΣ-, #-}
+
 ₁st : {A : Type} {B : A → Type} → （ x ⦂ A ）× B x → A
 ₁st u = fst u
 
