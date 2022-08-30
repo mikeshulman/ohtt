@@ -7,6 +7,7 @@ open import HOTT.Id
 open import HOTT.Exonat
 
 infix 30 _↓
+infix 60 _₀ _₁
 
 ------------------------------
 -- Bitotal correspondences
@@ -152,31 +153,31 @@ IdU 𝐳 = ƛ _ ⇒ Type
 IdU (𝐬 n) = ƛ A ⇒ Id (IdU n ∙_) {fst (₁st A)} {fst (₂nd A)} (₃rd' A) (snd (₁st A)) (snd (₂nd A))
 
 -- This is the output type of the Kan structure on n-cubes.
-Kan : (n : ℕᵉ) (A : SqU n) → Type
+Kan : (n : ℕᵉ) (A : ∂U n) → Type
 
 postulate
   -- Here is the function assigning such structure.  We include an
   -- equality to eliminate green slime in rewrites, notably ap-kan
   -- below which will say that (ap (kan {n})) is part of (kan {𝐬 n}).
   -- The other parts of (kan {𝐬 n}) are determined by symmetry.
-  kan : {n : ℕᵉ} (A : SqU n) {Ω : Type} ⦃ ω : Kan n A ≡ Ω ⦄ → Ω
+  kan : {n : ℕᵉ} (A : SqU n) {Ω : Type} ⦃ ω : Kan n (fst A) ≡ Ω ⦄ → Ω
   -- In order to define Kan, recursively on n, we define in parallel a
   -- type of "Kan-generators".  This comes from the type under the √
   -- in the iterated identity types of a √, which on each application
   -- of Id gets copied *outside* the √ but also gets an Id applied to
   -- itself under the √.  It essentially adds one more primitive
   -- symmetry every time we go up a dimension.
-  gKan : (n : ℕᵉ) (A : SqU (𝐬 n)) → Type
+  gKan : (n : ℕᵉ) (A : ∂U (𝐬 n)) → Type
 
 Kan 𝐳 A = ⊤
-Kan (𝐬 n) A = Id {SqU n} (Kan n) {₁st (fst A)} {₂nd (fst A)} (₃rd' (fst A) , snd A) (kan (₁st (fst A))) (kan (₂nd (fst A))) × gKan n A
+Kan (𝐬 n) A = Id {∂U n} (Kan n) {fst (₁st A)} {fst (₂nd A)} (₃rd' A) (kan (₁st A)) (kan (₂nd A)) × gKan n A
 
 -- gKan is actually defined recursively on ℕᵉ.  But the successor case
 -- can't be stated until we have symmetry and more computation laws
 -- for ap, so we postpone it by making gKan into a postulate and its
 -- definitional clauses into rewrites.  The zero case is easy.
 postulate
-  gKan-𝐳 : (A : SqU (𝐬 𝐳)) → gKan 𝐳 A ≡ (snd (₁st (fst A)) ≊ snd (₂nd (fst A)))
+  gKan-𝐳 : (A : ∂U (𝐬 𝐳)) → gKan 𝐳 A ≡ (snd (₁st A) ≊ snd (₂nd A))
 {-# REWRITE gKan-𝐳 #-}
 
 -- Here is the "primary part" of kan, the "demotion" that extracts a
@@ -487,17 +488,14 @@ postulate
 -- for this we use an auxiliary function.
 
 frob-ap-kan : {n : ℕᵉ} {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
-  (A : Δ → SqU n) {Ω : Δ → Type} (ω : (λ δ → Kan n (A δ)) ≡ Ω) →
+  (A : Δ → SqU n) {Ω : Δ → Type} (ω : (λ δ → Kan n (fst (A δ))) ≡ Ω) →
   Id Ω δ₂ (kan (A δ₀) ⦃ happlyᵉ ω δ₀ ⦄) (kan (A δ₁) ⦃ happlyᵉ ω δ₁ ⦄)
 frob-ap-kan {n} {Δ} {δ₀} {δ₁} δ₂ A reflᵉ =
-  →Id-ap A (𝛌 (Kan n)) δ₂  
-    -- We also need to coerce along the η-rule for Σ here.
-    (coeᵉ-Id/ (Kan n) (ηΣ (λ p → Id (IdU n ∙_) p (snd (A δ₀)) (snd (A δ₁))) (ap A δ₂)) (kan (A δ₀)) (kan (A δ₁))
-      (fst (kan {𝐬 n} ((A δ₀ , A δ₁ , fst (ap A δ₂)) , snd (ap A δ₂)) ⦃ reflᵉ ⦄)))
+  →Id-ap (λ x → fst (A x)) (𝛌 (Kan n)) δ₂ (fst (kan {𝐬 n} ((A δ₀ , A δ₁ , fst (ap A δ₂)) , snd (ap A δ₂)) ⦃ reflᵉ ⦄))
 
 postulate
   ap-kan : {n : ℕᵉ} {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
-    (A : Δ → SqU n) {Ω : Δ → Type} (ω : (δ : Δ) → Kan n (A δ) ≡ Ω δ) →
+    (A : Δ → SqU n) {Ω : Δ → Type} (ω : (δ : Δ) → Kan n (fst (A δ)) ≡ Ω δ) →
     ap (λ δ → kan {n} (A δ) ⦃ ω δ ⦄) δ₂ ≡ frob-ap-kan δ₂ A (funextᵉ ω)
 {-# REWRITE ap-kan #-}
 

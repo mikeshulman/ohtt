@@ -56,18 +56,12 @@ postulate
 -- Computing gKan on 𝐬
 ------------------------------
 
-gKan′ : (n : ℕᵉ) → SqU′ (𝐬 n) → Type
-
+-- Grr... Why is this so hard to normalize?
 postulate
-  gKan-is-gKan′ : {n : ℕᵉ} (A : SqU (𝐬 n)) → gKan n A ≡ gKan′ n (SqU→SqU′ A)
-{-# REWRITE gKan-is-gKan′ #-}
-
-gKan→gKan′ : (n : ℕᵉ) (A : SqU′ (𝐬 n)) → gKan n (SqU′→SqU A) → gKan′ n A
-gKan→gKan′ n (A₀ , A₁ , A₂) g = {!!}
+  gKan𝐬 : (n : ℕᵉ) (A : ∂U (𝐬 (𝐬 n))) → gKan (𝐬 n) A ≡
+    Id (gKan n) {₁st A ₀ , ₂nd A ₀ , fst (₃rd A)} {₁st A ₁ , ₂nd A ₁ , {!snd (₃rd A)!}} {!!} {!!} {!!}
 
 {-
-gKan′ 𝐳 A = ₁st A ≊ ₂nd A
-gKan′ (𝐬 n) A =
   Id (gKan′ n) {(₁st (₁st A) , ₁st (₂nd A) , ₁st (₃rd' A))} {(₂nd (₁st A) , ₂nd (₂nd A) , ₂nd (₃rd' A))} (₃rd' (₁st A) , ₃rd' (₂nd A) ,
       sym (SqU′ n) ┌─      ₂nd (₃rd' A)       ─┐
                    ₃rd' (₁st A)  □  ₃rd' (₂nd A)
