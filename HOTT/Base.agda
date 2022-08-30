@@ -8,7 +8,7 @@ infixl 40 _∙_  _∘_
 infixr 35 _×_
 infixr 30 _,_ Σ _⇒_ Π
 infixr 20 𝛌
-infix  10 _≡_ _≡ᵉ_
+infix 10 _≡_ _≡ᵉ_ _≡ʰ_
 
 ------------------------------
 -- Strict equality
@@ -26,8 +26,21 @@ data _≡_ {A : Type} (a : A) : A → Typeᵉ where
 data _≡ᵉ_ {A : Typeᵉ} (a : A) : A → Typeᵉ where
   instance
     reflᵉᵉ : a ≡ᵉ a
+data _≡ʰ_ {A : Type} (a : A) : {B : Type} → B → Typeᵉ where
+  instance
+    reflʰ : a ≡ʰ a
 {-# BUILTIN REWRITE _≡_ #-}
 {-# BUILTIN REWRITE _≡ᵉ_ #-}
+
+cong : {A : Type} {B : A → Type} (f : (x : A) → B x)
+  {a₀ a₁ : A} (a₂ : a₀ ≡ a₁) → f a₀ ≡ʰ f a₁
+cong f reflᵉ = reflʰ
+
+≡→≡ʰ : {A : Type} {a₀ a₁ : A} → a₀ ≡ a₁ → a₀ ≡ʰ a₁
+≡→≡ʰ reflᵉ = reflʰ
+
+≡ʰ→≡ : {A : Type} {a₀ a₁ : A} → a₀ ≡ʰ a₁ → a₀ ≡ a₁
+≡ʰ→≡ reflʰ = reflᵉ
 
 happlyᵉ : {A : Type} {B : A → Type} {f g : (x : A) → B x} →
   (f ≡ g) → ((x : A) → f x ≡ g x)
