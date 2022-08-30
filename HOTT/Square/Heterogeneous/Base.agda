@@ -49,24 +49,35 @@ postulate
     (a : (δ : Δ) → A δ) (b : (δ : Δ) → B δ)
     (u₀ : e δ₀ ／ a δ₀ ～ b δ₀) (u₁ : e δ₁ ／ a δ₁ ～ b δ₁) →
     Id (λ δ → e δ ／ a δ ～ b δ) δ₂ u₀ u₁ ≡
-    (snd (kan {𝐬 𝐳} (_ , _ , ap-／ (ap e δ₂) (ap a δ₂) (ap b δ₂))) ／ u₀ ～ u₁)
+    (snd (kan {𝐬 𝐳} (((★ , _) , (★ , _) , ★) , ap-／ (ap e δ₂) (ap a δ₂) (ap b δ₂))) ／ u₀ ～ u₁)
 {-# REWRITE Id-／ #-}
 
 ------------------------------
 -- Computing gKan on 𝐬
 ------------------------------
 
-postulate
-  gKan-𝐬 : {n : ℕᵉ} (A : SqU (𝐬 (𝐬 n))) →
-    gKan (𝐬 n) A ≡
-    Id (gKan n) {₁st (₁st A) , ₁st (₂nd A) , ₁st (₃rd' A)} {₂nd (₁st A) , ₂nd (₂nd A) , ₂nd (₃rd' A)} (₃rd' (₁st A) , ₃rd' (₂nd A) ,
-      sym (SqU n) ┌─      ₂nd (₃rd' A)       ─┐
-                  ₃rd' (₁st A)  □  ₃rd' (₂nd A)
-                  └─      ₁st (₃rd' A)       ─┘  (₃rd' (₃rd' A)))
-      (snd (kan {𝐬 n} (₁st (₁st A) , ₁st (₂nd A) , ₁st (₃rd' A)) ⦃ reflᵉ ⦄))
-      (snd (kan {𝐬 n} (₂nd (₁st A) , ₂nd (₂nd A) , ₂nd (₃rd' A)) ⦃ reflᵉ ⦄))
-{-# REWRITE gKan-𝐬 #-}
+gKan′ : (n : ℕᵉ) → SqU′ (𝐬 n) → Type
 
+postulate
+  gKan-is-gKan′ : {n : ℕᵉ} (A : SqU (𝐬 n)) → gKan n A ≡ gKan′ n (SqU→SqU′ A)
+{-# REWRITE gKan-is-gKan′ #-}
+
+gKan→gKan′ : (n : ℕᵉ) (A : SqU′ (𝐬 n)) → gKan n (SqU′→SqU A) → gKan′ n A
+gKan→gKan′ n (A₀ , A₁ , A₂) g = {!!}
+
+{-
+gKan′ 𝐳 A = ₁st A ≊ ₂nd A
+gKan′ (𝐬 n) A =
+  Id (gKan′ n) {(₁st (₁st A) , ₁st (₂nd A) , ₁st (₃rd' A))} {(₂nd (₁st A) , ₂nd (₂nd A) , ₂nd (₃rd' A))} (₃rd' (₁st A) , ₃rd' (₂nd A) ,
+      sym (SqU′ n) ┌─      ₂nd (₃rd' A)       ─┐
+                   ₃rd' (₁st A)  □  ₃rd' (₂nd A)
+                   └─      ₁st (₃rd' A)       ─┘  (₃rd' (₃rd' A)))
+      (gKan→gKan′ n (₁st (₁st A) , ₁st (₂nd A) , ₁st (₃rd' A))
+        (snd (kan {𝐬 n} (SqU′→SqU (₁st (₁st A) , ₁st (₂nd A) , ₁st (₃rd' A))) ⦃ reflᵉ ⦄)))
+      (gKan→gKan′ n (₂nd (₁st A) , ₂nd (₂nd A) , ₂nd (₃rd' A))
+        (snd (kan {𝐬 n} (SqU′→SqU (₂nd (₁st A) , ₂nd (₂nd A) , ₂nd (₃rd' A))) ⦃ reflᵉ ⦄)))
+-}
+{-
 ----------------------------------------
 -- Heterogeneous squares
 ----------------------------------------
@@ -111,3 +122,4 @@ Symʰ {A₀₀} {A₀₁} {A₁₀} {A₁₁} A A₂₂ {a₀₀} {a₀₁} {a�
 
 -- TODO: Heterogeneous squares in ap-ap are dependent squares
 
+-}
