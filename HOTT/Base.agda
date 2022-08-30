@@ -6,6 +6,8 @@ open import Agda.Primitive renaming (Set to Type; SSet to Typeᵉ) public
 
 infixl 40 _∙_  _∘_
 infixr 35 _×_
+infix 31 _⸴_⸴_⸴_⸴_
+
 infixr 30 _,_ Σ _⇒_ Π
 infixr 20 𝛌
 infix 10 _≡_ _≡ᵉ_ _≡ʰ_
@@ -172,3 +174,36 @@ g ∘ f = ƛ x ⇒ g ∙ (f ∙ x)
 
 idmap : (A : Type) → (A ⇒ A)
 idmap A = ƛ x ⇒ x
+
+------------------------------
+-- Quintary Σ-types
+------------------------------
+
+data Σ⁵ (A B : Type) (C : A → B → Type) (D : A → Type) (E : B → Type) : Type where
+  _⸴_⸴_⸴_⸴_ : (a : A) (b : B) (c : C a b) (d : D a) (e : E b) → Σ⁵ A B C D E
+open Σ⁵
+
+module _ {A B : Type} {C : A → B → Type} {D : A → Type} {E : B → Type} where
+
+  infix 50 _!₀ _!₁ _!₂ _!⁰ _!¹
+
+  _!₀ : Σ⁵ A B C D E → A
+  (a ⸴ b ⸴ c ⸴ d ⸴ e) !₀ = a
+
+  _!₁ : Σ⁵ A B C D E → B
+  (a ⸴ b ⸴ c ⸴ d ⸴ e) !₁ = b
+
+  _!₂ : (u : Σ⁵ A B C D E) → C (u !₀) (u !₁)
+  (a ⸴ b ⸴ c ⸴ d ⸴ e) !₂ = c
+
+  _!⁰ : (u : Σ⁵ A B C D E) → D (u !₀)
+  (a ⸴ b ⸴ c ⸴ d ⸴ e) !⁰ = d
+
+  _!¹ : (u : Σ⁵ A B C D E) → E (u !₁)
+  (a ⸴ b ⸴ c ⸴ d ⸴ e) !¹ = e
+
+  postulate
+    ηΣ⁵ : (u : Σ⁵ A B C D E) → (u !₀ ⸴ u !₁ ⸴ u !₂ ⸴ u !⁰ ⸴ u !¹) ≡ u
+    ηΣ⁵-β : (a : A) (b : B) (c : C a b) (d : D a) (e : E b) →
+      ηΣ⁵ (a ⸴ b ⸴ c ⸴ d ⸴ e) ≡ᵉ reflᵉ
+  {-# REWRITE ηΣ⁵-β #-}

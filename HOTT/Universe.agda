@@ -147,10 +147,10 @@ IdU : (n : ℕᵉ) → ∂U n ⇒ Type
 SqU n = Σ (∂U n) (IdU n ∙_)
 
 ∂U 𝐳 = ⊤
-∂U (𝐬 n) = （ A₀ ⦂ SqU n ）× （ A₁ ⦂ SqU n ）× (fst A₀ ＝ fst A₁)
+∂U (𝐬 n) = Σ⁵ (∂U n) (∂U n) (_＝_ {∂U n}) (IdU n ∙_) (IdU n ∙_)
 
 IdU 𝐳 = ƛ _ ⇒ Type
-IdU (𝐬 n) = ƛ A ⇒ Id (IdU n ∙_) {fst (₁st A)} {fst (₂nd A)} (₃rd' A) (snd (₁st A)) (snd (₂nd A))
+IdU (𝐬 n) = ƛ A ⇒ Id (IdU n ∙_) {A !₀} {A !₁} (A !₂) (A !⁰) (A !¹)
 
 -- This is the output type of the Kan structure on n-cubes.
 Kan : (n : ℕᵉ) (A : ∂U n) → Type
@@ -170,20 +170,21 @@ postulate
   gKan : (n : ℕᵉ) (A : ∂U (𝐬 n)) → Type
 
 Kan 𝐳 A = ⊤
-Kan (𝐬 n) A = Id {∂U n} (Kan n) {fst (₁st A)} {fst (₂nd A)} (₃rd' A) (kan (₁st A)) (kan (₂nd A)) × gKan n A
+Kan (𝐬 n) A = Id {∂U n} (Kan n) {A !₀} {A !₁} (A !₂)
+                 (kan (A !₀ , A !⁰)) (kan (A !₁ , A !¹)) × gKan n A
 
 -- gKan is actually defined recursively on ℕᵉ.  But the successor case
 -- can't be stated until we have symmetry and more computation laws
 -- for ap, so we postpone it by making gKan into a postulate and its
 -- definitional clauses into rewrites.  The zero case is easy.
 postulate
-  gKan-𝐳 : (A : ∂U (𝐬 𝐳)) → gKan 𝐳 A ≡ (snd (₁st A) ≊ snd (₂nd A))
+  gKan-𝐳 : (A : ∂U (𝐬 𝐳)) → gKan 𝐳 A ≡ (A !⁰ ≊ A !¹)
 {-# REWRITE gKan-𝐳 #-}
 
 -- Here is the "primary part" of kan, the "demotion" that extracts a
 -- bitotal correspondence from an identification in the universe.
 _↓ : {X₀ X₁ : Type} (X₂ : X₀ ＝ X₁) → X₀ ≊ X₁
-_↓ {X₀} {X₁} X₂ = snd (kan {𝐬 𝐳} (((★ , X₀) , (★ , X₁) , ★) , X₂))
+_↓ {X₀} {X₁} X₂ = snd (kan {𝐬 𝐳} (★ ⸴ ★ ⸴ ★ ⸴ X₀ ⸴ X₁ , X₂))
 
 -- Computationally, we regard "kan 𝐳" (informally) as a DESTRUCTOR of
 -- a COINDUCTIVE UNIVERSE.  This means that whenever we introduce a
@@ -236,7 +237,7 @@ _↓ {X₀} {X₁} X₂ = snd (kan {𝐬 𝐳} (((★ , X₀) , (★ , X₁) , �
 postulate
   refl↓ : (A : Type) →
     -- _／_～_ (refl A ↓) ≡
-    _／_～_ (snd (kan (((★ , A) , (★ , A) , ★) , refl A))) ≡
+    _／_～_ (snd (kan (★ ⸴ ★ ⸴ ★ ⸴ A ⸴ A , refl A))) ≡
     _＝_ {A}
 {-# REWRITE refl↓ #-}
 
@@ -269,7 +270,7 @@ postulate
 postulate
   ap↓ : {A : Type} (B : A → Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) →
     -- _／_～_ (ap B a₂ ↓) ≡
-    _／_～_ (snd (kan (((★ , B a₀) , (★ , B a₁) , ★) , ap B a₂))) ≡
+    _／_～_ (snd (kan (★ ⸴ ★ ⸴ ★ ⸴ B a₀ ⸴ B a₁ , ap B a₂))) ≡
     Id B a₂
 {-# REWRITE ap↓ #-}
 
@@ -491,37 +492,15 @@ frob-ap-kan : {n : ℕᵉ} {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ�
   (A : Δ → SqU n) {Ω : Δ → Type} (ω : (λ δ → Kan n (fst (A δ))) ≡ Ω) →
   Id Ω δ₂ (kan (A δ₀) ⦃ happlyᵉ ω δ₀ ⦄) (kan (A δ₁) ⦃ happlyᵉ ω δ₁ ⦄)
 frob-ap-kan {n} {Δ} {δ₀} {δ₁} δ₂ A reflᵉ =
-  →Id-ap (λ x → fst (A x)) (𝛌 (Kan n)) δ₂ (fst (kan {𝐬 n} ((A δ₀ , A δ₁ , fst (ap A δ₂)) , snd (ap A δ₂)) ⦃ reflᵉ ⦄))
+  →Id-ap (λ x → fst (A x)) (𝛌 (Kan n)) δ₂
+    (coeʰ-Id (Kan n) {δ₂ = ap (λ x → fst (A x)) δ₂} reflᵉ reflᵉ reflʰ
+      (cong (λ x → kan x ⦃ reflᵉ ⦄) (ηΣ _ (A δ₀)) )
+      (cong (λ x → kan x ⦃ reflᵉ ⦄) (ηΣ _ (A δ₁)) )
+      (fst (kan {𝐬 n}
+        (fst (A δ₀) ⸴ fst (A δ₁) ⸴ fst (ap A δ₂) ⸴ snd (A δ₀) ⸴ snd (A δ₁) , snd (ap A δ₂)) ⦃ reflᵉ ⦄)))
 
 postulate
   ap-kan : {n : ℕᵉ} {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
     (A : Δ → SqU n) {Ω : Δ → Type} (ω : (δ : Δ) → Kan n (fst (A δ)) ≡ Ω δ) →
     ap (λ δ → kan {n} (A δ) ⦃ ω δ ⦄) δ₂ ≡ frob-ap-kan δ₂ A (funextᵉ ω)
 {-# REWRITE ap-kan #-}
-
-------------------------------
--- Alternative SqU
-------------------------------
-
-_₀ : {n : ℕᵉ} → SqU (𝐬 n) → SqU n
-A ₀ = ₁st (fst A)
-
-_₁ : {n : ℕᵉ} → SqU (𝐬 n) → SqU n
-A ₁ = ₂nd (fst A)
-
-SqU′ : ℕᵉ → Type
-SqU′ 𝐳 = Type
-SqU′ (𝐬 n) = ID (SqU′ n)
-
-SqU→SqU′ : {n : ℕᵉ} → SqU n → SqU′ n
-SqU→SqU′ {𝐳} A = snd A
-SqU→SqU′ {𝐬 n} A = SqU→SqU′ (A ₀) , SqU→SqU′ (A ₁) , ap (SqU→SqU′ {n}) {A ₀} {A ₁} (₃rd' (fst A) , snd A)
-
-SqU′→SqU : {n : ℕᵉ} → SqU′ n → SqU n
-SqU′→SqU {𝐳} A = (★ , A)
-SqU′→SqU {𝐬 n} A = (SqU′→SqU (₁st A) , SqU′→SqU (₂nd A) , fst (ap (SqU′→SqU {n}) (₃rd' A))) , snd (ap (SqU′→SqU {n}) (₃rd' A))
-
-postulate
-  SqU→SqU′→SqU : {n : ℕᵉ} (A : SqU n) → SqU′→SqU (SqU→SqU′ A) ≡ A
-  SqU′→SqU→SqU′ : {n : ℕᵉ} (A : SqU′ n) → SqU→SqU′ (SqU′→SqU A) ≡ A
-{-# REWRITE SqU→SqU′→SqU SqU′→SqU→SqU′ #-}
