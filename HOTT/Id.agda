@@ -177,3 +177,12 @@ postulate
 {-# REWRITE ap-ƛ #-}
 
 -- ap-∙ is very difficult to define, so we postpone it to later.
+
+------------------------------
+-- Exo-coercion in Id-types
+------------------------------
+
+coeᵉ-Id/ : {Δ : Type} (A : Δ → Type) {δ₀ δ₁ : Δ} {δ₂ δ₂' : δ₀ ＝ δ₁}
+  (e : δ₂ ≡ δ₂') (a₀ : A δ₀) (a₁ : A δ₁) →
+  Id A δ₂ a₀ a₁ → Id A δ₂' a₀ a₁
+coeᵉ-Id/ A reflᵉ a₀ a₁ u = u
