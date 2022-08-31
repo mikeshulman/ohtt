@@ -136,32 +136,32 @@ postulate
 -- exo-natural numbers n.
 
 -- This is the output type of the Kan structure on n-cubes.
-Kan : (n : ℕᵉ) (A : ∂ n Type) → Type
+Kan : (n : ℕᵉ) → ∂ n Type ⇒ Type
 
 postulate
   -- Here is the function assigning such structure.  We include an
   -- equality to eliminate green slime in rewrites, notably ap-kan
   -- below which will say that (ap (kan {n})) is part of (kan {𝐬 n}).
   -- The other parts of (kan {𝐬 n}) are determined by symmetry.
-  kan : {n : ℕᵉ} (A : CUBE n Type) {Ω : Type} ⦃ ω : Kan n (fst A) ≡ Ω ⦄ → Ω
+  kan : {n : ℕᵉ} (A : CUBE n Type) {Ω : Type} ⦃ ω : Kan n ∙ fst A ≡ Ω ⦄ → Ω
   -- In order to define Kan, recursively on n, we define in parallel a
   -- type of "Kan-generators".  This comes from the type under the √
   -- in the iterated identity types of a √, which on each application
   -- of Id gets copied *outside* the √ but also gets an Id applied to
   -- itself under the √.  It essentially adds one more primitive
   -- symmetry every time we go up a dimension.
-  gKan : (n : ℕᵉ) (A : ∂ (𝐬 n) Type) → Type
+  gKan : (n : ℕᵉ) → ∂ (𝐬 n) Type ⇒ Type
 
-Kan 𝐳 A = ⊤
-Kan (𝐬 n) A = Id {∂ n Type} (Kan n) {A !₀} {A !₁} (A !₂)
-                 (kan (A !₀ , A !⁰)) (kan (A !₁ , A !¹)) × gKan n A
+Kan 𝐳 = ƛ _ ⇒ ⊤
+Kan (𝐬 n) = ƛ A ⇒ Id {∂ n Type} (Kan n ∙_) {A !₀} {A !₁} (A !₂)
+                     (kan (A !₀ , A !⁰)) (kan (A !₁ , A !¹)) × gKan n ∙ A
 
 -- gKan is actually defined recursively on ℕᵉ.  But the successor case
 -- can't be stated until we have symmetry and more computation laws
 -- for ap, so we postpone it by making gKan into a postulate and its
 -- definitional clauses into rewrites.  The zero case is easy.
 postulate
-  gKan-𝐳 : (A : ∂ (𝐬 𝐳) Type) → gKan 𝐳 A ≡ (A !⁰ ≊ A !¹)
+  gKan-𝐳 : gKan 𝐳 ≡ ƛ A ⇒ (A !⁰ ≊ A !¹)
 {-# REWRITE gKan-𝐳 #-}
 
 -- Here is the "primary part" of kan, the "demotion" that extracts a

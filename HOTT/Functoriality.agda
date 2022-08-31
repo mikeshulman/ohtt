@@ -160,11 +160,11 @@ postulate
 -- for this we use an auxiliary function.
 
 frob-ap-kan : {n : ℕᵉ} {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
-  (A : Δ → CUBE n Type) {Ω : Δ → Type} (ω : (λ δ → Kan n (fst (A δ))) ≡ Ω) →
+  (A : Δ → CUBE n Type) {Ω : Δ → Type} (ω : (λ δ → Kan n ∙ fst (A δ)) ≡ Ω) →
   Id Ω δ₂ (kan (A δ₀) ⦃ happlyᵉ ω δ₀ ⦄) (kan (A δ₁) ⦃ happlyᵉ ω δ₁ ⦄)
 frob-ap-kan {n} {Δ} {δ₀} {δ₁} δ₂ A reflᵉ =
-  →Id-ap (λ x → fst (A x)) (𝛌 (Kan n)) δ₂
-    (coeʰ-Id (Kan n) {δ₂ = ap (λ x → fst (A x)) δ₂} reflᵉ reflᵉ reflʰ
+  →Id-ap (λ x → fst (A x)) (Kan n) δ₂
+    (coeʰ-Id (Kan n ∙_) {δ₂ = ap (λ x → fst (A x)) δ₂} reflᵉ reflᵉ reflʰ
       (cong (λ x → kan x ⦃ reflᵉ ⦄) (ηΣ _ (A δ₀)) )
       (cong (λ x → kan x ⦃ reflᵉ ⦄) (ηΣ _ (A δ₁)) )
       (fst (kan {𝐬 n}
@@ -172,7 +172,6 @@ frob-ap-kan {n} {Δ} {δ₀} {δ₁} δ₂ A reflᵉ =
 
 postulate
   ap-kan : {n : ℕᵉ} {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
-    (A : Δ → CUBE n Type) {Ω : Δ → Type} (ω : (δ : Δ) → Kan n (fst (A δ)) ≡ Ω δ) →
+    (A : Δ → CUBE n Type) {Ω : Δ → Type} (ω : (δ : Δ) → Kan n ∙ fst (A δ) ≡ Ω δ) →
     ap (λ δ → kan {n} (A δ) ⦃ ω δ ⦄) δ₂ ≡ frob-ap-kan δ₂ A (funextᵉ ω)
 {-# REWRITE ap-kan #-}
-
