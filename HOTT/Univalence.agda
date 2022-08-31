@@ -5,7 +5,11 @@ module HOTT.Univalence where
 open import HOTT.Base
 open import HOTT.Id
 open import HOTT.Exonat
+open import HOTT.Cube
 open import HOTT.Universe
+open import HOTT.Functoriality
+open import HOTT.Sigma5
+open import HOTT.Square.Simple
 open import HOTT.Square.Heterogeneous.Base
 
 infix 40 _↑
@@ -26,60 +30,57 @@ A ≃ B = （ rel ⦂ A ⇒ B ⇒ Type ）×
         (（ b ⦂ B ）⇒ isContr (（ a ⦂ A ）× rel ∙ a ∙ b))
 
 ------------------------------
--- Computing kan
-------------------------------
-
-{-
-postulate
-  kan′ : {n : ℕᵉ} (A : SqU n) {Ω : Type} ⦃ ω : Kan n A ≡ Ω ⦄ → Ω
-
-frob-kan-ap : {n : ℕᵉ} {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) (A : Δ → SqU n)
-  {Ω : Type} (ω : Kan (𝐬 n) (A δ₀ , A δ₁ , ap A δ₂) ≡ Ω) → Ω
-frob-kan-ap {n} δ₂ A reflᵉ = {!ap (λ δ → kan′ {n} (A δ) ⦃ reflᵉ ⦄) δ₂!} , {!!}
-
-postulate
-  kan-ap : {n : ℕᵉ} {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) (A : Δ → SqU n)
-    {Ω : Type} {ω : Kan (𝐬 n) (A δ₀ , A δ₁ , ap A δ₂) ≡ Ω} →
-    kan {𝐬 n} (A δ₀ , A δ₁ , ap A δ₂) ⦃ ω ⦄ ≡ frob-kan-ap δ₂ A ω
--}
--- That idea seems to be going nowhere, since kan′ isn't
--- definitionally equal to kan and so we can't actually reduce kan-ap
--- to an ap-kan′.
-
-------------------------------
 -- Univalence
 ------------------------------
 
-postulate
-  _↑ : {A B : Type} → (A ≃ B) → (A ＝ B)
-  kan₁-↑ : {A B : Type} (e : A ≃ B) → kan (A , B , e ↑) ≡ ★ ,
-    ≊[ ₁st e , (ƛ a ⇒ fst (fst (₂nd e ∙ a))) , (ƛ b ⇒ fst (fst (₃rd' e ∙ b))) ,
-               (ƛ a ⇒ snd (fst (₂nd e ∙ a))) , (ƛ b ⇒ snd (fst (₃rd' e ∙ b))) ]
-{-# REWRITE kan₁-↑ #-}
+-- We need to compute ap's (and refls) of concrete things into the
+-- universe (type formers and ua) into some primitive higher version
+-- of themselves, analogously to how ap-kan computes to a higher kan.
+-- Then the higher kan's can compute on those.  This is an analogue of
+-- the "bury" of √-types, applied directly to the universe.
 
 postulate
-  kan₂-↑ : {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
-    (A B : Δ → Type) (e : (δ : Δ) → A δ ≃ B δ) →
-    kan {𝐬 (𝐬 𝐳)} ((A δ₀ , B δ₀ , e δ₀ ↑) , (A δ₁ , B δ₁ , e δ₁ ↑) , (ap A δ₂ , ap B δ₂ ,
-      ←Id-ap (λ δ → A δ , B δ) (ƛ x ⇒ fst x ＝ snd x) δ₂ (ap (λ δ → e δ ↑) δ₂))) ⦃ reflᵉ ⦄ ≡
-    -- This is what it should be morally, but (aside from needing
-    -- functoriality to give it) we can't actually compute it to that,
-    -- since it would make a rewrite loop with ap-kan.
-    {!ap (λ δ → kan (A δ , B δ , e δ ↑)) δ₂!} ,
-    -- This one is the proof of ap-equiv.
-    {!!}
+  -- Eventually we want this to only apply to successor exo-naturals,
+  -- since we don't want to be constructing arbitrary new *types* in
+  -- the universe without saying what their elements are.  However,
+  -- making it literally a successor is too much for Agda, as it then
+  -- tries to evaluate everything one step further.  So, for now,
+  -- we're letting "𝐬n" be an arbitrary exo-natural.  Eventually we
+  -- could e.g. make this bit private in a module and only export its
+  -- instance for successors.
+  ua : {𝐬n : ℕᵉ} {Γ : Type} (A : Γ → ∂ (𝐬n) Type)
+    (k : (x : Γ) → Kan (𝐬n) ∙ A x)
+    -- Missing assumption
+    (x : Γ) → Cube (𝐬n) Type ∙ A x
+  kan-ua : {𝐬n : ℕᵉ} {Γ : Type} (A : Γ → ∂ (𝐬n) Type)
+    (k : (x : Γ) → Kan (𝐬n) ∙ A x) →
+    (x : Γ) → kan (A x , ua A k x) ≡ k x
+{-# REWRITE kan-ua #-}
 
--- I think we need to compute ap's (and refls) of concrete things into
--- the universe (type formers and ua) into some primitive higher
--- version of themselves, analogously to how ap-kan computes to a
--- higher kan.  Then the higher kan's can compute on those.  This must
--- be some analogue of "bury" for √-types.
+frob-ap-ua : {𝐬n : ℕᵉ} {Γ : Type} (A : Γ ⇒ ∂ (𝐬n) Type)
+  (k : (x : Γ) → Kan (𝐬n) ∙ (A ∙ x))
+  {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) (y : Δ → Γ) →
+  snd (kan (★ ⸴ ★ ⸴ ★ ⸴ Cube 𝐬n Type ∙ (A ∙ y δ₀) ⸴ Cube 𝐬n Type ∙ (A ∙ y δ₁) ,
+           refl (Cube 𝐬n Type) ∙ (A ∙ y δ₀ , A ∙ y δ₁ , ap (λ z → A ∙ y z) δ₂)))
+      ／ ua (A ∙_) k (y δ₀) ～ ua (A ∙_) k (y δ₁)
+frob-ap-ua {𝐬n} {Γ} A k {Δ} {δ₀} {δ₁} δ₂ y =
+  ua {𝐬 𝐬n} {ID Γ}
+      (λ x → A ∙ ₁st x ⸴ A ∙ ₂nd x ⸴ ap (A ∙_) (₃rd' x) ⸴ ua (A ∙_) k (₁st x) ⸴ ua (A ∙_) k (₂nd x))
+      -- TODO: This requires ap-functoriality of Kan.  We should make
+      -- (Kan n) into a ⇒ type so that that happens automatically.
+      -- But doing so leads to a de Bruijn error in
+      -- Functoriality.agda.
+      (λ x → {!ap k (ap y δ₂)!} ,
+      -- This goal will tell us the type of the missing assumption in
+      -- ua.  (Of course, when we add that, we then have to lift it to
+      -- the next level call as well.)
+             {!!})
+      (y δ₀ , y δ₁ , ap y δ₂)
 
--- I'm not sure how to do this without breaking SqU into a separate
--- boundary and cube type, since the "higher bury" ought to take
--- values in something that depends definitionally on the lower ones,
--- as in this basic example:
 postulate
-  ap-↑ : {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁)
-    (A B : Δ → Type) (e : (δ : Δ) → A δ ≃ B δ) →
-    ap (λ δ → e δ ↑) δ₂ ≡ {!!}
+  ap-ua : {𝐬n : ℕᵉ} {Γ : Type} (A : Γ → ∂ (𝐬n) Type)
+    (k : (x : Γ) → Kan (𝐬n) ∙ A x)
+    {Δ : Type} {δ₀ δ₁ : Δ} (δ₂ : δ₀ ＝ δ₁) (y : Δ → Γ) →
+    ap {Δ} {λ δ → Cube (𝐬n) Type ∙ A (y δ)} (λ δ → ua A k (y δ)) {δ₀} {δ₁} δ₂ ≡
+    frob-ap-ua (𝛌 A) k δ₂ y
+-- {-# REWRITE ap-ua #-}
