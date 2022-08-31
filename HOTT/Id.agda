@@ -4,7 +4,7 @@ module HOTT.Id where
 
 open import HOTT.Base
 
-infix  35 _＝_
+infix 35 _＝_
 
 ------------------------------
 -- Homogeneous Id and refl
@@ -177,20 +177,6 @@ postulate
 {-# REWRITE ap-ƛ #-}
 
 -- ap-∙ is very difficult to define, so we postpone it to later.
-
-----------------------------------------
--- Identifications in Σ⁵-types
-----------------------------------------
-
-postulate
-  ＝-Σ⁵ : {A B : Type} {C : A → B → Type} {D : A → Type} {E : B → Type}
-    (u v : Σ⁵ A B C D E) → (u ＝ v) ≡
-    Σ⁵ (u !₀ ＝ v !₀) (u !₁ ＝ v !₁)
-       (λ w₀ w₁ → Id (uncurry C) {u !₀ , u !₁} {v !₀ , v !₁} (w₀ , w₁) (u !₂) (v !₂))
-       (λ w₀ → Id D w₀ (u !⁰) (v !⁰)) (λ w₁ → Id E w₁ (u !¹) (v !¹))
-{-# REWRITE ＝-Σ⁵ #-}
-
--- We postpone the rest to later.
 
 ------------------------------
 -- Exo-coercion in Id-types

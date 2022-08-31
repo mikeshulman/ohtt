@@ -11,7 +11,7 @@ open import HOTT.Square.Simple
 -- Dependent squares
 ------------------------------
 
-record ∂ᵈ {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁) (a₂₂ : Sq A a)
+record ∂2ᵈ {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂2 A a₀₀ a₀₁ a₁₀ a₁₁) (a₂₂ : Sq A a)
   (b₀₀ : B ∙ a₀₀) (b₀₁ : B ∙ a₀₁) (b₁₀ : B ∙ a₁₀) (b₁₁ : B ∙ a₁₁) : Typeᵉ where
   constructor ╔═_═╗_□_╚═_═╝
   infix 70 _₁₂ _₂₀ _₂₁ _₀₂
@@ -20,36 +20,36 @@ record ∂ᵈ {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} 
     _₂₀ : Id (B ∙_) (a ₂₀) b₀₀ b₁₀
     _₂₁ : Id (B ∙_) (a ₂₁) b₀₁ b₁₁
     _₀₂ : Id (B ∙_) (a ₀₂) b₀₀ b₀₁
-open ∂ᵈ public
+open ∂2ᵈ public
 
-Sqᵈ : {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁)
+Sqᵈ : {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂2 A a₀₀ a₀₁ a₁₀ a₁₁)
       (a₂₂ : Sq A ┌─    a ₁₂    ─┐
                   a ₂₀   □    a ₂₁
                   └─    a ₀₂    ─┘)
-      {b₀₀ : B ∙ a₀₀} {b₀₁ : B ∙ a₀₁} {b₁₀ : B ∙ a₁₀} {b₁₁ : B ∙ a₁₁} (b : ∂ᵈ B a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁) → Type
+      {b₀₀ : B ∙ a₀₀} {b₀₁ : B ∙ a₀₁} {b₁₀ : B ∙ a₁₀} {b₁₁ : B ∙ a₁₁} (b : ∂2ᵈ B a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁) → Type
 Sqᵈ {A} B {a₀₀} {a₀₁} {a₁₀} {a₁₁} a a₂₂ {b₀₀} {b₀₁} {b₁₀} {b₁₁} b =
   Id {ID× B} (Idᵈ B) {a₀₀ , a₁₀ , a ₂₀ , b₀₀ , b₁₀} {a₀₁ , a₁₁ , a ₂₁ , b₀₁ , b₁₁}
      (a ₀₂ , a ₁₂ , a₂₂ , b ₀₂ , b ₁₂) (b ₂₀) (b ₂₁)
 
 -- Dependent boundaries in constant families are ordinary boundaries
-←∂ᵈ-const : {A B : Type} {a₀₀ a₀₁ a₁₀ a₁₁ : A} {a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁}
+←∂2ᵈ-const : {A B : Type} {a₀₀ a₀₁ a₁₀ a₁₁ : A} {a : ∂2 A a₀₀ a₀₁ a₁₀ a₁₁}
   {a₂₂ : Sq A ┌─    a ₁₂    ─┐
               a ₂₀   □    a ₂₁
               └─    a ₀₂    ─┘}
   {b₀₀ b₀₁ b₁₀ b₁₁ : B} →
-  ∂ᵈ (ƛ _ ⇒ B) a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁ → ∂ B b₀₀ b₀₁ b₁₀ b₁₁
-←∂ᵈ-const ╔═  b₁₂  ═╗
+  ∂2ᵈ (ƛ _ ⇒ B) a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁ → ∂2 B b₀₀ b₀₁ b₁₀ b₁₁
+←∂2ᵈ-const ╔═  b₁₂  ═╗
           b₂₀  □  b₂₁
           ╚═  b₀₂  ═╝ = ┌─  b₁₂  ─┐
                         b₂₀  □  b₂₁
                         └─  b₀₂  ─┘
 
 -- Dependent squares in constant families are ordinary squares
-←Sqᵈ-const :  {A : Type} (B : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁)
+←Sqᵈ-const :  {A : Type} (B : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂2 A a₀₀ a₀₁ a₁₀ a₁₁)
   (a₂₂ : Sq A ┌─    a ₁₂    ─┐
               a ₂₀   □    a ₂₁
               └─    a ₀₂    ─┘)
-  {b₀₀ b₀₁ b₁₀ b₁₁ : B} (b : ∂ᵈ (ƛ _ ⇒ B) a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁) →
+  {b₀₀ b₀₁ b₁₀ b₁₁ : B} (b : ∂2ᵈ (ƛ _ ⇒ B) a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁) →
   Sqᵈ {A} (ƛ _ ⇒ B) ┌─   a ₁₂   ─┐
                     a ₂₀  □   a ₂₁
                     └─   a ₀₂   ─┘  a₂₂  ╔═   b ₁₂  ═╗
@@ -64,11 +64,11 @@ Sqᵈ {A} B {a₀₀} {a₀₁} {a₁₀} {a₁₁} a a₂₂ {b₀₀} {b₀₁
          {a₀₀ , a₁₀ , a ₂₀ , b₀₀ , b₁₀} {a₀₁ , a₁₁ , a ₂₁ , b₀₁ , b₁₁}
          (a ₀₂ , a ₁₂ , a₂₂ , b ₀₂ , b ₁₂) b₂₂
 
-→Sqᵈ-const :  {A : Type} (B : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁)
+→Sqᵈ-const :  {A : Type} (B : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂2 A a₀₀ a₀₁ a₁₀ a₁₁)
   (a₂₂ : Sq A ┌─    a ₁₂    ─┐
               a ₂₀   □    a ₂₁
               └─    a ₀₂    ─┘)
-  {b₀₀ b₀₁ b₁₀ b₁₁ : B} (b : ∂ᵈ (ƛ _ ⇒ B) a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁) →
+  {b₀₀ b₀₁ b₁₀ b₁₁ : B} (b : ∂2ᵈ (ƛ _ ⇒ B) a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁) →
   Sq B ┌─   b ₁₂  ─┐
        b ₂₀  □  b ₂₁
        └─   b ₀₂  ─┘ →
@@ -84,10 +84,10 @@ Sqᵈ {A} B {a₀₀} {a₀₁} {a₁₀} {a₁₁} a a₂₂ {b₀₀} {b₀₁
          (a ₀₂ , a ₁₂ , a₂₂ , b ₀₂ , b ₁₂) b₂₂
 
 -- Dependent boundaries over refl-refl are ordinary boundaries
-←∂ᵈ-refl : {A : Type} (B : A ⇒ Type) (a : A) {b₀₀ b₀₁ b₁₀ b₁₁ : B ∙ a} →
-  ∂ᵈ B (refl-∂ a) (refl (refl a)) b₀₀ b₀₁ b₁₀ b₁₁ →
-  ∂ (B ∙ a) b₀₀ b₀₁ b₁₀ b₁₁
-←∂ᵈ-refl B a ╔═  b₁₂  ═╗
+←∂2ᵈ-refl : {A : Type} (B : A ⇒ Type) (a : A) {b₀₀ b₀₁ b₁₀ b₁₁ : B ∙ a} →
+  ∂2ᵈ B (refl-∂2 a) (refl (refl a)) b₀₀ b₀₁ b₁₀ b₁₁ →
+  ∂2 (B ∙ a) b₀₀ b₀₁ b₁₀ b₁₁
+←∂2ᵈ-refl B a ╔═  b₁₂  ═╗
              b₂₀  □  b₂₁
              ╚═  b₀₂  ═╝ = ┌─  b₁₂  ─┐
                            b₂₀  □  b₂₁
@@ -97,7 +97,7 @@ Sqᵈ {A} B {a₀₀} {a₀₁} {a₁₀} {a₁₁} a a₂₂ {b₀₀} {b₀₁
 -- definitionally even without nudging!
 {-
 ←Sqᵈ-refl : {A : Type} (B : A ⇒ Type) {a : A} {b₀₀ b₀₁ b₁₀ b₁₁ : B ∙ a}
-  (b : ∂ᵈ B (refl-∂ a) (refl (refl a)) b₀₀ b₀₁ b₁₀ b₁₁) →
+  (b : ∂2ᵈ B (refl-∂2 a) (refl (refl a)) b₀₀ b₀₁ b₁₀ b₁₁) →
   Sqᵈ B ┌─    refl a   ─┐
         refl a  □  refl a
         └─    refl a   ─┘  (refl (refl a))   ╔═   b ₁₂  ═╗
@@ -114,12 +114,12 @@ Sqᵈ {A} B {a₀₀} {a₀₁} {a₁₀} {a₁₁} a a₂₂ {b₀₀} {b₀₁
 ------------------------------
 
 postulate
-  symᵈ : {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁)
+  symᵈ : {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂2 A a₀₀ a₀₁ a₁₀ a₁₁)
     (a₂₂ : Sq A ┌─    a ₁₂    ─┐
                 a ₂₀   □    a ₂₁
                 └─    a ₀₂    ─┘)
     {b₀₀ : B ∙ a₀₀} {b₀₁ : B ∙ a₀₁} {b₁₀ : B ∙ a₁₀} {b₁₁ : B ∙ a₁₁}
-    (b : ∂ᵈ B a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁) →
+    (b : ∂2ᵈ B a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁) →
     Sqᵈ B ┌─   a ₁₂   ─┐
           a ₂₀  □   a ₂₁
           └─   a ₀₂   ─┘     a₂₂       ╔═   b ₁₂  ═╗
@@ -131,66 +131,66 @@ postulate
                                        b ₀₂  □  b ₁₂
                                        ╚═   b ₂₀  ═╝
 
-sym-∂ᵈ : {A : Type} {B : A ⇒ Type} {a₀₀ a₀₁ a₁₀ a₁₁ : A} {a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁}
+sym-∂2ᵈ : {A : Type} {B : A ⇒ Type} {a₀₀ a₀₁ a₁₀ a₁₁ : A} {a : ∂2 A a₀₀ a₀₁ a₁₀ a₁₁}
     {a₂₂ : Sq A ┌─    a ₁₂    ─┐
                 a ₂₀   □    a ₂₁
                 └─    a ₀₂    ─┘}
     {b₀₀ : B ∙ a₀₀} {b₀₁ : B ∙ a₀₁} {b₁₀ : B ∙ a₁₀} {b₁₁ : B ∙ a₁₁} →
-    ∂ᵈ B a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁ → ∂ᵈ B (sym-∂ a) (sym A a a₂₂) b₀₀ b₁₀ b₀₁ b₁₁
-sym-∂ᵈ ╔═  b₁₂  ═╗
+    ∂2ᵈ B a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁ → ∂2ᵈ B (sym-∂2 a) (sym A a a₂₂) b₀₀ b₁₀ b₀₁ b₁₁
+sym-∂2ᵈ ╔═  b₁₂  ═╗
        b₂₀  □  b₂₁
        ╚═  b₀₂  ═╝ = ╔═  b₂₁  ═╗
                      b₀₂  □  b₁₂
                      ╚═  b₂₀  ═╝
 
 postulate
-  sym-symᵈ : {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁)
+  sym-symᵈ : {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂2 A a₀₀ a₀₁ a₁₀ a₁₁)
     (a₂₂ : Sq A ┌─    a ₁₂    ─┐
                 a ₂₀   □    a ₂₁
                 └─    a ₀₂    ─┘)
     {b₀₀ : B ∙ a₀₀} {b₀₁ : B ∙ a₀₁} {b₁₀ : B ∙ a₁₀} {b₁₁ : B ∙ a₁₁}
-    (b : ∂ᵈ B a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁) →
+    (b : ∂2ᵈ B a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁) →
     (b₂₂ : Sqᵈ B ┌─   a ₁₂   ─┐
                  a ₂₀  □   a ₂₁
                  └─   a ₀₂   ─┘  a₂₂  ╔═   b ₁₂  ═╗
                                       b ₂₀  □  b ₂₁
                                       ╚═   b ₀₂  ═╝) →
-    symᵈ B (sym-∂ a) (sym A a a₂₂) (sym-∂ᵈ b) (symᵈ B a a₂₂ b b₂₂) ≡ b₂₂
+    symᵈ B (sym-∂2 a) (sym A a a₂₂) (sym-∂2ᵈ b) (symᵈ B a a₂₂ b b₂₂) ≡ b₂₂
 {-# REWRITE sym-symᵈ #-}
 
 postulate
-  symᵈ-const : {A B : Type} {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁)
+  symᵈ-const : {A B : Type} {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂2 A a₀₀ a₀₁ a₁₀ a₁₁)
     (a₂₂ : Sq A ┌─    a ₁₂    ─┐
                 a ₂₀   □    a ₂₁
                 └─    a ₀₂    ─┘)
-    {b₀₀ b₀₁ b₁₀ b₁₁ : B} (b : ∂ᵈ (ƛ _ ⇒ B) a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁) →
+    {b₀₀ b₀₁ b₁₀ b₁₁ : B} (b : ∂2ᵈ (ƛ _ ⇒ B) a a₂₂ b₀₀ b₀₁ b₁₀ b₁₁) →
     (b₂₂ : Sqᵈ {A} (ƛ _ ⇒ B) ┌─   a ₁₂   ─┐
                              a ₂₀  □   a ₂₁
                              └─   a ₀₂   ─┘  a₂₂  ╔═   b ₁₂  ═╗
                                                   b ₂₀  □  b ₂₁
                                                   ╚═   b ₀₂  ═╝) →
     symᵈ (ƛ _ ⇒ B) a a₂₂ b b₂₂ ≡
-    →Sqᵈ-const B (sym-∂ a) (sym A a a₂₂) (sym-∂ᵈ b)
-      (sym B (←∂ᵈ-const b) (←Sqᵈ-const B a a₂₂ b b₂₂))
+    →Sqᵈ-const B (sym-∂2 a) (sym A a a₂₂) (sym-∂2ᵈ b)
+      (sym B (←∂2ᵈ-const b) (←Sqᵈ-const B a a₂₂ b b₂₂))
 {-# REWRITE symᵈ-const #-}
 
 postulate
   symᵈ-refl : {A : Type} (B : A ⇒ Type) (a : A) {b₀₀ b₀₁ b₁₀ b₁₁ : B ∙ a}
-    (b : ∂ᵈ B (refl-∂ a) (refl (refl a)) b₀₀ b₀₁ b₁₀ b₁₁) →
+    (b : ∂2ᵈ B (refl-∂2 a) (refl (refl a)) b₀₀ b₀₁ b₁₀ b₁₁) →
     (b₂₂ : Sqᵈ B ┌─    refl a   ─┐
                  refl a  □  refl a
                  └─    refl a   ─┘  (refl (refl a))   ╔═   b ₁₂  ═╗
                                                       b ₂₀  □  b ₂₁
                                                       ╚═   b ₀₂  ═╝) →
-    symᵈ B (refl-∂ a) (refl (refl a)) b b₂₂ ≡
-    sym (B ∙ a) (←∂ᵈ-refl B a b) b₂₂
+    symᵈ B (refl-∂2 a) (refl (refl a)) b b₂₂ ≡
+    sym (B ∙ a) (←∂2ᵈ-refl B a b) b₂₂
 {-# REWRITE symᵈ-refl #-}
 
 ----------------------------------------
 -- Dependent composition and filling
 ----------------------------------------
 
-module _ {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁)
+module _ {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂2 A a₀₀ a₀₁ a₁₀ a₁₁)
   (a₂₂ : Sq A ┌─    a ₁₂    ─┐
               a ₂₀   □    a ₂₁
               └─    a ₀₂    ─┘)
@@ -220,7 +220,7 @@ module _ {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : 
   fillᵈ← b₀₂ b₁₂ b₂₁ =
     lift⇐ (Idᵈ B) {a₀₀ , a₁₀ , a ₂₀ , b₀₀ , b₁₀} {a₀₁ , a₁₁ , a ₂₁ , b₀₁ , b₁₁} (a ₀₂ , a ₁₂ , a₂₂ , b₀₂ , b₁₂) ∙ b₂₁
 
-module _ {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁)
+module _ {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂2 A a₀₀ a₀₁ a₁₀ a₁₁)
   (a₂₂ : Sq A ┌─    a ₁₂    ─┐
               a ₂₀   □    a ₂₁
               └─    a ₀₂    ─┘)
@@ -228,26 +228,26 @@ module _ {A : Type} (B : A ⇒ Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : 
 
   compᵈ↑ : (b₀₂ : Id (B ∙_) (a ₀₂) b₀₀ b₀₁) (b₂₀ : Id (B ∙_) (a ₂₀) b₀₀ b₁₀) (b₂₁ : Id (B ∙_) (a ₂₁) b₀₁ b₁₁) →
     Id (B ∙_) (a ₁₂) b₁₀ b₁₁
-  compᵈ↑ b₀₂ b₂₀ b₂₁ = compᵈ→ B (sym-∂ a) (sym A a a₂₂) b₂₀ b₂₁ b₀₂
+  compᵈ↑ b₀₂ b₂₀ b₂₁ = compᵈ→ B (sym-∂2 a) (sym A a a₂₂) b₂₀ b₂₁ b₀₂
 
   fillᵈ↑ : (b₀₂ : Id (B ∙_) (a ₀₂) b₀₀ b₀₁) (b₂₀ : Id (B ∙_) (a ₂₀) b₀₀ b₁₀) (b₂₁ : Id (B ∙_) (a ₂₁) b₀₁ b₁₁) →
     Sqᵈ B a a₂₂ ╔═  compᵈ↑ b₀₂ b₂₀ b₂₁  ═╗
                 b₂₀          □         b₂₁
                 ╚═          b₀₂         ═╝
-  fillᵈ↑ b₀₂ b₂₀ b₂₁ = symᵈ B (sym-∂ a) (sym A a a₂₂) ╔═   b₂₁  ═╗
+  fillᵈ↑ b₀₂ b₂₀ b₂₁ = symᵈ B (sym-∂2 a) (sym A a a₂₂) ╔═   b₂₁  ═╗
                                                       b₀₂   □  compᵈ↑ b₀₂ b₂₀ b₂₁
                                                       ╚═   b₂₀  ═╝
-                             (fillᵈ→ B (sym-∂ a) (sym A a a₂₂) b₂₀ b₂₁ b₀₂)
+                             (fillᵈ→ B (sym-∂2 a) (sym A a a₂₂) b₂₀ b₂₁ b₀₂)
 
   compᵈ↓ : (b₁₂ : Id (B ∙_) (a ₁₂) b₁₀ b₁₁) (b₂₀ : Id (B ∙_) (a ₂₀) b₀₀ b₁₀) (b₂₁ : Id (B ∙_) (a ₂₁) b₀₁ b₁₁) →
     Id (B ∙_) (a ₀₂) b₀₀ b₀₁
-  compᵈ↓ b₁₂ b₂₀ b₂₁ = compᵈ← B (sym-∂ a) (sym A a a₂₂) b₂₀ b₂₁ b₁₂
+  compᵈ↓ b₁₂ b₂₀ b₂₁ = compᵈ← B (sym-∂2 a) (sym A a a₂₂) b₂₀ b₂₁ b₁₂
 
   fillᵈ↓ : (b₁₂ : Id (B ∙_) (a ₁₂) b₁₀ b₁₁) (b₂₀ : Id (B ∙_) (a ₂₀) b₀₀ b₁₀) (b₂₁ : Id (B ∙_) (a ₂₁) b₀₁ b₁₁) →
     Sqᵈ B a a₂₂ ╔═          b₁₂         ═╗
                 b₂₀          □         b₂₁
                 ╚═  compᵈ↓ b₁₂ b₂₀ b₂₁  ═╝
-  fillᵈ↓ b₁₂ b₂₀ b₂₁ = symᵈ B (sym-∂ a) (sym A a a₂₂)         ╔═         b₂₁  ═╗
+  fillᵈ↓ b₁₂ b₂₀ b₂₁ = symᵈ B (sym-∂2 a) (sym A a a₂₂)         ╔═         b₂₁  ═╗
                                                       compᵈ↓ b₁₂ b₂₀ b₂₁  □  b₁₂
                                                               ╚═         b₂₀  ═╝
-                             (fillᵈ← B (sym-∂ a) (sym A a a₂₂) b₂₀ b₂₁ b₁₂)
+                             (fillᵈ← B (sym-∂2 a) (sym A a a₂₂) b₂₀ b₂₁ b₁₂)

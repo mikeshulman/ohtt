@@ -5,6 +5,7 @@ module HOTT.Square.Simple where
 open import HOTT.Base
 open import HOTT.Id
 open import HOTT.Universe
+open import HOTT.Functoriality
 
 --------------------
 -- Squares
@@ -18,7 +19,7 @@ open import HOTT.Universe
 -- appropriate newlines and indentation (I believe Coq could), so it
 -- only looks nice in the source code.
 
-record ∂ (A : Type) (a₀₀ a₀₁ a₁₀ a₁₁ : A) : Typeᵉ where
+record ∂2 (A : Type) (a₀₀ a₀₁ a₁₀ a₁₁ : A) : Typeᵉ where
   constructor ┌─_─┐_□_└─_─┘
   infix 70 _₀₂ _₁₂ _₂₀ _₂₁
 
@@ -27,9 +28,9 @@ record ∂ (A : Type) (a₀₀ a₀₁ a₁₀ a₁₁ : A) : Typeᵉ where
     _₂₀ : a₀₀ ＝ a₁₀
     _₂₁ : a₀₁ ＝ a₁₁
     _₀₂ : a₀₀ ＝ a₀₁
-open ∂ public
+open ∂2 public
 
-Sq : (A : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁) → Type
+Sq : (A : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂2 A a₀₀ a₀₁ a₁₀ a₁₁) → Type
 Sq A {a₀₀} {a₀₁} {a₁₀} {a₁₁} a =
   Id {A × A} (λ u → fst u ＝ snd u) {a₀₀ , a₁₀} {a₀₁ , a₁₁} (a ₀₂ , a ₁₂) (a ₂₀) (a ₂₁)
 
@@ -38,29 +39,29 @@ Sq A {a₀₀} {a₀₁} {a₁₀} {a₁₁} a =
 --------------------
 
 postulate
-  sym : (A : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁) →
+  sym : (A : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂2 A a₀₀ a₀₁ a₁₀ a₁₁) →
     Sq A ┌─   a ₁₂    ─┐
          a ₂₀   □   a ₂₁
          └─   a ₀₂    ─┘  →  Sq A ┌─   a ₂₁    ─┐
                                   a ₀₂   □   a ₁₂
                                   └─   a ₂₀    ─┘
 
-sym-∂ : {A : Type} {a₀₀ a₀₁ a₁₀ a₁₁ : A} → ∂ A a₀₀ a₀₁ a₁₀ a₁₁ → ∂ A a₀₀ a₁₀ a₀₁ a₁₁
-sym-∂ ┌─  a₁₂  ─┐
+sym-∂2 : {A : Type} {a₀₀ a₀₁ a₁₀ a₁₁ : A} → ∂2 A a₀₀ a₀₁ a₁₀ a₁₁ → ∂2 A a₀₀ a₁₀ a₀₁ a₁₁
+sym-∂2 ┌─  a₁₂  ─┐
       a₂₀  □  a₂₁
       └─  a₀₂  ─┘ = ┌─  a₂₁  ─┐
                     a₀₂  □  a₁₂
                     └─  a₂₀  ─┘
 
 postulate
-  sym-sym : (A : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂ A a₀₀ a₀₁ a₁₀ a₁₁) →
+  sym-sym : (A : Type) {a₀₀ a₀₁ a₁₀ a₁₁ : A} (a : ∂2 A a₀₀ a₀₁ a₁₀ a₁₁) →
     (a₂₂ : Sq A ┌─   a ₁₂    ─┐
                 a ₂₀   □   a ₂₁
-                └─   a ₀₂    ─┘) → sym A (sym-∂ a) (sym A a a₂₂) ≡ a₂₂
+                └─   a ₀₂    ─┘) → sym A (sym-∂2 a) (sym A a a₂₂) ≡ a₂₂
 {-# REWRITE sym-sym #-}
 
-refl-∂ : {A : Type} (a : A) → ∂ A a a a a
-refl-∂ a = ┌─     refl a     ─┐
+refl-∂2 : {A : Type} (a : A) → ∂2 A a a a a
+refl-∂2 a = ┌─     refl a     ─┐
            refl a   □    refl a
            └─     refl a     ─┘
 
@@ -76,7 +77,7 @@ refl-∂ a = ┌─     refl a     ─┐
 -- Π-case of that by *also* inspecting the type when we see that the
 -- term is a ƛ?
 postulate
-  sym-refl-refl : (A : Type) (a : A) → sym A (refl-∂ a) (refl (refl a)) ≡ refl (refl a)
+  sym-refl-refl : (A : Type) (a : A) → sym A (refl-∂2 a) (refl (refl a)) ≡ refl (refl a)
 {-# REWRITE sym-refl-refl #-}
 -- TODO: Can we replace Id-refl, with a general Id-＝ that uses
 -- "heterogeneous" squares associated to squares in the universe?  I
