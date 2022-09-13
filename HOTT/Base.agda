@@ -157,7 +157,7 @@ syntax 𝛌 (λ x → f) = ƛ x ⇒ f
 postulate
   -- TODO: Add a (strict) equality to _∙_ so that rules like refl-ƛ can fire.
   _∙_ : {A : Type} {B : A → Type} (f : Π A B) (a : A) → B a
-  Πβ : {A : Type} {B : A → Type} (f : (x : A) → B x) (a : A) → (𝛌 f ∙ a) ≡ f a
+  Πβ : {A : Type} {B : A → Type} (f : (x : A) → B x) → (𝛌 f ∙_) ≡ f
   Πη : {A : Type} {B : A → Type} (f : Π A B) → (ƛ x ⇒ f ∙ x) ≡ f
 {-# REWRITE Πβ Πη #-}
 

@@ -7,6 +7,9 @@ open import HOTT.Id
 open import HOTT.Universe
 open import HOTT.Square.Simple
 
+-- TODO: This should just be defined in terms of the corresponding
+-- heterogeneous ones.
+
 ------------------------------
 -- Dependent squares
 ------------------------------

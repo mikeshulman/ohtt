@@ -24,8 +24,6 @@ postulate
   Id-const : (A B : Type) {a₀ a₁ : A} (a₂ : a₀ ＝ a₁) →
     Id {A} (λ _ → B) a₂ ≡ _＝_ {B}
   -- This should follow from the definitions in most concrete cases.
-  -- I'm not sure about Id-＝ for a variable type; see Id-refl, and
-  -- ap-refl, later on.
   Id-refl : {A : Type} (B : A → Type) {a : A} →
     Id B (refl a) ≡ _＝_ {B a}
 {-# REWRITE Id-const Id-refl #-}

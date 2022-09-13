@@ -6,54 +6,7 @@ open import HOTT.Base
 open import HOTT.Id
 open import HOTT.Exonat
 
-infix 31 _⸴_⸴_⸴_⸴_
-
-------------------------------
--- Quinary Σ-types
-------------------------------
-
-data Σ⁵ (A B : Type) (C : A → B → Type) (D : A → Type) (E : B → Type) : Type where
-  _⸴_⸴_⸴_⸴_ : (a : A) (b : B) (c : C a b) (d : D a) (e : E b) → Σ⁵ A B C D E
-open Σ⁵
-
-module _ {A B : Type} {C : A → B → Type} {D : A → Type} {E : B → Type} where
-
-  infix 50 _!₀ _!₁ _!₂ _!⁰ _!¹
-
-  _!₀ : Σ⁵ A B C D E → A
-  (a ⸴ b ⸴ c ⸴ d ⸴ e) !₀ = a
-
-  _!₁ : Σ⁵ A B C D E → B
-  (a ⸴ b ⸴ c ⸴ d ⸴ e) !₁ = b
-
-  _!₂ : (u : Σ⁵ A B C D E) → C (u !₀) (u !₁)
-  (a ⸴ b ⸴ c ⸴ d ⸴ e) !₂ = c
-
-  _!⁰ : (u : Σ⁵ A B C D E) → D (u !₀)
-  (a ⸴ b ⸴ c ⸴ d ⸴ e) !⁰ = d
-
-  _!¹ : (u : Σ⁵ A B C D E) → E (u !₁)
-  (a ⸴ b ⸴ c ⸴ d ⸴ e) !¹ = e
-
-  postulate
-    ηΣ⁵ : (u : Σ⁵ A B C D E) → (u !₀ ⸴ u !₁ ⸴ u !₂ ⸴ u !⁰ ⸴ u !¹) ≡ u
-    ηΣ⁵-β : (a : A) (b : B) (c : C a b) (d : D a) (e : E b) →
-      ηΣ⁵ (a ⸴ b ⸴ c ⸴ d ⸴ e) ≡ᵉ reflᵉ
-  {-# REWRITE ηΣ⁵-β #-}
-
-----------------------------------------
--- Identifications in Σ⁵-types
-----------------------------------------
-
-postulate
-  ＝-Σ⁵ : {A B : Type} {C : A → B → Type} {D : A → Type} {E : B → Type}
-    (u v : Σ⁵ A B C D E) → (u ＝ v) ≡
-    Σ⁵ (u !₀ ＝ v !₀) (u !₁ ＝ v !₁)
-       (λ w₀ w₁ → Id (uncurry C) {u !₀ , u !₁} {v !₀ , v !₁} (w₀ , w₁) (u !₂) (v !₂))
-       (λ w₀ → Id D w₀ (u !⁰) (v !⁰)) (λ w₁ → Id E w₁ (u !¹) (v !¹))
-{-# REWRITE ＝-Σ⁵ #-}
-
--- We postpone the rest to later.
+infix 50 _!₀ _!₁ _!₂ _!⁰ _!¹
 
 ----------------------------------------
 -- Cubes of arbitrary dimension
@@ -69,7 +22,29 @@ Cube : (n : ℕᵉ) (A : Type) → ∂ n A ⇒ Type
 CUBE n A = Σ (∂ n A) (Cube n A ∙_)
 
 ∂ 𝐳 A = ⊤
-∂ (𝐬 n) A = Σ⁵ (∂ n A) (∂ n A) (_＝_ {∂ n A}) (Cube n A ∙_) (Cube n A ∙_)
+∂ (𝐬 n) A = （ a₀ ⦂ ∂ n A ）× （ a₁ ⦂ ∂ n A ）× (a₀ ＝ a₁) × (Cube n A ∙ a₀) × (Cube n A ∙ a₁)
+
+-- We give special names to the projections from this Σ-type.  I
+-- believe that by defining these directly by pattern-matching they
+-- end up as much smaller terms, in contrast to how a chain of fst-snd
+-- would be annotated at each step by a large type family.  This makes
+-- for a big speedup, although unfortunately ap needs separate rules
+-- for computing on any definition made by pattern-matching.
+
+_!₀ : {n : ℕᵉ} {A : Type} → ∂ (𝐬 n) A → ∂ n A
+(a₀ , a₁ , a₂ , b₀ , b₁) !₀ = a₀
+
+_!₁ : {n : ℕᵉ} {A : Type} → ∂ (𝐬 n) A → ∂ n A
+(a₀ , a₁ , a₂ , b₀ , b₁) !₁ = a₁
+
+_!₂ : {n : ℕᵉ} {A : Type} (u : ∂ (𝐬 n) A) → (u !₀ ＝ u !₁)
+(a₀ , a₁ , a₂ , b₀ , b₁) !₂ = a₂
+
+_!⁰ : {n : ℕᵉ} {A : Type} (u : ∂ (𝐬 n) A) → Cube n A ∙ u !₀
+(a₀ , a₁ , a₂ , b₀ , b₁) !⁰ = b₀
+
+_!¹ : {n : ℕᵉ} {A : Type} (u : ∂ (𝐬 n) A) → Cube n A ∙ u !₁
+(a₀ , a₁ , a₂ , b₀ , b₁) !¹ = b₁
 
 Cube 𝐳 A = ƛ _ ⇒ A
 Cube (𝐬 n) A = ƛ a ⇒ Id (Cube n A ∙_) {a !₀} {a !₁} (a !₂) (a !⁰) (a !¹)
