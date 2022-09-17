@@ -13,6 +13,7 @@ open import HOTT.Unit
 open import HOTT.IdCube
 open import HOTT.Corr
 open import HOTT.Square.Heterogeneous.Base
+open import HOTT.Square.Heterogeneous.Flip
 --open import HOTT.Square.Heterogeneous.Sym
 
 --open import HOTT.Square.Fill

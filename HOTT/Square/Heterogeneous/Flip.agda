@@ -17,6 +17,9 @@ open import HOTT.Square.Heterogeneous.Base
 -- Heterogeneous symmetry
 ------------------------------
 
+-- Morally, unflip should be just flip applied to (sym A₂₂).  But that
+-- relies on the computation rule for corr on sym.
+
 postulate
   flip : {A₀₀ A₀₁ A₁₀ A₁₁ : Type} (A : ∂2 Type A₀₀ A₀₁ A₁₀ A₁₁) (A₂₂ : Sq Type A)
     {a₀₀ : A₀₀} {a₀₁ : A₀₁} {a₁₀ : A₁₀} {a₁₁ : A₁₁} (a : ∂2ʰ A A₂₂ a₀₀ a₀₁ a₁₀ a₁₁) →
