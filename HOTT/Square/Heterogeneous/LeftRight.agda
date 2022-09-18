@@ -1,5 +1,3 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --no-import-sorts #-}
-
 module HOTT.Square.Heterogeneous.LeftRight where
 
 open import HOTT.Base

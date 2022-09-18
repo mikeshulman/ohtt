@@ -1,4 +1,4 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --no-import-sorts --no-projection-like #-}
+{-# OPTIONS --no-projection-like #-}
 
 module HOTT.Base where
 

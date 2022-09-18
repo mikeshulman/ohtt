@@ -1,5 +1,3 @@
-{-# OPTIONS --exact-split --type-in-type --rewriting --two-level --without-K --no-import-sorts --no-projection-like #-}
-
 module HOTT.Universe.Parametric where
 
 open import HOTT.Base
